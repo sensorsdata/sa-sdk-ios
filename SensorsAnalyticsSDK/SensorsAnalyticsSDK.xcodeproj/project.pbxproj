@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		14E893681C05E5200016B170 /* SensorsAnalyticsException.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D26473D1B63E1FD00410DDE /* SensorsAnalyticsException.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
 		4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C81B47A88C0019FD21 /* ViewController.m */; };
@@ -417,6 +418,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				14E893681C05E5200016B170 /* SensorsAnalyticsException.m in Sources */,
 				4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */,
 				4D1EFDD61B4BC6930008D3EA /* JSONUtil.m in Sources */,
 				4DBA6FA01B4B8DC4004F0ADB /* NSData+MPBase64.m in Sources */,
