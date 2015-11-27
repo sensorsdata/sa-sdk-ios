@@ -307,30 +307,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return results;
 }
 
-- (NSString *)watchModel {
-    NSString *model = nil;
-    Class WKInterfaceDeviceClass = NSClassFromString(@"WKInterfaceDevice");
-    if (WKInterfaceDeviceClass) {
-        SEL currentDeviceSelector = NSSelectorFromString(@"currentDevice");
-        id device = ((id (*)(id, SEL))[WKInterfaceDeviceClass methodForSelector:currentDeviceSelector])(WKInterfaceDeviceClass, currentDeviceSelector);
-        SEL screenBoundsSelector = NSSelectorFromString(@"screenBounds");
-        if (device && [device respondsToSelector:screenBoundsSelector]) {
-            NSInvocation *screenBoundsInvocation = [NSInvocation invocationWithMethodSignature:[device methodSignatureForSelector:screenBoundsSelector]];
-            [screenBoundsInvocation setSelector:screenBoundsSelector];
-            [screenBoundsInvocation invokeWithTarget:device];
-            CGRect screenBounds;
-            [screenBoundsInvocation getReturnValue:(void *)&screenBounds];
-            if(screenBounds.size.width == 136.0f){
-                model = @"Apple Watch 38mm";
-            } else if(screenBounds.size.width == 156.0f) {
-                model = @"Apple Watch 42mm";
-            } else {
-                model = @"Apple Watch";
-            }
-        }
-    }
-    return model;
-}
 
 - (NSString *)libVersion {
     return VERSION;
@@ -353,11 +329,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     struct CGSize size = [UIScreen mainScreen].bounds.size;
     CTCarrier *carrier = [_telephonyInfo subscriberCellularProvider];
     // Use setValue semantics to avoid adding keys where value can be nil.
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleVersion"] forKey:@"$app_version"];
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_release"];
-    [p setValue:[self IDFA] forKey:@"$ios_ifa"];
+    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
     [p setValue:carrier.carrierName forKey:@"$carrier"];
-    [p setValue:[self watchModel] forKey:@"$watch_model"];
     [p addEntriesFromDictionary:@{
                                   @"$lib": @"iOS",
                                   @"$lib_version": [self libVersion],
