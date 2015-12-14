@@ -142,7 +142,7 @@
  *  提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
  *
  *  @discussion
- *  这个接口使用请慎重，一定是在用注册ID替换以前匿名ID时才使用
+ *  这个接口是一个较为复杂的功能，请在使用前先阅读相关说明:http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
  *
  *  @param newDistinctId    用户完成注册后生成的注册ID
  *  @param propertieDict    event的属性
@@ -201,7 +201,7 @@
  *  不带私有属性的signUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
  *
  *  @discussion
- *  这个接口使用请慎重，一定是在用注册ID替换以前匿名ID时才使用
+ *  这个接口是一个较为复杂的功能，请在使用前先阅读相关说明:http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
  *
  *  @param newDistinctId 用户完成注册后生成的注册ID
  */
