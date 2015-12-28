@@ -119,8 +119,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return b64String;
 }
 
-- (NSString *)filePathForData:(NSString *)data
-{
+- (NSString *)filePathForData:(NSString *)data {
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", data];
     NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
             stringByAppendingPathComponent:filename];
@@ -243,6 +242,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
+    if (newDistinctId == nil || newDistinctId.length == 0) {
+        SAError(@"%@ cannot signUp blank distinct id: %@", self, newDistinctId);
+        @throw [SensorsAnalyticsException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
+    }
+    if (newDistinctId.length > 255) {
+        SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, newDistinctId);
+        @throw [SensorsAnalyticsException exceptionWithName:@"InvalidDataException"
+                reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
+    }
     dispatch_async(self.serialQueue, ^{
         // 先把之前的distinctId设为originalId
         _originalId = self.distinctId;
@@ -260,7 +268,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)identify:(NSString *)distinctId {
     if (distinctId == nil || distinctId.length == 0) {
         SAError(@"%@ cannot identify blank distinct id: %@", self, distinctId);
-        return;
+        @throw [SensorsAnalyticsException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
+    }
+    if (distinctId.length > 255) {
+        SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, distinctId);
+        @throw [SensorsAnalyticsException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     dispatch_async(self.serialQueue, ^{
         self.distinctId = distinctId;
@@ -458,8 +470,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _automaticProperties = [self collectAutomaticProperties];
         _telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
         _lastFlushTime = [[NSDate date] timeIntervalSince1970];
-        NSString *namePattern = @"^[a-zA-Z_$][a-zA-Z\\d_$]*$";
-        _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", namePattern];
+        NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+        _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
         NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
         self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
         // 取上一次进程退出时保存的distinctId和superProperties

@@ -65,7 +65,7 @@
     XCTAssertEqual(50, sdk.flushInterval);
     SensorsAnalyticsSDK * anotherSDK = [SensorsAnalyticsSDK sharedInstance];
     XCTAssertEqual(sdk, anotherSDK);
-    XCTAssertEqual(sdk.libVersion, @"0.2.0");
+    XCTAssertEqual(sdk.libVersion, @"1.2.0");
 }
 
 - (void)testTrack {
@@ -159,10 +159,15 @@
     XCTAssertThrowsSpecific([sdk track:@"search a query"], SensorsAnalyticsException, @"InvalidDataException");
     // 2.6 property名称含有非法字符
     XCTAssertThrowsSpecific([sdk track:@"Search_a_query" withProperties:@{@"query name": @"baidu"}], SensorsAnalyticsException, @"InvalidDataException");
+    // 2.7 event名称是保留字
+    XCTAssertThrowsSpecific([sdk track:@"event"], SensorsAnalyticsException, @"InvalidDataException");
+    // 2.8 property名称是保留字
+    XCTAssertThrowsSpecific([sdk track:@"Search_a_query" withProperties:@{@"user_id": @"baidu"}], SensorsAnalyticsException, @"InvalidDataException");
+
     // 3. 测试一下flush
     // 3.1 signUp会立刻触发
     [sdk signUp:@"new id"];
-    [NSThread sleepForTimeInterval:2];
+    [NSThread sleepForTimeInterval:5];
     XCTAssertEqual(sdk.distinctId, @"new id");
     XCTAssertEqual(0, [sdk currentQueueCount]);
     // 与文件中的内容对比一下
