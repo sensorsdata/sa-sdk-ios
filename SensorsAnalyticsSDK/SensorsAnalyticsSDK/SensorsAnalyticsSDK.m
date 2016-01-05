@@ -280,33 +280,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (NSString *)IDFA {
-    NSString *ifa = nil;
-    Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (ASIdentifierManagerClass) {
-        SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
-        id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
-        SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-        NSUUID *uuid = ((NSUUID* (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
-        ifa = [uuid UUIDString];
-    }
-    return ifa;
-}
-
-
 - (NSString *)defaultDistinctId{
-    // 优先使用IDFA
-    NSString *distinctId = [self IDFA];
+    NSString *distinctId = NULL;
     
-    // 没有IDFA，则尝试使用IDFV
-    if (!distinctId && NSClassFromString(@"UIDevice")) {
+    // 优先使用IDFV
+    if (NSClassFromString(@"UIDevice")) {
         distinctId = [[UIDevice currentDevice].identifierForVendor UUIDString];
     }
+    
     // 没有IDFV，则肯定有UUID，此时使用UUID
     if (!distinctId) {
         SADebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [[NSUUID UUID] UUIDString];
     }
+    
     return distinctId;
 }
 
