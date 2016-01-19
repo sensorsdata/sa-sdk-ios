@@ -30,6 +30,7 @@
 #define VERSION @"1.2.0"
 
 @interface SensorsAnalyticsSDK()
+
 // 在内部，重新声明成可读写的
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 @property (atomic, strong) NSString *serverURL;
@@ -48,20 +49,23 @@
     NSDictionary *_automaticProperties;
     NSDictionary *_superProperties;
     CTTelephonyNetworkInfo *_telephonyInfo;
-    double _lastFlushTime;
+    UInt64 _lastFlushTime;
     NSPredicate *_regexTestName;
 
     MessageQueueBySqlite *_messageQueue;
 }
 
-
-
 static SensorsAnalyticsSDK *sharedInstance = nil;
+
+- (UInt64)getCurrentTime {
+    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+    return time;
+}
 
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
         [self flushQueue];
-        _lastFlushTime = [[NSDate date] timeIntervalSince1970];
+        _lastFlushTime = [self getCurrentTime];
     });
 }
 
@@ -76,7 +80,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void) automaticFlush {
     dispatch_async(self.serialQueue, ^{
         // 1. 判断和上次flush之间的时间是否超过了刷新间隔
-        if ([[NSDate date] timeIntervalSince1970] - _lastFlushTime < _flushInterval) {
+        if ([self getCurrentTime] - _lastFlushTime < _flushInterval) {
             SADebug(@"flushTime not reach");
             return;
         }
@@ -90,7 +94,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SADebug(@"network satisfy");
         // 3. 发送
         [self flushQueue];
-        _lastFlushTime = [[NSDate date] timeIntervalSince1970];
+        _lastFlushTime = [self getCurrentTime];
     });
 }
 
@@ -191,8 +195,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         propertieDict = [propertieDict copy];
         [self assertPropertyTypes:propertieDict];
     }
-    double epochInterval = [[NSDate date] timeIntervalSince1970] * 1000;
-    NSNumber *timeStamp = @(round(epochInterval));
+    NSNumber *timeStamp = @([self getCurrentTime]);
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
@@ -456,7 +459,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _automaticProperties = [self collectAutomaticProperties];
         _telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
-        _lastFlushTime = [[NSDate date] timeIntervalSince1970];
+        _lastFlushTime = [self getCurrentTime];
         NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
         _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
         NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
