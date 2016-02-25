@@ -13,18 +13,12 @@
 		4D0EB7CC1B47A88C0019FD21 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4D0EB7CA1B47A88C0019FD21 /* Main.storyboard */; };
 		4D0EB7CE1B47A88C0019FD21 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4D0EB7CD1B47A88C0019FD21 /* Images.xcassets */; };
 		4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4D0EB7CF1B47A88C0019FD21 /* LaunchScreen.xib */; };
-		4D0EB7DD1B47A88C0019FD21 /* HelloSensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7DC1B47A88C0019FD21 /* HelloSensorsAnalyticsTests.m */; };
 		4D14F16C1B47D4EB006AD786 /* SensorsAnalyticsSDK.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4D14F16E1B47D5E2006AD786 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
 		4D14F1711B4A51B7006AD786 /* LFCGzipUtility.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D14F16F1B4A51B7006AD786 /* LFCGzipUtility.h */; };
 		4D14F1721B4A51B7006AD786 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1701B4A51B7006AD786 /* LFCGzipUtility.m */; };
 		4D14F1741B4A5469006AD786 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1701B4A51B7006AD786 /* LFCGzipUtility.m */; };
 		4D14F17E1B4A7A32006AD786 /* SALogger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D14F17C1B4A7A32006AD786 /* SALogger.h */; };
-		4D14F1861B4A7FE7006AD786 /* SensorsAnalyticsSDKTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1851B4A7FE7006AD786 /* SensorsAnalyticsSDKTests.m */; };
-		4D14F1871B4A80EA006AD786 /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
-		4D14F1881B4A80EA006AD786 /* LFCGzipUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1701B4A51B7006AD786 /* LFCGzipUtility.m */; };
-		4D14F18A1B4A8132006AD786 /* SensorsAnalyticsSDK.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */; };
-		4D1EFDD11B4BB2420008D3EA /* JSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2AF15B1B4BAE77007716F8 /* JSONUtil.m */; };
 		4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
 		4D1EFDD61B4BC6930008D3EA /* JSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2AF15B1B4BAE77007716F8 /* JSONUtil.m */; };
 		4D2AF15C1B4BAE77007716F8 /* JSONUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2AF15A1B4BAE77007716F8 /* JSONUtil.h */; };
@@ -34,7 +28,6 @@
 		4DBA6FA01B4B8DC4004F0ADB /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
 		4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */; };
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
-		4DBA6FA51B4BAB67004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3746D8F1C2FF34D008A50A3 /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3746D8E1C2FF34D008A50A3 /* libz.1.2.5.tbd */; };
@@ -115,23 +108,6 @@
 		A3F32BD11C57302700C3B98D /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
 /* End PBXBuildFile section */
 
-/* Begin PBXContainerItemProxy section */
-		4D0EB7D71B47A88C0019FD21 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4D5CA76F1B43E92D00D7ACB7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4D0EB7BD1B47A88C0019FD21;
-			remoteInfo = HelloSensorsAnalytics;
-		};
-		4D5CA7841B43E92D00D7ACB7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 4D5CA76F1B43E92D00D7ACB7 /* Project object */;
-			proxyType = 1;
-			remoteGlobalIDString = 4D5CA7761B43E92D00D7ACB7;
-			remoteInfo = SensorsAnalyticsSDK;
-		};
-/* End PBXContainerItemProxy section */
-
 /* Begin PBXCopyFilesBuildPhase section */
 		4D5CA7751B43E92D00D7ACB7 /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -156,22 +132,16 @@
 		4D0EB7CB1B47A88C0019FD21 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		4D0EB7CD1B47A88C0019FD21 /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		4D0EB7D01B47A88C0019FD21 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
-		4D0EB7D61B47A88C0019FD21 /* HelloSensorsAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = HelloSensorsAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4D0EB7DB1B47A88C0019FD21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		4D0EB7DC1B47A88C0019FD21 /* HelloSensorsAnalyticsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = HelloSensorsAnalyticsTests.m; sourceTree = "<group>"; };
 		4D14F16F1B4A51B7006AD786 /* LFCGzipUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LFCGzipUtility.h; sourceTree = "<group>"; };
 		4D14F1701B4A51B7006AD786 /* LFCGzipUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LFCGzipUtility.m; sourceTree = "<group>"; };
 		4D14F17C1B4A7A32006AD786 /* SALogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogger.h; sourceTree = "<group>"; };
 		4D14F17F1B4A7B15006AD786 /* NSData+SABase64.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSData+SABase64.h"; sourceTree = "<group>"; };
 		4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSData+SABase64.m"; sourceTree = "<group>"; };
-		4D14F1851B4A7FE7006AD786 /* SensorsAnalyticsSDKTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDKTests.m; sourceTree = "<group>"; };
 		4D2AF15A1B4BAE77007716F8 /* JSONUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSONUtil.h; sourceTree = "<group>"; };
 		4D2AF15B1B4BAE77007716F8 /* JSONUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSONUtil.m; sourceTree = "<group>"; };
 		4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libSensorsAnalyticsSDK.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsSDK.h; sourceTree = "<group>"; };
 		4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
-		4D5CA7821B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SensorsAnalyticsSDKTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		4D5CA7881B43E92D00D7ACB7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueueBySqlite.h; sourceTree = "<group>"; };
 		4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageQueueBySqlite.m; sourceTree = "<group>"; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
@@ -243,21 +213,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4D0EB7D31B47A88C0019FD21 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4D5CA7741B43E92D00D7ACB7 /* Frameworks */ = {
-			isa = PBXFrameworksBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4D5CA77F1B43E92D00D7ACB7 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -293,23 +249,6 @@
 			name = "Supporting Files";
 			sourceTree = "<group>";
 		};
-		4D0EB7D91B47A88C0019FD21 /* HelloSensorsAnalyticsTests */ = {
-			isa = PBXGroup;
-			children = (
-				4D0EB7DC1B47A88C0019FD21 /* HelloSensorsAnalyticsTests.m */,
-				4D0EB7DA1B47A88C0019FD21 /* Supporting Files */,
-			);
-			path = HelloSensorsAnalyticsTests;
-			sourceTree = "<group>";
-		};
-		4D0EB7DA1B47A88C0019FD21 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				4D0EB7DB1B47A88C0019FD21 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		4D5CA76E1B43E92D00D7ACB7 = {
 			isa = PBXGroup;
 			children = (
@@ -317,9 +256,7 @@
 				A3746D901C2FF355008A50A3 /* libsqlite3.tbd */,
 				A3746D8E1C2FF34D008A50A3 /* libz.1.2.5.tbd */,
 				4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */,
-				4D5CA7861B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests */,
 				4D0EB7BF1B47A88C0019FD21 /* HelloSensorsAnalytics */,
-				4D0EB7D91B47A88C0019FD21 /* HelloSensorsAnalyticsTests */,
 				4D5CA7781B43E92D00D7ACB7 /* Products */,
 				F029B80BAB18852D4CE30358 /* Frameworks */,
 			);
@@ -329,9 +266,7 @@
 			isa = PBXGroup;
 			children = (
 				4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */,
-				4D5CA7821B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests.xctest */,
 				4D0EB7BE1B47A88C0019FD21 /* HelloSensorsAnalytics.app */,
-				4D0EB7D61B47A88C0019FD21 /* HelloSensorsAnalyticsTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -405,23 +340,6 @@
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
 		};
-		4D5CA7861B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests */ = {
-			isa = PBXGroup;
-			children = (
-				4D5CA7871B43E92D00D7ACB7 /* Supporting Files */,
-				4D14F1851B4A7FE7006AD786 /* SensorsAnalyticsSDKTests.m */,
-			);
-			path = SensorsAnalyticsSDKTests;
-			sourceTree = "<group>";
-		};
-		4D5CA7871B43E92D00D7ACB7 /* Supporting Files */ = {
-			isa = PBXGroup;
-			children = (
-				4D5CA7881B43E92D00D7ACB7 /* Info.plist */,
-			);
-			name = "Supporting Files";
-			sourceTree = "<group>";
-		};
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -489,24 +407,6 @@
 			productReference = 4D0EB7BE1B47A88C0019FD21 /* HelloSensorsAnalytics.app */;
 			productType = "com.apple.product-type.application";
 		};
-		4D0EB7D51B47A88C0019FD21 /* HelloSensorsAnalyticsTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4D0EB7E11B47A88C0019FD21 /* Build configuration list for PBXNativeTarget "HelloSensorsAnalyticsTests" */;
-			buildPhases = (
-				4D0EB7D21B47A88C0019FD21 /* Sources */,
-				4D0EB7D31B47A88C0019FD21 /* Frameworks */,
-				4D0EB7D41B47A88C0019FD21 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4D0EB7D81B47A88C0019FD21 /* PBXTargetDependency */,
-			);
-			name = HelloSensorsAnalyticsTests;
-			productName = HelloSensorsAnalyticsTests;
-			productReference = 4D0EB7D61B47A88C0019FD21 /* HelloSensorsAnalyticsTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 		4D5CA7761B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 4D5CA78B1B43E92D00D7ACB7 /* Build configuration list for PBXNativeTarget "SensorsAnalyticsSDK" */;
@@ -525,24 +425,6 @@
 			productReference = 4D5CA7771B43E92D00D7ACB7 /* libSensorsAnalyticsSDK.a */;
 			productType = "com.apple.product-type.library.static";
 		};
-		4D5CA7811B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests */ = {
-			isa = PBXNativeTarget;
-			buildConfigurationList = 4D5CA78E1B43E92D00D7ACB7 /* Build configuration list for PBXNativeTarget "SensorsAnalyticsSDKTests" */;
-			buildPhases = (
-				4D5CA77E1B43E92D00D7ACB7 /* Sources */,
-				4D5CA77F1B43E92D00D7ACB7 /* Frameworks */,
-				4D5CA7801B43E92D00D7ACB7 /* Resources */,
-			);
-			buildRules = (
-			);
-			dependencies = (
-				4D5CA7851B43E92D00D7ACB7 /* PBXTargetDependency */,
-			);
-			name = SensorsAnalyticsSDKTests;
-			productName = SensorsAnalyticsSDKTests;
-			productReference = 4D5CA7821B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests.xctest */;
-			productType = "com.apple.product-type.bundle.unit-test";
-		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -556,14 +438,7 @@
 						CreatedOnToolsVersion = 6.4;
 						DevelopmentTeam = Y679VLFDC2;
 					};
-					4D0EB7D51B47A88C0019FD21 = {
-						CreatedOnToolsVersion = 6.4;
-						TestTargetID = 4D0EB7BD1B47A88C0019FD21;
-					};
 					4D5CA7761B43E92D00D7ACB7 = {
-						CreatedOnToolsVersion = 6.3.2;
-					};
-					4D5CA7811B43E92D00D7ACB7 = {
 						CreatedOnToolsVersion = 6.3.2;
 					};
 				};
@@ -582,9 +457,7 @@
 			projectRoot = "";
 			targets = (
 				4D5CA7761B43E92D00D7ACB7 /* SensorsAnalyticsSDK */,
-				4D5CA7811B43E92D00D7ACB7 /* SensorsAnalyticsSDKTests */,
 				4D0EB7BD1B47A88C0019FD21 /* HelloSensorsAnalytics */,
-				4D0EB7D51B47A88C0019FD21 /* HelloSensorsAnalyticsTests */,
 			);
 		};
 /* End PBXProject section */
@@ -597,20 +470,6 @@
 				4D0EB7CC1B47A88C0019FD21 /* Main.storyboard in Resources */,
 				4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */,
 				4D0EB7CE1B47A88C0019FD21 /* Images.xcassets in Resources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4D0EB7D41B47A88C0019FD21 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		4D5CA7801B43E92D00D7ACB7 /* Resources */ = {
-			isa = PBXResourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -657,14 +516,6 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4D0EB7D21B47A88C0019FD21 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4D0EB7DD1B47A88C0019FD21 /* HelloSensorsAnalyticsTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 		4D5CA7731B43E92D00D7ACB7 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -701,33 +552,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		4D5CA77E1B43E92D00D7ACB7 /* Sources */ = {
-			isa = PBXSourcesBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-				4D1EFDD11B4BB2420008D3EA /* JSONUtil.m in Sources */,
-				4DBA6FA51B4BAB67004F0ADB /* MessageQueueBySqlite.m in Sources */,
-				4D14F18A1B4A8132006AD786 /* SensorsAnalyticsSDK.m in Sources */,
-				4D14F1871B4A80EA006AD786 /* NSData+SABase64.m in Sources */,
-				4D14F1881B4A80EA006AD786 /* LFCGzipUtility.m in Sources */,
-				4D14F1861B4A7FE7006AD786 /* SensorsAnalyticsSDKTests.m in Sources */,
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-		};
 /* End PBXSourcesBuildPhase section */
-
-/* Begin PBXTargetDependency section */
-		4D0EB7D81B47A88C0019FD21 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4D0EB7BD1B47A88C0019FD21 /* HelloSensorsAnalytics */;
-			targetProxy = 4D0EB7D71B47A88C0019FD21 /* PBXContainerItemProxy */;
-		};
-		4D5CA7851B43E92D00D7ACB7 /* PBXTargetDependency */ = {
-			isa = PBXTargetDependency;
-			target = 4D5CA7761B43E92D00D7ACB7 /* SensorsAnalyticsSDK */;
-			targetProxy = 4D5CA7841B43E92D00D7ACB7 /* PBXContainerItemProxy */;
-		};
-/* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
 		4D0EB7CA1B47A88C0019FD21 /* Main.storyboard */ = {
@@ -780,44 +605,6 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk.HelloSensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
-			};
-			name = Release;
-		};
-		4D0EB7E21B47A88C0019FD21 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = HelloSensorsAnalyticsTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sensorsdata.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HelloSensorsAnalytics.app/HelloSensorsAnalytics";
-			};
-			name = Debug;
-		};
-		4D0EB7E31B47A88C0019FD21 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = HelloSensorsAnalyticsTests/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 8.4;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sensorsdata.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/HelloSensorsAnalytics.app/HelloSensorsAnalytics";
 			};
 			name = Release;
 		};
@@ -926,41 +713,6 @@
 			};
 			name = Release;
 		};
-		4D5CA78F1B43E92D00D7ACB7 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
-					SA_UT,
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = SensorsAnalyticsSDKTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sensorsdata.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Debug;
-		};
-		4D5CA7901B43E92D00D7ACB7 /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
-				FRAMEWORK_SEARCH_PATHS = (
-					"$(SDKROOT)/Developer/Library/Frameworks",
-					"$(inherited)",
-				);
-				INFOPLIST_FILE = SensorsAnalyticsSDKTests/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.sensorsdata.$(PRODUCT_NAME:rfc1034identifier)";
-				PRODUCT_NAME = "$(TARGET_NAME)";
-			};
-			name = Release;
-		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -969,15 +721,6 @@
 			buildConfigurations = (
 				4D0EB7DF1B47A88C0019FD21 /* Debug */,
 				4D0EB7E01B47A88C0019FD21 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4D0EB7E11B47A88C0019FD21 /* Build configuration list for PBXNativeTarget "HelloSensorsAnalyticsTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4D0EB7E21B47A88C0019FD21 /* Debug */,
-				4D0EB7E31B47A88C0019FD21 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -996,15 +739,6 @@
 			buildConfigurations = (
 				4D5CA78C1B43E92D00D7ACB7 /* Debug */,
 				4D5CA78D1B43E92D00D7ACB7 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
-		4D5CA78E1B43E92D00D7ACB7 /* Build configuration list for PBXNativeTarget "SensorsAnalyticsSDKTests" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				4D5CA78F1B43E92D00D7ACB7 /* Debug */,
-				4D5CA7901B43E92D00D7ACB7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
