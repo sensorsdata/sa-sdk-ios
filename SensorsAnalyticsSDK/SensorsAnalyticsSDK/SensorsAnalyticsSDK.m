@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.0"
+#define VERSION @"1.3.1"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -119,20 +119,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    if (serverURL == nil || [serverURL length] == 0
-        || configureURL == nil || [configureURL length] == 0
-        || vtrackServerURL == nil || [vtrackServerURL length] == 0) {
+    if (serverURL == nil || [serverURL length] == 0) {
         @throw [NSException exceptionWithName:@"InvalidArgumentException"
                                        reason:@"serverURL, configureURL or vtrackServerURL is nil"
                                      userInfo:nil];
     }
     
     if (debugMode != SensorsAnalyticsDebugOff) {
-        if ([serverURL length] < [@"debug" length] || ![serverURL hasSuffix:@"debug"]) {
-            NSString *errMsg = [NSString stringWithFormat:@"The server url of SensorsAnalytics must ends with 'debug' while DEBUG mode is defined. [url='%@' expected_url='http://example.com/debug']", serverURL];
+        NSURL *serverUrl = [NSURL URLWithString:serverURL];
+        if ([serverUrl.path length] < [@"debug" length] || ![serverUrl.path hasSuffix:@"debug"]) {
+            NSString *errMsg = [NSString stringWithFormat:@"The server url of SensorsAnalytics must ends with 'debug' while DEBUG mode is defined. [url='%@' expected_url='http://example.com/debug?token=xxx']", serverURL];
             @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidArgumentException"
-                                                                     reason:errMsg
-                                                                   userInfo:nil];
+                                                              reason:errMsg
+                                                            userInfo:nil];
         }
     }
     
@@ -191,7 +190,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)flush {
-    NSArray * recordArray = [self.messageQueue getFirstRecords:50];
+    int flushSize = 50;
+    if (_debugMode != SensorsAnalyticsDebugOff) {
+        flushSize = 1;
+    }
+    
+    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize];
     if (recordArray == nil) {
         @throw [NSException exceptionWithName:@"SqliteException"
                                        reason:@"getFirstRecords from Message Queue in Sqlite fail"
@@ -219,7 +223,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
         [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
         if (_debugMode == SensorsAnalyticsDebugOnly) {
-            [request setValue:@"true" forKey:@"Dry-Run"];
+            [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
         
         NSError *error = nil;
@@ -243,11 +247,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *urlResponseContent = [[NSString alloc] initWithData:responseData encoding:NSUTF8StringEncoding];
             NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
             if (_debugMode != SensorsAnalyticsDebugOff) {
+                SALog(@"==========================================================================");
                 SALog(@"%@ invalid message: %@", self, jsonString);
                 SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
                 SALog(@"%@ ret_content: %@", self, urlResponseContent);
                 
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
+                @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
                                                                   reason:errMsg
                                                                 userInfo:nil];
             } else {
@@ -256,16 +261,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         } else {
             if (_debugMode != SensorsAnalyticsDebugOff) {
+                SALog(@"==========================================================================");
                 SALog(@"%@ valid message: %@", self, jsonString);
             }
         }
         
-        if (![self.messageQueue removeFirstRecords:50]) {
+        if (![self.messageQueue removeFirstRecords:flushSize]) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"removeFirstRecords from Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
-        recordArray = [self.messageQueue getFirstRecords:50];
+        recordArray = [self.messageQueue getFirstRecords:flushSize];
         if (recordArray == nil) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"getFirstRecords from Message Queue in Sqlite fail"
@@ -846,6 +852,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         SADebug(@"%@ starting configure check", self);
         
+        if (self.configureURL == nil || self.configureURL.length < 1) {
+            return;
+        }
+        
         NSURL *URL = [NSURL URLWithString:self.configureURL];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"GET"];
@@ -896,6 +906,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)connectToVTrackDesigner:(BOOL)reconnect {
+    if (self.vtrackServerURL == nil || self.vtrackServerURL.length < 1) {
+        return;
+    }
+    
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
             && ((SADesignerConnection *)self.abtestDesignerConnection).connected) {
         SALog(@"A/B test designer connection already exists");
