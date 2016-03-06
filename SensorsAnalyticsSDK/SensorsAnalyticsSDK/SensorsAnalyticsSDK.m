@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.1"
+#define VERSION @"1.3.2"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -71,6 +71,16 @@
 static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - Initialization
+
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
+                                     andConfigureURL:(NSString *)configureURL
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
+                                            andConfigureURL:configureURL
+                                         andVTrackServerURL:nil
+                                               andDebugMode:debugMode];
+}
+
 
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                      andConfigureURL:(NSString *)configureURL
@@ -121,18 +131,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     if (serverURL == nil || [serverURL length] == 0) {
         @throw [NSException exceptionWithName:@"InvalidArgumentException"
-                                       reason:@"serverURL, configureURL or vtrackServerURL is nil"
+                                       reason:@"serverURL is nil"
                                      userInfo:nil];
     }
     
     if (debugMode != SensorsAnalyticsDebugOff) {
-        NSURL *serverUrl = [NSURL URLWithString:serverURL];
-        if ([serverUrl.path length] < [@"debug" length] || ![serverUrl.path hasSuffix:@"debug"]) {
-            NSString *errMsg = [NSString stringWithFormat:@"The server url of SensorsAnalytics must ends with 'debug' while DEBUG mode is defined. [url='%@' expected_url='http://example.com/debug?token=xxx']", serverURL];
-            @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidArgumentException"
-                                                              reason:errMsg
-                                                            userInfo:nil];
-        }
+        // 将 URI Path 替换成 Debug 模式的 '/debug'
+        NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"/debug"];
+        serverURL = [url absoluteString];
     }
     
     if (self = [self init]) {

@@ -117,7 +117,24 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 
 /**
  * @abstract
- * 根据传入的所部署的 Sensors Analytics 服务器的URL，返回一个<code>SensorsAnalyticsSDK</code>的单例
+ * 根据传入的配置，返回一个关闭可视化埋点功能的<code>SensorsAnalyticsSDK</code>的单例
+ *
+ * @discussion
+ * 若不需要可视化埋点功能，则 configureURL 和 vtrackServerURL 参数传入 nil 即可。
+ *
+ * @param serverURL 收集事件的URL
+ * @param configureURL 获取配置信息的URL
+ * @param debugMode Sensors Analytics 的Debug模式
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
+                                     andConfigureURL:(NSString *)configureURL
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+
+/**
+ * @abstract
+ * 根据传入的配置，返回一个<code>SensorsAnalyticsSDK</code>的单例
  *
  * @discussion
  * 若不需要可视化埋点功能，则 configureURL 和 vtrackServerURL 参数传入 nil 即可。
@@ -125,7 +142,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param serverURL 收集事件的URL
  * @param configureURL 获取配置信息的URL
  * @param vtrackServerURL 可视化埋点配置系统的URL
- * @param debugMode 是否打开SensorsAnalytics的Debug模式
+ * @param debugMode Sensors Analytics 的Debug模式
  *
  * @return 返回的单例
  */

@@ -28,10 +28,10 @@
 }
 
 - (void)testInit {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sa_host:8006/sa"
-                                     andConfigureURL:@"http://sa_host:8133/api/vtrack/config/iOS.conf"
-                                  andVTrackServerURL:@"ws://sa_host:8020/ws"
-                                        andDebugMode:SensorsAnalyticsDebugOff];
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sa_host:8006/sa?token=e6a62d9f88674650"
+                                     andConfigureURL:@"http://sa_host:8007/api/vtrack/config/iOS.conf"
+                                  andVTrackServerURL:@"ws://sa_host:8007/ws"
+                                        andDebugMode:SensorsAnalyticsDebugOnly];
 }
 
 - (void)testTrack {
