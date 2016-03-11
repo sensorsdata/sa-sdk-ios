@@ -148,6 +148,7 @@
 - (void)sendMessage:(id<SADesignerMessage>)message {
     if (_connected) {
         NSString *jsonString = [[NSString alloc] initWithData:[message JSONData] encoding:NSUTF8StringEncoding];
+        SALog(@"VTrack sending message: %@", [message description]);
 //        SADebug(@"Sending message: %@", jsonString);
         [_webSocket send:jsonString];
     } else {

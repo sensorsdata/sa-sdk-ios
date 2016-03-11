@@ -75,9 +75,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                      andConfigureURL:(NSString *)configureURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    // 根据参数 <code>configureURL</code> 自动生成 <code>vtrackServerURL</code>
+    NSURL *url = [NSURL URLWithString:configureURL];
+    
+    // 将 URI Path (/api/vtrack/config/iOS.conf) 替换成 VTrack WebSocket 的 '/api/ws'
+    UInt64 pathComponentSize = [url pathComponents].count;
+    for (UInt64 i = 2; i < pathComponentSize; ++i) {
+        url = [url URLByDeletingLastPathComponent];
+    }
+    url = [url URLByAppendingPathComponent:@"ws"];
+    
+    // 将 URL Scheme 替换成 'ws:'
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+    components.scheme = @"ws";
+
+    NSString *vtrackServerURL = [components.URL absoluteString];
+    
+    SALog(@"Default URL of VTrack server is: %@", vtrackServerURL);
+    
     return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
                                             andConfigureURL:configureURL
-                                         andVTrackServerURL:nil
+                                         andVTrackServerURL:vtrackServerURL
                                                andDebugMode:debugMode];
 }
 
@@ -181,14 +199,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self executeEventBindings:self.eventBindings];
         
         [self checkForConfigure];
-        
-#if TARGET_IPHONE_SIMULATOR
-        // 模拟器
-        [self connectToVTrackDesigner:YES];
-#elif TARGET_OS_IPHONE
-        // 物理机
-        // Do NOTHING
-#endif
         
         [self track:@"$AppStart"];
     }
@@ -326,6 +336,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     SADebug(@"%@ queueing event: %@", self, event);
     [self.messageQueue addObejct:event];
+    
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
         // 在DEBUG模式下，同步发送所有事件
@@ -507,6 +518,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
+        
         // key的名称必须符合要求
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
@@ -519,6 +531,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return NO;
             }
         }
+        
         // value的类型检查
         if( ![properties[k] isKindOfClass:[NSString class]] &&
            ![properties[k] isKindOfClass:[NSNumber class]] &&
@@ -533,6 +546,53 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 SAError(@"%@", errMsg);
                 return NO;
+            }
+        }
+        
+        // NSSet 类型的属性中，每个元素必须是 NSString 类型
+        if ([properties[k] isKindOfClass:[NSSet class]]) {
+            NSEnumerator *enumerator = [((NSSet *)properties[k]) objectEnumerator];
+            id object;
+            while (object = [enumerator nextObject]) {
+                if (![object isKindOfClass:[NSString class]]) {
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet must be NSString. got: %@ %@", self, [object class], object];
+                    if (_debugMode != SensorsAnalyticsDebugOff) {
+                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
+                                                                          reason:errMsg
+                                                                        userInfo:nil];
+                    } else {
+                        SAError(@"%@", errMsg);
+                        return NO;
+                    }
+                }
+                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+                if (objLength > 255) {
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long. length %ld", self, objLength];
+                    if (_debugMode != SensorsAnalyticsDebugOff) {
+                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
+                                                                          reason:errMsg
+                                                                        userInfo:nil];
+                    } else {
+                        SAError(@"%@", errMsg);
+                        return NO;
+                    }
+                }
+            }
+        }
+        
+        // NSString 类型最大长度不超过255
+        if ([properties[k] isKindOfClass:[NSString class]]) {
+            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+            if (objLength > 255) {
+                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long. length %ld", self, objLength];
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
+                                                                      reason:errMsg
+                                                                    userInfo:nil];
+                } else {
+                    SAError(@"%@", errMsg);
+                    return NO;
+                }
             }
         }
         
@@ -551,21 +611,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        // profileAppend的属性必须是个NSSet，且NSSet中的元素必须是NSString
+        // profileAppend的属性必须是个NSSet
         if ([eventType isEqualToString:@"profile_append"]) {
-            NSEnumerator *enumerator = [((NSSet *)properties[k]) objectEnumerator];
-            id object;
-            while (object = [enumerator nextObject]) {
-                if (![object isKindOfClass:[NSString class]]) {
-                    NSString * errMsg = [NSString stringWithFormat:@"append value must be NSString. got: %@ %@", [object class], object];
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
-                    } else {
-                        SAError(@"%@", errMsg);
-                        return NO;
-                    }
+            if (![properties[k] isKindOfClass:[NSSet class]]) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet. got %@ %@", self, [properties[k] class], properties[k]];
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
+                                                                      reason:errMsg
+                                                                    userInfo:nil];
+                } else {
+                    SAError(@"%@", errMsg);
+                    return NO;
                 }
             }
         }
@@ -815,7 +871,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                     action:@selector(connectGestureRecognized:)];
         recognizer.minimumPressDuration = 3;
         recognizer.cancelsTouchesInView = NO;
+#if TARGET_IPHONE_SIMULATOR
+        // 模拟器
+        recognizer.numberOfTouchesRequired = 2;
+#elif TARGET_OS_IPHONE
+        // 物理机
         recognizer.numberOfTouchesRequired = 3;
+#endif
         [[UIApplication sharedApplication].keyWindow addGestureRecognizer:recognizer];
     });
 }
@@ -998,9 +1060,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         NSURL *designerURL = [NSURL URLWithString:self.vtrackServerURL];
         self.abtestDesignerConnection = [[SADesignerConnection alloc] initWithURL:designerURL
-                                                                             keepTrying:reconnect
-                                                                        connectCallback:connectCallback
-                                                                     disconnectCallback:disconnectCallback];
+                                                                       keepTrying:reconnect
+                                                                  connectCallback:connectCallback
+                                                               disconnectCallback:disconnectCallback];
     }
 }
 
@@ -1039,11 +1101,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
 }
 
-- (void)set:(NSString *) profile to:(id)content {
+- (void)set:(NSString *) profile withValue:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
 }
 
-- (void)setOnce:(NSString *) profile to:(id)content {
+- (void)setOnce:(NSString *) profile withValue:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
 }
 

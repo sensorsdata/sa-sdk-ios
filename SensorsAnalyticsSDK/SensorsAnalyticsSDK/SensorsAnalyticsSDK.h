@@ -46,18 +46,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @discussion
  * 使用SensorsAnalyticsSDK类来跟踪用户行为，并且把数据发给所指定的SensorsAnalytics的服务。
  * 它也提供了一个<code>SensorsAnalyticsPeople</code>类型的property，用来访问用户Profile相关的API。
- *
- * <pre>
- * // 初始化API
- * SensorsAnalyticsSDK *sensorsAnalyticsSDK = [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"YOUR SERVER URL"];
- *
- * // 跟踪一个event
- * [sensorsAnalyticsSDK track:@"BuyGold",properties:@{@"GoldPrice":12.3,@"GoldWeight":23,@"Bank":"招商银行"}];
- *
- * // 设置用户的Profile
- * [sensorsAnalyticsSDK.people identify:@"CURRENT USER DISTINCT ID"];
- * [sensorsAnalyticsSDK.people set:@"Channel" to:@"百度"];
- * </pre>
  */
 @interface SensorsAnalyticsSDK : NSObject
 
@@ -117,14 +105,18 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 
 /**
  * @abstract
- * 根据传入的配置，返回一个关闭可视化埋点功能的<code>SensorsAnalyticsSDK</code>的单例
+ * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
  *
  * @discussion
- * 若不需要可视化埋点功能，则 configureURL 和 vtrackServerURL 参数传入 nil 即可。
+ * 该方法会根据 <code>configureURL</code> 参数的 Url Path，自动计算可视化埋点配置系统的 Url。例如，若传入的 <code>configureURL</code> 为:
+ *     http://sa_host:8007/api/vtrack/config/iOS.conf
+ * 则会自动生成可视化埋点配置系统的 Url:
+ *     ws://sa_host:8007/api/ws
+ * 若用户私有环境中部署了 Sensors Analytics 系统，并修改了 Nginx 配置，则需要使用 SensorsAnalyticsSDK#sharedInstanceWithServerURL:andConfigureURL:andDebugMode 进行初始化。
  *
- * @param serverURL 收集事件的URL
- * @param configureURL 获取配置信息的URL
- * @param debugMode Sensors Analytics 的Debug模式
+ * @param serverURL 收集事件的 URL
+ * @param configureURL 获取配置信息的 URL
+ * @param debugMode Sensors Analytics 的 Debug 模式
  *
  * @return 返回的单例
  */
@@ -134,10 +126,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 
 /**
  * @abstract
- * 根据传入的配置，返回一个<code>SensorsAnalyticsSDK</code>的单例
- *
- * @discussion
- * 若不需要可视化埋点功能，则 configureURL 和 vtrackServerURL 参数传入 nil 即可。
+ * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
  *
  * @param serverURL 收集事件的URL
  * @param configureURL 获取配置信息的URL
@@ -256,8 +245,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  */
 - (NSString *)libVersion;
 
-
-
 /**
  * @abstract
  * 不带私有属性的signUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
@@ -353,7 +340,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param profile Profile的名称
  * @param content Profile的内容
  */
-- (void)set:(NSString *) profile to:(id)content;
+- (void)set:(NSString *) profile withValue:(id)content;
 
 /**
  * @abstract
@@ -365,7 +352,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param profile Profile的名称
  * @param content Profile的内容
  */
-- (void)setOnce:(NSString *) profile to:(id)content;
+- (void)setOnce:(NSString *) profile withValue:(id)content;
 
 
 /**
