@@ -567,7 +567,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
                 if (objLength > 255) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long. length %ld", self, objLength];
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long.", self];
                     if (_debugMode != SensorsAnalyticsDebugOff) {
                         @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
                                                                           reason:errMsg
@@ -584,7 +584,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([properties[k] isKindOfClass:[NSString class]]) {
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
             if (objLength > 255) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long. length %ld", self, objLength];
+                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long.", self];
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
                                                                       reason:errMsg

@@ -51,7 +51,7 @@
 - (void)testProfileSet {
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
     if (sdk != nil) {
-        [sdk.people set:@"name" to:@"caojiang"];
+        [sdk.people set:@"name" withValue:@"caojiang"];
     }
     
 }
