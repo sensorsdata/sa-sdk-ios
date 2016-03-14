@@ -91,8 +91,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *vtrackServerURL = [components.URL absoluteString];
     
-    SALog(@"Default URL of VTrack server is: %@", vtrackServerURL);
-    
     return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
                                             andConfigureURL:configureURL
                                          andVTrackServerURL:vtrackServerURL
@@ -154,10 +152,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (debugMode != SensorsAnalyticsDebugOff) {
-        // 将 URI Path 替换成 Debug 模式的 '/debug'
+        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
         NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"/debug"];
         serverURL = [url absoluteString];
     }
+    
+    // 将 Configure URI Path 末尾补齐 iOS.conf
+    NSURL *url = [NSURL URLWithString:configureURL];
+    if ([[url lastPathComponent] isEqualToString:@"config"]) {
+        url = [url URLByAppendingPathComponent:@"iOS.conf"];
+    }
+    configureURL = [url absoluteString];
+    
+    SALog(@"%@ Initializing the instance of Sensors Analytics SDK with server url '%@', configure url '%@', vtrack server url '%@'",
+          self, serverURL, configureURL, vtrackServerURL);
     
     if (self = [self init]) {
         self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
@@ -168,10 +176,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _debugMode = debugMode;
         
         if (debugMode != SensorsAnalyticsDebugOff) {
+            // Debug 模式下 Flush Interval 默认为1秒
             _flushInterval = 1 * 1000;
         } else {
             _flushInterval = 60 * 100;
         }
+        
         self.checkForEventBindingsOnActive = YES;
         self.flushBeforeEnterBackground = NO;
 
@@ -1101,11 +1111,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
 }
 
-- (void)set:(NSString *) profile withValue:(id)content {
+- (void)set:(NSString *) profile to:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
 }
 
-- (void)setOnce:(NSString *) profile withValue:(id)content {
+- (void)setOnce:(NSString *) profile to:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
 }
 

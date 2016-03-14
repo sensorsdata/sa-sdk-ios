@@ -28,10 +28,9 @@
 }
 
 - (void)testInit {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sa_host:8006/sa?token=e6a62d9f88674650"
-                                     andConfigureURL:@"http://sa_host:8007/api/vtrack/config/iOS.conf"
-                                  andVTrackServerURL:@"ws://sa_host:8007/ws"
-                                        andDebugMode:SensorsAnalyticsDebugOnly];
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://{sa_host}:8006/sa?token={token}"
+                                     andConfigureURL:@"http://{sa_host}:8007/api/vtrack/config"
+                                        andDebugMode:SensorsAnalyticsDebugOff];
 }
 
 - (void)testTrack {
@@ -51,7 +50,7 @@
 - (void)testProfileSet {
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
     if (sdk != nil) {
-        [sdk.people set:@"name" withValue:@"caojiang"];
+        [sdk.people set:@"name" to:@"caojiang"];
     }
     
 }

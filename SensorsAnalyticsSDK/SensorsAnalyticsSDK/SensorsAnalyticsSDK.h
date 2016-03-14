@@ -98,7 +98,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 在每次调用track、signUp以及profileSet等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 当前是否是WIFI/3G/4G网络条件
  * 2. 与上次发送的时间间隔是否大于flushInterval
- * 如果满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
+ * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
 @property (atomic) UInt64 flushInterval;
@@ -340,7 +340,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param profile Profile的名称
  * @param content Profile的内容
  */
-- (void)set:(NSString *) profile withValue:(id)content;
+- (void)set:(NSString *) profile to:(id)content;
 
 /**
  * @abstract
@@ -352,7 +352,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param profile Profile的名称
  * @param content Profile的内容
  */
-- (void)setOnce:(NSString *) profile withValue:(id)content;
+- (void)setOnce:(NSString *) profile to:(id)content;
 
 
 /**
