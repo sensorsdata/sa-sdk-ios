@@ -153,7 +153,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if (debugMode != SensorsAnalyticsDebugOff) {
         // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"/debug"];
+        NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
         serverURL = [url absoluteString];
     }
     
