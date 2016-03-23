@@ -78,31 +78,8 @@ NSString *const SADesignerEventBindingRequestMessageType = @"event_binding_reque
     NSDictionary *_payload;
 }
 
-+ (instancetype)message {
-    return [[self alloc] initWithType:@"debug_track" andPayload:@{}];
-}
-
 + (instancetype)messageWithPayload:(NSDictionary *)payload {
-    return[[self alloc] initWithType:@"debug_track" andPayload:payload];
-}
-
-- (instancetype)initWithType:(NSString *)type andPayload:(NSDictionary *)payload {
-    if (self = [super initWithType:type]) {
-        _payload = payload;
-    }
-    return self;
-}
-
-- (NSData *)JSONData {
-    NSDictionary *jsonObject = @{ @"type" : self.type, @"payload" : [_payload copy] };
-    
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-    if (error) {
-        NSLog(@"Failed to serialize test designer message: %@", error);
-    }
-    
-    return jsonData;
+    return[[self alloc] initWithType:@"debug_track" payload:payload];
 }
 
 @end

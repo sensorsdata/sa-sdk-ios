@@ -42,6 +42,10 @@ NSString *const SADesignerDeviceInfoRequestMessageType = @"device_info_request";
         SADesignerDeviceInfoResponseMessage *deviceInfoResponseMessage = [SADesignerDeviceInfoResponseMessage message];
         
         dispatch_sync(dispatch_get_main_queue(), ^{
+            // 服务端是否支持 Payload 压缩
+            id supportGzip = [self payloadObjectForKey:@"support_gzip"];
+            conn.useGzip = (supportGzip == nil) ? NO : [supportGzip boolValue];
+            
             UIDevice *currentDevice = [UIDevice currentDevice];
             struct CGSize size = [UIScreen mainScreen].bounds.size;
             

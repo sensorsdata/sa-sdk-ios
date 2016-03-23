@@ -19,7 +19,7 @@
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
 
-- (NSData *)JSONData;
+- (NSData *)JSONData:(BOOL)useGzip;
 
 - (NSOperation *)responseCommandWithConnection:(SADesignerConnection *)connection;
 

@@ -28,9 +28,9 @@
 }
 
 - (void)testInit {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://{sa_host}:8006/sa?token={token}"
-                                     andConfigureURL:@"http://{sa_host}:8007/api/vtrack/config"
-                                        andDebugMode:SensorsAnalyticsDebugOff];
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}"
+                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config/"
+                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
 }
 
 - (void)testTrack {

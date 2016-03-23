@@ -58,6 +58,7 @@
         _open = NO;
         _connected = NO;
         _sessionEnded = NO;
+        _useGzip = NO;
         _session = [[NSMutableDictionary alloc] init];
         _url = url;
         _connectCallback = connectCallback;
@@ -147,7 +148,8 @@
 
 - (void)sendMessage:(id<SADesignerMessage>)message {
     if (_connected) {
-        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData] encoding:NSUTF8StringEncoding];
+    
+        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip] encoding:NSUTF8StringEncoding];
         SADebug(@"%@ VTrack sending message: %@", self, [message description]);
         [_webSocket send:jsonString];
     } else {

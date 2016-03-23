@@ -34,7 +34,6 @@ extern NSString *const SADesignerEventBindingRequestMessageType;
 
 @interface SADesignerTrackMessage : SAAbstractDesignerMessage
 
-+ (instancetype)message;
 + (instancetype)messageWithPayload:(NSDictionary *)payload;
 
 @end

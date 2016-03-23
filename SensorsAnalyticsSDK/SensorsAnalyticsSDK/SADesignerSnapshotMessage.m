@@ -31,8 +31,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 }
 
 - (SAObjectSerializerConfig *)configuration {
-    NSDictionary *config =
-    [self payloadObjectForKey:@"config"];
+    NSDictionary *config = [self payloadObjectForKey:@"config"];
     return config ? [[SAObjectSerializerConfig alloc] initWithDictionary:config] : nil;
 }
 
