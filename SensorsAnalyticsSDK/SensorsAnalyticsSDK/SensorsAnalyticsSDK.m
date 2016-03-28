@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.6"
+#define VERSION @"1.3.7"
 
 @implementation SensorsAnalyticsDebugException
 

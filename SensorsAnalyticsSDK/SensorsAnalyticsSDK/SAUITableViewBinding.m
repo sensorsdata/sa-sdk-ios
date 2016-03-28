@@ -91,7 +91,7 @@
                 NSString *label = (cell && cell.textLabel && cell.textLabel.text) ? cell.textLabel.text : @"";
                 NSDictionary *properties = @{
                                              @"$vtrack_cell_index": [NSString stringWithFormat: @"%ld", (unsigned long)indexPath.row],
-                                             @"$vtrack_cell_sction": [NSString stringWithFormat: @"%ld", (unsigned long)indexPath.section],
+                                             @"$vtrack_cell_section": [NSString stringWithFormat: @"%ld", (unsigned long)indexPath.section],
                                              @"$vtrack_cell_label": label
                                              };
                 [self track:[self eventName] withProperties:properties];
