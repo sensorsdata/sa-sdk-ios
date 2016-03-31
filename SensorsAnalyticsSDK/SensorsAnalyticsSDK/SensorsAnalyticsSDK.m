@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.7"
+#define VERSION @"1.3.8"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -221,120 +221,129 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         flushSize = 1;
     }
     
-    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize];
-    if (recordArray == nil) {
-        @throw [NSException exceptionWithName:@"SqliteException"
-                                       reason:@"getFirstRecords from Message Queue in Sqlite fail"
-                                     userInfo:nil];
-    }
-
-    while ([recordArray count] > 0) {
-        // 1. 先完成这一系列Json字符串的拼接
-        NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
-        // 2. 使用gzip进行压缩
-        NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        // 3. base64
-        NSString *b64String = [zippedData sa_base64EncodedString];
-        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
-        
-        NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
-        
-        NSURL *URL = [NSURL URLWithString:self.serverURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-        [request setHTTPMethod:@"POST"];
-        [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-        if (_debugMode == SensorsAnalyticsDebugOnly) {
-            [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
-        }
-        
-        dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
-        __block BOOL flushError = NO;
-        
-        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                }
-                flushError = YES;
-                return;
-            }
-            
-            if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                flushError = YES;
-                return;
-            }
-            
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-            if([urlResponse statusCode] != 200) {
-                NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SALog(@"==========================================================================");
-                    SALog(@"%@ invalid message: %@", self, jsonString);
-                    SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
-                    SALog(@"%@ ret_content: %@", self, urlResponseContent);
-                    
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                    flushError = YES;
-                    return;
-                }
-            } else {
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SALog(@"==========================================================================");
-                    SALog(@"%@ valid message: %@", self, jsonString);
-                }
-            }
-            
-            dispatch_semaphore_signal(flushSem);
-        };
-        
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-        
-        [task resume];
-        
-        dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
-        
-        if (flushError) {
-            break;
-        }
-        
-        if (![self.messageQueue removeFirstRecords:flushSize]) {
-            @throw [NSException exceptionWithName:@"SqliteException"
-                                           reason:@"removeFirstRecords from Message Queue in Sqlite fail"
-                                         userInfo:nil];
-        }
-        recordArray = [self.messageQueue getFirstRecords:flushSize];
+    dispatch_async(self.serialQueue, ^{
+        NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize];
         if (recordArray == nil) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"getFirstRecords from Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
         
-        SADebug(@"flush one batch success, currentCount is %lu", [self.messageQueue count]);
-    }
-    
-    if (![self.messageQueue vacuum]) {
-        @throw [NSException exceptionWithName:@"SqliteException"
-                                       reason:@"vacuum in Message Queue in Sqlite fail"
-                                     userInfo:nil];
-    }
-    
-    _lastFlushTime = [[self class] getCurrentTime];
+        while ([recordArray count] > 0) {
+            // 1. 先完成这一系列Json字符串的拼接
+            NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
+            // 2. 使用gzip进行压缩
+            NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+            // 3. base64
+            NSString *b64String = [zippedData sa_base64EncodedString];
+            b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                      (CFStringRef)b64String,
+                                                                                      NULL,
+                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                      kCFStringEncodingUTF8));
+            
+            NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
+            
+            NSURL *URL = [NSURL URLWithString:self.serverURL];
+            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+            [request setHTTPMethod:@"POST"];
+            [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
+            [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+            if (_debugMode == SensorsAnalyticsDebugOnly) {
+                [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
+            }
+            
+            dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
+            __block BOOL flushError = NO;
+            
+            void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+                if (error) {
+                    NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
+                    if (_debugMode != SensorsAnalyticsDebugOff) {
+                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
+                                                                          reason:errMsg
+                                                                        userInfo:nil];
+                    } else {
+                        SAError(@"%@", errMsg);
+                    }
+                    flushError = YES;
+                    return;
+                }
+                
+                if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                    flushError = YES;
+                    return;
+                }
+                
+                NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+                if([urlResponse statusCode] != 200) {
+                    NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                    NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+                    if (_debugMode != SensorsAnalyticsDebugOff) {
+                        SALog(@"==========================================================================");
+                        SALog(@"%@ invalid message: %@", self, jsonString);
+                        SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
+                        SALog(@"%@ ret_content: %@", self, urlResponseContent);
+                        
+                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
+                                                                          reason:errMsg
+                                                                        userInfo:nil];
+                    } else {
+                        SAError(@"%@", errMsg);
+                        flushError = YES;
+                        return;
+                    }
+                } else {
+                    if (_debugMode != SensorsAnalyticsDebugOff) {
+                        SALog(@"==========================================================================");
+                        SALog(@"%@ valid message: %@", self, jsonString);
+                    }
+                }
+                
+                dispatch_semaphore_signal(flushSem);
+            };
+            
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+            NSURLSession *session = [NSURLSession sharedSession];
+            NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
+            
+            [task resume];
+#else
+            [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
+             ^(NSURLResponse *response, NSData* data, NSError *error) {
+                 return block(data, response, error);
+             }];
+#endif
+            
+            dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
+            
+            if (flushError) {
+                break;
+            }
+            
+            if (![self.messageQueue removeFirstRecords:flushSize]) {
+                @throw [NSException exceptionWithName:@"SqliteException"
+                                               reason:@"removeFirstRecords from Message Queue in Sqlite fail"
+                                             userInfo:nil];
+            }
+            recordArray = [self.messageQueue getFirstRecords:flushSize];
+            if (recordArray == nil) {
+                @throw [NSException exceptionWithName:@"SqliteException"
+                                               reason:@"getFirstRecords from Message Queue in Sqlite fail"
+                                             userInfo:nil];
+            }
+            
+            SADebug(@"flush one batch success, currentCount is %lu", [self.messageQueue count]);
+        }
+        
+        if (![self.messageQueue vacuum]) {
+            @throw [NSException exceptionWithName:@"SqliteException"
+                                           reason:@"vacuum in Message Queue in Sqlite fail"
+                                         userInfo:nil];
+        }
+        
+        _lastFlushTime = [[self class] getCurrentTime];
+    });
 }
 
 - (BOOL) isValidName : (NSString *) name {
@@ -949,63 +958,68 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - SensorsData VTrack Analytics
 
 - (void)checkForConfigure {
-    dispatch_async(self.serialQueue, ^{
-        SADebug(@"%@ starting configure check", self);
-        
-        if (self.configureURL == nil || self.configureURL.length < 1) {
+    SADebug(@"%@ starting configure check", self);
+    
+    if (self.configureURL == nil || self.configureURL.length < 1) {
+        return;
+    }
+    
+    void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error) {
+            SAError(@"%@ decide check http error: %@", self, error);
             return;
         }
         
-        NSURL *URL = [NSURL URLWithString:self.configureURL];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-        [request setHTTPMethod:@"GET"];
+        NSError *parseError;
+        NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
+        if (parseError) {
+            SAError(@"%@ decide check json error: %@, data: %@", self, error, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            return;
+        }
         
-        NSURLSession *session = [NSURLSession sharedSession];
-        NSURLSessionDataTask *task = [session dataTaskWithRequest:request
-                                                completionHandler:
-                                      ^(NSData *data, NSURLResponse *response, NSError *error) {
-                                          if (error) {
-                                              SAError(@"%@ decide check http error: %@", self, error);
-                                              return;
-                                          }
-                                          
-                                          NSError *parseError;
-                                          NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-                                          if (parseError) {
-                                              SAError(@"%@ decide check json error: %@, data: %@", self, error, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-                                              return;
-                                          }
-                                          
-                                          NSDictionary *rawEventBindings = object[@"event_bindings"];
-                                          if (rawEventBindings && [rawEventBindings isKindOfClass:[NSDictionary class]]) {
-                                              NSArray *eventBindings = rawEventBindings[@"events"];
-                                              if (eventBindings && [eventBindings isKindOfClass:[NSArray class]]) {
-                                                  // Finished bindings are those which should no longer be run.
-                                                  [self.eventBindings makeObjectsPerformSelector:NSSelectorFromString(@"stop")];
-                                                  
-                                                  NSMutableSet *parsedEventBindings = [NSMutableSet set];
-                                                  for (id obj in eventBindings) {
-                                                      SAEventBinding *binding = [SAEventBinding bindingWithJSONObject:obj];
-                                                      if (binding) {
-                                                          [binding execute];
-                                                          [parsedEventBindings addObject:binding];
-                                                      }
-                                                  }
-                                                  
-                                                  SALog(@"%@ found %lu tracking events: %@", self, (unsigned long)[parsedEventBindings count], parsedEventBindings);
-                                                  
-                                                  self.eventBindings = parsedEventBindings;
-                                                  [self archiveEventBindings];
-                                              } else {
-                                                  SALog(@"%@ Tracking events check response format error: %@", self, object);
-                                              }
-                                          } else {
-                                               SALog(@"%@ Tracking events check response format error: %@", self, object);
-                                          }
-                                      }];
-        
-        [task resume];
-    });
+        NSDictionary *rawEventBindings = object[@"event_bindings"];
+        if (rawEventBindings && [rawEventBindings isKindOfClass:[NSDictionary class]]) {
+            NSArray *eventBindings = rawEventBindings[@"events"];
+            if (eventBindings && [eventBindings isKindOfClass:[NSArray class]]) {
+                // Finished bindings are those which should no longer be run.
+                [self.eventBindings makeObjectsPerformSelector:NSSelectorFromString(@"stop")];
+                
+                NSMutableSet *parsedEventBindings = [NSMutableSet set];
+                for (id obj in eventBindings) {
+                    SAEventBinding *binding = [SAEventBinding bindingWithJSONObject:obj];
+                    if (binding) {
+                        [binding execute];
+                        [parsedEventBindings addObject:binding];
+                    }
+                }
+                
+                SALog(@"%@ found %lu tracking events: %@", self, (unsigned long)[parsedEventBindings count], parsedEventBindings);
+                
+                self.eventBindings = parsedEventBindings;
+                [self archiveEventBindings];
+            } else {
+                SALog(@"%@ Tracking events check response format error: %@", self, object);
+            }
+        } else {
+            SALog(@"%@ Tracking events check response format error: %@", self, object);
+        }
+    };
+    
+    NSURL *URL = [NSURL URLWithString:self.configureURL];
+    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+    [request setHTTPMethod:@"GET"];
+    
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+    NSURLSession *session = [NSURLSession sharedSession];
+    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
+    
+    [task resume];
+#else
+    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
+     ^(NSURLResponse *response, NSData* data, NSError *error) {
+         return block(data, response, error);
+     }];
+#endif
 }
 
 - (void)connectToVTrackDesigner {
