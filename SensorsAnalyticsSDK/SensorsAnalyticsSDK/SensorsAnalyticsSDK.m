@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.8"
+#define VERSION @"1.3.9"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -66,6 +66,7 @@
     SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushInterval;
     UInt64 _lastFlushTime;
+    NSDateFormatter *_dateFormatter;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -181,6 +182,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             _flushInterval = 60 * 100;
         }
+        
+        
+        _dateFormatter = [[NSDateFormatter alloc] init];
+        [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
         
         self.checkForEventBindingsOnActive = YES;
         self.flushBeforeEnterBackground = NO;
@@ -375,9 +380,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [event setObject:properties forKey:@"properties"];
     }
     
-    SADebug(@"%@ queueing event: %@", self, event);
     [self.messageQueue addObejct:event];
-    
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
         // 在DEBUG模式下，同步发送所有事件
@@ -436,17 +439,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties和propertieDict
             [p addEntriesFromDictionary:self.automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
-            if (propertieDict) {
-                [p addEntriesFromDictionary:propertieDict];
-            }
+
             // 是否WIFI是每次track的时候需要判断一次的
             [p setObject:[self ifWifi] forKey:@"$wifi"];
-        } else {
-            // 对于profile类型的请求，则不需要这些property了
-            if (propertieDict) {
-                [p addEntriesFromDictionary:propertieDict];
+        }
+        
+        if (propertieDict) {
+            for (id key in propertieDict) {
+                NSObject *obj = propertieDict[key];
+                if ([obj isKindOfClass:[NSDate class]]) {
+                    // 序列化所有 NSDate 类型
+                    NSString *dateStr = [_dateFormatter stringFromDate:(NSDate *)obj];
+                    [p setObject:dateStr forKey:key];
+                } else {
+                    [p setObject:obj forKey:key];
+                }
             }
         }
+        
         NSDictionary *e;
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
