@@ -30,7 +30,7 @@
     [self closeDatabase];
 }
 
-- (id)initWithFilePath: (NSString*) filePath {
+- (id)initWithFilePath:(NSString *)filePath {
     self = [super init];
     _jsonUtil = [[JSONUtil alloc] init];
     if (sqlite3_initialize() != SQLITE_OK) {
@@ -39,7 +39,7 @@
     }
     if (sqlite3_open_v2( [filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK ) {
         // 创建一个缓存表
-        NSString *_sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, content TEXT)";
+        NSString *_sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)";
         char *errorMsg;
         if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
@@ -56,19 +56,20 @@
     return self;
 }
 
-- (void)addObejct:(id) obj {
+- (void)addObejct:(id)obj withType:(NSString *)type {
     if (_messageCount >= MAX_MESSAGE_SIZE) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, do not insert", MAX_MESSAGE_SIZE);
         return;
     }
     NSData * jsonData = [_jsonUtil JSONSerializeObject:obj];
     NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *query = @"INSERT INTO dataCache(content) values(?)";
+    NSString *query = @"INSERT INTO dataCache(type, content) values(?, ?)";
     sqlite3_stmt *insertStatement;
     int rc ;
     rc = sqlite3_prepare_v2(_database, [query UTF8String],-1, &insertStatement, nil);
     if (rc == SQLITE_OK) {
-        sqlite3_bind_text(insertStatement, 1, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(insertStatement, 1, [type UTF8String], -1, SQLITE_TRANSIENT);
+        sqlite3_bind_text(insertStatement, 2, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
         rc = sqlite3_step(insertStatement);
         if(rc != SQLITE_DONE) {
             SAError(@"insert into dataCache fail, rc is %d", rc);
@@ -84,12 +85,15 @@
 
 
 
-- (NSArray *) getFirstRecords:(NSUInteger) recordSize {
+- (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
     }
-    NSMutableArray * contentArray =[[NSMutableArray alloc] init];
-    NSString *query = [NSString stringWithFormat:@"select content from dataCache order by id asc limit %lu", (unsigned long)recordSize];
+    
+    NSMutableArray * contentArray = [[NSMutableArray alloc] init];
+    
+    NSString *query = [NSString stringWithFormat:@"SELECT content FROM dataCache WHERE type='%@' ORDER BY id ASC LIMIT %lu", type, (unsigned long)recordSize];
+    
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
     if(rc == SQLITE_OK) {
@@ -101,25 +105,22 @@
         sqlite3_finalize(stmt);
     }
     else {
-        SAError(@"Failed to prepare statement with rc:%d", rc);
+        SAError(@"Failed to prepare statement with rc:%d, error:%s", rc, sqlite3_errmsg(_database));
         return nil;
     }
     return [NSArray arrayWithArray:contentArray];
-    
-    
 }
 
-- (BOOL) removeFirstRecords:(NSUInteger) recordSize {
+- (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     NSUInteger removeSize = MIN(recordSize, _messageCount);
-    NSString *query  = [NSString stringWithFormat:@"delete from dataCache where id in (select id from dataCache order by id asc limit %lu);", (unsigned long)removeSize];
+    NSString *query  = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache WHERE type = '%@' ORDER BY id ASC LIMIT %lu);", type, (unsigned long)removeSize];
     char * errMsg;
     if (sqlite3_exec(_database, [query UTF8String] ,NULL,NULL,&errMsg) != SQLITE_OK) {
-        NSLog(@"Failed to delete record msg=%s", errMsg);
+        SAError(@"Failed to delete record msg=%s", errMsg);
         return NO;
     }
-    _messageCount = _messageCount - removeSize;
+    _messageCount = [self sqliteCount];
     return YES;
-    
 }
 
 - (NSUInteger) count {
@@ -150,7 +151,6 @@
         NSLog(@"Failed to delete record msg=%s", errMsg);
         return NO;
     }
-    NSLog(@"vacuum success");
     return YES;
 }
 

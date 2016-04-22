@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.3.9"
+#define VERSION @"1.4.0"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -55,6 +55,9 @@
 @property (nonatomic, strong) id abtestDesignerConnection;
 @property (atomic, strong) NSSet *eventBindings;
 
+// 用于 SafariViewController
+@property (strong, nonatomic) UIWindow *secondWindow;
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
@@ -64,6 +67,7 @@
 
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
+    UInt64 _flushBulkSize;
     UInt64 _flushInterval;
     UInt64 _lastFlushTime;
     NSDateFormatter *_dateFormatter;
@@ -125,18 +129,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return time;
 }
 
-+ (NSString *)defaultDistinctId{
++ (NSString *)getUniqueHardwareId:(BOOL *)isReal {
     NSString *distinctId = NULL;
+
+    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFV
+#if defined(SENSORS_ANALYTICS_IDFA)
+    Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
+    if (ASIdentifierManagerClass) {
+        SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
+        id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
+        SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
+        NSUUID *uuid = ((NSUUID* (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
+        distinctId = [uuid UUIDString];
+        *isReal = YES;
+    }
+#endif
     
-    // 优先使用IDFV
-    if (NSClassFromString(@"UIDevice")) {
+    // 没有IDFA，则使用IDFV
+    if (!distinctId && NSClassFromString(@"UIDevice")) {
         distinctId = [[UIDevice currentDevice].identifierForVendor UUIDString];
+        *isReal = YES;
     }
     
     // 没有IDFV，则肯定有UUID，此时使用UUID
     if (!distinctId) {
         SADebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [[NSUUID UUID] UUIDString];
+        *isReal = NO;
     }
     
     return distinctId;
@@ -176,13 +195,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.vtrackServerURL = vtrackServerURL;
         _debugMode = debugMode;
         
-        if (debugMode != SensorsAnalyticsDebugOff) {
-            // Debug 模式下 Flush Interval 默认为1秒
-            _flushInterval = 1 * 1000;
-        } else {
-            _flushInterval = 60 * 100;
-        }
-        
+        _flushInterval = 60 * 1000;
+        _flushBulkSize = 100;
         
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
@@ -197,6 +211,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                          userInfo:nil];
         }
         
+        // 取上一次进程退出时保存的distinctId、superProperties和eventBindings
+        [self unarchive];
+        
         self.automaticProperties = [self collectAutomaticProperties];
         
         NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
@@ -209,8 +226,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         [self setUpListeners];
         
-        // 取上一次进程退出时保存的distinctId、superProperties和eventBindings
-        [self unarchive];
         [self executeEventBindings:self.eventBindings];
         
         [self checkForConfigure];
@@ -220,26 +235,143 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return self;
 }
 
-- (void)flush {
-    int flushSize = 50;
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        flushSize = 1;
+- (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *))flushMethod {
+    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
+    if (recordArray == nil) {
+        @throw [NSException exceptionWithName:@"SqliteException"
+                                       reason:@"getFirstRecords from Message Queue in Sqlite fail"
+                                     userInfo:nil];
     }
     
-    dispatch_async(self.serialQueue, ^{
-        NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize];
+    while ([recordArray count] > 0) {
+        if (!flushMethod(recordArray)) {
+            break;
+        }
+        
+        if (![self.messageQueue removeFirstRecords:flushSize withType:type]) {
+            @throw [NSException exceptionWithName:@"SqliteException"
+                                           reason:@"removeFirstRecords from Message Queue in Sqlite fail"
+                                         userInfo:nil];
+        }
+        
+        recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
         if (recordArray == nil) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"getFirstRecords from Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
         
-        while ([recordArray count] > 0) {
-            // 1. 先完成这一系列Json字符串的拼接
-            NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
-            // 2. 使用gzip进行压缩
-            NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-            // 3. base64
+        SADebug(@"flush one batch success, currentCount is %lu", [self.messageQueue count]);
+    }
+}
+
+- (void)flush {
+    // 使用 Post 发送数据
+    BOOL (^flushByPost)(NSArray *) = ^(NSArray *recordArray) {
+        // 1. 先完成这一系列Json字符串的拼接
+        NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
+        // 2. 使用gzip进行压缩
+        NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        // 3. base64
+        NSString *b64String = [zippedData sa_base64EncodedString];
+        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                  (CFStringRef)b64String,
+                                                                                  NULL,
+                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                  kCFStringEncodingUTF8));
+        
+        SADebug(@"POST content : %@", jsonString);
+        NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
+        
+        NSURL *URL = [NSURL URLWithString:self.serverURL];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+        [request setHTTPMethod:@"POST"];
+        [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
+        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+        if (_debugMode == SensorsAnalyticsDebugOnly) {
+            [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
+        }
+        
+        dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
+        __block BOOL flushSucc = YES;
+        
+        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
+                                                                      reason:errMsg
+                                                                    userInfo:nil];
+                } else {
+                    SAError(@"%@", errMsg);
+                }
+                flushSucc = NO;
+                return;
+            }
+            
+            if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                flushSucc = NO;
+                return;
+            }
+            
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+            if([urlResponse statusCode] != 200) {
+                NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    SALog(@"==========================================================================");
+                    SALog(@"%@ invalid message: %@", self, jsonString);
+                    SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
+                    SALog(@"%@ ret_content: %@", self, urlResponseContent);
+                    
+                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
+                                                                      reason:errMsg
+                                                                    userInfo:nil];
+                } else {
+                    SAError(@"%@", errMsg);
+                    flushSucc = NO;
+                    return;
+                }
+            } else {
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    SALog(@"==========================================================================");
+                    SALog(@"%@ valid message: %@", self, jsonString);
+                }
+            }
+            
+            dispatch_semaphore_signal(flushSem);
+        };
+        
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
+        
+        [task resume];
+#else
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
+         ^(NSURLResponse *response, NSData* data, NSError *error) {
+             return block(data, response, error);
+         }];
+#endif
+        
+        dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
+        
+        return flushSucc;
+    };
+    
+    // 使用 SFSafariViewController 发送数据 (>= iOS 9.0)
+    BOOL (^flushBySafariVC)(NSArray *) = ^(NSArray *recordArray) {
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
+        Class SFSafariViewControllerClass = NSClassFromString(@"SFSafariViewController");
+        if (!SFSafariViewControllerClass) {
+            SAError(@"Cannot use cookie-based installation tracking. Please import the SafariService.framework.");
+            return YES;
+        }
+        
+        for (id record in recordArray) {
+            // 1. 使用gzip进行压缩
+            NSData *zippedData = [LFCGzipUtility gzipData:[(NSString *)record dataUsingEncoding:NSUTF8StringEncoding]];
+            // 2. base64
             NSString *b64String = [zippedData sa_base64EncodedString];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                       (CFStringRef)b64String,
@@ -247,105 +379,65 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                                       CFSTR("!*'();:@&=+$,/?%#[]"),
                                                                                       kCFStringEncodingUTF8));
             
-            NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
-            
-            NSURL *URL = [NSURL URLWithString:self.serverURL];
-            NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-            [request setHTTPMethod:@"POST"];
-            [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-            [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-            if (_debugMode == SensorsAnalyticsDebugOnly) {
-                [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
+            NSURL *url = [NSURL URLWithString:self.serverURL];
+            NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+            if (components.query.length > 0) {
+                NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data=%@", components.percentEncodedQuery, b64String];
+                components.percentEncodedQuery = urlQuery;
+            } else {
+                NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data=%@", b64String];
+                components.percentEncodedQuery = urlQuery;
             }
+
+            // Must be on next run loop to avoid a warning
+            dispatch_async(dispatch_get_main_queue(), ^{
             
-            dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
-            __block BOOL flushError = NO;
-            
-            void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-                if (error) {
-                    NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
-                    } else {
-                        SAError(@"%@", errMsg);
-                    }
-                    flushError = YES;
-                    return;
-                }
+                UIViewController *safController = [[SFSafariViewControllerClass alloc] initWithURL:[components URL]];
                 
-                if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
-                    flushError = YES;
-                    return;
-                }
+                UIViewController *windowRootController = [[UIViewController alloc] init];
                 
-                NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-                if([urlResponse statusCode] != 200) {
-                    NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                    NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        SALog(@"==========================================================================");
-                        SALog(@"%@ invalid message: %@", self, jsonString);
-                        SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
-                        SALog(@"%@ ret_content: %@", self, urlResponseContent);
-                        
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
-                    } else {
-                        SAError(@"%@", errMsg);
-                        flushError = YES;
-                        return;
-                    }
-                } else {
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        SALog(@"==========================================================================");
-                        SALog(@"%@ valid message: %@", self, jsonString);
-                    }
-                }
+                self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
+                self.secondWindow.rootViewController = windowRootController;
+                self.secondWindow.windowLevel = UIWindowLevelNormal - 1;
+                [self.secondWindow setHidden:NO];
+                [self.secondWindow setAlpha:0];
+            
+                // Add the safari view controller using view controller containment
+                [windowRootController addChildViewController:safController];
+                [windowRootController.view addSubview:safController.view];
+                [safController didMoveToParentViewController:windowRootController];
                 
-                dispatch_semaphore_signal(flushSem);
-            };
-            
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-            NSURLSession *session = [NSURLSession sharedSession];
-            NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-            
-            [task resume];
-#else
-            [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-             ^(NSURLResponse *response, NSData* data, NSError *error) {
-                 return block(data, response, error);
-             }];
-#endif
-            
-            dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
-            
-            if (flushError) {
-                break;
-            }
-            
-            if (![self.messageQueue removeFirstRecords:flushSize]) {
-                @throw [NSException exceptionWithName:@"SqliteException"
-                                               reason:@"removeFirstRecords from Message Queue in Sqlite fail"
-                                             userInfo:nil];
-            }
-            recordArray = [self.messageQueue getFirstRecords:flushSize];
-            if (recordArray == nil) {
-                @throw [NSException exceptionWithName:@"SqliteException"
-                                               reason:@"getFirstRecords from Message Queue in Sqlite fail"
-                                             userInfo:nil];
-            }
-            
-            SADebug(@"flush one batch success, currentCount is %lu", [self.messageQueue count]);
+                // Give a little bit of time for safari to load the request.
+                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                    // Remove the safari view controller from view controller containment
+                    [safController willMoveToParentViewController:nil];
+                    [safController.view removeFromSuperview];
+                    [safController removeFromParentViewController];
+                    
+                    // Remove the window and release it's strong reference. This is important to ensure that
+                    // applications using view controller based status bar appearance are restored.
+                    [self.secondWindow removeFromSuperview];
+                    self.secondWindow = nil;
+                });
+            });
         }
+#else
+        // DO NOTHING
+#endif
+        return YES;
+    };
+    
+    dispatch_async(self.serialQueue, ^{
+        [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+        [self flushByType:@"SFSafariViewController" withSize:1 andFlushMethod:flushBySafariVC];
         
         if (![self.messageQueue vacuum]) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"vacuum in Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
+        
+        SADebug(@"vacuum success");
         
         _lastFlushTime = [[self class] getCurrentTime];
     });
@@ -363,7 +455,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return filepath;
 }
 
-- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
+- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e andFlushMethod:(NSString *)flushMethod {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"properties"]];
     
@@ -380,7 +472,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [event setObject:properties forKey:@"properties"];
     }
     
-    [self.messageQueue addObejct:event];
+    [self.messageQueue addObejct:event withType:flushMethod];
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
         // 在DEBUG模式下，同步发送所有事件
@@ -388,7 +480,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         // 否则，在满足发送条件时，异步发送事件
         if ([type isEqualToString:@"track_signup"]) {
-            // 对于track_signup，立刻在队列中添加一个强制flush的指令
+            // 对于 track_signup，立刻在队列中添加一个强制flush的指令
             [self automaticFlushWithTimeCheck:NO andNetworkCheck:YES];
         } else {
             // 对于其它type，则只添加一个检查并决定是否flush的指令
@@ -398,8 +490,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    // 对于type是track和track_signup的数据，它们的event名称是有意义的
-    if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
+    // 对于type是track数据，它们的event名称是有意义的
+    if ([type isEqualToString:@"track"]) {
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
             if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -431,11 +523,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    UInt64 timeStamp = [[self class] getCurrentTime];
+//    UInt64 timeStamp = [[self class] getCurrentTime];
+    UInt64 timeStamp = 1461294882355;
+    
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
-            // track类型的请求，还是要加上各种公共property
+            // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties和propertieDict
             [p addEntriesFromDictionary:self.automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
@@ -482,7 +576,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"type": type};
         }
         
-        [self enqueueWithType:type andEvent:[e copy]];
+        NSString *flushMethod = @"Post";
+        if ([type isEqualToString:@"profile_set_once"] && event && [event isEqualToString:@"$ios_install_source"]) {
+            flushMethod = @"SFSafariViewController";
+        }
+        
+        [self enqueueWithType:type andEvent:[e copy] andFlushMethod:flushMethod];
     });
 }
 
@@ -495,8 +594,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
+    [self trackSignUp:newDistinctId withProperties:propertieDict];
+}
+
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     if (newDistinctId == nil || newDistinctId.length == 0) {
-        SAError(@"%@ cannot signUp blank distinct id: %@", self, newDistinctId);
+        SAError(@"%@ cannot track signup with blank distinct id.", self);
         @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
     }
     if (newDistinctId.length > 255) {
@@ -510,12 +613,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 更新distinctId
         self.distinctId = newDistinctId;
         [self archiveDistinctId];
-    });    
+    });
     [self track:@"$SignUp" withProperties:propertieDict withType:@"track_signup"];
 }
 
 - (void)signUp:(NSString *)newDistinctId {
-    [self signUp:newDistinctId withProperties:nil];
+    [self trackSignUp:newDistinctId];
+}
+
+- (void)trackSignUp:(NSString *)newDistinctId {
+    [self trackSignUp:newDistinctId withProperties:nil];
 }
 
 - (void)identify:(NSString *)distinctId {
@@ -697,8 +804,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   @"$os_version": [device systemVersion],
                                   @"$model": deviceModel,
                                   @"$screen_height": @((NSInteger)size.height),
-                                  @"$screen_width": @((NSInteger)size.width)
-                                  }];
+                                  @"$screen_width": @((NSInteger)size.width),
+                                      }];
     return [p copy];
 }
 
@@ -766,7 +873,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)unarchiveDistinctId {
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"distinct_id"]];
     if (archivedDistinctId == nil) {
-        self.distinctId = [[self class] defaultDistinctId];
+        BOOL isReal;
+        self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+        [self archiveDistinctId];
     } else {
         self.distinctId = archivedDistinctId;
     }
@@ -869,6 +978,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (UInt64)flushBulkSize {
+    @synchronized(self) {
+        return _flushBulkSize;
+    }
+}
+
+- (void)setFlushBulkSize:(UInt64)bulkSize {
+    @synchronized(self) {
+        _flushBulkSize = bulkSize;
+    }
+}
+
 /**
  *  @abstract
  *  内部触发的flush，需要根据上次发送时间和网络情况来判断是否发送
@@ -876,8 +997,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void) automaticFlushWithTimeCheck:(BOOL)timeCheck andNetworkCheck:(BOOL)networkCheck {
     if (timeCheck) {
         // 1. 判断和上次flush之间的时间是否超过了刷新间隔
-        if ([[self class] getCurrentTime] - _lastFlushTime < self.flushInterval) {
-            SADebug(@"flushTime not reach.");
+        if ([[self class] getCurrentTime] - _lastFlushTime < self.flushInterval && [[self messageQueue] count] < self.flushBulkSize) {
+            SADebug(@"flushTime or flushBulkSize not reach.");
             return;
         }
         SADebug(@"flushTime reach");
@@ -1092,7 +1213,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [connection sendMessage:message];
                 };
                 
-                [SASwizzler swizzleSelector:@selector(enqueueWithType:andEvent:)
+                [SASwizzler swizzleSelector:@selector(enqueueWithType:andEvent:andFlushMethod:)
                                     onClass:[SensorsAnalyticsSDK class]
                                   withBlock:block
                                       named:@"track_properties"];
@@ -1112,7 +1233,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 [strongSelf executeEventBindings:strongSelf.eventBindings];
                 
-                [SASwizzler unswizzleSelector:@selector(enqueueWithType:andEvent:)
+                [SASwizzler unswizzleSelector:@selector(enqueueWithType:andEvent:andFlushMethod:)
                                       onClass:[SensorsAnalyticsSDK class]
                                         named:@"track_properties"];
             }
@@ -1167,6 +1288,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
+}
+
+- (void)setInstallSourceAutomatically {
+    [_sdk track:@"$ios_install_source" withProperties:@{@"$ios_install_source" : @"NULL"} withType:@"profile_set_once"];
 }
 
 - (void)unset:(NSString *) profile {

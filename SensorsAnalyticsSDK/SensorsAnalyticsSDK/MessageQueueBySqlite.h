@@ -23,7 +23,7 @@
  *
  *  @return 初始化的结果
  */
-- (id)initWithFilePath: (NSString*) filePath;
+- (id)initWithFilePath:(NSString*)filePath;
 
 /**
  *  @abstract
@@ -31,7 +31,7 @@
  *
  *  @param obj 添加的对象
  */
-- (void)addObejct:(id) obj;
+- (void)addObejct:(id)obj withType:(NSString *)type;
 
 /**
  *  @abstract
@@ -41,7 +41,7 @@
  *
  *  @return 获取的记录所在的数组
  */
-- (NSArray *) getFirstRecords:(NSUInteger) recordSize;
+- (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type ;
 
 
 /**
@@ -52,7 +52,7 @@
  *
  *  @return 删除是否成功
  */
-- (BOOL) removeFirstRecords:(NSUInteger) recordSize;
+- (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type ;
 
 /**
  *  @abstract

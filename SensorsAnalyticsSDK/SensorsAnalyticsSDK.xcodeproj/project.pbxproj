@@ -30,6 +30,7 @@
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
 		A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
 		A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */; };
+		A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
 		A3746D8F1C2FF34D008A50A3 /* libz.1.2.5.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3746D8E1C2FF34D008A50A3 /* libz.1.2.5.tbd */; };
 		A3746D911C2FF355008A50A3 /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A3746D901C2FF355008A50A3 /* libsqlite3.tbd */; };
 		A3746E7E1C3115EB008A50A3 /* SAAbstractDesignerMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */; };
@@ -146,6 +147,7 @@
 		4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageQueueBySqlite.m; sourceTree = "<group>"; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
 		A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADesignerDisconnectMessage.m; sourceTree = "<group>"; };
+		A366491F1CC784A1008D991E /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
 		A3746D8E1C2FF34D008A50A3 /* libz.1.2.5.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.1.2.5.tbd; path = usr/lib/libz.1.2.5.tbd; sourceTree = SDKROOT; };
 		A3746D901C2FF355008A50A3 /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
 		A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAbstractDesignerMessage.h; sourceTree = "<group>"; };
@@ -207,6 +209,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */,
 				A3746EE31C32E822008A50A3 /* libicucore.tbd in Frameworks */,
 				A3746D911C2FF355008A50A3 /* libsqlite3.tbd in Frameworks */,
 				A3746D8F1C2FF34D008A50A3 /* libz.1.2.5.tbd in Frameworks */,
@@ -343,6 +346,7 @@
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				A366491F1CC784A1008D991E /* SafariServices.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -431,7 +435,7 @@
 		4D5CA76F1B43E92D00D7ACB7 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0720;
+				LastUpgradeCheck = 0730;
 				ORGANIZATIONNAME = SensorsData;
 				TargetAttributes = {
 					4D0EB7BD1B47A88C0019FD21 = {
@@ -581,13 +585,13 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"DEBUG=1",
+					"SENSORS_ANALYTICS_IDFA=1",
 					"$(inherited)",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk.HelloSensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -602,7 +606,7 @@
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk;
+				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk.HelloSensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -691,7 +695,6 @@
 		4D5CA78C1B43E92D00D7ACB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = "-ObjC";
@@ -704,7 +707,6 @@
 		4D5CA78D1B43E92D00D7ACB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD)";
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				OTHER_LDFLAGS = "-ObjC";
 				PRODUCT_NAME = "$(TARGET_NAME)";

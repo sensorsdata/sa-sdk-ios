@@ -29,8 +29,8 @@
 
 - (void)testInit {
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}"
-                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config/"
-                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config"
+                                        andDebugMode:SensorsAnalyticsDebugOff];
 }
 
 - (void)testTrack {
@@ -43,7 +43,7 @@
 - (void)testTrackSignup {
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
     if (sdk != nil) {
-        [sdk signUp:@"new id"];
+        [sdk trackSignUp:@"new id"];
     }
 }
 

@@ -94,14 +94,33 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 两次数据发送的最小时间间隔，单位毫秒
  *
  * @discussion
- * 默认值为60 * 1000毫秒，DEBUG模式下为1 * 1000毫秒
- * 在每次调用track、signUp以及profileSet等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 当前是否是WIFI/3G/4G网络条件
- * 2. 与上次发送的时间间隔是否大于flushInterval
+ * 默认值为 60 * 1000 毫秒， 在每次调用track、trackSignUp以及profileSet等接口的时候，
+ * 都会检查如下条件，以判断是否向服务器上传数据:
+ * 1. 是否WIFI/3G/4G网络
+ * 2. 是否满足以下数据发送条件之一:
+ *   1) 与上次发送的时间间隔是否大于 flushInterval
+ *   2) 本地缓存日志数目是否达到 flushBulkSize
  * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
 @property (atomic) UInt64 flushInterval;
+
+/**
+ * @property
+ *
+ * @abstract
+ * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
+ *
+ * @discussion
+ * 默认值为 100，在每次调用track、trackSignUp以及profileSet等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
+ * 1. 是否WIFI/3G/4G网络
+ * 2. 是否满足以下数据发送条件之一:
+ *   1) 与上次发送的时间间隔是否大于 flushInterval
+ *   2) 本地缓存日志数目是否达到 flushBulkSize
+ * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
+ * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
+ */
+@property (atomic) UInt64 flushBulkSize;
 
 /**
  * @abstract
@@ -175,8 +194,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * Valie则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
  * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  *
- * @param event            event的名称
- * @param propertieDict    event的属性
+ * @param event             event的名称
+ * @param propertieDict     event的属性
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertyDict;
 
@@ -193,12 +212,27 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
  *
  * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明:http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
  *
- * @param newDistinctId    用户完成注册后生成的注册ID
- * @param propertieDict    event的属性
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ * @param propertieDict     event的属性
  */
-- (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict;
+- (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict __deprecated;
+
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 不带私有属性的trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ */
+- (void)signUp:(NSString *)newDistinctId __deprecated;
+
+- (void)trackSignUp:(NSString *)newDistinctId;
 
 /**
  * @abstract
@@ -244,17 +278,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @return SDK的版本
  */
 - (NSString *)libVersion;
-
-/**
- * @abstract
- * 不带私有属性的signUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明:http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId 用户完成注册后生成的注册ID
- */
-- (void)signUp:(NSString *)newDistinctId;
 
 /**
  * @abstract
@@ -354,6 +377,14 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  */
 - (void)setOnce:(NSString *) profile to:(id)content;
 
+/**
+ * @abstract
+ * 用于在 App 初始化时，追踪渠道来源
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/ios_sdk.html，并在必要时联系我们的技术支持人员。
+ */
+- (void)setInstallSourceAutomatically;
 
 /**
  * @abstract
