@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.0"
+#define VERSION @"1.4.1"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -54,6 +54,8 @@
 
 @property (nonatomic, strong) id abtestDesignerConnection;
 @property (atomic, strong) NSSet *eventBindings;
+
+@property (assign, nonatomic) BOOL safariRequestInProgress;
 
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
@@ -203,6 +205,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         self.checkForEventBindingsOnActive = YES;
         self.flushBeforeEnterBackground = NO;
+        self.safariRequestInProgress = NO;
 
         self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message"]];
         if (self.messageQueue == nil) {
@@ -280,7 +283,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                                   CFSTR("!*'();:@&=+$,/?%#[]"),
                                                                                   kCFStringEncodingUTF8));
         
-        SADebug(@"POST content : %@", jsonString);
         NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
         
         NSURL *URL = [NSURL URLWithString:self.serverURL];
@@ -361,75 +363,89 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     // 使用 SFSafariViewController 发送数据 (>= iOS 9.0)
     BOOL (^flushBySafariVC)(NSArray *) = ^(NSArray *recordArray) {
+        if (self.safariRequestInProgress) {
+            return NO;
+        }
+        
+        self.safariRequestInProgress = YES;
+        
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
         Class SFSafariViewControllerClass = NSClassFromString(@"SFSafariViewController");
         if (!SFSafariViewControllerClass) {
             SAError(@"Cannot use cookie-based installation tracking. Please import the SafariService.framework.");
+            self.safariRequestInProgress = NO;
             return YES;
         }
         
-        for (id record in recordArray) {
-            // 1. 使用gzip进行压缩
-            NSData *zippedData = [LFCGzipUtility gzipData:[(NSString *)record dataUsingEncoding:NSUTF8StringEncoding]];
-            // 2. base64
-            NSString *b64String = [zippedData sa_base64EncodedString];
-            b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                      (CFStringRef)b64String,
-                                                                                      NULL,
-                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                      kCFStringEncodingUTF8));
-            
-            NSURL *url = [NSURL URLWithString:self.serverURL];
-            NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-            if (components.query.length > 0) {
-                NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data=%@", components.percentEncodedQuery, b64String];
-                components.percentEncodedQuery = urlQuery;
-            } else {
-                NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data=%@", b64String];
-                components.percentEncodedQuery = urlQuery;
-            }
-
-            // Must be on next run loop to avoid a warning
-            dispatch_async(dispatch_get_main_queue(), ^{
-            
-                UIViewController *safController = [[SFSafariViewControllerClass alloc] initWithURL:[components URL]];
-                
-                UIViewController *windowRootController = [[UIViewController alloc] init];
-                
-                self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
-                self.secondWindow.rootViewController = windowRootController;
-                self.secondWindow.windowLevel = UIWindowLevelNormal - 1;
-                [self.secondWindow setHidden:NO];
-                [self.secondWindow setAlpha:0];
-            
-                // Add the safari view controller using view controller containment
-                [windowRootController addChildViewController:safController];
-                [windowRootController.view addSubview:safController.view];
-                [safController didMoveToParentViewController:windowRootController];
-                
-                // Give a little bit of time for safari to load the request.
-                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                    // Remove the safari view controller from view controller containment
-                    [safController willMoveToParentViewController:nil];
-                    [safController.view removeFromSuperview];
-                    [safController removeFromParentViewController];
-                    
-                    // Remove the window and release it's strong reference. This is important to ensure that
-                    // applications using view controller based status bar appearance are restored.
-                    [self.secondWindow removeFromSuperview];
-                    self.secondWindow = nil;
-                });
-            });
+        // 1. 先完成这一系列Json字符串的拼接
+        NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
+        // 2. 使用gzip进行压缩
+        NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        // 3. base64
+        NSString *b64String = [zippedData sa_base64EncodedString];
+        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                  (CFStringRef)b64String,
+                                                                                  NULL,
+                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                  kCFStringEncodingUTF8));
+        
+        NSURL *url = [NSURL URLWithString:self.serverURL];
+        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+        if (components.query.length > 0) {
+            NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data_list=%@", components.percentEncodedQuery, b64String];
+            components.percentEncodedQuery = urlQuery;
+        } else {
+            NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data_list=%@", b64String];
+            components.percentEncodedQuery = urlQuery;
         }
+        
+        // Must be on next run loop to avoid a warning
+        dispatch_async(dispatch_get_main_queue(), ^{
+            
+            UIViewController *safController = [[SFSafariViewControllerClass alloc] initWithURL:[components URL]];
+            
+            UIViewController *windowRootController = [[UIViewController alloc] init];
+            
+            self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
+            self.secondWindow.rootViewController = windowRootController;
+            self.secondWindow.windowLevel = UIWindowLevelNormal - 1;
+            [self.secondWindow setHidden:NO];
+            [self.secondWindow setAlpha:0];
+            
+            // Add the safari view controller using view controller containment
+            [windowRootController addChildViewController:safController];
+            [windowRootController.view addSubview:safController.view];
+            [safController didMoveToParentViewController:windowRootController];
+            
+            // Give a little bit of time for safari to load the request.
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                // Remove the safari view controller from view controller containment
+                [safController willMoveToParentViewController:nil];
+                [safController.view removeFromSuperview];
+                [safController removeFromParentViewController];
+                
+                // Remove the window and release it's strong reference. This is important to ensure that
+                // applications using view controller based status bar appearance are restored.
+                [self.secondWindow removeFromSuperview];
+                self.secondWindow = nil;
+                
+                self.safariRequestInProgress = NO;
+            });
+            
+            if (_debugMode != SensorsAnalyticsDebugOff) {
+                SALog(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
+                SALog(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
+            }
+        });
 #else
         // DO NOTHING
 #endif
         return YES;
     };
-    
+
     dispatch_async(self.serialQueue, ^{
         [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-        [self flushByType:@"SFSafariViewController" withSize:1 andFlushMethod:flushBySafariVC];
+        [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
         
         if (![self.messageQueue vacuum]) {
             @throw [NSException exceptionWithName:@"SqliteException"
@@ -455,7 +471,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return filepath;
 }
 
-- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e andFlushMethod:(NSString *)flushMethod {
+- (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"properties"]];
     
@@ -470,6 +486,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         [properties removeObjectsForKeys:@[@"$binding_depolyed", @"$binding_path", @"$binding_trigger_id"]];
         [event setObject:properties forKey:@"properties"];
+    }
+    
+    NSString *flushMethod = @"Post";
+    if ([properties objectForKey:@"$ios_install_source"]) {
+        flushMethod = @"SFSafariViewController";
     }
     
     [self.messageQueue addObejct:event withType:flushMethod];
@@ -523,8 +544,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-//    UInt64 timeStamp = [[self class] getCurrentTime];
-    UInt64 timeStamp = 1461294882355;
+    UInt64 timeStamp = [[self class] getCurrentTime];
     
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
@@ -576,12 +596,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"type": type};
         }
         
-        NSString *flushMethod = @"Post";
-        if ([type isEqualToString:@"profile_set_once"] && event && [event isEqualToString:@"$ios_install_source"]) {
-            flushMethod = @"SFSafariViewController";
-        }
-        
-        [self enqueueWithType:type andEvent:[e copy] andFlushMethod:flushMethod];
+        [self enqueueWithType:type andEvent:[e copy]];
     });
 }
 
@@ -623,6 +638,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackSignUp:(NSString *)newDistinctId {
     [self trackSignUp:newDistinctId withProperties:nil];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
+    
+    // 先发送 track
+    NSMutableDictionary *eventProperties;
+    if (propertyDict == nil) {
+        eventProperties = [[NSMutableDictionary alloc] init];
+    } else {
+        eventProperties = [[NSMutableDictionary alloc] initWithDictionary:propertyDict];
+    }
+    
+    [eventProperties setValue:@"NULL" forKey:@"$ios_install_source"];
+    [self track:event withProperties:eventProperties withType:@"track"];
+    
+    // 再发送 profile_set_once
+    NSDictionary *profiles = @{@"$ios_install_source" : @"NULL"};
+    [self track:nil withProperties:profiles withType:@"profile_set_once"];
+}
+
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil];
 }
 
 - (void)identify:(NSString *)distinctId {
@@ -1213,7 +1251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [connection sendMessage:message];
                 };
                 
-                [SASwizzler swizzleSelector:@selector(enqueueWithType:andEvent:andFlushMethod:)
+                [SASwizzler swizzleSelector:@selector(enqueueWithType:andEvent:)
                                     onClass:[SensorsAnalyticsSDK class]
                                   withBlock:block
                                       named:@"track_properties"];
@@ -1233,7 +1271,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 
                 [strongSelf executeEventBindings:strongSelf.eventBindings];
                 
-                [SASwizzler unswizzleSelector:@selector(enqueueWithType:andEvent:andFlushMethod:)
+                [SASwizzler unswizzleSelector:@selector(enqueueWithType:andEvent:)
                                       onClass:[SensorsAnalyticsSDK class]
                                         named:@"track_properties"];
             }
@@ -1288,10 +1326,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
-}
-
-- (void)setInstallSourceAutomatically {
-    [_sdk track:@"$ios_install_source" withProperties:@{@"$ios_install_source" : @"NULL"} withType:@"profile_set_once"];
 }
 
 - (void)unset:(NSString *) profile {

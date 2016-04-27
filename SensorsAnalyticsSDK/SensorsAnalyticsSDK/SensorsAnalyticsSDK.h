@@ -191,7 +191,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @discussion
  * propertyDict是一个Map。
  * 其中的key是Property的名称，必须是<code>NSString</code>
- * Valie则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
+ * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
  * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  *
  * @param event             event的名称
@@ -233,6 +233,34 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 - (void)signUp:(NSString *)newDistinctId __deprecated;
 
 - (void)trackSignUp:(NSString *)newDistinctId;
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK会将渠道值填入事件属性 $ios_install_source 中
+ *
+ * @discussion
+ * propertyDict是一个Map。
+ * 其中的key是Property的名称，必须是<code>NSString</code>
+ * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
+ * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * 
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/ios_sdk.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param event             event的名称
+ * @param propertieDict     event的属性
+ */
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，SDK会将渠道值填入事件属性 $ios_install_source 中
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/ios_sdk.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param event             event的名称
+ */
+- (void)trackInstallation:(NSString *)event;
 
 /**
  * @abstract
@@ -376,15 +404,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @param content Profile的内容
  */
 - (void)setOnce:(NSString *) profile to:(id)content;
-
-/**
- * @abstract
- * 用于在 App 初始化时，追踪渠道来源
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/ios_sdk.html，并在必要时联系我们的技术支持人员。
- */
-- (void)setInstallSourceAutomatically;
 
 /**
  * @abstract
