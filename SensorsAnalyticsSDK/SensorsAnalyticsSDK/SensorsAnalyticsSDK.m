@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.1"
+#define VERSION @"1.4.2"
 
 @implementation SensorsAnalyticsDebugException
 
@@ -91,7 +91,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         url = [url URLByDeletingLastPathComponent];
     }
     url = [url URLByAppendingPathComponent:@"ws"];
-    
+
     // 将 URL Scheme 替换成 'ws:'
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
     components.scheme = @"ws";
