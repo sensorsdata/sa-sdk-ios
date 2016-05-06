@@ -28,6 +28,8 @@
 
 #define VERSION @"1.4.2"
 
+#define PROPERTY_LENGTH_LIMITATION 255
+
 @implementation SensorsAnalyticsDebugException
 
 @end
@@ -762,8 +764,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
-                if (objLength > 255) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long.", self];
+                if (objLength > PROPERTY_LENGTH_LIMITATION) {
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
                     if (_debugMode != SensorsAnalyticsDebugOff) {
                         @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
                                                                           reason:errMsg
@@ -776,11 +778,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        // NSString 类型最大长度不超过255
-        if ([properties[k] isKindOfClass:[NSString class]]) {
+        // NSString 检查长度，但忽略部分属性
+        if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"] && ![k isEqualToString:@"$lib_detail"]) {
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
-            if (objLength > 255) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long.", self];
+            if (objLength > PROPERTY_LENGTH_LIMITATION) {
+                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
                                                                       reason:errMsg
