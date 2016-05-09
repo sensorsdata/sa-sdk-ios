@@ -123,6 +123,19 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 @property (atomic) UInt64 flushBulkSize;
 
 /**
+ * @property
+ *
+ * @abstract
+ * 可视化埋点中，UIWindow 对象的序号
+ *
+ * @discussion
+ * 默认值为 0。一般情况下，App 的 UIWindow 对象是 UIApplication 的 windows 列表中的 firstObject，若用户调用 UIWindow 的 makeKeyAndVisible 等方法，
+ * 改变了 windows 列表中各个对象的 windowLevel，会导致可视化埋点无法正常获取需要埋点的 UIWindow 对象。用户调用该借口，设置 UIWindow 对象在
+ * windows 列表中的 index。
+ */
+@property (atomic) UInt32 vtrackWindowIndex;
+
+/**
  * @abstract
  * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
  *

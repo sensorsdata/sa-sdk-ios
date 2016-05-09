@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.2"
+#define VERSION @"1.4.4"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -74,6 +74,7 @@
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
     UInt64 _lastFlushTime;
+    UInt32 _vtrackWindowIndex;
     NSDateFormatter *_dateFormatter;
 }
 
@@ -201,6 +202,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         _flushInterval = 60 * 1000;
         _flushBulkSize = 100;
+        _vtrackWindowIndex = 0;
         
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
@@ -1027,6 +1029,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setFlushBulkSize:(UInt64)bulkSize {
     @synchronized(self) {
         _flushBulkSize = bulkSize;
+    }
+}
+
+- (UInt32)vtrackWindowIndex {
+    @synchronized(self) {
+        return _vtrackWindowIndex;
+    }
+}
+
+- (void)setVtrackWindowIndex:(UInt32)vtrackWindowIndex {
+    @synchronized(self) {
+        _vtrackWindowIndex = vtrackWindowIndex;
     }
 }
 

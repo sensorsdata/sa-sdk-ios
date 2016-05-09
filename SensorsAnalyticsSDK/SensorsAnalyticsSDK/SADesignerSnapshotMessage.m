@@ -16,6 +16,7 @@
 #import "SAObjectIdentityProvider.h"
 #import "SAObjectSerializerConfig.h"
 #import "SADesignerConnection.h"
+#import "SensorsAnalyticsSDK.h"
 
 #pragma mark -- Snapshot Request
 
@@ -66,7 +67,8 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         __block NSDictionary *serializedObjects = nil;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            screenshot = [serializer screenshotImageForWindowAtIndex:0];
+            UInt32 vtrackWindowIndex = [[SensorsAnalyticsSDK sharedInstance] vtrackWindowIndex];
+            screenshot = [serializer screenshotImageForWindowAtIndex:vtrackWindowIndex];
         });
         snapshotMessage.screenshot = screenshot;
 
@@ -76,7 +78,8 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         }
         
         dispatch_sync(dispatch_get_main_queue(), ^{
-            serializedObjects = [serializer objectHierarchyForWindowAtIndex:0];
+            UInt32 vtrackWindowIndex = [[SensorsAnalyticsSDK sharedInstance] vtrackWindowIndex];
+            serializedObjects = [serializer objectHierarchyForWindowAtIndex:vtrackWindowIndex];
         });
         [connection setSessionObject:serializedObjects forKey:@"snapshot_hierarchy"];
         snapshotMessage.serializedObjects = serializedObjects;
