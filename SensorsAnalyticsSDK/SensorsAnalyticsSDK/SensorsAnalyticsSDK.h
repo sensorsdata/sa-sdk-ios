@@ -83,7 +83,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 当App进入后台时，是否执行flush将数据发送到SensrosAnalytics
  *
  * @discussion
- * 默认值为 NO
+ * 默认值为 YES
  */
 @property (atomic) BOOL flushBeforeEnterBackground;
 

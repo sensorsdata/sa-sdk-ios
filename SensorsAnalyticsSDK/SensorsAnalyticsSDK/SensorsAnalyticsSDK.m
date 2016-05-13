@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.4"
+#define VERSION @"1.4.5"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -137,7 +137,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 + (NSString *)getUniqueHardwareId:(BOOL *)isReal {
     NSString *distinctId = NULL;
 
-    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFV
+    // 宏 SENSORS_ANALYTICS_IDFA 定义时，优先使用IDFA
 #if defined(SENSORS_ANALYTICS_IDFA)
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
     if (ASIdentifierManagerClass) {
@@ -156,7 +156,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         *isReal = YES;
     }
     
-    // 没有IDFV，则肯定有UUID，此时使用UUID
+    // 没有IDFV，则使用UUID
     if (!distinctId) {
         SADebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [[NSUUID UUID] UUIDString];
@@ -208,10 +208,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
         
         self.checkForEventBindingsOnActive = YES;
-        self.flushBeforeEnterBackground = NO;
+        self.flushBeforeEnterBackground = YES;
         self.safariRequestInProgress = NO;
 
-        self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message"]];
+        self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
         if (self.messageQueue == nil) {
             @throw [NSException exceptionWithName:@"SqliteException"
                                            reason:@"init Message Queue in Sqlite fail"
@@ -488,8 +488,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
         
+        NSString *binding_trigger_id = [[properties objectForKey:@"$binding_trigger_id"] stringValue];
+        
+        NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"lib"]];
+        
+        [libProperties setValue:@"vtrack" forKey:@"$lib_method"];
+        [libProperties setValue:binding_trigger_id forKey:@"$lib_detail"];
+        
         [properties removeObjectsForKeys:@[@"$binding_depolyed", @"$binding_path", @"$binding_trigger_id"]];
+        
         [event setObject:properties forKey:@"properties"];
+        [event setObject:libProperties forKey:@"lib"];
     }
     
     NSString *flushMethod = @"Post";
@@ -500,16 +509,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self.messageQueue addObejct:event withType:flushMethod];
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
-        // 在DEBUG模式下，同步发送所有事件
-        [self flush];
+        // 在DEBUG模式下，直接发送事件
+        [self automaticFlushWithTimeCheck:NO andNetworkCheck:NO];
     } else {
-        // 否则，在满足发送条件时，异步发送事件
-        if ([type isEqualToString:@"track_signup"]) {
+        // 否则，在满足发送条件时，发送事件
+        if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
             // 对于 track_signup，立刻在队列中添加一个强制flush的指令
             [self automaticFlushWithTimeCheck:NO andNetworkCheck:YES];
         } else {
-            // 对于其它type，则只添加一个检查并决定是否flush的指令
-            [self automaticFlushWithTimeCheck:YES andNetworkCheck:YES];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_flushInterval * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
+                // 对于其它type，则只添加一个检查并决定是否flush的指令
+                [self automaticFlushWithTimeCheck:YES andNetworkCheck:YES];
+            });
         }
     }
 }
@@ -550,6 +561,36 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     UInt64 timeStamp = [[self class] getCurrentTime];
     
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    
+    [libProperties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
+    [libProperties setValue:[_automaticProperties objectForKey:@"$lib_version"] forKey:@"$lib_version"];
+    
+    id app_version = [_automaticProperties objectForKey:@"$app_version"];
+    if (app_version) {
+        [libProperties setValue:app_version forKey:@"$app_version"];
+    }
+    
+    [libProperties setValue:@"code" forKey:@"$lib_method"];
+    
+    NSArray *syms = [NSThread callStackSymbols];
+    
+    if ([syms count] > 2) {
+        NSString *trace = [syms objectAtIndex:2];
+        
+        NSRange start = [trace rangeOfString:@"["];
+        NSRange end = [trace rangeOfString:@"]"];
+        if (start.location != NSNotFound && end.location != NSNotFound && end.location > start.location) {
+            NSString *trace_info = [trace substringWithRange:NSMakeRange(start.location+1, end.location-(start.location+1))];
+            NSRange split = [trace_info rangeOfString:@" "];
+            NSString *class = [trace_info substringWithRange:NSMakeRange(0, split.location)];
+            NSString *function = [trace_info substringWithRange:NSMakeRange(split.location + 1, trace_info.length-(split.location + 1))];
+            
+            NSString *detail = [NSString stringWithFormat:@"%@##%@####", class, function];
+            [libProperties setValue:detail forKey:@"$lib_detail"];
+        }
+    }
+    
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
@@ -559,7 +600,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [p addEntriesFromDictionary:_superProperties];
 
             // 是否WIFI是每次track的时候需要判断一次的
-            [p setObject:[self ifWifi] forKey:@"$wifi"];
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            [p setObject:networkType forKey:@"$network_type"];
+            
+            if ([networkType isEqualToString:@"WIFI"]) {
+                [p setObject:@YES forKey:@"$wifi"];
+            } else {
+                [p setObject:@NO forKey:@"$wifi"];
+            }
         }
         
         if (propertieDict) {
@@ -583,21 +631,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"distinct_id": self.distinctId,
                   @"original_id": self.originalId,
                   @"time": @(timeStamp),
-                  @"type": type};
+                  @"type": type,
+                  @"lib": libProperties,
+                  };
         } else if([type isEqualToString:@"track"]){
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": self.distinctId,
                   @"time": @(timeStamp),
-                  @"type": type};
+                  @"type": type,
+                  @"lib": libProperties,
+                  };
         } else {
             // 此时应该都是对Profile的操作
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": self.distinctId,
                   @"time": @(timeStamp),
-                  @"type": type};
+                  @"type": type,
+                  @"lib": libProperties,
+                  };
         }
         
         [self enqueueWithType:type andEvent:[e copy]];
@@ -609,39 +663,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event {
-    [self track:event withProperties:nil];
+    [self track:event withProperties:nil withType:@"track"];
 }
 
 - (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
-    [self trackSignUp:newDistinctId withProperties:propertieDict];
+    [self identify:newDistinctId];
+    [self track:@"$SignUp" withProperties:propertieDict withType:@"track_signup"];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
-    if (newDistinctId == nil || newDistinctId.length == 0) {
-        SAError(@"%@ cannot track signup with blank distinct id.", self);
-        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
-    }
-    if (newDistinctId.length > 255) {
-        SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, newDistinctId);
-        @throw [NSException exceptionWithName:@"InvalidDataException"
-                reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
-    }
-    dispatch_async(self.serialQueue, ^{
-        // 先把之前的distinctId设为originalId
-        self.originalId = self.distinctId;
-        // 更新distinctId
-        self.distinctId = newDistinctId;
-        [self archiveDistinctId];
-    });
+    [self identify:newDistinctId];
     [self track:@"$SignUp" withProperties:propertieDict withType:@"track_signup"];
 }
 
 - (void)signUp:(NSString *)newDistinctId {
-    [self trackSignUp:newDistinctId];
+    [self identify:newDistinctId];
+    [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId {
-    [self trackSignUp:newDistinctId withProperties:nil];
+    [self identify:newDistinctId];
+    [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
@@ -664,7 +706,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil];
+    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
+    
+    NSDictionary *properties = @{@"$ios_install_source" : @"NULL"};
+    
+    // 先发送 track
+    [self track:event withProperties:properties withType:@"track"];
+    
+    // 再发送 profile_set_once
+    [self track:nil withProperties:properties withType:@"profile_set_once"];
 }
 
 - (void)identify:(NSString *)distinctId {
@@ -677,6 +727,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     dispatch_async(self.serialQueue, ^{
+        // 先把之前的distinctId设为originalId
+        self.originalId = self.distinctId;
+        // 更新distinctId
         self.distinctId = distinctId;
         [self archiveDistinctId];
     });
@@ -693,15 +746,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSString *)libVersion {
     return VERSION;
-}
-
-- (NSNumber *)ifWifi {
-    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-    if ([networkType isEqualToString:@"WIFI"]) {
-        return @YES;
-    } else {
-        return @NO;
-    }
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary *)properties withEventType:(NSString *)eventType {
@@ -781,7 +825,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         // NSString 检查长度，但忽略部分属性
-        if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"] && ![k isEqualToString:@"$lib_detail"]) {
+        if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
             if (objLength > PROPERTY_LENGTH_LIMITATION) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
@@ -1004,7 +1048,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
-    SADebug(@"network=%@", state);
     return state;
 }
 
@@ -1048,14 +1091,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
  *  @abstract
  *  内部触发的flush，需要根据上次发送时间和网络情况来判断是否发送
  */
-- (void) automaticFlushWithTimeCheck:(BOOL)timeCheck andNetworkCheck:(BOOL)networkCheck {
+- (void)automaticFlushWithTimeCheck:(BOOL)timeCheck andNetworkCheck:(BOOL)networkCheck {
     if (timeCheck) {
         // 1. 判断和上次flush之间的时间是否超过了刷新间隔
-        if ([[self class] getCurrentTime] - _lastFlushTime < self.flushInterval && [[self messageQueue] count] < self.flushBulkSize) {
+        if ([[self class] getCurrentTime] - _lastFlushTime < self.flushInterval) {
             SADebug(@"flushTime or flushBulkSize not reach.");
             return;
         }
-        SADebug(@"flushTime reach");
     }
     
     if (networkCheck) {
@@ -1065,10 +1107,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SADebug(@"network not satisfy");
             return;
         }
-        SADebug(@"network satisfy");
     }
     
-    // 3. 发送
     [self flush];
 }
 

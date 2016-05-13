@@ -37,13 +37,13 @@
         SAError(@"sqlite3_initialize fail");
         return nil;
     }
-    if (sqlite3_open_v2( [filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK ) {
+    if (sqlite3_open_v2([filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK ) {
         // 创建一个缓存表
         NSString *_sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)";
         char *errorMsg;
         if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
-        }else {
+        } else {
             SAError(@"Create dataCache Failure %s",errorMsg);
             return nil;
         }
