@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.6"
+#define VERSION @"1.4.7"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -76,7 +76,6 @@
     SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
-    UInt64 _lastFlushTime;
     UInt32 _vtrackWindowIndex;
     NSDateFormatter *_dateFormatter;
 }
@@ -238,8 +237,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self executeEventBindings:self.eventBindings];
         
         [self checkForConfigure];
-        
-        _lastFlushTime = [[self class] getCurrentTime];
+ 
         [self startFlushTimer];
     }
     
@@ -450,7 +448,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
         return YES;
     };
-    
+
     dispatch_async(self.serialQueue, ^{
         [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
         [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
@@ -460,9 +458,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                            reason:@"vacuum in Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
-
-        
-        _lastFlushTime = [[self class] getCurrentTime];
     });
 }
 
@@ -508,7 +503,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([properties objectForKey:@"$ios_install_source"]) {
         flushMethod = @"SFSafariViewController";
     }
-    
+
     [self.messageQueue addObejct:event withType:flushMethod];
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -591,7 +586,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [libProperties setValue:detail forKey:@"$lib_detail"];
         }
     }
-    
+
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
@@ -1102,8 +1097,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)startFlushTimer {
     [self stopFlushTimer];
     dispatch_async(dispatch_get_main_queue(), ^{
-        if (self.flushInterval > 0) {
-            self.timer = [NSTimer scheduledTimerWithTimeInterval:(double)self.flushInterval / 1000.0
+        double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
+        if (self.flushInterval > 100) {
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
                                                         selector:@selector(flush)
                                                         userInfo:nil
@@ -1306,7 +1302,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         void (^connectCallback)(void) = ^{
             __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
             oldInterval = strongSelf.flushInterval;
-            strongSelf.flushInterval = 1;
+            strongSelf.flushInterval = 1000;
             [UIApplication sharedApplication].idleTimerDisabled = YES;
             if (strongSelf) {
                 NSMutableSet *eventBindings = [strongSelf.eventBindings mutableCopy];
