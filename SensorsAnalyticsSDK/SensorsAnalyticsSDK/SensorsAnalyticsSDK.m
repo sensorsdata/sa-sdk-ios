@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.5"
+#define VERSION @"1.4.6"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -49,6 +49,7 @@
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
+@property (nonatomic, strong) NSMutableDictionary *trackTimer;
 
 @property (nonatomic, strong) NSPredicate *regexTestName;
 
@@ -58,6 +59,8 @@
 @property (atomic, strong) NSSet *eventBindings;
 
 @property (assign, nonatomic) BOOL safariRequestInProgress;
+
+@property (nonatomic, strong) NSTimer *timer;
 
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
@@ -222,6 +225,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self unarchive];
         
         self.automaticProperties = [self collectAutomaticProperties];
+        self.trackTimer = [NSMutableDictionary dictionary];
         
         NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
         self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
@@ -229,16 +233,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
         self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
         
-        _lastFlushTime = [[self class] getCurrentTime];
-        
         [self setUpListeners];
         
         [self executeEventBindings:self.eventBindings];
         
         [self checkForConfigure];
         
-        [self track:@"$AppStart"];
+        _lastFlushTime = [[self class] getCurrentTime];
+        [self startFlushTimer];
     }
+    
     return self;
 }
 
@@ -446,7 +450,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
         return YES;
     };
-
+    
     dispatch_async(self.serialQueue, ^{
         [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
         [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
@@ -456,8 +460,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                            reason:@"vacuum in Message Queue in Sqlite fail"
                                          userInfo:nil];
         }
-        
-        SADebug(@"vacuum success");
+
         
         _lastFlushTime = [[self class] getCurrentTime];
     });
@@ -510,17 +513,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if (_debugMode != SensorsAnalyticsDebugOff) {
         // 在DEBUG模式下，直接发送事件
-        [self automaticFlushWithTimeCheck:NO andNetworkCheck:NO];
+        [self flush];
     } else {
         // 否则，在满足发送条件时，发送事件
         if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
-            // 对于 track_signup，立刻在队列中添加一个强制flush的指令
-            [self automaticFlushWithTimeCheck:NO andNetworkCheck:YES];
-        } else {
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(_flushInterval * NSEC_PER_MSEC)), dispatch_get_main_queue(), ^{
-                // 对于其它type，则只添加一个检查并决定是否flush的指令
-                [self automaticFlushWithTimeCheck:YES andNetworkCheck:YES];
-            });
+            // 2. 判断当前网络类型是否是3G/4G/WIFI
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            if (![networkType isEqualToString:@"NULL"] && ![networkType isEqualToString:@"2G"]) {
+                [self flush];
+            }
         }
     }
 }
@@ -559,7 +560,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    UInt64 timeStamp = [[self class] getCurrentTime];
+    NSNumber *timeStamp = @([[self class] getCurrentTime]);
     
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     
@@ -608,6 +609,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 [p setObject:@NO forKey:@"$wifi"];
             }
+            
+            NSNumber *eventBegin = self.trackTimer[event];
+            if (eventBegin) {
+                [self.trackTimer removeObjectForKey:event];
+                [p setObject:@([timeStamp longValue] - [eventBegin longValue]) forKey:@"event_duration"];
+            }
         }
         
         if (propertieDict) {
@@ -630,7 +637,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": self.distinctId,
                   @"original_id": self.originalId,
-                  @"time": @(timeStamp),
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   };
@@ -639,7 +646,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": self.distinctId,
-                  @"time": @(timeStamp),
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   };
@@ -648,7 +655,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
                   @"distinct_id": self.distinctId,
-                  @"time": @(timeStamp),
+                  @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
                   };
@@ -665,6 +672,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)track:(NSString *)event {
     [self track:event withProperties:nil withType:@"track"];
 }
+
+- (void)trackTimer:(NSString *)event {
+    NSNumber *eventBegin = @([[self class] getCurrentTime]);
+    
+    if (![self isValidName:event]) {
+        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
+                                                              reason:errMsg
+                                                            userInfo:nil];
+        } else {
+            SAError(@"%@", errMsg);
+            return;
+        }
+    }
+    
+    dispatch_async(self.serialQueue, ^{
+        self.trackTimer[event] = eventBegin;
+    });
+}
+
+- (void)clearTrackTimer {
+    dispatch_async(self.serialQueue, ^{
+        self.trackTimer = [NSMutableDictionary dictionary];
+    });
+}
+
 
 - (void)signUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
     [self identify:newDistinctId];
@@ -1061,6 +1095,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         _flushInterval = interval;
     }
+    [self flush];
+    [self startFlushTimer];
+}
+
+- (void)startFlushTimer {
+    [self stopFlushTimer];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.flushInterval > 0) {
+            self.timer = [NSTimer scheduledTimerWithTimeInterval:(double)self.flushInterval / 1000.0
+                                                          target:self
+                                                        selector:@selector(flush)
+                                                        userInfo:nil
+                                                         repeats:YES];
+        }
+    });
+}
+
+- (void)stopFlushTimer {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.timer) {
+            [self.timer invalidate];
+        }
+        self.timer = nil;
+    });
 }
 
 - (UInt64)flushBulkSize {
@@ -1087,36 +1145,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-/**
- *  @abstract
- *  内部触发的flush，需要根据上次发送时间和网络情况来判断是否发送
- */
-- (void)automaticFlushWithTimeCheck:(BOOL)timeCheck andNetworkCheck:(BOOL)networkCheck {
-    if (timeCheck) {
-        // 1. 判断和上次flush之间的时间是否超过了刷新间隔
-        if ([[self class] getCurrentTime] - _lastFlushTime < self.flushInterval) {
-            SADebug(@"flushTime or flushBulkSize not reach.");
-            return;
-        }
-    }
-    
-    if (networkCheck) {
-        // 2. 判断当前网络类型是否是3G/4G/WIFI
-        NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-        if ([networkType isEqualToString:@"NULL"] || [networkType isEqualToString:@"2G"]) {
-            SADebug(@"network not satisfy");
-            return;
-        }
-    }
-    
-    [self flush];
-}
-
-- (void)flushQueue {
-    SADebug(@"try to flushQueue");
-    
-}
-
 #pragma mark - UIApplication Events
 
 - (void)setUpListeners {
@@ -1124,6 +1152,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidBecomeActive:)
                                name:UIApplicationDidBecomeActiveNotification
+                             object:nil];
+    
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationWillResignActive:)
+                               name:UIApplicationWillResignActiveNotification
                              object:nil];
     
     [notificationCenter addObserver:self
@@ -1159,18 +1192,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     
+    [self startFlushTimer];
+    
     if (self.checkForEventBindingsOnActive) {
         [self checkForConfigure];
     }
+}
+
+- (void)applicationWillResignActive:(NSNotification *)notification {
+    SADebug(@"%@ application will resign active", self);
+    
+    [self stopFlushTimer];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     
     if (self.flushBeforeEnterBackground) {
-        dispatch_async(self.serialQueue, ^{
-            [self flush];
-        });
+        [self flush];
     }
     
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]

@@ -99,7 +99,6 @@
     if(rc == SQLITE_OK) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             NSString *content =[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 0)];
-            SADebug(@"content=%@", content);
             [contentArray addObject:content];
         }
         sqlite3_finalize(stmt);

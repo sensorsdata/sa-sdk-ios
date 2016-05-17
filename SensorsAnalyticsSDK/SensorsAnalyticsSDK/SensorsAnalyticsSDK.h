@@ -222,6 +222,27 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 
 /**
  * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在时间结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event的名称
+ */
+- (void)trackTimer:(NSString *)event;
+
+/**
+ * @abstract
+ * 清除所有事件计时器
+ */
+- (void)clearTrackTimer;
+
+/**
+ * @abstract
  * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
  *
  * @discussion
