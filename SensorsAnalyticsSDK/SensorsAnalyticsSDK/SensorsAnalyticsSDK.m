@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.7"
+#define VERSION @"1.4.8"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -306,13 +306,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
             if (error) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"NetworkException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                }
+                SAError(@"%@", errMsg);
                 flushSucc = NO;
                 return;
             }
@@ -1097,8 +1091,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)startFlushTimer {
     [self stopFlushTimer];
     dispatch_async(dispatch_get_main_queue(), ^{
-        double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
-        if (self.flushInterval > 100) {
+        if (_flushInterval > 0) {
+            double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
                                                         selector:@selector(flush)
