@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.8"
+#define VERSION @"1.4.9"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 
@@ -321,14 +321,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SALog(@"==========================================================================");
-                    SALog(@"%@ invalid message: %@", self, jsonString);
-                    SALog(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
-                    SALog(@"%@ ret_content: %@", self, urlResponseContent);
+                    SAError(@"==========================================================================");
+                    SAError(@"%@ invalid message: %@", self, jsonString);
+                    SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
+                    SAError(@"%@ ret_content: %@", self, urlResponseContent);
                     
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
+                    if ([urlResponse statusCode] >= 300) {
+                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
+                                                                          reason:errMsg
+                                                                        userInfo:nil];
+                    }
                 } else {
                     SAError(@"%@", errMsg);
                     flushSucc = NO;
