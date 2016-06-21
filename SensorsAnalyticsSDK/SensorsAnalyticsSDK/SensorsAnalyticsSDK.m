@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.4.9"
+#define VERSION @"1.5.1"
 
 #define PROPERTY_LENGTH_LIMITATION 255
 

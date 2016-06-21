@@ -16,6 +16,7 @@
 #import "SADesignerSnapshotMessage.h"
 #import "SADesignerSessionCollection.h"
 #import "SALogger.h"
+#import "SensorsAnalyticsSDK.h"
 
 @interface SADesignerConnection () <SAWebSocketDelegate>
 
@@ -239,16 +240,28 @@
 }
 
 - (void)showConnectedView {
-    if(!_recordingView) {
-        UIWindow *mainWindow = [[UIApplication sharedApplication] delegate].window;
-        _recordingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, mainWindow.frame.size.width, 1.0)];
-        _recordingView.backgroundColor = [UIColor colorWithRed:4/255.0f green:180/255.0f blue:4/255.0f alpha:1.0];
+    if (true) {
+        return;
+    }
+    if (!_recordingView) {
+        UIWindow *mainWindow = [SensorsAnalyticsSDK sharedInstance].vtrackWindow;
+        if (mainWindow == nil) {
+            mainWindow = [[UIApplication sharedApplication] delegate].window;
+        }
+        if (mainWindow == nil) {
+            return;
+        }
+        _recordingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, mainWindow.frame.size.width, 20.0)];
+        _recordingView.backgroundColor = [UIColor colorWithRed:83/255.0f green:177/255.0f blue:117/255.0f alpha:0.8];
         [mainWindow addSubview:_recordingView];
         [mainWindow bringSubviewToFront:_recordingView];
     }
 }
 
 - (void)hideConnectedView {
+    if (true) {
+        return;
+    }
     if (_recordingView) {
         [_recordingView removeFromSuperview];
     }
