@@ -76,7 +76,7 @@
     SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
-    UInt32 _vtrackWindowIndex;
+    UIWindow *_vtrackWindow;
     NSDateFormatter *_dateFormatter;
 }
 
@@ -204,7 +204,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         _flushInterval = 60 * 1000;
         _flushBulkSize = 100;
-        _vtrackWindowIndex = 0;
+        _vtrackWindow = nil;
         
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
@@ -722,18 +722,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         eventProperties = [[NSMutableDictionary alloc] initWithDictionary:propertyDict];
     }
     
-    [eventProperties setValue:@"NULL" forKey:@"$ios_install_source"];
+    [eventProperties setValue:@"" forKey:@"$ios_install_source"];
     [self track:event withProperties:eventProperties withType:@"track"];
     
     // 再发送 profile_set_once
-    NSDictionary *profiles = @{@"$ios_install_source" : @"NULL"};
+    NSDictionary *profiles = @{@"$ios_install_source" : @""};
     [self track:nil withProperties:profiles withType:@"profile_set_once"];
 }
 
 - (void)trackInstallation:(NSString *)event {
     // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     
-    NSDictionary *properties = @{@"$ios_install_source" : @"NULL"};
+    NSDictionary *properties = @{@"$ios_install_source" : @""};
     
     // 先发送 track
     [self track:event withProperties:properties withType:@"track"];
@@ -1125,15 +1125,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (UInt32)vtrackWindowIndex {
+- (UIWindow *)vtrackWindow {
     @synchronized(self) {
-        return _vtrackWindowIndex;
+        return _vtrackWindow;
     }
 }
 
-- (void)setVtrackWindowIndex:(UInt32)vtrackWindowIndex {
+- (void)setVtrackWindow:(UIWindow *)vtrackWindow {
     @synchronized(self) {
-        _vtrackWindowIndex = vtrackWindowIndex;
+        _vtrackWindow = vtrackWindow;
     }
 }
 

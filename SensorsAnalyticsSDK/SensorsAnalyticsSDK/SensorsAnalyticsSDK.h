@@ -6,6 +6,8 @@
 
 #import <Foundation/Foundation.h>
 
+#import <UIKit/UIApplication.h>
+
 @class SensorsAnalyticsPeople;
 
 /**
@@ -126,14 +128,16 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * @property
  *
  * @abstract
- * 可视化埋点中，UIWindow 对象的序号
+ * 可视化埋点中，UIWindow 对象。
  *
  * @discussion
- * 默认值为 0。一般情况下，App 的 UIWindow 对象是 UIApplication 的 windows 列表中的 firstObject，若用户调用 UIWindow 的 makeKeyAndVisible 等方法，
- * 改变了 windows 列表中各个对象的 windowLevel，会导致可视化埋点无法正常获取需要埋点的 UIWindow 对象。用户调用该借口，设置 UIWindow 对象在
- * windows 列表中的 index。
+ * 该方法应在 SDK 初始化完成后立即调用
+ *
+ * 默认值为App 的 UIWindow 对象是 UIApplication 的 windows 列表中的 firstObject，若用户调用 UIWindow 的 makeKeyAndVisible 等方法，
+ * 改变了 windows 列表中各个对象的 windowLevel，会导致可视化埋点无法正常获取需要埋点的 UIWindow 对象。用户调用该借口，设置可视化埋点需要管理的
+ * UIWindow 对象
  */
-@property (atomic) UInt32 vtrackWindowIndex;
+@property (atomic) UIWindow *vtrackWindow;
 
 /**
  * @abstract

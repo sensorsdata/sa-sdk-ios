@@ -30,7 +30,8 @@
 - (void)testInit {
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}"
                                      andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config"
-                                        andDebugMode:SensorsAnalyticsDebugOff];
+                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [SensorsAnalyticsSDK sharedInstance].flushInterval = 1000;
 }
 
 - (void)testTrack {
@@ -44,6 +45,13 @@
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
     if (sdk != nil) {
         [sdk trackSignUp:@"new id"];
+    }
+}
+
+- (void)testTrackInstallation {
+    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
+    if (sdk != nil) {
+        [sdk trackInstallation:@"AppInstall"];
     }
 }
 
@@ -102,43 +110,47 @@
     NSUInteger row = [indexPath row];
     switch (row) {
         case 0l:
-        NSLog(@"测试track");
-        [self testTrack];
-        break;
+            NSLog(@"测试track");
+            [self testTrack];
+            break;
         case 1l:
-        NSLog(@"测试track_signup");
-        [self testTrackSignup];
-        break;
+            NSLog(@"测试track_signup");
+            [self testTrackSignup];
+            break;
         case 2l:
-        NSLog(@"测试profile_set");
-        [self testProfileSet];
-        break;
+            NSLog(@"测试track_installation");
+            [self testTrackInstallation];
+            break;
         case 3l:
-        NSLog(@"测试profile_append");
-        [self testProfileAppend];
-        break;
+            NSLog(@"测试profile_set");
+            [self testProfileSet];
+            break;
         case 4l:
-        NSLog(@"测试profile_increment");
-        [self testProfileIncrement];
-        break;
+            NSLog(@"测试profile_append");
+            [self testProfileAppend];
+            break;
         case 5l:
-        NSLog(@"测试profile_unset");
-        [self testProfileUnset];
-        break;
+            NSLog(@"测试profile_increment");
+            [self testProfileIncrement];
+            break;
         case 6l:
-        NSLog(@"测试profile_delete");
-        [self testProfileDelete];
-        break;
+            NSLog(@"测试profile_unset");
+            [self testProfileUnset];
+            break;
         case 7l:
-        NSLog(@"测试flush");
-        [self testFlush];
-        break;
+            NSLog(@"测试profile_delete");
+            [self testProfileDelete];
+            break;
         case 8l:
-        NSLog(@"进入无埋点测试页面");
-        [self testCodeless];
-        break;
+            NSLog(@"测试flush");
+            [self testFlush];
+            break;
+        case 9l:
+            NSLog(@"进入无埋点测试页面");
+            [self testCodeless];
+            break;
         default:
-        break;
+            break;
     }
 }
 

@@ -19,8 +19,8 @@
                       configuration:(SAObjectSerializerConfig *)configuration
              objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
-- (UIImage *)screenshotImageForWindowAtIndex:(NSUInteger)index;
+- (UIImage *)screenshotImageForWindow:(UIWindow *)window;
 
-- (NSDictionary *)objectHierarchyForWindowAtIndex:(NSUInteger)index;
+- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window;
 
 @end

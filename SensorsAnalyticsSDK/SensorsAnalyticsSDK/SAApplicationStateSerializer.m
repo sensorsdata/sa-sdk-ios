@@ -36,22 +36,22 @@
     return self;
 }
 
-- (UIImage *)screenshotImageForWindowAtIndex:(NSUInteger)index {
+- (UIImage *)screenshotImageForWindow:(UIWindow *)window {
     UIImage *image = nil;
     
-    UIWindow *window = [self windowAtIndex:index];
-    if (window && !CGRectEqualToRect(window.frame, CGRectZero)) {
-        UIGraphicsBeginImageContextWithOptions(window.bounds.size, YES, window.screen.scale);
+    UIWindow *mainWindow = [self uiMainWindow:window];
+    if (mainWindow && !CGRectEqualToRect(mainWindow.frame, CGRectZero)) {
+        UIGraphicsBeginImageContextWithOptions(mainWindow.bounds.size, YES, mainWindow.screen.scale);
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-        if ([window respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
-            if ([window drawViewHierarchyInRect:window.bounds afterScreenUpdates:NO] == NO) {
+        if ([mainWindow respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
+            if ([mainWindow drawViewHierarchyInRect:mainWindow.bounds afterScreenUpdates:NO] == NO) {
                 SAError(@"Unable to get complete screenshot for window at index: %d.", (int)index);
             }
         } else {
-            [window.layer renderInContext:UIGraphicsGetCurrentContext()];
+            [mainWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
         }
 #else
-        [window.layer renderInContext:UIGraphicsGetCurrentContext()];
+        [mainWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
 #endif
         image = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
@@ -60,15 +60,17 @@
     return image;
 }
 
-- (UIWindow *)windowAtIndex:(NSUInteger)index {
-    NSParameterAssert(index < [_application.windows count]);
-    return _application.windows[index];
+- (UIWindow *)uiMainWindow:(UIWindow *)window {
+    if (window != nil) {
+        return window;
+    }
+    return _application.windows[0];
 }
 
-- (NSDictionary *)objectHierarchyForWindowAtIndex:(NSUInteger)index {
-    UIWindow *window = [self windowAtIndex:index];
-    if (window) {
-        return [_serializer serializedObjectsWithRootObject:window];
+- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window {
+    UIWindow *mainWindow = [self uiMainWindow:window];
+    if (mainWindow) {
+        return [_serializer serializedObjectsWithRootObject:mainWindow];
     }
     
     return @{};
