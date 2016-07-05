@@ -46,10 +46,14 @@
 
     SAObjectSerializerContext *context = [[SAObjectSerializerContext alloc] initWithRootObject:rootObject];
 
-    while ([context hasUnvisitedObjects]) {
-        [self visitObject:[context dequeueUnvisitedObject] withContext:context];
+    @try {
+        while ([context hasUnvisitedObjects]) {
+            [self visitObject:[context dequeueUnvisitedObject] withContext:context];
+        }
+    } @catch (NSException *e) {
+        SAError(@"Failed to serialize objects: %@", e);
     }
-
+    
     return @{
             @"objects" : [context allSerializedObjects],
             @"rootObject": [_objectIdentityProvider identifierForObject:rootObject]

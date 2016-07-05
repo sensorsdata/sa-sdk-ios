@@ -26,9 +26,9 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.1"
+#define VERSION @"1.5.2"
 
-#define PROPERTY_LENGTH_LIMITATION 255
+#define PROPERTY_LENGTH_LIMITATION 8191
 
 @implementation SensorsAnalyticsDebugException
 
@@ -1254,10 +1254,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 self.eventBindings = parsedEventBindings;
                 [self archiveEventBindings];
             } else {
-                SALog(@"%@ Tracking events check response format error: %@", self, object);
+                SALog(@"%@ the configure of VTrack is not loaded: %@", self, object);
             }
         } else {
-            SALog(@"%@ Tracking events check response format error: %@", self, object);
+            SALog(@"%@ the configure of VTrack is not loaded: %@", self, object);
         }
     };
     
