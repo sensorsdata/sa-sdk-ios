@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.2"
+#define VERSION @"1.5.3"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -408,7 +408,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             UIViewController *windowRootController = [[UIViewController alloc] init];
             
-            self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
+            if (self.vtrackWindow == nil) {
+                self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
+            } else {
+                self.secondWindow = [[UIWindow alloc] initWithFrame:[self.vtrackWindow bounds]];
+            }
             self.secondWindow.rootViewController = windowRootController;
             self.secondWindow.windowLevel = UIWindowLevelNormal - 1;
             [self.secondWindow setHidden:NO];
@@ -450,9 +454,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
         
         if (![self.messageQueue vacuum]) {
-            @throw [NSException exceptionWithName:@"SqliteException"
-                                           reason:@"vacuum in Message Queue in Sqlite fail"
-                                         userInfo:nil];
+            SAError(@"Failed to VACUUM SQLite.");
         }
     });
 }

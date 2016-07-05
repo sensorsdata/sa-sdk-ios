@@ -61,11 +61,11 @@
         SAError(@"touch MAX_MESSAGE_SIZE:%d, do not insert", MAX_MESSAGE_SIZE);
         return;
     }
-    NSData * jsonData = [_jsonUtil JSONSerializeObject:obj];
-    NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    NSString *query = @"INSERT INTO dataCache(type, content) values(?, ?)";
+    NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
+    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString* query = @"INSERT INTO dataCache(type, content) values(?, ?)";
     sqlite3_stmt *insertStatement;
-    int rc ;
+    int rc;
     rc = sqlite3_prepare_v2(_database, [query UTF8String],-1, &insertStatement, nil);
     if (rc == SQLITE_OK) {
         sqlite3_bind_text(insertStatement, 1, [type UTF8String], -1, SQLITE_TRANSIENT);
@@ -90,9 +90,9 @@
         return @[];
     }
     
-    NSMutableArray * contentArray = [[NSMutableArray alloc] init];
+    NSMutableArray* contentArray = [[NSMutableArray alloc] init];
     
-    NSString *query = [NSString stringWithFormat:@"SELECT content FROM dataCache WHERE type='%@' ORDER BY id ASC LIMIT %lu", type, (unsigned long)recordSize];
+    NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache WHERE type='%@' ORDER BY id ASC LIMIT %lu", type, (unsigned long)recordSize];
     
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
@@ -112,9 +112,9 @@
 
 - (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     NSUInteger removeSize = MIN(recordSize, _messageCount);
-    NSString *query  = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache WHERE type = '%@' ORDER BY id ASC LIMIT %lu);", type, (unsigned long)removeSize];
-    char * errMsg;
-    if (sqlite3_exec(_database, [query UTF8String] ,NULL,NULL,&errMsg) != SQLITE_OK) {
+    NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache WHERE type = '%@' ORDER BY id ASC LIMIT %lu);", type, (unsigned long)removeSize];
+    char* errMsg;
+    if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
         SAError(@"Failed to delete record msg=%s", errMsg);
         return NO;
     }
@@ -127,7 +127,7 @@
 }
 
 - (NSInteger) sqliteCount {
-    NSString *query = @"select count(*) from dataCache";
+    NSString* query = @"select count(*) from dataCache";
     sqlite3_stmt* statement = NULL;
     NSInteger count = -1;
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &statement, NULL);
@@ -144,10 +144,10 @@
 }
 
 - (BOOL) vacuum {
-    NSString *query = @"VACUUM";
-    char * errMsg;
-    if (sqlite3_exec(_database, [query UTF8String] ,NULL,NULL,&errMsg) != SQLITE_OK) {
-        NSLog(@"Failed to delete record msg=%s", errMsg);
+    NSString* query = @"VACUUM";
+    char* errMsg;
+    if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
+        SAError(@"Failed to delete record msg=%s", errMsg);
         return NO;
     }
     return YES;
