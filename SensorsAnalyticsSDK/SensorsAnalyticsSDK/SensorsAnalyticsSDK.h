@@ -354,17 +354,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  */
 - (void)flush;
 
-/**
- * @abstract
- * 当前有多少条记录在缓存中
- *
- * @discussion
- * 这个函数并不是线程安全的，取值的同时可能被其它线程修改
- *
- * @return 当前的记录条数
- */
-- (NSUInteger) currentQueueCount;
-
 @end
 
 /**

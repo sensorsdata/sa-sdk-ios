@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.3"
+#define VERSION @"1.5.4"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -245,36 +245,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *))flushMethod {
-    NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
-    if (recordArray == nil) {
-        @throw [NSException exceptionWithName:@"SqliteException"
-                                       reason:@"getFirstRecords from Message Queue in Sqlite fail"
-                                     userInfo:nil];
-    }
-    
-    while ([recordArray count] > 0) {
-        if (!flushMethod(recordArray)) {
+    while (true) {
+        NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
+        if (recordArray == nil) {
+            SAError(@"Failed to get records from SQLite.");
+            break;
+        }
+        
+        if ([recordArray count] == 0 || !flushMethod(recordArray)) {
             break;
         }
         
         if (![self.messageQueue removeFirstRecords:flushSize withType:type]) {
-            @throw [NSException exceptionWithName:@"SqliteException"
-                                           reason:@"removeFirstRecords from Message Queue in Sqlite fail"
-                                         userInfo:nil];
+            SAError(@"Failed to remove records from SQLite.");
+            break;
         }
-        
-        recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
-        if (recordArray == nil) {
-            @throw [NSException exceptionWithName:@"SqliteException"
-                                           reason:@"getFirstRecords from Message Queue in Sqlite fail"
-                                         userInfo:nil];
-        }
-        
-        SADebug(@"flush one batch success, currentCount is %lu", [self.messageQueue count]);
+
+        SADebug(@"flush one batch success.");
     }
 }
 
-- (void)flush {
+- (void)_flush {
+    SALog(@"flushing.");
     // 使用 Post 发送数据
     BOOL (^flushByPost)(NSArray *) = ^(NSArray *recordArray) {
         // 1. 先完成这一系列Json字符串的拼接
@@ -448,14 +440,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
         return YES;
     };
+    
+    [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+    [self flushByType:@"SFSafariViewController" withSize:50 andFlushMethod:flushBySafariVC];
+    
+    if (![self.messageQueue vacuum]) {
+        SAError(@"Failed to VACUUM SQLite.");
+    }
+}
 
-    dispatch_async(self.serialQueue, ^{
-        [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-        [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
-        
-        if (![self.messageQueue vacuum]) {
-            SAError(@"Failed to VACUUM SQLite.");
-        }
+- (void)flush {
+    dispatch_sync(self.serialQueue, ^{
+        [self _flush];
     });
 }
 
@@ -497,25 +493,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [event setObject:libProperties forKey:@"lib"];
     }
     
-    NSString *flushMethod = @"Post";
     if ([properties objectForKey:@"$ios_install_source"]) {
-        flushMethod = @"SFSafariViewController";
-    }
-
-    [self.messageQueue addObejct:event withType:flushMethod];
-    
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        // 在DEBUG模式下，直接发送事件
-        [self flush];
+        [self.messageQueue addObejct:event withType:@"SFSafariViewController"];
     } else {
-        // 否则，在满足发送条件时，发送事件
-        if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
-            // 2. 判断当前网络类型是否是3G/4G/WIFI
-            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-            if (![networkType isEqualToString:@"NULL"] && ![networkType isEqualToString:@"2G"]) {
-                [self flush];
-            }
-        }
+        [self.messageQueue addObejct:event withType:@"Post"];
     }
 }
 
@@ -655,6 +636,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         [self enqueueWithType:type andEvent:[e copy]];
+        
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            // 在DEBUG模式下，直接发送事件
+            [self _flush];
+        } else {
+            // 否则，在满足发送条件时，发送事件
+            if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
+                // 2. 判断当前网络类型是否是3G/4G/WIFI
+                NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+                if (![networkType isEqualToString:@"NULL"] && ![networkType isEqualToString:@"2G"]) {
+                    [self _flush];
+                }
+            }
+        }
     });
 }
 
@@ -958,10 +953,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSDictionary *)currentSuperProperties {
     return [_superProperties copy];
-}
-
-- (NSUInteger) currentQueueCount {
-    return [self.messageQueue count];
 }
 
 #pragma mark - Local caches
