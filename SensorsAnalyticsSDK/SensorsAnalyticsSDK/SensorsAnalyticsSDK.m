@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.4"
+#define VERSION @"1.5.5"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -202,7 +202,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.vtrackServerURL = vtrackServerURL;
         _debugMode = debugMode;
         
-        _flushInterval = 60 * 1000;
+        _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _vtrackWindow = nil;
         
@@ -300,11 +300,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
                 SAError(@"%@", errMsg);
                 flushSucc = NO;
+                dispatch_semaphore_signal(flushSem);
                 return;
             }
             
             if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 flushSucc = NO;
+                dispatch_semaphore_signal(flushSem);
                 return;
             }
             
@@ -326,6 +328,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     SAError(@"%@", errMsg);
                     flushSucc = NO;
+                    dispatch_semaphore_signal(flushSem);
                     return;
                 }
             } else {
@@ -440,7 +443,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
         return YES;
     };
-    
+
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
     [self flushByType:@"SFSafariViewController" withSize:50 andFlushMethod:flushBySafariVC];
     
@@ -1079,7 +1082,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         _flushInterval = interval;
     }
-    [self flush];
+    [self _flush];
     [self startFlushTimer];
 }
 
@@ -1090,7 +1093,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
-                                                        selector:@selector(flush)
+                                                        selector:@selector(_flush)
                                                         userInfo:nil
                                                          repeats:YES];
         }
@@ -1194,7 +1197,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"%@ application did enter background", self);
     
     if (self.flushBeforeEnterBackground) {
-        [self flush];
+        [self _flush];
     }
     
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]

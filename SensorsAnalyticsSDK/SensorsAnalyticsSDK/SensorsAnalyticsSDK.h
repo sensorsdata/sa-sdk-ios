@@ -96,7 +96,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 两次数据发送的最小时间间隔，单位毫秒
  *
  * @discussion
- * 默认值为 60 * 1000 毫秒， 在每次调用track、trackSignUp以及profileSet等接口的时候，
+ * 默认值为 15 * 1000 毫秒， 在每次调用track、trackSignUp以及profileSet等接口的时候，
  * 都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否WIFI/3G/4G网络
  * 2. 是否满足以下数据发送条件之一:
