@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.5"
+#define VERSION @"1.5.6"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -453,7 +453,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)flush {
-    dispatch_sync(self.serialQueue, ^{
+    dispatch_async(self.serialQueue, ^{
         [self _flush];
     });
 }
