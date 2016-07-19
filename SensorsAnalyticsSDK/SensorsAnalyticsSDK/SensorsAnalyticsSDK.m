@@ -1093,7 +1093,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             double interval = _flushInterval > 100 ? (double)_flushInterval / 1000.0 : 0.1f;
             self.timer = [NSTimer scheduledTimerWithTimeInterval:interval
                                                           target:self
-                                                        selector:@selector(_flush)
+                                                        selector:@selector(flush)
                                                         userInfo:nil
                                                          repeats:YES];
         }
