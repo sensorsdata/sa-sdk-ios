@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.5.6"
+#define VERSION @"1.5.7"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -191,7 +191,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     configureURL = [url absoluteString];
     
-    SALog(@"%@ Initializing the instance of Sensors Analytics SDK with server url '%@', configure url '%@', vtrack server url '%@'",
+    SADebug(@"%@ Initializing the instance of Sensors Analytics SDK with server url '%@', configure url '%@', vtrack server url '%@'",
           self, serverURL, configureURL, vtrackServerURL);
     
     if (self = [self init]) {
@@ -265,8 +265,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)_flush {
-    SALog(@"flushing.");
+- (void)_flush:(BOOL) vacuumAfterFlushing {
     // 使用 Post 发送数据
     BOOL (^flushByPost)(NSArray *) = ^(NSArray *recordArray) {
         // 1. 先完成这一系列Json字符串的拼接
@@ -333,8 +332,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             } else {
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SALog(@"==========================================================================");
-                    SALog(@"%@ valid message: %@", self, jsonString);
+                    SAError(@"==========================================================================");
+                    SAError(@"%@ valid message: %@", self, jsonString);
                 }
             }
             
@@ -434,8 +433,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             });
             
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                SALog(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
-                SALog(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
+                SAError(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
+                SAError(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
             }
         });
 #else
@@ -447,14 +446,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
     [self flushByType:@"SFSafariViewController" withSize:50 andFlushMethod:flushBySafariVC];
     
-    if (![self.messageQueue vacuum]) {
-        SAError(@"Failed to VACUUM SQLite.");
+    if (vacuumAfterFlushing) {
+        if (![self.messageQueue vacuum]) {
+            SAError(@"Failed to VACUUM SQLite.");
+        }
     }
 }
 
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        [self _flush];
+        [self _flush:NO];
     });
 }
 
@@ -642,14 +643,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         if (_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
-            [self _flush];
+            [self _flush:NO];
         } else {
             // 否则，在满足发送条件时，发送事件
             if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
                 // 2. 判断当前网络类型是否是3G/4G/WIFI
                 NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
                 if (![networkType isEqualToString:@"NULL"] && ![networkType isEqualToString:@"2G"]) {
-                    [self _flush];
+                    [self _flush:YES];
                 }
             }
         }
@@ -843,7 +844,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                         userInfo:nil];
                     } else {
                         SAError(@"%@", errMsg);
-                        return NO;
+                        // 打印错误日志，但不抛弃数据
                     }
                 }
             }
@@ -860,7 +861,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                     userInfo:nil];
                 } else {
                     SAError(@"%@", errMsg);
-                    return NO;
+                    // 打印错误日志，但不抛弃数据
                 }
             }
         }
@@ -1082,7 +1083,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         _flushInterval = interval;
     }
-    [self _flush];
+    [self flush];
     [self startFlushTimer];
 }
 
@@ -1197,7 +1198,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"%@ application did enter background", self);
     
     if (self.flushBeforeEnterBackground) {
-        [self _flush];
+        [self flush];
     }
     
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
@@ -1245,15 +1246,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 }
                 
-                SALog(@"%@ found %lu tracking events: %@", self, (unsigned long)[parsedEventBindings count], parsedEventBindings);
+                SADebug(@"%@ found %lu tracking events: %@", self, (unsigned long)[parsedEventBindings count], parsedEventBindings);
                 
                 self.eventBindings = parsedEventBindings;
                 [self archiveEventBindings];
             } else {
-                SALog(@"%@ the configure of VTrack is not loaded: %@", self, object);
+                SADebug(@"%@ the configure of VTrack is not loaded: %@", self, object);
             }
         } else {
-            SALog(@"%@ the configure of VTrack is not loaded: %@", self, object);
+            SADebug(@"%@ the configure of VTrack is not loaded: %@", self, object);
         }
     };
     
@@ -1285,7 +1286,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
             && ((SADesignerConnection *)self.abtestDesignerConnection).connected) {
-        SALog(@"A/B test designer connection already exists");
+        SADebug(@"VTrack connection already exists");
     } else {
         static UInt64 oldInterval;
 
