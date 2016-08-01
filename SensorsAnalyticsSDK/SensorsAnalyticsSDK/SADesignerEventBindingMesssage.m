@@ -33,7 +33,7 @@ NSString *const SADesignerEventBindingRequestMessageType = @"event_binding_reque
         SADesignerConnection *conn = weak_connection;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            SALog(@"Loading event bindings:\n%@",[self payload][@"events"]);
+            SADebug(@"Loading event bindings:\n%@",[self payload][@"events"]);
             NSArray *payload = [self payload][@"events"];
             SAEventBindingCollection *bindingCollection = [conn sessionObjectForKey:@"event_bindings"];
             if (!bindingCollection || ![bindingCollection isKindOfClass:[SAEventBindingCollection class]]) {

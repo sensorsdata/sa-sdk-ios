@@ -81,7 +81,7 @@
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
     if (jsonData == nil && error) {
-        SALog(@"Failed to serialize test designer message: %@", error);
+        SAError(@"Failed to serialize test designer message: %@", error);
     }
 
     return jsonData;

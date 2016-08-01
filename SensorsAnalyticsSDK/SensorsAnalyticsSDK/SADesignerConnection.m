@@ -70,7 +70,7 @@
         _commandQueue.suspended = YES;
 
         if (keepTrying) {
-            [self open:YES maxInterval:30 maxRetries:40];
+            [self open:YES maxInterval:15 maxRetries:999];
         } else {
             [self open:YES maxInterval:0 maxRetries:0];
         }
@@ -88,7 +88,7 @@
     static int retries = 0;
     BOOL inRetryLoop = retries > 0;
 
-    SALog(@"In open. initiate = %d, retries = %d, maxRetries = %d, maxInterval = %d, connected = %d", initiate, retries, maxRetries, maxInterval, _connected);
+    SADebug(@"In open. initiate = %d, retries = %d, maxRetries = %d, maxInterval = %d, connected = %d", initiate, retries, maxRetries, maxInterval, _connected);
 
     if (self.sessionEnded || _connected || (inRetryLoop && retries >= maxRetries) ) {
         // break out of retry loop if any of the success conditions are met.
@@ -97,7 +97,7 @@
         // If we are initiating a new connection, or we are already in a
         // retry loop (but not both). Then open a socket.
         if (!_open) {
-            SALog(@"Attempting to open WebSocket to: %@, try %d/%d ", _url, retries, maxRetries);
+            SADebug(@"Attempting to open WebSocket to: %@, try %d/%d ", _url, retries, maxRetries);
             _open = YES;
             _webSocket = [[SAWebSocket alloc] initWithURL:_url];
             _webSocket.delegate = self;
@@ -105,7 +105,7 @@
         }
         if (retries < maxRetries) {
             __weak SADesignerConnection *weakSelf = self;
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(MIN(pow(1.4, retries), maxInterval) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(maxInterval * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                 SADesignerConnection *strongSelf = weakSelf;
                 [strongSelf open:NO maxInterval:maxInterval maxRetries:maxRetries];
             });
@@ -122,7 +122,7 @@
             [value cleanup];
         }
     }
-    _session = nil;
+    _session = [[NSMutableDictionary alloc] init];
 }
 
 - (void)dealloc {
@@ -154,7 +154,7 @@
 //        SADebug(@"%@ VTrack sending message: %@", self, [message description]);
         [_webSocket send:jsonString];
     } else {
-        SALog(@"Not sending message as we are not connected: %@", [message debugDescription]);
+        SADebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
     }
 }
 
@@ -175,97 +175,121 @@
 
         designerMessage = [_typeToMessageClassMap[type] messageWithType:type payload:payload];
     } else {
-        SALog(@"Badly formed socket message expected JSON dictionary: %@", error);
+        SAError(@"Badly formed socket message expected JSON dictionary: %@", error);
     }
 
     return designerMessage;
 }
 
-#pragma mark - MPWebSocketDelegate Methods
+#pragma mark - UIAlertViewDelegate Methods
 
-- (void)webSocket:(SAWebSocket *)webSocket didReceiveMessage:(id)message {
-    if (!_connected) {
-        _connected = YES;
-        [self showConnectedView];
-        if (_connectCallback) {
-            _connectCallback();
-        }
+- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex == 0) {
+        SADebug(@"Canceled to connect VTrack ...");
+        _sessionEnded = YES;
+        [self close];
+    } else {
+        SADebug(@"Confirmed to connect VTrack ...");
     }
+}
+
+#pragma mark - SAWebSocketDelegate Methods
+
+- (void)handleMessage:(id)message {
     id<SADesignerMessage> designerMessage = [self designerMessageForMessage:message];
-
     NSOperation *commandOperation = [designerMessage responseCommandWithConnection:self];
-
     if (commandOperation) {
         [_commandQueue addOperation:commandOperation];
     }
 }
 
+- (void)webSocket:(SAWebSocket *)webSocket didReceiveMessage:(id)message {
+    if (!_connected) {
+        _connected = YES;
+        
+        NSString *alertTitle = @"Connecting to VTrack";
+        NSString *alertMessage = @"正在连接到 Sensors Analytics 可视化埋点管理界面...";
+        
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+            UIWindow *mainWindow = [SensorsAnalyticsSDK sharedInstance].vtrackWindow;
+            if (mainWindow == nil) {
+                mainWindow = [[UIApplication sharedApplication] delegate].window;
+            }
+            if (mainWindow == nil) {
+                return;
+            }
+            
+            UIAlertController *connectAlert = [UIAlertController
+                                               alertControllerWithTitle:alertTitle
+                                               message:alertMessage
+                                               preferredStyle:UIAlertControllerStyleAlert];
+            
+            [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                SADebug(@"Canceled to connect VTrack ...");
+                
+                _sessionEnded = YES;
+                [self close];
+            }]];
+            
+            [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                SADebug(@"Confirmed to connect VTrack ...");
+                
+                _connected = YES;
+                
+                if (_connectCallback) {
+                    _connectCallback();
+                }
+                
+                [self handleMessage:message];
+            }]];
+            
+            [[mainWindow rootViewController] presentViewController:connectAlert animated:YES completion:nil];
+        } else {
+            _connected = YES;
+            
+            if (_connectCallback) {
+                _connectCallback();
+            }
+            
+            [self handleMessage:message];
+
+            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"继续", nil];
+            [connectAlert show];
+        }
+    } else {
+        [self handleMessage:message];
+    }
+}
+
 - (void)webSocketDidOpen:(SAWebSocket *)webSocket {
-    SALog(@"WebSocket %@ did open.", webSocket);
     _commandQueue.suspended = NO;
 }
 
 - (void)webSocket:(SAWebSocket *)webSocket didFailWithError:(NSError *)error {
-    SALog(@"WebSocket did fail with error: %@", error);
     _commandQueue.suspended = YES;
     [_commandQueue cancelAllOperations];
-    [self hideConnectedView];
     _open = NO;
     if (_connected) {
         _connected = NO;
-        [self open:YES maxInterval:10 maxRetries:40];
+        [self open:YES maxInterval:15 maxRetries:999];
         if (_disconnectCallback) {
             _disconnectCallback();
         }
     }
 }
 
-- (void)webSocket:(SAWebSocket *)webSocket
- didCloseWithCode:(NSInteger)code
-           reason:(NSString *)reason
-         wasClean:(BOOL)wasClean {
-    SALog(@"WebSocket did close with code '%d' reason '%@'.", (int)code, reason);
-
+- (void)webSocket:(SAWebSocket *)webSocket didCloseWithCode:(NSInteger)code reason:(NSString *)reason wasClean:(BOOL)wasClean {
+    SADebug(@"WebSocket did close with code '%d' reason '%@'.", (int)code, reason);
     _commandQueue.suspended = YES;
     [_commandQueue cancelAllOperations];
-    [self hideConnectedView];
     _open = NO;
     if (_connected) {
         _connected = NO;
-        [self open:YES maxInterval:10 maxRetries:40];
+        [self open:YES maxInterval:15 maxRetries:999];
         if (_disconnectCallback) {
             _disconnectCallback();
         }
     }
-}
-
-- (void)showConnectedView {
-    if (true) {
-        return;
-    }
-    if (!_recordingView) {
-        UIWindow *mainWindow = [SensorsAnalyticsSDK sharedInstance].vtrackWindow;
-        if (mainWindow == nil) {
-            mainWindow = [[UIApplication sharedApplication] delegate].window;
-        }
-        if (mainWindow == nil) {
-            return;
-        }
-        _recordingView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, mainWindow.frame.size.width, 20.0)];
-        _recordingView.backgroundColor = [UIColor colorWithRed:83/255.0f green:177/255.0f blue:117/255.0f alpha:0.8];
-        [mainWindow addSubview:_recordingView];
-        [mainWindow bringSubviewToFront:_recordingView];
-    }
-}
-
-- (void)hideConnectedView {
-    if (true) {
-        return;
-    }
-    if (_recordingView) {
-        [_recordingView removeFromSuperview];
-    }
-    _recordingView = nil;
 }
 
 @end

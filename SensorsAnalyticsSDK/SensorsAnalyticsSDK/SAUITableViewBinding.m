@@ -135,7 +135,8 @@
     if (self = [super initWithCoder:aDecoder]) {
         [self setSwizzleClass:NSClassFromString([aDecoder decodeObjectForKey:@"table_delegate"])];
     }
-    return self;}
+    return self;
+}
 
 - (void)encodeWithCoder:(NSCoder *)aCoder {
     [super encodeWithCoder:aCoder];

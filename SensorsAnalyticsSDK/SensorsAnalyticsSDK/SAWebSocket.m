@@ -513,9 +513,7 @@ static __strong NSData *CRLFCRLF;
     }];
 }
 
-- (void)didConnect
-{
-    SALog(@"Connected");
+- (void)didConnect {
     CFHTTPMessageRef request = CFHTTPMessageCreateRequest(NULL, CFSTR("GET"), (__bridge CFURLRef)_url, kCFHTTPVersion1_1);
 
     // Set host first so it defaults
@@ -582,7 +580,7 @@ static __strong NSData *CRLFCRLF;
 
 #if DEBUG
         [SSLOptions setValue:@NO forKey:(__bridge id)kCFStreamSSLValidatesCertificateChain];
-        SALog(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
+        SADebug(@"SocketRocket: In debug mode.  Allowing connection to any root cert");
 #endif
 
         [_outputStream setProperty:SSLOptions
@@ -637,7 +635,7 @@ static __strong NSData *CRLFCRLF;
 
         self.readyState = SAWebSocketStateClosing;
 
-        SALog(@"Closing with code %d reason %@", code, reason);
+        SADebug(@"Closing with code %d reason %@", code, reason);
 
         if (wasConnecting) {
             [self _disconnect];
@@ -693,7 +691,7 @@ static __strong NSData *CRLFCRLF;
 
             self.readyState = SAWebSocketStateClosed;
 
-            SALog(@"Failing with error %@", error.localizedDescription);
+            SADebug(@"Failing with error %@", error.localizedDescription);
 
             [self _disconnect];
             [self _scheduleCleanup];
@@ -792,8 +790,6 @@ static inline BOOL closeCodeIsValid(int closeCode) {
     size_t dataSize = data.length;
     __block uint16_t closeCode = 0;
 
-    SALog(@"Received close frame");
-
     if (dataSize == 1) {
         // TODO handle error
         [self _closeWithProtocolError:@"Payload for close must be larger than 2 bytes"];
@@ -829,7 +825,7 @@ static inline BOOL closeCodeIsValid(int closeCode) {
 - (void)_disconnect;
 {
     [self assertOnWorkQueue];
-    SALog(@"Trying to disconnect");
+    SADebug(@"Trying to disconnect");
     _closeWhenFinishedWriting = YES;
     [self _pumpWriting];
 }
@@ -1461,7 +1457,7 @@ static const size_t MPFrameHeaderOverhead = 32;
             }
 
             case NSStreamEventErrorOccurred: {
-                SALog(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
+                SADebug(@"NSStreamEventErrorOccurred %@ %@", aStream, [[aStream streamError] copy]);
                 /// TODO specify error better!
                 [self _failWithError:aStream.streamError];
                 self->_readBufferOffset = 0;
@@ -1472,7 +1468,7 @@ static const size_t MPFrameHeaderOverhead = 32;
 
             case NSStreamEventEndEncountered: {
                 [self _pumpScanner];
-                SALog(@"NSStreamEventEndEncountered %@", aStream);
+                SADebug(@"NSStreamEventEndEncountered %@", aStream);
                 if (aStream.streamError) {
                     [self _failWithError:aStream.streamError];
                 } else {
@@ -1522,7 +1518,7 @@ static const size_t MPFrameHeaderOverhead = 32;
             }
 
             default:
-                SALog(@"(default)  %@", aStream);
+                SADebug(@"(default)  %@", aStream);
                 break;
         }
     });

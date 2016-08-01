@@ -16,6 +16,8 @@
 
 #define MIN_ARGS 2
 #define MAX_ARGS 4
+#define MIN_BOOL_ARGS 3
+#define MAX_BOOL_ARGS 3
 
 @interface SASwizzle : NSObject
 
@@ -29,8 +31,7 @@
                         named:(NSString *)aName
                      forClass:(Class)aClass
                      selector:(SEL)aSelector
-               originalMethod:(IMP)aMethod
-                  withNumArgs:(uint)numArgs;
+               originalMethod:(IMP)aMethod;
 
 @end
 
@@ -59,8 +60,27 @@ static void sa_swizzledMethod_3(id self, SEL _cmd, id arg) {
         NSEnumerator *blocks = [swizzle.blocks objectEnumerator];
         swizzleBlock block;
         while((block = [blocks nextObject])) {
-            block(self, _cmd);
+            block(self, _cmd, arg);
         }
+    }
+}
+
+static void sa_swizzledMethod_3_bool(id self, SEL _cmd, BOOL arg) {
+    Class klass = [self class];
+    while (klass) {
+        Method aMethod = class_getInstanceMethod(klass, _cmd);
+        SASwizzle *swizzle = (SASwizzle *)[swizzles objectForKey:MAPTABLE_ID(aMethod)];
+        if (swizzle) {
+            ((void(*)(id, SEL, BOOL))swizzle.originalMethod)(self, _cmd, arg);
+            
+            NSEnumerator *blocks = [swizzle.blocks objectEnumerator];
+            swizzleBlock block;
+            while((block = [blocks nextObject])) {
+                block(self, _cmd, [NSNumber numberWithBool:arg]);
+            }
+            break;
+        }
+        klass = class_getSuperclass(klass);
     }
 }
 
@@ -79,6 +99,7 @@ static void sa_swizzledMethod_4(id self, SEL _cmd, id arg, id arg2) {
 }
 
 static void (*sa_swizzledMethods[MAX_ARGS - MIN_ARGS + 1])() = {sa_swizzledMethod_2, sa_swizzledMethod_3, sa_swizzledMethod_4};
+static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SEL, BOOL) = {sa_swizzledMethod_3_bool};
 
 @implementation SASwizzler
 
@@ -91,7 +112,7 @@ static void (*sa_swizzledMethods[MAX_ARGS - MIN_ARGS + 1])() = {sa_swizzledMetho
     NSEnumerator *en = [swizzles objectEnumerator];
     SASwizzle *swizzle;
     while((swizzle = (SASwizzle *)[en nextObject])) {
-        SALog(@"%@", swizzle);
+        SADebug(@"%@", swizzle);
     }
 }
 
@@ -121,51 +142,83 @@ static void (*sa_swizzledMethods[MAX_ARGS - MIN_ARGS + 1])() = {sa_swizzledMetho
     return isLocal;
 }
 
-+ (void)swizzleSelector:(SEL)aSelector onClass:(Class)aClass withBlock:(swizzleBlock)aBlock named:(NSString *)aName {
++ (void)swizzleSelector:(SEL)aSelector
+                onClass:(Class)aClass
+              withBlock:(swizzleBlock)aBlock
+                  named:(NSString *)aName {
     Method aMethod = class_getInstanceMethod(aClass, aSelector);
-    if (aMethod) {
-        uint numArgs = method_getNumberOfArguments(aMethod);
-        if (numArgs >= MIN_ARGS && numArgs <= MAX_ARGS) {
+    if (!aMethod) {
+        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+    }
+    
+    uint numArgs = method_getNumberOfArguments(aMethod);
+    if (numArgs < MIN_ARGS || numArgs > MAX_ARGS) {
+        [NSException raise:@"SwizzleException" format:@"Cannot swizzle method with %d args", numArgs];
+    }
+    
+    IMP swizzledMethod = (IMP)sa_swizzledMethods[numArgs - 2];
+    [SASwizzler swizzleSelector:aSelector onClass:aClass withBlock:aBlock andSwizzleMethod:swizzledMethod named:aName];
+}
 
-            BOOL isLocal = [self isLocallyDefinedMethod:aMethod onClass:aClass];
-            IMP swizzledMethod = (IMP)sa_swizzledMethods[numArgs - 2];
-            SASwizzle *swizzle = [self swizzleForMethod:aMethod];
++ (void)swizzleBoolSelector:(SEL)aSelector
+                    onClass:(Class)aClass
+                  withBlock:(swizzleBlock)aBlock
+                      named:(NSString *)aName {
+    Method aMethod = class_getInstanceMethod(aClass, aSelector);
+    if (!aMethod) {
+        [NSException raise:@"SwizzleBoolException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+    }
+    
+    uint numArgs = method_getNumberOfArguments(aMethod);
+    if (numArgs < MIN_BOOL_ARGS || numArgs > MAX_BOOL_ARGS) {
+        [NSException raise:@"SwizzleBoolException" format:@"Cannot swizzle method with %d args", numArgs];
+    }
+    
+    IMP swizzledMethod = (IMP)sa_swizzledMethods_bool[numArgs - 3];
+    [SASwizzler swizzleSelector:aSelector onClass:aClass withBlock:aBlock andSwizzleMethod:swizzledMethod named:aName];
+}
 
-            if (isLocal) {
-                if (!swizzle) {
-                    IMP originalMethod = method_getImplementation(aMethod);
-
-                    // Replace the local implementation of this method with the swizzled one
-                    method_setImplementation(aMethod,swizzledMethod);
-
-                    // Create and add the swizzle
-                    swizzle = [[SASwizzle alloc] initWithBlock:aBlock named:aName forClass:aClass selector:aSelector originalMethod:originalMethod withNumArgs:numArgs];
-                    [self setSwizzle:swizzle forMethod:aMethod];
-
-                } else {
-                    [swizzle.blocks setObject:aBlock forKey:aName];
-                }
-            } else {
-                IMP originalMethod = swizzle ? swizzle.originalMethod : method_getImplementation(aMethod);
-
-                // Add the swizzle as a new local method on the class.
-                if (!class_addMethod(aClass, aSelector, swizzledMethod, method_getTypeEncoding(aMethod))) {
-                    [NSException raise:@"SwizzleException" format:@"Could not add swizzled for %@::%@, even though it didn't already exist locally", NSStringFromClass(aClass), NSStringFromSelector(aSelector)];
-                }
-                // Now re-get the Method, it should be the one we just added.
-                Method newMethod = class_getInstanceMethod(aClass, aSelector);
-                if (aMethod == newMethod) {
-                    [NSException raise:@"SwizzleException" format:@"Newly added method for %@::%@ was the same as the old method", NSStringFromClass(aClass), NSStringFromSelector(aSelector)];
-                }
-
-                SASwizzle *newSwizzle = [[SASwizzle alloc] initWithBlock:aBlock named:aName forClass:aClass selector:aSelector originalMethod:originalMethod withNumArgs:numArgs];
-                [self setSwizzle:newSwizzle forMethod:newMethod];
-            }
++ (void)swizzleSelector:(SEL)aSelector
+                onClass:(Class)aClass
+              withBlock:(swizzleBlock)aBlock
+       andSwizzleMethod:(IMP)aSwizzleMethod
+                  named:(NSString *)aName {
+    Method aMethod = class_getInstanceMethod(aClass, aSelector);
+    if (!aMethod) {
+        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+    }
+    
+    BOOL isLocal = [self isLocallyDefinedMethod:aMethod onClass:aClass];
+    SASwizzle *swizzle = [self swizzleForMethod:aMethod];
+    
+    if (isLocal) {
+        if (!swizzle) {
+            IMP originalMethod = method_getImplementation(aMethod);
+            
+            // Replace the local implementation of this method with the swizzled one
+            method_setImplementation(aMethod, aSwizzleMethod);
+            
+            // Create and add the swizzle
+            swizzle = [[SASwizzle alloc] initWithBlock:aBlock named:aName forClass:aClass selector:aSelector originalMethod:originalMethod];
+            [self setSwizzle:swizzle forMethod:aMethod];
         } else {
-            [NSException raise:@"SwizzleException" format:@"Cannot swizzle method with %d args", numArgs];
+            [swizzle.blocks setObject:aBlock forKey:aName];
         }
     } else {
-        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+        IMP originalMethod = swizzle ? swizzle.originalMethod : method_getImplementation(aMethod);
+        
+        // Add the swizzle as a new local method on the class.
+        if (!class_addMethod(aClass, aSelector, aSwizzleMethod, method_getTypeEncoding(aMethod))) {
+            [NSException raise:@"SwizzleException" format:@"Could not add swizzled for %@::%@, even though it didn't already exist locally", NSStringFromClass(aClass), NSStringFromSelector(aSelector)];
+        }
+        // Now re-get the Method, it should be the one we just added.
+        Method newMethod = class_getInstanceMethod(aClass, aSelector);
+        if (aMethod == newMethod) {
+            [NSException raise:@"SwizzleException" format:@"Newly added method for %@::%@ was the same as the old method", NSStringFromClass(aClass), NSStringFromSelector(aSelector)];
+        }
+        
+        SASwizzle *newSwizzle = [[SASwizzle alloc] initWithBlock:aBlock named:aName forClass:aClass selector:aSelector originalMethod:originalMethod];
+        [self setSwizzle:newSwizzle forMethod:newMethod];
     }
 }
 
@@ -213,12 +266,10 @@ static void (*sa_swizzledMethods[MAX_ARGS - MIN_ARGS + 1])() = {sa_swizzledMetho
               named:(NSString *)aName
            forClass:(Class)aClass
            selector:(SEL)aSelector
-     originalMethod:(IMP)aMethod
-        withNumArgs:(uint)numArgs {
+     originalMethod:(IMP)aMethod {
     if ((self = [self init])) {
         self.class = aClass;
         self.selector = aSelector;
-        self.numArgs = numArgs;
         self.originalMethod = aMethod;
         [self.blocks setObject:aBlock forKey:aName];
     }

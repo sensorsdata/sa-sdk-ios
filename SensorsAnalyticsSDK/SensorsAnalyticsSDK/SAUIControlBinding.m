@@ -30,13 +30,13 @@
 + (SAEventBinding *)bindingWithJSONObject:(NSDictionary *)object {
     NSString *path = object[@"path"];
     if (![path isKindOfClass:[NSString class]] || [path length] < 1) {
-        SALog(@"must supply a view path to bind by");
+        SAError(@"must supply a view path to bind by");
         return nil;
     }
 
     NSString *eventName = object[@"event_name"];
     if (![eventName isKindOfClass:[NSString class]] || [eventName length] < 1 ) {
-        SALog(@"binding requires an event name");
+        SAError(@"binding requires an event name");
         return nil;
     }
     
@@ -44,7 +44,7 @@
     BOOL deployed = [[object objectForKey:@"deployed"] boolValue];
 
     if (!(object[@"control_event"] && ([object[@"control_event"] unsignedIntegerValue] & UIControlEventAllEvents))) {
-        SALog(@"must supply a valid UIControlEvents value for control_event");
+        SAError(@"must supply a valid UIControlEvents value for control_event");
         return nil;
     }
 
