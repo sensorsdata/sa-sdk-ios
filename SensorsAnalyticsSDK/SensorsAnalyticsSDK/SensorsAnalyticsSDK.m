@@ -18,16 +18,16 @@
 #import "LFCGzipUtility.h"
 #import "MessageQueueBySqlite.h"
 #import "NSData+SABase64.h"
-#import "Reachability.h"
 #import "SADesignerConnection.h"
 #import "SADesignerEventBindingMessage.h"
 #import "SADesignerSessionCollection.h"
 #import "SAEventBinding.h"
 #import "SALogger.h"
+#import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.6.1"
+#define VERSION @"1.6.2"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1042,14 +1042,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-    Reachability *reachability = [Reachability reachabilityForInternetConnection];
-    [reachability startNotifier];
+    SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
     
-    NetworkStatus status = [reachability currentReachabilityStatus];
-    if (status == ReachableViaWiFi) {
+    SANetworkStatus status = [reachability currentReachabilityStatus];
+    if (status == SAReachableViaWiFi) {
         return @"WIFI";
     }
-    else if (status == ReachableViaWWAN) {
+    else if (status == SAReachableViaWWAN) {
         CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
         if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
             return @"2G";
