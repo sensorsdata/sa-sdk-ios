@@ -8,6 +8,8 @@
 
 #import "AppDelegate.h"
 
+#import "SensorsAnalyticsSDK.h"
+
 @interface AppDelegate ()
 
 @end
@@ -16,6 +18,12 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}&project=${project}"
+                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/config"
+                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
+#ifdef DEBUG
+    [[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
+#endif
     return YES;
 }
 

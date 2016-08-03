@@ -34,7 +34,7 @@
     self = [super init];
     _jsonUtil = [[JSONUtil alloc] init];
     if (sqlite3_initialize() != SQLITE_OK) {
-        SAError(@"sqlite3_initialize fail");
+        SAError(@"failed to initialize SQLite.");
         return nil;
     }
     if (sqlite3_open_v2([filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK ) {
@@ -48,9 +48,9 @@
             return nil;
         }
         _messageCount = [self sqliteCount];
-        SADebug(@"SQLites is opened.current count is %ul", _messageCount);
+        SADebug(@"SQLites is opened. current count is %ul", _messageCount);
     } else {
-        SAError(@"create database fail");
+        SAError(@"failed to open SQLite db.");
         return nil;
     }
     return self;

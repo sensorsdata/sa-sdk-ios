@@ -16,90 +16,41 @@
 
 @implementation DemoController
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    // Do any additional setup after loading the view, typically from a nib.
-    [self testInit];
-}
-
-- (void)didReceiveMemoryWarning {
-    [super didReceiveMemoryWarning];
-    // Dispose of any resources that can be recreated.
-}
-
-- (void)testInit {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}"
-                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config"
-                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
-    [SensorsAnalyticsSDK sharedInstance].flushInterval = 1000;
-}
-
 - (void)testTrack {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk track:@"testTrack" withProperties:@{@"test": @"test"}];
-    }
+    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"test": @"test"}];
 }
 
 - (void)testTrackSignup {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk trackSignUp:@"new id"];
-    }
+    [[SensorsAnalyticsSDK sharedInstance] trackSignUp:@"new id"];
 }
 
 - (void)testTrackInstallation {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk trackInstallation:@"AppInstall"];
-    }
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall"];
 }
 
 - (void)testProfileSet {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk.people set:@"name" to:@"caojiang"];
-    }
-    
+//    [[SensorsAnalyticsSDK sharedInstance].people set:@"name" to:@"caojiang"];
+    [[[SensorsAnalyticsSDK sharedInstance] people] setAppPushContext:SensorsAnalyticsAppPushJiguang withRegisterId:@"123456"];
 }
 
 - (void)testProfileAppend {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk.people append:@"array" by:[NSSet setWithObjects:@"123", nil]];
-    }
-    
+    [[SensorsAnalyticsSDK sharedInstance].people append:@"array" by:[NSSet setWithObjects:@"123", nil]];
 }
 
 - (void)testProfileIncrement {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk.people increment:@"age" by:@1];
-    }
-    
+    [[SensorsAnalyticsSDK sharedInstance].people increment:@"age" by:@1];
 }
 
 - (void)testProfileUnset {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk.people increment:@"age" by:@1];
-    }
-    
+    [[SensorsAnalyticsSDK sharedInstance].people unset:@"age"];
 }
 
 - (void)testProfileDelete {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk.people deleteUser];
-    }
-    
+    [[SensorsAnalyticsSDK sharedInstance].people deleteUser];
 }
 
 - (void)testFlush {
-    SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    if (sdk != nil) {
-        [sdk flush];
-    }
+    [[SensorsAnalyticsSDK sharedInstance] flush];
 }
 
 - (void)testCodeless {

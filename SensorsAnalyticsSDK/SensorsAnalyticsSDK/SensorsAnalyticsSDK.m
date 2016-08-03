@@ -27,7 +27,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.6.2"
+#define VERSION @"1.6.3"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -42,6 +42,12 @@ NSString* const APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
 NSString* const RESUME_FROM_BACKGROUND_PROPERTY = @"$resume_from_background";
 // App 浏览页面名称
 NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
+// App 推送相关:
+NSString* const APP_PUSH_ID_PROPERTY_BAIDU = @"$app_push_id_baidu";
+NSString* const APP_PUSH_ID_PROPERTY_JIGUANG = @"$app_push_id_jiguang";
+NSString* const APP_PUSH_ID_PROPERTY_QQ = @"$app_push_id_qq";
+NSString* const APP_PUSH_ID_PROPERTY_GETUI = @"$app_push_id_xiaomi";
+NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 
 @implementation SensorsAnalyticsDebugException
 
@@ -188,9 +194,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     configureURL = [url absoluteString];
     
-    SADebug(@"%@ Initializing the instance of Sensors Analytics SDK with server url '%@', configure url '%@'",
-          self, serverURL, configureURL);
-    
     if (self = [self init]) {
         self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
         
@@ -241,6 +244,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // XXX: App Active 的时候会启动计时器，此处不需要启动
 //        [self startFlushTimer];
     }
+    
+    SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@'",
+            self, serverURL, configureURL);
     
     return self;
 }
@@ -1466,6 +1472,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - People analytics
 
+NSString * const SensorsAnalyticsAppPushProfileName[] = {
+    [SensorsAnalyticsAppPushBaidu] = @"$app_push_id_baidu",
+    [SensorsAnalyticsAppPushJiguang] = @"$app_push_id_jiguang",
+    [SensorsAnalyticsAppPushQQ] = @"$app_push_id_qq",
+    [SensorsAnalyticsAppPushGetui] = @"$app_push_id_getui",
+    [SensorsAnalyticsAppPushXiaomi] = @"$app_push_id_xiaomi",
+};
+
 @implementation SensorsAnalyticsPeople {
     SensorsAnalyticsSDK *_sdk;
 }
@@ -1512,6 +1526,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)deleteUser {
     [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
+}
+
+- (void)setAppPushContext:(SensorsAnalyticsAppPushService) appPushService withRegisterId:(NSString*) registerId {
+    NSString *profileName = SensorsAnalyticsAppPushProfileName[appPushService];
+    [_sdk track:nil withProperties:@{profileName : registerId} withType:@"profile_set"];
 }
 
 @end

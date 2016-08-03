@@ -20,7 +20,7 @@ static inline void SALog(NSString *format, ...) {
 
 #define SAError(...) SALog(__VA_ARGS__)
 
-#if (defined DEBUG) && (!defined SENSORS_ANALYTICS_DISABLE_LOG)
+#if (defined DEBUG) && (defined SENSORS_ANALYTICS_ENABLE_LOG)
 #define SADebug(...) SALog(__VA_ARGS__)
 #else
 #define SADebug(...)

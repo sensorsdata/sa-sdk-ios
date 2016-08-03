@@ -39,6 +39,25 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 };
 
 /**
+ * @abstract
+ * App推送平台，用于设定相关推送平台的 Register ID
+ *
+ * @discussion
+ *   SensorsAnalyticsAppPushBaidu - 百度云推送
+ *   SensorsAnalyticsAppPushJiguang - 极光推送
+ *   SensorsAnalyticsAppPushQQ - 腾讯云推送
+ *   SensorsAnalyticsAppPushGetui - 个推
+ *   SensorsAnalyticsAppPushXiaomi - 小米推送
+ */
+typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
+    SensorsAnalyticsAppPushBaidu,
+    SensorsAnalyticsAppPushJiguang,
+    SensorsAnalyticsAppPushQQ,
+    SensorsAnalyticsAppPushGetui,
+    SensorsAnalyticsAppPushXiaomi,
+};
+
+/**
  * @class
  * SensorsAnalyticsSDK类
  *
@@ -507,5 +526,14 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
  * 删除当前这个用户的所有记录
  */
 - (void)deleteUser;
+
+/**
+ * @abstract
+ * 将第三方推送平台的 Register ID 提交到 Sensors Analytics
+ *
+ * @param appPushService 第三方推送平台
+ * @param registerId 推送平台的 Register ID
+ */
+- (void)setAppPushContext:(SensorsAnalyticsAppPushService) appPushService withRegisterId:(NSString*) registerId;
 
 @end
