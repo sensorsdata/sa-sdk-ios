@@ -104,6 +104,9 @@
 		A3A85C1F1C3BB8E100DCA1A4 /* SAUIControlBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = A3997A2E1C3AC3B8005A9374 /* SAUIControlBinding.m */; };
 		A3A85C201C3BB8E100DCA1A4 /* SAUITableViewBinding.m in Sources */ = {isa = PBXBuildFile; fileRef = A3997A301C3AC3B8005A9374 /* SAUITableViewBinding.m */; };
 		A3BD57C51C58B1700006392F /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
+		A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
+		A3E388A11D509B8900F6B9FC /* SAReachability.h in Headers */ = {isa = PBXBuildFile; fileRef = A3E388A01D509B8900F6B9FC /* SAReachability.h */; };
+		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
 		A3F32BD11C57302700C3B98D /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
@@ -199,6 +202,8 @@
 		A399F50C1C3C281D00B44340 /* SAValueTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAValueTransformers.h; sourceTree = "<group>"; };
 		A3A85C141C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSInvocation+SAHelpers.h"; sourceTree = "<group>"; };
 		A3A85C151C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSInvocation+SAHelpers.m"; sourceTree = "<group>"; };
+		A3E3889E1D509B7100F6B9FC /* SAReachability.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAReachability.m; sourceTree = "<group>"; };
+		A3E388A01D509B8900F6B9FC /* SAReachability.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAReachability.h; sourceTree = "<group>"; };
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
@@ -277,6 +282,8 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				A3E388A01D509B8900F6B9FC /* SAReachability.h */,
+				A3E3889E1D509B7100F6B9FC /* SAReachability.m */,
 				A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */,
 				A3746E7A1C3115EB008A50A3 /* SAAbstractDesignerMessage.m */,
 				A3746E7D1C3115EB008A50A3 /* SADesignerMessage.h */,
@@ -359,6 +366,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				A3746E9C1C313E15008A50A3 /* SAApplicationStateSerializer.h in Headers */,
+				A3E388A11D509B8900F6B9FC /* SAReachability.h in Headers */,
 				A3997A331C3AC3B8005A9374 /* SAUIControlBinding.h in Headers */,
 				A3997A251C3AC1DE005A9374 /* SAObjectSelector.h in Headers */,
 				A3997A1F1C3ABCE3005A9374 /* SADesignerEventBindingMessage.h in Headers */,
@@ -440,7 +448,7 @@
 				TargetAttributes = {
 					4D0EB7BD1B47A88C0019FD21 = {
 						CreatedOnToolsVersion = 6.4;
-						DevelopmentTeam = Y679VLFDC2;
+						DevelopmentTeam = RGJ23PSZZ8;
 					};
 					4D5CA7761B43E92D00D7ACB7 = {
 						CreatedOnToolsVersion = 6.3.2;
@@ -484,6 +492,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */,
 				A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3BD57C51C58B1700006392F /* SAValueTransformers.m in Sources */,
 				A3A85C181C3BB8E100DCA1A4 /* NSInvocation+SAHelpers.m in Sources */,
@@ -524,6 +533,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */,
 				A3F32BD11C57302700C3B98D /* NSData+SABase64.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
 				A3997A2A1C3AC342005A9374 /* SASwizzler.m in Sources */,
@@ -587,6 +597,7 @@
 				GCC_PREPROCESSOR_DEFINITIONS = (
 					"SENSORS_ANALYTICS_IDFA=1",
 					"$(inherited)",
+					"SENSORS_ANALYTICS_ENABLE_LOG=1",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;

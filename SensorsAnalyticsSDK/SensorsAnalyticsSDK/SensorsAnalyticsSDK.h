@@ -28,14 +28,32 @@
  *  http://www.sensorsdata.cn/manual/debug_mode.html
  *
  * Debug模式有三种选项:
- *   SensorsAnalyticsDebugModeOff - 关闭DEBUG模式
- *   DebugOnly - 打开DEBUG模式，但该模式下发送的数据仅用于调试，不进行数据导入
- *   DebugAndTrack - 打开DEBUG模式，并将数据导入到SensorsAnalytics中
+ *   SensorsAnalyticsDebugOff - 关闭DEBUG模式
+ *   SensorsAnalyticsDebugOnly - 打开DEBUG模式，但该模式下发送的数据仅用于调试，不进行数据导入
+ *   SensorsAnalyticsDebugAndTrack - 打开DEBUG模式，并将数据导入到SensorsAnalytics中
  */
 typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
     SensorsAnalyticsDebugOff,
     SensorsAnalyticsDebugOnly,
     SensorsAnalyticsDebugAndTrack,
+};
+
+/**
+ * @abstract
+ * TrackTimer 接口的时间单位。调用该接口时，传入时间单位，可以设置 event_duration 属性的时间单位。
+ * 
+ * @discuss
+ * 时间单位有以下选项：
+ *   SensorsAnalyticsTimeUnitMilliseconds - 毫秒
+ *   SensorsAnalyticsTimeUnitSeconds - 秒
+ *   SensorsAnalyticsTimeUnitMinutes - 分钟
+ *   SensorsAnalyticsTimeUnitHours - 小时
+ */
+typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
+    SensorsAnalyticsTimeUnitMilliseconds,
+    SensorsAnalyticsTimeUnitSeconds,
+    SensorsAnalyticsTimeUnitMinutes,
+    SensorsAnalyticsTimeUnitHours
 };
 
 /**
@@ -275,11 +293,25 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
  * 间记录在事件属性 "event_duration" 中。
  *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
  * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
  *
  * @param event             event的名称
  */
 - (void)trackTimer:(NSString *)event;
+
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
 
 /**
  * @abstract

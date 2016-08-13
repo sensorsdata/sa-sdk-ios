@@ -27,7 +27,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.6.3"
+#define VERSION @"1.6.4"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -38,6 +38,8 @@ NSString* const APP_START_EVENT = @"$AppStart";
 NSString* const APP_END_EVENT = @"$AppEnd";
 // App 浏览页面
 NSString* const APP_VIEW_SCREEN_EVENT = @"$AppViewScreen";
+// App 首次启动
+NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
 // App 是否从后台恢复
 NSString* const RESUME_FROM_BACKGROUND_PROPERTY = @"$resume_from_background";
 // App 浏览页面名称
@@ -98,8 +100,8 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     UInt64 _flushInterval;
     UIWindow *_vtrackWindow;
     NSDateFormatter *_dateFormatter;
-    BOOL _autoTrack;
-    BOOL _appRelaunched;
+    BOOL _autoTrack;                    // 自动采集事件
+    BOOL _appRelaunched;                // App 从后台恢复
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -207,6 +209,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _vtrackWindow = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
+        
+        
         
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
@@ -594,23 +598,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties和propertieDict
-            [p addEntriesFromDictionary:self.automaticProperties];
+            [p addEntriesFromDictionary:_automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
 
-            // 是否WIFI是每次track的时候需要判断一次的
+            // 每次 track 时手机网络状态
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
             [p setObject:networkType forKey:@"$network_type"];
-            
             if ([networkType isEqualToString:@"WIFI"]) {
                 [p setObject:@YES forKey:@"$wifi"];
             } else {
                 [p setObject:@NO forKey:@"$wifi"];
             }
             
-            NSNumber *eventBegin = self.trackTimer[event];
-            if (eventBegin) {
+            NSDictionary *eventTimer = self.trackTimer[event];
+            if (eventTimer) {
                 [self.trackTimer removeObjectForKey:event];
-                [p setObject:@([timeStamp longValue] - [eventBegin longValue]) forKey:@"$event_duration"];
+                NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
+                SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
+                
+                long eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                switch (timeUnit) {
+                    case SensorsAnalyticsTimeUnitHours:
+                        eventDuration = eventDuration / 60;
+                    case SensorsAnalyticsTimeUnitMinutes:
+                        eventDuration = eventDuration / 60;
+                    case SensorsAnalyticsTimeUnitSeconds:
+                        eventDuration = eventDuration / 1000;
+                    case SensorsAnalyticsTimeUnitMilliseconds:
+                        break;
+                }
+                
+                [p setObject:@(eventDuration) forKey:@"event_duration"];
             }
         }
         
@@ -685,6 +703,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimer:(NSString *)event {
+    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
+}
+
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
         if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -700,7 +722,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *eventBegin = @([[self class] getCurrentTime]);
     
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = eventBegin;
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
     });
 }
 
@@ -1053,8 +1075,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SANetworkStatus status = [reachability currentReachabilityStatus];
     if (status == SAReachableViaWiFi) {
         return @"WIFI";
-    }
-    else if (status == SAReachableViaWWAN) {
+    } else if (status == SAReachableViaWWAN) {
         CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
         if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
             return @"2G";
@@ -1200,9 +1221,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (_autoTrack) {
             Class klass = [(UITableViewController *)obj class];
             if (klass) {
-                [self track:APP_VIEW_SCREEN_EVENT withProperties:@{
-                                                                   SCREEN_NAME_PROPERTY : NSStringFromClass(klass)
-                                                                   }];
+                NSString *screenName = NSStringFromClass(klass);
+                if (![screenName isEqualToString:@"SFBrowserRemoteViewController"] &&
+                    ![screenName isEqualToString:@"SFSafariViewController"] &&
+                    ![screenName isEqualToString:@"UIInputWindowController"] &&
+                    ![screenName isEqualToString:@"UINavigationController"] &&
+                    ![screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
+                    [self track:APP_VIEW_SCREEN_EVENT withProperties:@{
+                                                                       SCREEN_NAME_PROPERTY : NSStringFromClass(klass)
+                                                                       }];
+                }
             }
         }
     };
@@ -1223,20 +1251,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     
-    [self startFlushTimer];
+    // 是否首次启动
+    BOOL isFirstStart = NO;
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
+        isFirstStart = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
     
     if (_autoTrack) {
         // 追踪 AppStart 事件
         [self track:APP_START_EVENT withProperties:@{
                                                      RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                     APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                      }];
         // 启动 AppEnd 事件计时器
-        [self trackTimer:APP_END_EVENT];
+        [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
     }
     
     if (self.checkForEventBindingsOnActive) {
         [self checkForConfigure];
     }
+    
+    [self startFlushTimer];
 }
 
 - (void)applicationWillResignActive:(NSNotification *)notification {
@@ -1340,7 +1377,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        SADebug(@"Sensors Analytics SDK is initializing with the VTrack server url: %@", _vtrackServerURL);
+        SADebug(@"%@ initialized the VTrack with server url: %@", self, _vtrackServerURL);
     };
     
     NSURL *URL = [NSURL URLWithString:self.configureURL];
