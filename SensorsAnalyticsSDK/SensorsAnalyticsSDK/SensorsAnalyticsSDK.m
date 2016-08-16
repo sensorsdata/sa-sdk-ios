@@ -7,7 +7,6 @@
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 
-#import <AdSupport/ASIdentifierManager.h>
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <UIKit/UIApplication.h>
@@ -27,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.6.4"
+#define VERSION @"1.6.5"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1509,12 +1508,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - People analytics
 
-NSString * const SensorsAnalyticsAppPushProfileName[] = {
-    [SensorsAnalyticsAppPushBaidu] = @"$app_push_id_baidu",
-    [SensorsAnalyticsAppPushJiguang] = @"$app_push_id_jiguang",
-    [SensorsAnalyticsAppPushQQ] = @"$app_push_id_qq",
-    [SensorsAnalyticsAppPushGetui] = @"$app_push_id_getui",
-    [SensorsAnalyticsAppPushXiaomi] = @"$app_push_id_xiaomi",
+NSString * const SensorsAnalyticsAppPushProfilePrefix[] = {
+    [SensorsAnalyticsAppPushBaidu] = @"IOS_Baidu_",
+    [SensorsAnalyticsAppPushJiguang] = @"IOS_Jiguang_",
+    [SensorsAnalyticsAppPushQQ] = @"IOS_QQ_",
+    [SensorsAnalyticsAppPushGetui] = @"IOS_Getui_",
+    [SensorsAnalyticsAppPushXiaomi] = @"IOS_Xiaomi_",
 };
 
 @implementation SensorsAnalyticsPeople {
@@ -1565,9 +1564,17 @@ NSString * const SensorsAnalyticsAppPushProfileName[] = {
     [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
 }
 
-- (void)setAppPushContext:(SensorsAnalyticsAppPushService) appPushService withRegisterId:(NSString*) registerId {
-    NSString *profileName = SensorsAnalyticsAppPushProfileName[appPushService];
-    [_sdk track:nil withProperties:@{profileName : registerId} withType:@"profile_set"];
+- (void)registerAppPushService:(SensorsAnalyticsAppPushService) appPushService
+                    withAppKey:(NSString *) appKey
+                 andRegisterId:(NSString*) registerId {
+    // 过滤 AppKey 中非 [a-zA-Z0-9] 字符
+    NSCharacterSet *alphaSet = [[ NSCharacterSet alphanumericCharacterSet ] invertedSet ];
+    NSString *filteredAppKey = [[appKey componentsSeparatedByCharactersInSet:alphaSet] componentsJoinedByString:@""];
+    
+    NSString *profileKey = [NSString stringWithFormat:@"%@_%@", @"$app_push_key", filteredAppKey];
+    NSString *profileValue = [SensorsAnalyticsAppPushProfilePrefix[appPushService] stringByAppendingString:registerId];
+    
+    [_sdk track:nil withProperties:@{profileKey : profileValue} withType:@"profile_set"];
 }
 
 @end

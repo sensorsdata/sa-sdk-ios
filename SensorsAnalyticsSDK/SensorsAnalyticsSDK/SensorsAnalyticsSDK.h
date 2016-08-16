@@ -561,11 +561,14 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 
 /**
  * @abstract
- * 将第三方推送平台的 Register ID 提交到 Sensors Analytics
+ * 将第三方推送平台的 AppKey 和 Register ID 提交到 Sensors Analytics
  *
- * @param appPushService 第三方推送平台
- * @param registerId 推送平台的 Register ID
+ * @param appPushService    第三方推送平台
+ * @param appKey            第三方推送平台中的 AppKey
+ * @param registerId        推送平台的 Register ID
  */
-- (void)setAppPushContext:(SensorsAnalyticsAppPushService) appPushService withRegisterId:(NSString*) registerId;
+- (void)registerAppPushService:(SensorsAnalyticsAppPushService) appPushService
+                    withAppKey:(NSString *) appKey
+                 andRegisterId:(NSString*) registerId;
 
 @end
