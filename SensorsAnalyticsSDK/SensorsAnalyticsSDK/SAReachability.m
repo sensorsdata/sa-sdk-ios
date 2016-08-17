@@ -38,7 +38,7 @@ NSString *kSAReachabilityChangedNotification = @"kSANetworkReachabilityChangedNo
 		returnValue= [[self alloc] init];
 		if (returnValue != NULL)
 		{
-			returnValue->_reachabilityRef = reachability;
+            returnValue->_reachabilityRef = reachability;
 		}
         else {
             CFRelease(reachability);
@@ -59,7 +59,7 @@ NSString *kSAReachabilityChangedNotification = @"kSANetworkReachabilityChangedNo
 		returnValue = [[self alloc] init];
 		if (returnValue != NULL)
 		{
-			returnValue->_reachabilityRef = reachability;
+            returnValue->_reachabilityRef = reachability;
 		}
         else {
             CFRelease(reachability);
@@ -146,6 +146,14 @@ NSString *kSAReachabilityChangedNotification = @"kSANetworkReachabilityChangedNo
 	}
     
 	return returnValue;
+}
+
+- (void)dealloc
+{
+    if (_reachabilityRef != NULL)
+    {
+        CFRelease(_reachabilityRef);
+    }
 }
 
 
