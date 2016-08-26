@@ -26,7 +26,7 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 
-#define VERSION @"1.6.6"
+#define VERSION @"1.6.7"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -322,11 +322,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
                 SAError(@"%@", errMsg);
                 flushSucc = NO;
+                dispatch_semaphore_signal(flushSem);
                 return;
             }
             
             if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
                 flushSucc = NO;
+                dispatch_semaphore_signal(flushSem);
                 return;
             }
             
@@ -341,6 +343,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     SAError(@"%@ ret_content: %@", self, urlResponseContent);
                     
                     if ([urlResponse statusCode] >= 300) {
+                        dispatch_semaphore_signal(flushSem);
                         @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
                                                                           reason:errMsg
                                                                         userInfo:nil];
@@ -348,6 +351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     SAError(@"%@", errMsg);
                     flushSucc = NO;
+                    dispatch_semaphore_signal(flushSem);
                     return;
                 }
             } else {
@@ -369,7 +373,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
          ^(NSURLResponse *response, NSData* data, NSError *error) {
              return block(data, response, error);
-         }];
+        }];
 #endif
         
         dispatch_semaphore_wait(flushSem, DISPATCH_TIME_FOREVER);
@@ -451,12 +455,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 self.secondWindow = nil;
                 
                 self.safariRequestInProgress = NO;
+                
+                if (_debugMode != SensorsAnalyticsDebugOff) {
+                    SAError(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
+                    SAError(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
+                }
             });
-            
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                SAError(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
-                SAError(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
-            }
         });
         return YES;
     };
