@@ -318,15 +318,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         __block BOOL flushSucc = YES;
         
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            if (error) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ network failure: %@", self, error];
-                SAError(@"%@", errMsg);
-                flushSucc = NO;
-                dispatch_semaphore_signal(flushSem);
-                return;
-            }
-            
-            if (![response isKindOfClass:[NSHTTPURLResponse class]]) {
+            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
                 flushSucc = NO;
                 dispatch_semaphore_signal(flushSem);
                 return;
@@ -343,17 +336,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     SAError(@"%@ ret_content: %@", self, urlResponseContent);
                     
                     if ([urlResponse statusCode] >= 300) {
-                        dispatch_semaphore_signal(flushSem);
                         @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
                                                                           reason:errMsg
                                                                         userInfo:nil];
                     }
                 } else {
                     SAError(@"%@", errMsg);
-                    flushSucc = NO;
-                    dispatch_semaphore_signal(flushSem);
-                    return;
                 }
+                
+                flushSucc = NO;
             } else {
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
