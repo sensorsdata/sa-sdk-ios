@@ -29,7 +29,8 @@
 }
 
 - (void)testProfileSet {
-    [[SensorsAnalyticsSDK sharedInstance].people set:@"name" to:@"caojiang"];
+//    [[SensorsAnalyticsSDK sharedInstance].people set:@"name" to:@"caojiang"];
+//    [[[SensorsAnalyticsSDK sharedInstance] people] setAppPushContext:SensorsAnalyticsAppPushJiguang withRegisterId:@"123456"];
 }
 
 - (void)testProfileAppend {

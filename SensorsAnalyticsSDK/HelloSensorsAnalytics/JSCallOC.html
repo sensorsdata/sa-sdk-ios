@@ -1,0 +1,41 @@
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <title>js test</title>
+    </head>
+    <body>
+        
+        
+        <p id="test11"></p>
+        
+        <p id="test22"></p>
+        
+        <p id="test33"></p>
+        
+        <script type="text/javascript">
+            var js_var_1 = 1;
+            var js_var_3 = 2;
+
+            function sensorsdata_call_js(a){
+                alert(a);
+                js_var_3 = a;
+            }
+        
+            setInterval(function(){
+                    
+                test11.innerHTML = String(JSON.stringify({
+                    js_var_1: js_var_1,
+                    js_var_3: js_var_3
+                }));
+
+            },1000);
+                    
+            </script>
+        <div id='buttons'></div>
+        <div id='log'></div>
+        <input type="button" value="Call" onclick="call_app('哈哈，小提示用我');" />
+        
+    </body>
+</html>

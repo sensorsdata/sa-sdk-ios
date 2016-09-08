@@ -235,6 +235,17 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 - (void)enableEditingVTrack;
 
 /**
+ * @abstract
+ * 将distinctId传递给当前的WebView
+ *
+ * @discussion
+ * 混合开发时,将distinctId传递给当前的WebView
+ *
+ * @param webView 当前WebView，支持<code>UIWebView</code>和<code>WKWebView</code>
+ */
+- (void)showUpWebView:(id)webView;
+
+/**
  * @property
  *
  * @abstract

@@ -4,6 +4,10 @@
 //  Created by 曹犟 on 15/7/1.
 //  Copyright (c) 2015年 SensorsData. All rights reserved.
 
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_7_1
+#define supportsWKWebKit
+#endif
+
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 
@@ -25,8 +29,13 @@
 #import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
+#import "JSONUtil.h"
 
-#define VERSION @"1.6.7"
+#if defined(supportsWKWebKit )
+#import <WebKit/WebKit.h>
+#endif
+
+#define VERSION @"1.6.8"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -152,7 +161,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
         NSUUID *uuid = ((NSUUID* (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
         distinctId = [uuid UUIDString];
-        *isReal = YES;
+        // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
+        // 00000000-0000-0000-0000-000000000000
+        if (distinctId && ![distinctId hasPrefix:@"00000000"]) {
+            *isReal = YES;
+        } else{
+            distinctId = NULL;
+        }
     }
 #endif
     
@@ -212,7 +227,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         
         _dateFormatter = [[NSDateFormatter alloc] init];
-        [_dateFormatter setDateFormat:@"yyyy-MM-dd hh:mm:ss.SSS"];
+        [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
         
         self.checkForEventBindingsOnActive = YES;
         self.flushBeforeEnterBackground = YES;
@@ -221,9 +236,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
         if (self.messageQueue == nil) {
-            @throw [NSException exceptionWithName:@"SqliteException"
-                                           reason:@"init Message Queue in Sqlite fail"
-                                         userInfo:nil];
+            SADebug(@"SqliteException: init Message Queue in Sqlite fail");
         }
         
         // 取上一次进程退出时保存的distinctId、superProperties和eventBindings
@@ -263,6 +276,40 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                    userInfo:nil
                                                                     repeats:YES];
     });
+}
+
+- (void)showUpWebView:(id)webView {
+    SADebug(@"showUpWebView");
+    if (webView == nil) {
+        SADebug(@"showUpWebView == nil");
+    }
+    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
+    if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
+        SADebug(@"showUpWebView: UIWebView");
+        [webView stringByEvaluatingJavaScriptFromString:js];
+    }
+#if defined(supportsWKWebKit )
+    else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
+        SADebug(@"showUpWebView: WKWebView");
+        [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+            NSLog(@"response: %@ error: %@", response, error);
+        }];
+    }
+#endif
+    else{
+        SADebug(@"showUpWebView: not UIWebView or WKWebView");
+        return;
+    }
+}
+
+- (NSString *)webViewJavascriptBridgeCallbackInfo {
+    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"iOS" forKey:@"$type"];
+    [libProperties setValue:[self distinctId] forKey:@"$distinct_id"];
+    NSData* jsonData = [_jsonUtil JSONSerializeObject:libProperties];
+    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return [jsonString copy];
 }
 
 - (void)enableAutoTrack {

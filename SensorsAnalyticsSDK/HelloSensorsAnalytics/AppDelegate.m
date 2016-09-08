@@ -18,8 +18,8 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}&project=${project}"
-                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/config"
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}&project=${project_name}"
+                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
 #ifdef DEBUG
     [[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];

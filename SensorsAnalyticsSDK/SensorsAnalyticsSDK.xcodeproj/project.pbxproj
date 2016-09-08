@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		00DC9CD71D7E9CFA00C7DF6C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
+		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
+		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
+		00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */; };
 		4D0EB7C31B47A88C0019FD21 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C21B47A88C0019FD21 /* main.m */; };
 		4D0EB7C61B47A88C0019FD21 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */; };
 		4D0EB7C91B47A88C0019FD21 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D0EB7C81B47A88C0019FD21 /* ViewController.m */; };
@@ -126,6 +130,13 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		00DC9CD81D7E9D9D00C7DF6C /* JSCallOCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController.h; sourceTree = "<group>"; };
+		00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController.m; sourceTree = "<group>"; };
+		00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = JSCallOC.html; sourceTree = "<group>"; };
+		00DC9CDD1D7E9EC900C7DF6C /* JSCallOCViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController2.h; sourceTree = "<group>"; };
+		00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController2.m; sourceTree = "<group>"; };
+		4322325EA1A07B7CEC9F68D9 /* libPods-SensorsAnalyticsSDK.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SensorsAnalyticsSDK.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D0EB7BE1B47A88C0019FD21 /* HelloSensorsAnalytics.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = HelloSensorsAnalytics.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		4D0EB7C11B47A88C0019FD21 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		4D0EB7C21B47A88C0019FD21 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -148,6 +159,7 @@
 		4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
 		4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MessageQueueBySqlite.h; sourceTree = "<group>"; };
 		4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MessageQueueBySqlite.m; sourceTree = "<group>"; };
+		99C2DE03E0C876AF8032C99C /* libPods-HelloSensorsAnalytics.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-HelloSensorsAnalytics.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A3333BD31C5A0DDE0013353F /* SADesignerDisconnectMessage.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADesignerDisconnectMessage.h; sourceTree = "<group>"; };
 		A3333BD41C5A0EE80013353F /* SADesignerDisconnectMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADesignerDisconnectMessage.m; sourceTree = "<group>"; };
 		A366491F1CC784A1008D991E /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
@@ -214,6 +226,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				00DC9CD71D7E9CFA00C7DF6C /* WebKit.framework in Frameworks */,
 				A36649201CC784A1008D991E /* SafariServices.framework in Frameworks */,
 				A3746EE31C32E822008A50A3 /* libicucore.tbd in Frameworks */,
 				A3746D911C2FF355008A50A3 /* libsqlite3.tbd in Frameworks */,
@@ -234,6 +247,7 @@
 		4D0EB7BF1B47A88C0019FD21 /* HelloSensorsAnalytics */ = {
 			isa = PBXGroup;
 			children = (
+				00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */,
 				4D0EB7C41B47A88C0019FD21 /* AppDelegate.h */,
 				4D0EB7C51B47A88C0019FD21 /* AppDelegate.m */,
 				4D0EB7C71B47A88C0019FD21 /* ViewController.h */,
@@ -244,6 +258,10 @@
 				4D0EB7CD1B47A88C0019FD21 /* Images.xcassets */,
 				4D0EB7CF1B47A88C0019FD21 /* LaunchScreen.xib */,
 				4D0EB7C01B47A88C0019FD21 /* Supporting Files */,
+				00DC9CD81D7E9D9D00C7DF6C /* JSCallOCViewController.h */,
+				00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */,
+				00DC9CDD1D7E9EC900C7DF6C /* JSCallOCViewController2.h */,
+				00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */,
 			);
 			path = HelloSensorsAnalytics;
 			sourceTree = "<group>";
@@ -353,7 +371,10 @@
 		F029B80BAB18852D4CE30358 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */,
 				A366491F1CC784A1008D991E /* SafariServices.framework */,
+				4322325EA1A07B7CEC9F68D9 /* libPods-SensorsAnalyticsSDK.a */,
+				99C2DE03E0C876AF8032C99C /* libPods-HelloSensorsAnalytics.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -482,6 +503,7 @@
 				4D0EB7CC1B47A88C0019FD21 /* Main.storyboard in Resources */,
 				4D0EB7D11B47A88C0019FD21 /* LaunchScreen.xib in Resources */,
 				4D0EB7CE1B47A88C0019FD21 /* Images.xcassets in Resources */,
+				00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -495,6 +517,7 @@
 				A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */,
 				A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3BD57C51C58B1700006392F /* SAValueTransformers.m in Sources */,
+				00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */,
 				A3A85C181C3BB8E100DCA1A4 /* NSInvocation+SAHelpers.m in Sources */,
 				A3A85C191C3BB8E100DCA1A4 /* SADesignerEventBindingMesssage.m in Sources */,
 				A3A85C1C1C3BB8E100DCA1A4 /* SAObjectSelector.m in Sources */,
@@ -519,6 +542,7 @@
 				A3746EDD1C32E5BB008A50A3 /* SAWebSocket.m in Sources */,
 				4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */,
 				A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */,
+				00DC9CDF1D7E9EC900C7DF6C /* JSCallOCViewController2.m in Sources */,
 				4D1EFDD61B4BC6930008D3EA /* JSONUtil.m in Sources */,
 				4DBA6FA01B4B8DC4004F0ADB /* NSData+SABase64.m in Sources */,
 				4D14F1741B4A5469006AD786 /* LFCGzipUtility.m in Sources */,
@@ -712,7 +736,10 @@
 			buildSettings = {
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
 				ONLY_ACTIVE_ARCH = NO;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
@@ -723,7 +750,10 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = (
+					"$(inherited)",
+					"-ObjC",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				VALID_ARCHS = "arm64 armv7 armv7s x86_64";
