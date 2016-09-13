@@ -4,7 +4,7 @@
 //  Created by 曹犟 on 15/7/1.
 //  Copyright (c) 2015年 SensorsData. All rights reserved.
 
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_7_1
+#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_1
 #define supportsWKWebKit
 #endif
 
@@ -31,11 +31,11 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 
-#if defined(supportsWKWebKit )
+#if defined(supportsWKWebKit)
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.8"
+#define VERSION @"1.6.9"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
