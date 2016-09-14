@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.9"
+#define VERSION @"1.6.10"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -655,9 +655,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (eventTimer) {
                 [self.trackTimer removeObjectForKey:event];
                 NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
+                NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
                 
-                long eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                long eventDuration;
+                if (eventAccumulatedDuration) {
+                    eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
+                } else {
+                    eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                }
+
+                if (eventDuration < 0) {
+                    eventDuration = 0;
+                }
+
                 switch (timeUnit) {
                     case SensorsAnalyticsTimeUnitHours:
                         eventDuration = eventDuration / 60;
@@ -763,7 +774,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSNumber *eventBegin = @([[self class] getCurrentTime]);
     
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
     });
 }
 
@@ -1303,6 +1314,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (_autoTrack) {
+        // 遍历trackTimer,修改eventBegin为当前timeStamp
+        dispatch_async(self.serialQueue, ^{
+            NSNumber *timeStamp = @([[self class] getCurrentTime]);
+            NSArray *keys = [self.trackTimer allKeys];
+            NSString *key = nil;
+            NSMutableDictionary *eventTimer = nil;
+            for (key in keys) {
+                eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
+                if (eventTimer) {
+                    [eventTimer setValue:timeStamp forKey:@"eventBegin"];
+                    self.trackTimer[key] = eventTimer;
+                }
+            }
+        });
+
         // 追踪 AppStart 事件
         [self track:APP_START_EVENT withProperties:@{
                                                      RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
@@ -1329,6 +1355,32 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"%@ application did enter background", self);
     
     if (_autoTrack) {
+        // 遍历trackTimer
+        // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
+        dispatch_async(self.serialQueue, ^{
+            NSNumber *timeStamp = @([[self class] getCurrentTime]);
+            NSArray *keys = [self.trackTimer allKeys];
+            NSString *key = nil;
+            NSMutableDictionary *eventTimer = nil;
+            for (key in keys) {
+                eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
+                if (eventTimer) {
+                    NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
+                    NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
+                    long eventDuration;
+                    if (eventAccumulatedDuration) {
+                        eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
+                    } else {
+                        eventDuration = [timeStamp longValue] - [eventBegin longValue];
+                    }
+
+                    [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
+                    self.trackTimer[key] = eventTimer;
+                }
+            }
+
+        });
+
         // 追踪 AppEnd 事件
         [self track:APP_END_EVENT];
     }
