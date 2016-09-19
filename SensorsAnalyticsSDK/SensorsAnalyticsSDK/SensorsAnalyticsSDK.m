@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.10"
+#define VERSION @"1.6.11"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -305,8 +305,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSString *)webViewJavascriptBridgeCallbackInfo {
     JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"iOS" forKey:@"$type"];
-    [libProperties setValue:[self distinctId] forKey:@"$distinct_id"];
+    [libProperties setValue:@"iOS" forKey:@"type"];
+    [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
     NSData* jsonData = [_jsonUtil JSONSerializeObject:libProperties];
     NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     return [jsonString copy];
