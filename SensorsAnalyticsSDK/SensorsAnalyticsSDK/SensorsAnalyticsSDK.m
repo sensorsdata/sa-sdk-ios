@@ -320,40 +320,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [jsonString copy];
 }
 
-- (void)showUpWebView:(id)webView {
-    SADebug(@"showUpWebView");
-    if (webView == nil) {
-        SADebug(@"showUpWebView == nil");
-    }
-    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
-    if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
-        SADebug(@"showUpWebView: UIWebView");
-        [webView stringByEvaluatingJavaScriptFromString:js];
-    }
-#if defined(supportsWKWebKit )
-    else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
-        SADebug(@"showUpWebView: WKWebView");
-        [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
-            NSLog(@"response: %@ error: %@", response, error);
-        }];
-    }
-#endif
-    else{
-        SADebug(@"showUpWebView: not UIWebView or WKWebView");
-        return;
-    }
-}
-
-- (NSString *)webViewJavascriptBridgeCallbackInfo {
-    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"iOS" forKey:@"type"];
-    [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
-    NSData* jsonData = [_jsonUtil JSONSerializeObject:libProperties];
-    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    return [jsonString copy];
-}
-
 - (void)enableAutoTrack {
     _autoTrack = YES;
 }
