@@ -76,6 +76,27 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 };
 
 /**
+ * @abstract
+ * 自动追踪(AutoTrack)中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
+ *
+ * @discussion
+ * 属性的约束请参考 <code>track:withProperties:</code>
+ */
+@protocol SAAutoTracker
+
+@required
+-(NSDictionary *)getTrackProperties;
+
+@end
+
+@protocol SAScreenAutoTracker<SAAutoTracker>
+
+@required
+-(NSString *) getScreenUrl;
+
+@end
+
+/**
  * @class
  * SensorsAnalyticsSDK类
  *

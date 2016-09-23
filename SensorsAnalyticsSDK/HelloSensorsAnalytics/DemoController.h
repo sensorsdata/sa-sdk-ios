@@ -10,8 +10,9 @@
 #define DemoController_h
 
 #import <UIKit/UIKit.h>
+#import "SensorsAnalyticsSDK.h"
 
-@interface DemoController : UITableViewController
+@interface DemoController : UITableViewController<SAScreenAutoTracker>
 
 @end
 

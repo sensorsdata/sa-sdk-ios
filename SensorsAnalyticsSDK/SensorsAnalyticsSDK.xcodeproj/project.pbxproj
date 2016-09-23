@@ -622,6 +622,7 @@
 					"SENSORS_ANALYTICS_IDFA=1",
 					"$(inherited)",
 					"SENSORS_ANALYTICS_ENABLE_LOG=1",
+					"SENSORS_ANALYTICS_DISABLE_VTRACK=1",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 6.0;

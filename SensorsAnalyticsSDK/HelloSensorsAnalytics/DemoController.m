@@ -10,11 +10,17 @@
 
 #import "zlib.h"
 
-#import "SensorsAnalyticsSDK.h"
-
 #import "DemoController.h"
 
 @implementation DemoController
+
+- (NSDictionary *)getTrackProperties {
+    return @{@"shuxing" : @"Gaga"};
+}
+
+- (NSString *)getScreenUrl {
+    return @"WoShiYiGeURL";
+}
 
 - (void)testTrack {
     [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"test": @"test"}];

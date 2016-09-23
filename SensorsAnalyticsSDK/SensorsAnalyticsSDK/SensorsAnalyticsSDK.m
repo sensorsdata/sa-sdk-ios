@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.11"
+#define VERSION @"1.6.12"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -52,6 +52,10 @@ NSString* const APP_FIRST_START_PROPERTY = @"$is_first_time";
 NSString* const RESUME_FROM_BACKGROUND_PROPERTY = @"$resume_from_background";
 // App 浏览页面名称
 NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
+// App 浏览页面 Url
+NSString* const SCREEN_URL_PROPERTY = @"$url";
+// App 浏览页面 Referrer Url
+NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 // App 推送相关:
 NSString* const APP_PUSH_ID_PROPERTY_BAIDU = @"$app_push_id_baidu";
 NSString* const APP_PUSH_ID_PROPERTY_JIGUANG = @"$app_push_id_jiguang";
@@ -110,6 +114,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     NSDateFormatter *_dateFormatter;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
+    NSString *_referrerScreenUrl;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -223,8 +228,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _vtrackWindow = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
-        
-        
+        _referrerScreenUrl = nil;
         
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
@@ -253,7 +257,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         [self setUpListeners];
         
+#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
         [self executeEventBindings:self.eventBindings];
+#endif
         
         // XXX: App Active 的时候会获取配置，此处不需要获取
 //        [self checkForConfigure];
@@ -268,6 +274,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableEditingVTrack {
+#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
     dispatch_async(dispatch_get_main_queue(), ^{
         // 5 秒
         self.vtrackConnectorTimer = [NSTimer scheduledTimerWithTimeInterval:10
@@ -276,6 +283,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                    userInfo:nil
                                                                     repeats:YES];
     });
+#endif
+}
+
+- (void)showUpWebView:(id)webView {
+    SADebug(@"showUpWebView");
+    if (webView == nil) {
+        SADebug(@"showUpWebView == nil");
+    }
+    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
+    if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
+        SADebug(@"showUpWebView: UIWebView");
+        [webView stringByEvaluatingJavaScriptFromString:js];
+    }
+#if defined(supportsWKWebKit )
+    else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
+        SADebug(@"showUpWebView: WKWebView");
+        [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+            NSLog(@"response: %@ error: %@", response, error);
+        }];
+    }
+#endif
+    else{
+        SADebug(@"showUpWebView: not UIWebView or WKWebView");
+        return;
+    }
+}
+
+- (NSString *)webViewJavascriptBridgeCallbackInfo {
+    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
+    [libProperties setValue:@"iOS" forKey:@"type"];
+    [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
+    NSData* jsonData = [_jsonUtil JSONSerializeObject:libProperties];
+    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    return [jsonString copy];
 }
 
 - (void)showUpWebView:(id)webView {
@@ -504,7 +546,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+#ifdef SENSORS_ANALYTICS_IOS_MATCHING_WITH_COOKIE
     [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
+#else
+    [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+#endif
     
     if (![self.messageQueue vacuum]) {
         SAError(@"failed to VACUUM SQLite.");
@@ -1273,19 +1319,47 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     void (^block)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         if (_autoTrack) {
-            Class klass = [(UITableViewController *)obj class];
-            if (klass) {
-                NSString *screenName = NSStringFromClass(klass);
-                if (![screenName isEqualToString:@"SFBrowserRemoteViewController"] &&
-                    ![screenName isEqualToString:@"SFSafariViewController"] &&
-                    ![screenName isEqualToString:@"UIInputWindowController"] &&
-                    ![screenName isEqualToString:@"UINavigationController"] &&
-                    ![screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
-                    [self track:APP_VIEW_SCREEN_EVENT withProperties:@{
-                                                                       SCREEN_NAME_PROPERTY : NSStringFromClass(klass)
-                                                                       }];
+            UIViewController *controller = (UIViewController *)obj;
+            if (!controller) {
+                return;
+            }
+            
+            Class klass = [controller class];
+            if (!klass) {
+                return;
+            }
+        
+            NSString *screenName = NSStringFromClass(klass);
+            if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
+                [screenName isEqualToString:@"SFSafariViewController"] ||
+                [screenName isEqualToString:@"UIInputWindowController"] ||
+                [screenName isEqualToString:@"UINavigationController"] ||
+                [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
+                return;
+            }
+            
+            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
+
+            if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
+                UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
+                [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
+            }
+            
+            if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
+                UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
+                NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
+                
+                [properties setValue:currentScreenUrl forKey:SCREEN_URL_PROPERTY];
+                @synchronized(_referrerScreenUrl) {
+                    if (_referrerScreenUrl) {
+                        [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
+                    }
+                    _referrerScreenUrl = currentScreenUrl;
                 }
             }
+            
+            [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
         }
     };
     
@@ -1338,9 +1412,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
     }
     
+#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
     if (self.checkForEventBindingsOnActive) {
         [self checkForConfigure];
     }
+#endif
     
     [self startFlushTimer];
 }
