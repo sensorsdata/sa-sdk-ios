@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.14"
+#define VERSION @"1.6.15"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1395,7 +1395,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
         }
     };
-    
+
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
         [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
@@ -1440,23 +1440,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-    
-    if (_autoTrack) {
-        // 遍历trackTimer,修改eventBegin为当前timeStamp
-        dispatch_async(self.serialQueue, ^{
-            NSNumber *timeStamp = @([[self class] getCurrentTime]);
-            NSArray *keys = [self.trackTimer allKeys];
-            NSString *key = nil;
-            NSMutableDictionary *eventTimer = nil;
-            for (key in keys) {
-                eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
-                if (eventTimer) {
-                    [eventTimer setValue:timeStamp forKey:@"eventBegin"];
-                    self.trackTimer[key] = eventTimer;
-                }
-            }
-        });
 
+    // 遍历trackTimer,修改eventBegin为当前timeStamp
+    dispatch_async(self.serialQueue, ^{
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSArray *keys = [self.trackTimer allKeys];
+        NSString *key = nil;
+        NSMutableDictionary *eventTimer = nil;
+        for (key in keys) {
+            eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
+            if (eventTimer) {
+                [eventTimer setValue:timeStamp forKey:@"eventBegin"];
+                self.trackTimer[key] = eventTimer;
+            }
+        }
+    });
+
+    if (_autoTrack) {
         // 追踪 AppStart 事件
         [self track:APP_START_EVENT withProperties:@{
                                                      RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
@@ -1484,33 +1484,33 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
     
-    if (_autoTrack) {
-        // 遍历trackTimer
-        // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
-        dispatch_async(self.serialQueue, ^{
-            NSNumber *timeStamp = @([[self class] getCurrentTime]);
-            NSArray *keys = [self.trackTimer allKeys];
-            NSString *key = nil;
-            NSMutableDictionary *eventTimer = nil;
-            for (key in keys) {
-                eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
-                if (eventTimer) {
-                    NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
-                    NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
-                    long eventDuration;
-                    if (eventAccumulatedDuration) {
-                        eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
-                    } else {
-                        eventDuration = [timeStamp longValue] - [eventBegin longValue];
-                    }
-
-                    [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
-                    self.trackTimer[key] = eventTimer;
+    // 遍历trackTimer
+    // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
+    dispatch_async(self.serialQueue, ^{
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
+        NSArray *keys = [self.trackTimer allKeys];
+        NSString *key = nil;
+        NSMutableDictionary *eventTimer = nil;
+        for (key in keys) {
+            eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
+            if (eventTimer) {
+                NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
+                NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
+                long eventDuration;
+                if (eventAccumulatedDuration) {
+                    eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
+                } else {
+                    eventDuration = [timeStamp longValue] - [eventBegin longValue];
                 }
+
+                [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
+                self.trackTimer[key] = eventTimer;
             }
+        }
 
-        });
+    });
 
+    if (_autoTrack) {
         // 追踪 AppEnd 事件
         [self track:APP_END_EVENT];
     }
