@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.15"
+#define VERSION @"1.6.16"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -312,7 +312,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
     if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
         SADebug(@"showUpWebView: UIWebView");
-        if ([request.URL.absoluteString containsString:scheme]) {
+        if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
             [webView stringByEvaluatingJavaScriptFromString:js];
             return YES;
         }
@@ -321,7 +321,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #if defined(supportsWKWebKit )
     else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
         SADebug(@"showUpWebView: WKWebView");
-        if ([request.URL.absoluteString containsString:scheme]) {
+        if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
             [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
                 NSLog(@"response: %@ error: %@", response, error);
             }];
