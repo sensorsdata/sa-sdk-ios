@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.13"
+#define VERSION @"1.6.14"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -296,27 +296,43 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showUpWebView:(id)webView {
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
     SADebug(@"showUpWebView");
     if (webView == nil) {
         SADebug(@"showUpWebView == nil");
+        return NO;
     }
+
+    if (request == nil) {
+        SADebug(@"request == nil");
+        return NO;
+    }
+
+    NSString *scheme = @"sensorsanalytics://getAppInfo";
     NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
     if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
         SADebug(@"showUpWebView: UIWebView");
-        [webView stringByEvaluatingJavaScriptFromString:js];
+        if ([request.URL.absoluteString containsString:scheme]) {
+            [webView stringByEvaluatingJavaScriptFromString:js];
+            return YES;
+        }
+        return NO;
     }
 #if defined(supportsWKWebKit )
     else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
         SADebug(@"showUpWebView: WKWebView");
-        [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
-            NSLog(@"response: %@ error: %@", response, error);
-        }];
+        if ([request.URL.absoluteString containsString:scheme]) {
+            [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+                NSLog(@"response: %@ error: %@", response, error);
+            }];
+            return YES;
+        }
+        return NO;
     }
 #endif
     else{
         SADebug(@"showUpWebView: not UIWebView or WKWebView");
-        return;
+        return NO;
     }
 }
 
@@ -831,7 +847,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:event withProperties:eventProperties withType:@"track"];
     
     // 再发送 profile_set_once
-    NSDictionary *profiles = @{@"$ios_install_source" : @""};
+    NSMutableDictionary *profiles = [[NSMutableDictionary alloc] init];
+    [profiles setValue:@"" forKey:@"$ios_install_source"];
+    if (propertyDict != nil) {
+        [profiles addEntriesFromDictionary:propertyDict];
+    }
     [self track:nil withProperties:profiles withType:@"profile_set_once"];
 }
 
