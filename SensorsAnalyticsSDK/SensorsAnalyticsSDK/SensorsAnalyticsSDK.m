@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.12"
+#define VERSION @"1.6.13"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -96,6 +96,9 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 @property (nonatomic, strong) NSTimer *timer;
 @property (nonatomic, strong) NSTimer *vtrackConnectorTimer;
 
+//用户设置的不被AutoTrack的Controllers
+@property (nonatomic, strong) NSMutableArray *filterControllers;
+
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
 
@@ -115,6 +118,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     NSString *_referrerScreenUrl;
+    NSDictionary *_lastScreenTrackProperties;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -197,9 +201,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                andVTrackServerURL:(NSString *)vtrackServerURL
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     if (serverURL == nil || [serverURL length] == 0) {
-        @throw [NSException exceptionWithName:@"InvalidArgumentException"
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            @throw [NSException exceptionWithName:@"InvalidArgumentException"
                                        reason:@"serverURL is nil"
                                      userInfo:nil];
+        } else {
+            SAError(@"serverURL is nil");
+        }
     }
     
     if (debugMode != SensorsAnalyticsDebugOff) {
@@ -229,7 +237,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
         _referrerScreenUrl = nil;
+        _lastScreenTrackProperties = nil;
         
+        _filterControllers = [[NSMutableArray alloc] init];
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
         
@@ -837,14 +847,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:nil withProperties:properties withType:@"profile_set_once"];
 }
 
+- (void)filterAutoTrackControllers:(NSArray *)controllers {
+    if (controllers == nil || controllers.count == 0) {
+        return;
+    }
+    [_filterControllers addObjectsFromArray:controllers];
+
+    //去重
+    NSSet *set = [NSSet setWithArray:_filterControllers];
+    if (set != nil) {
+        _filterControllers = [NSMutableArray arrayWithArray:[set allObjects]];
+    } else{
+        _filterControllers = [[NSMutableArray alloc] init];
+    }
+}
+
 - (void)identify:(NSString *)distinctId {
     if (distinctId == nil || distinctId.length == 0) {
         SAError(@"%@ cannot identify blank distinct id: %@", self, distinctId);
-        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
+//        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics distinct_id should not be nil or empty" userInfo:nil];
     }
     if (distinctId.length > 255) {
         SAError(@"%@ max length of distinct_id is 255, distinct_id: %@", self, distinctId);
-        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
+//        @throw [NSException exceptionWithName:@"InvalidDataException" reason:@"SensorsAnalytics max length of distinct_id is 255" userInfo:nil];
     }
     dispatch_async(self.serialQueue, ^{
         // 先把之前的distinctId设为originalId
@@ -1257,6 +1282,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (NSString *)getLastScreenUrl {
+    return _referrerScreenUrl;
+}
+
+- (NSDictionary *)getLastScreenTrackProperties {
+    return _lastScreenTrackProperties;
+}
+
 #pragma mark - UIApplication Events
 
 - (void)setUpListeners {
@@ -1304,12 +1337,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return;
             }
             
+            //过滤用户设置的不被AutoTrack的Controllers
+            if (_filterControllers != nil && _filterControllers.count > 0) {
+                @try {
+                    for (id controller in _filterControllers) {
+                        if ([screenName isEqualToString:controller]) {
+                            return;
+                        }
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@" unable to parse filterController");
+                }
+            }
+
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
             [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
 
             if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
                 UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
                 [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
+                _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
             }
             
             if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
@@ -1330,10 +1377,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     // 监听所有 UIViewController 显示事件
-    [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
+    if (_autoTrack) {
+        [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
                             onClass:[UIViewController class]
                           withBlock:block
                               named:@"track_view_screen"];
+    }
+}
+
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
+    NSMutableDictionary *trackProperties = [[NSMutableDictionary alloc] init];
+    if (properties) {
+        [trackProperties addEntriesFromDictionary:properties];
+    }
+    @synchronized(_lastScreenTrackProperties) {
+        _lastScreenTrackProperties = properties;
+    }
+
+    [trackProperties setValue:url forKey:SCREEN_URL_PROPERTY];
+    @synchronized(_referrerScreenUrl) {
+        if (_referrerScreenUrl) {
+            [trackProperties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
+        }
+        _referrerScreenUrl = url;
+    }
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {

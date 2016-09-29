@@ -406,6 +406,41 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 
 /**
  * @abstract
+ * 在AutoTrack时，用户可以设置哪些controlls不被AutoTrack
+ *
+ * @param controllers   controller‘字符串’数组
+ */
+- (void)filterAutoTrackControllers:(NSArray *)controllers;
+
+/**
+ * @abstract
+ * 获取LastScreenUrl
+ *
+ * @return LastScreenUrl
+ */
+- (NSString *)getLastScreenUrl;
+
+/**
+ * @abstract
+ * 获取LastScreenTrackProperties
+ *
+ * @return LastScreenTrackProperties
+ */
+- (NSDictionary *)getLastScreenTrackProperties;
+
+/**
+ * @abstract
+ * Track $AppViewScreen事件
+ *
+ * @param url 当前页面url
+ * @param 用户扩展属性
+ *
+ * @return
+ */
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
+
+/**
+ * @abstract
  * 用来设置每个事件都带有的一些公共属性
  *
  * @discussion
