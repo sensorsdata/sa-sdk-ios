@@ -98,8 +98,13 @@
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
     if(rc == SQLITE_OK) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
-            NSString *content =[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 0)];
-            [contentArray addObject:content];
+            char *ch = (char*)sqlite3_column_text(stmt, 0);
+            if (ch) {
+                NSString *content =[NSString stringWithUTF8String:ch];
+                if (content) {
+                    [contentArray addObject:content];
+                }
+            }
         }
         sqlite3_finalize(stmt);
     }

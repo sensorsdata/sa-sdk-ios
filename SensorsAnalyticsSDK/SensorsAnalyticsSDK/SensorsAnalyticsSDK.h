@@ -269,6 +269,21 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
 
 /**
+ * @abstract
+ * 将distinctId传递给当前的WebView
+ *
+ * @discussion
+ * 混合开发时,将distinctId传递给当前的WebView
+ *
+ * @param webView 当前WebView，支持<code>UIWebView</code>和<code>WKWebView</code>
+ * @param request NSURLRequest
+ * @param propertyDict NSDictionary 自定义扩展属性
+ *
+ * @return YES:SDK已进行处理，NO:SDK没有进行处理
+ */
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict;
+
+/**
  * @property
  *
  * @abstract

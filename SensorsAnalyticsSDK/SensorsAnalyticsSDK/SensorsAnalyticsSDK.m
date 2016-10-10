@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.16"
+#define VERSION @"1.6.17"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -297,6 +297,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
+    return [self showUpWebView:webView WithRequest:request andProperties:nil];
+}
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
     SADebug(@"showUpWebView");
     if (webView == nil) {
         SADebug(@"showUpWebView == nil");
@@ -308,8 +312,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
 
+    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+
+    NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    if (bridgeCallbackInfo) {
+        [properties addEntriesFromDictionary:bridgeCallbackInfo];
+    }
+    if (propertyDict) {
+        [properties addEntriesFromDictionary:propertyDict];
+    }
+    NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
+    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
     NSString *scheme = @"sensorsanalytics://getAppInfo";
-    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", [self webViewJavascriptBridgeCallbackInfo]];
+    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
     if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
         SADebug(@"showUpWebView: UIWebView");
         if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
@@ -336,18 +353,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (NSString *)webViewJavascriptBridgeCallbackInfo {
-    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+- (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"iOS" forKey:@"type"];
     [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
-    NSData* jsonData = [_jsonUtil JSONSerializeObject:libProperties];
-    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    return [jsonString copy];
+    return [libProperties copy];
 }
 
 - (void)enableAutoTrack {
     _autoTrack = YES;
+    [self _enableAutoTrack];
 }
 
 - (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *))flushMethod {
@@ -1336,6 +1351,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                name:UIApplicationDidEnterBackgroundNotification
                              object:nil];
     
+    [self _enableAutoTrack];
+}
+
+- (void)_enableAutoTrack {
     void (^block)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         if (_autoTrack) {
             UIViewController *controller = (UIViewController *)obj;
@@ -1347,7 +1366,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!klass) {
                 return;
             }
-        
+
             NSString *screenName = NSStringFromClass(klass);
             if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
                 [screenName isEqualToString:@"SFSafariViewController"] ||
@@ -1378,11 +1397,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
                 _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
             }
-            
+
             if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
                 UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
                 NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-                
+
                 [properties setValue:currentScreenUrl forKey:SCREEN_URL_PROPERTY];
                 @synchronized(_referrerScreenUrl) {
                     if (_referrerScreenUrl) {
