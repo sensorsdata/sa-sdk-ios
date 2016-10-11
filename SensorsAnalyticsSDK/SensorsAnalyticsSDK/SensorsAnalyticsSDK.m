@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.17"
+#define VERSION @"1.6.18"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1523,6 +1523,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
 
                 [eventTimer setObject:[NSNumber numberWithLong:eventDuration] forKey:@"eventAccumulatedDuration"];
+                [eventTimer setObject:timeStamp forKey:@"eventBegin"];
                 self.trackTimer[key] = eventTimer;
             }
         }
