@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.18"
+#define VERSION @"1.6.19"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1066,7 +1066,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   @"$lib": @"iOS",
                                   @"$lib_version": [self libVersion],
                                   @"$manufacturer": @"Apple",
-                                  @"$os": [device systemName],
+                                  @"$os": @"iOS",
                                   @"$os_version": [device systemVersion],
                                   @"$model": deviceModel,
                                   @"$screen_height": @((NSInteger)size.height),
