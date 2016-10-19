@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.19"
+#define VERSION @"1.6.20"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -365,7 +365,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self _enableAutoTrack];
 }
 
-- (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *))flushMethod {
+- (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *, NSString *))flushMethod {
     while (true) {
         NSArray *recordArray = [self.messageQueue getFirstRecords:flushSize withType:type];
         if (recordArray == nil) {
@@ -373,7 +373,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             break;
         }
         
-        if ([recordArray count] == 0 || !flushMethod(recordArray)) {
+        if ([recordArray count] == 0 || !flushMethod(recordArray, type)) {
             break;
         }
         
@@ -386,7 +386,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
     // 使用 Post 发送数据
-    BOOL (^flushByPost)(NSArray *) = ^(NSArray *recordArray) {
+    BOOL (^flushByPost)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
         // 1. 先完成这一系列Json字符串的拼接
         NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
         // 2. 使用gzip进行压缩
@@ -405,7 +405,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
         [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+        if ([type isEqualToString:@"SFSafariViewController"]) {
+            // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                NSString* userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
+            });
+        } else {
+            // 普通事件请求，使用标准 UserAgent
+            [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
+        }
         if (_debugMode == SensorsAnalyticsDebugOnly) {
             [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
@@ -438,9 +448,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 } else {
                     SAError(@"%@", errMsg);
+                    flushSucc = NO;
                 }
-                
-                flushSucc = NO;
             } else {
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
@@ -469,7 +478,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     // 使用 SFSafariViewController 发送数据 (>= iOS 9.0)
-    BOOL (^flushBySafariVC)(NSArray *) = ^(NSArray *recordArray) {
+    BOOL (^flushBySafariVC)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
         if (self.safariRequestInProgress) {
             return NO;
         }
@@ -850,29 +859,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     
-    // 先发送 track
-    NSMutableDictionary *eventProperties;
-    if (propertyDict == nil) {
-        eventProperties = [[NSMutableDictionary alloc] init];
-    } else {
-        eventProperties = [[NSMutableDictionary alloc] initWithDictionary:propertyDict];
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    [properties setValue:@"" forKey:@"$ios_install_source"];
+    if (propertyDict != nil) {
+        [properties addEntriesFromDictionary:propertyDict];
     }
     
-    [eventProperties setValue:@"" forKey:@"$ios_install_source"];
-    [self track:event withProperties:eventProperties withType:@"track"];
+    // 先发送 track
+    [self track:event withProperties:properties withType:@"track"];
     
     // 再发送 profile_set_once
-    NSMutableDictionary *profiles = [[NSMutableDictionary alloc] init];
-    [profiles setValue:@"" forKey:@"$ios_install_source"];
-    if (propertyDict != nil) {
-        [profiles addEntriesFromDictionary:propertyDict];
-    }
-    [self track:nil withProperties:profiles withType:@"profile_set_once"];
+    [self track:nil withProperties:properties withType:@"profile_set_once"];
 }
 
 - (void)trackInstallation:(NSString *)event {
     // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     
+    // 通过 '$ios_install_source' 属性标记渠道追踪请求
     NSDictionary *properties = @{@"$ios_install_source" : @""};
     
     // 先发送 track
