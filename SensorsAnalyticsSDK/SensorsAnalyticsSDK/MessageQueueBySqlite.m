@@ -119,8 +119,13 @@
     NSUInteger removeSize = MIN(recordSize, _messageCount);
     NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache WHERE type = '%@' ORDER BY id ASC LIMIT %lu);", type, (unsigned long)removeSize];
     char* errMsg;
-    if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
-        SAError(@"Failed to delete record msg=%s", errMsg);
+    @try {
+        if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
+            SAError(@"Failed to delete record msg=%s", errMsg);
+            return NO;
+        }
+    } @catch (NSException *exception) {
+        SAError(@"Failed to delete record exception=%@",exception);
         return NO;
     }
     _messageCount = [self sqliteCount];
@@ -149,13 +154,17 @@
 }
 
 - (BOOL) vacuum {
-    NSString* query = @"VACUUM";
-    char* errMsg;
-    if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
-        SAError(@"Failed to delete record msg=%s", errMsg);
+    @try {
+        NSString* query = @"VACUUM";
+        char* errMsg;
+        if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
+            SAError(@"Failed to delete record msg=%s", errMsg);
+            return NO;
+        }
+        return YES;
+    } @catch (NSException *exception) {
         return NO;
     }
-    return YES;
 }
 
 

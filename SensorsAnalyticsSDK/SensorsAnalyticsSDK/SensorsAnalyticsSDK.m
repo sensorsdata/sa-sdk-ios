@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.20"
+#define VERSION @"1.6.21"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
