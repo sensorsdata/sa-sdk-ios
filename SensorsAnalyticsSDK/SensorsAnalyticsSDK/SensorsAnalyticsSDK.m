@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.22"
+#define VERSION @"1.6.23"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -577,8 +577,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
 #endif
     
-    if (![self.messageQueue vacuum]) {
-        SAError(@"failed to VACUUM SQLite.");
+    if (vacuumAfterFlushing) {
+        if (![self.messageQueue vacuum]) {
+            SAError(@"failed to VACUUM SQLite.");
+        }
     }
     
     SADebug(@"events flushed.");
@@ -586,7 +588,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
-        [self _flush:YES];
+        [self _flush:NO];
     });
 }
 
@@ -1548,7 +1550,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     if (self.flushBeforeEnterBackground) {
-        [self flush];
+        dispatch_async(self.serialQueue, ^{
+            [self _flush:YES];
+        });
     }
     
     if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
