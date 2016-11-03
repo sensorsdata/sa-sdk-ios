@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.21"
+#define VERSION @"1.6.22"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -387,19 +387,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)_flush:(BOOL) vacuumAfterFlushing {
     // 使用 Post 发送数据
     BOOL (^flushByPost)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
-        // 1. 先完成这一系列Json字符串的拼接
-        NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
-        // 2. 使用gzip进行压缩
-        NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        // 3. base64
-        NSString *b64String = [zippedData sa_base64EncodedString];
-        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
-        
-        NSString *postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
+        NSString *jsonString;
+        NSData *zippedData;
+        NSString *b64String;
+        NSString *postBody;
+        @try {
+            // 1. 先完成这一系列Json字符串的拼接
+            jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
+            // 2. 使用gzip进行压缩
+            zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+            // 3. base64
+            b64String = [zippedData sa_base64EncodedString];
+            b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                      (CFStringRef)b64String,
+                                                                                      NULL,
+                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                      kCFStringEncodingUTF8));
+
+            postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
+        } @catch (NSException *exception) {
+            SAError(@"%@ flushByPost format data error: %@", self, exception);
+            return YES;
+        }
         
         NSURL *URL = [NSURL URLWithString:self.serverURL];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
