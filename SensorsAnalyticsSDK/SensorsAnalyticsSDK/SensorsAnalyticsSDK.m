@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.23"
+#define VERSION @"1.6.24"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -78,6 +78,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
+@property (atomic, copy) NSString *loginId;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
@@ -253,7 +254,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SADebug(@"SqliteException: init Message Queue in Sqlite fail");
         }
         
-        // 取上一次进程退出时保存的distinctId、superProperties和eventBindings
+        //打开debug模式，弹出提示
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            [self showDebugModeWarning];
+        }
+
+        // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
         [self unarchive];
         
         self.automaticProperties = [self collectAutomaticProperties];
@@ -270,7 +276,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
         [self executeEventBindings:self.eventBindings];
 #endif
-        
         // XXX: App Active 的时候会获取配置，此处不需要获取
 //        [self checkForConfigure];
         // XXX: App Active 的时候会启动计时器，此处不需要启动
@@ -281,6 +286,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self, serverURL, configureURL);
     
     return self;
+}
+
+- (void)showDebugModeWarning {
+    @try {
+        NSString *alertTitle = @"神策重要提示";
+        NSString *alertMessage = nil;
+        if (_debugMode == SensorsAnalyticsDebugOnly) {
+            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以 App Crash 的方式提示开发者，请上线前一定关闭。";
+        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以 App Crash 的方式提示开发者，请上线前一定关闭。";
+        } else {
+            return;
+        }
+
+        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+            UIAlertController *connectAlert = [UIAlertController
+                                               alertControllerWithTitle:alertTitle
+                                               message:alertMessage
+                                               preferredStyle:UIAlertControllerStyleAlert];
+
+            [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            }]];
+
+            UIWindow   *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            alertWindow.rootViewController = [[UIViewController alloc] init];
+            alertWindow.windowLevel = UIWindowLevelAlert + 1;
+            [alertWindow makeKeyAndVisible];
+            [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
+        } else {
+            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+            [connectAlert show];
+        }
+    } @catch (NSException *exception) {
+    } @finally {
+    }
 }
 
 - (void)enableEditingVTrack {
@@ -356,8 +396,42 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     [libProperties setValue:@"iOS" forKey:@"type"];
-    [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
+    if ([self loginId] != nil) {
+        [libProperties setValue:[self loginId] forKey:@"distinct_id"];
+    } else{
+        [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
+    }
     return [libProperties copy];
+}
+
+- (void)login:(NSString *)loginId {
+    if (loginId == nil || loginId.length == 0) {
+        SAError(@"%@ cannot login blank login_id: %@", self, loginId);
+        return;
+    }
+    if (loginId.length > 255) {
+        SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        if (![loginId isEqualToString:[self loginId]]) {
+            self.loginId = loginId;
+            [self archiveLoginId];
+            if (![loginId isEqualToString:[self distinctId]]) {
+                self.originalId = [self distinctId];
+                [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
+            }
+        }
+    });
+}
+
+- (void)logout {
+    self.loginId = NULL;
+    [self archiveLoginId];
+}
+
+- (NSString *)anonymousId {
+    return _distinctId;
 }
 
 - (void)enableAutoTrack {
@@ -399,11 +473,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 3. base64
             b64String = [zippedData sa_base64EncodedString];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                      (CFStringRef)b64String,
-                                                                                      NULL,
-                                                                                      CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                      kCFStringEncodingUTF8));
-
+                                                                                  (CFStringRef)b64String,
+                                                                                  NULL,
+                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                  kCFStringEncodingUTF8));
+        
             postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
         } @catch (NSException *exception) {
             SAError(@"%@ flushByPost format data error: %@", self, exception);
@@ -457,7 +531,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                 } else {
                     SAError(@"%@", errMsg);
-                    flushSucc = NO;
+                    if ([urlResponse statusCode] >= 300) {
+                        flushSucc = NO;
+                    }
                 }
             } else {
                 if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -771,11 +847,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         NSDictionary *e;
+        NSString *bestId;
+        if ([self loginId] != nil) {
+            bestId = [self loginId];
+        } else{
+            bestId = [self distinctId];
+        }
+
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": self.distinctId,
+                  @"distinct_id": bestId,
                   @"original_id": self.originalId,
                   @"time": timeStamp,
                   @"type": type,
@@ -785,7 +868,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": self.distinctId,
+                  @"distinct_id": bestId,
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
@@ -794,7 +877,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 此时应该都是对Profile的操作
             e = @{
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
-                  @"distinct_id": self.distinctId,
+                  @"distinct_id": bestId,
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
@@ -868,32 +951,50 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-    
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    [properties setValue:@"" forKey:@"$ios_install_source"];
-    if (propertyDict != nil) {
-        [properties addEntriesFromDictionary:propertyDict];
+    BOOL isFirstTrackInstallation = NO;
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasTrackInstallation"]) {
+        isFirstTrackInstallation = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasTrackInstallation"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
     }
     
-    // 先发送 track
-    [self track:event withProperties:properties withType:@"track"];
+    if (isFirstTrackInstallation) {
+        // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
+
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        [properties setValue:@"" forKey:@"$ios_install_source"];
+        if (propertyDict != nil) {
+            [properties addEntriesFromDictionary:propertyDict];
+        }
+
+        // 先发送 track
+        [self track:event withProperties:properties withType:@"track"];
     
-    // 再发送 profile_set_once
-    [self track:nil withProperties:properties withType:@"profile_set_once"];
+        // 再发送 profile_set_once
+        [self track:nil withProperties:properties withType:@"profile_set_once"];
+    }
 }
 
 - (void)trackInstallation:(NSString *)event {
-    // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
+    BOOL isFirstTrackInstallation = NO;
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasTrackInstallation"]) {
+        isFirstTrackInstallation = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasTrackInstallation"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+
+    if (isFirstTrackInstallation) {
+        // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     
-    // 通过 '$ios_install_source' 属性标记渠道追踪请求
-    NSDictionary *properties = @{@"$ios_install_source" : @""};
+        // 通过 '$ios_install_source' 属性标记渠道追踪请求
+        NSDictionary *properties = @{@"$ios_install_source" : @""};
     
-    // 先发送 track
-    [self track:event withProperties:properties withType:@"track"];
+        // 先发送 track
+        [self track:event withProperties:properties withType:@"track"];
     
-    // 再发送 profile_set_once
-    [self track:nil withProperties:properties withType:@"profile_set_once"];
+        // 再发送 profile_set_once
+        [self track:nil withProperties:properties withType:@"profile_set_once"];
+    }
 }
 
 - (void)filterAutoTrackControllers:(NSArray *)controllers {
@@ -1131,6 +1232,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unarchive {
     [self unarchiveDistinctId];
+    [self unarchiveLoginId];
     [self unarchiveSuperProperties];
     [self unarchiveEventBindings];
 }
@@ -1157,6 +1259,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
+- (void)unarchiveLoginId {
+    NSString *archivedLoginId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"login_id"]];
+    self.loginId = archivedLoginId;
+}
+
+
 - (void)unarchiveSuperProperties {
     NSDictionary *archivedSuperProperties = (NSDictionary *)[self unarchiveFromFile:[self filePathForData:@"super_properties"]];
     if (archivedSuperProperties == nil) {
@@ -1181,6 +1289,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ unable to archive distinctId", self);
     }
     SADebug(@"%@ archived distinctId", self);
+}
+
+- (void)archiveLoginId {
+    NSString *filePath = [self filePathForData:@"login_id"];
+    if (![NSKeyedArchiver archiveRootObject:[[self loginId] copy] toFile:filePath]) {
+        SAError(@"%@ unable to archive loginId", self);
+    }
+    SADebug(@"%@ archived loginId", self);
 }
 
 - (void)archiveSuperProperties {

@@ -129,6 +129,14 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  * @property
  *
  * @abstract
+ * 用户登录唯一标识符
+ */
+@property (atomic, readonly, copy) NSString *loginId;
+
+/**
+ * @property
+ *
+ * @abstract
  * 当App进入活跃状态时，是否从SensrosAnalytics获取新的可视化埋点配置
  *
  * @discussion
@@ -266,7 +274,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  *
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request __attribute__((deprecated("已过时，请参考showUpWebView: WithRequest:andProperties")));
 
 /**
  * @abstract
@@ -282,6 +290,29 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 登录，设置当前用户的loginId
+ *
+ * @param loginId 当前用户的loginId
+ */
+- (void)login:(NSString *)loginId;
+
+/**
+ * @abstract
+ * 注销，清空当前用户的loginId
+ *
+ */
+- (void)logout;
+
+/**
+ * @abstract
+ * 获取匿名id
+ *
+ * @return anonymousId 匿名id
+ */
+- (NSString *)anonymousId;
 
 /**
  * @property
@@ -378,7 +409,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  * @param newDistinctId     用户完成注册后生成的注册ID
  * @param propertieDict     event的属性
  */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict;
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
 
 /**
  * @abstract
@@ -389,7 +420,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  *
  * @param newDistinctId     用户完成注册后生成的注册ID
  */
-- (void)trackSignUp:(NSString *)newDistinctId;
+- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
 
 /**
  * @abstract
