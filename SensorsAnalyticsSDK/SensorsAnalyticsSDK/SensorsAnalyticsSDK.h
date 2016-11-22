@@ -315,6 +315,14 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
 - (NSString *)anonymousId;
 
 /**
+ * @abstract
+ * 重置默认匿名id
+ *
+ * @return anonymousId 匿名id
+ */
+- (void)resetAnonymousId;
+
+/**
  * @property
  *
  * @abstract

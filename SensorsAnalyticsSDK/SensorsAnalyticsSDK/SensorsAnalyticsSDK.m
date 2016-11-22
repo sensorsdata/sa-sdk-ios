@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.24"
+#define VERSION @"1.6.25"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -79,6 +79,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
 @property (atomic, copy) NSString *loginId;
+@property (atomic, copy) NSString *firstDay;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
@@ -262,6 +263,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
         [self unarchive];
         
+        if (self.firstDay == nil) {
+            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+            [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+            self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
+            [self archiveFirstDay];
+        }
+
         self.automaticProperties = [self collectAutomaticProperties];
         self.trackTimer = [NSMutableDictionary dictionary];
         
@@ -334,6 +342,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                     repeats:YES];
     });
 #endif
+}
+
+- (BOOL)isFirstDay {
+    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSString *current = [dateFormatter stringFromDate:[NSDate date]];
+
+    return [[self firstDay] isEqualToString:current];
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
@@ -432,6 +448,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (NSString *)anonymousId {
     return _distinctId;
+}
+
+- (void)resetAnonymousId {
+    BOOL isReal;
+    self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+    [self archiveDistinctId];
 }
 
 - (void)enableAutoTrack {
@@ -800,6 +822,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [p setObject:@NO forKey:@"$wifi"];
             }
             
+            //  是否首日访问
+            if ([self isFirstDay]) {
+                [p setObject:@YES forKey:@"$is_first_day"];
+            } else {
+                [p setObject:@NO forKey:@"$is_first_day"];
+            }
+
             NSDictionary *eventTimer = self.trackTimer[event];
             if (eventTimer) {
                 [self.trackTimer removeObjectForKey:event];
@@ -1235,6 +1264,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self unarchiveLoginId];
     [self unarchiveSuperProperties];
     [self unarchiveEventBindings];
+    [self unarchiveFirstDay];
 }
 
 - (id)unarchiveFromFile:(NSString *)filePath {
@@ -1264,6 +1294,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     self.loginId = archivedLoginId;
 }
 
+- (void)unarchiveFirstDay {
+    NSString *archivedFirstDay = (NSString *)[self unarchiveFromFile:[self filePathForData:@"first_day"]];
+    self.firstDay = archivedFirstDay;
+}
 
 - (void)unarchiveSuperProperties {
     NSDictionary *archivedSuperProperties = (NSDictionary *)[self unarchiveFromFile:[self filePathForData:@"super_properties"]];
@@ -1297,6 +1331,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ unable to archive loginId", self);
     }
     SADebug(@"%@ archived loginId", self);
+}
+
+- (void)archiveFirstDay {
+    NSString *filePath = [self filePathForData:@"first_day"];
+    if (![NSKeyedArchiver archiveRootObject:[[self firstDay] copy] toFile:filePath]) {
+        SAError(@"%@ unable to archive firstDay", self);
+    }
+    SADebug(@"%@ archived firstDay", self);
 }
 
 - (void)archiveSuperProperties {
