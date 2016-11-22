@@ -821,13 +821,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 [p setObject:@NO forKey:@"$wifi"];
             }
-            
-            //  是否首日访问
-            if ([self isFirstDay]) {
-                [p setObject:@YES forKey:@"$is_first_day"];
-            } else {
-                [p setObject:@NO forKey:@"$is_first_day"];
-            }
 
             NSDictionary *eventTimer = self.trackTimer[event];
             if (eventTimer) {
@@ -894,6 +887,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"lib": libProperties,
                   };
         } else if([type isEqualToString:@"track"]){
+            //  是否首日访问
+            if ([self isFirstDay]) {
+                [p setObject:@YES forKey:@"$is_first_day"];
+            } else {
+                [p setObject:@NO forKey:@"$is_first_day"];
+            }
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
