@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.29"
+#define VERSION @"1.6.30"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -787,6 +787,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     [libProperties setValue:@"code" forKey:@"$lib_method"];
     
+#ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
     NSArray *syms = [NSThread callStackSymbols];
     
     if ([syms count] > 2) {
@@ -804,6 +805,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [libProperties setValue:detail forKey:@"$lib_detail"];
         }
     }
+#endif
 
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
@@ -1563,6 +1565,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
             [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
 
+            @try {
+                NSString *controllerTitle = controller.navigationItem.title;
+                if (controllerTitle != nil) {
+                    [properties setValue:controllerTitle forKey:@"$title"];
+                }
+            } @catch (NSException *exception) {
+
+            }
+
             if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
                 UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
                 [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
@@ -1927,14 +1938,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - People analytics
 
-NSString * const SensorsAnalyticsAppPushProfilePrefix[] = {
-    [SensorsAnalyticsAppPushBaidu] = @"IOS_Baidu_",
-    [SensorsAnalyticsAppPushJiguang] = @"IOS_Jiguang_",
-    [SensorsAnalyticsAppPushQQ] = @"IOS_QQ_",
-    [SensorsAnalyticsAppPushGetui] = @"IOS_Getui_",
-    [SensorsAnalyticsAppPushXiaomi] = @"IOS_Xiaomi_",
-};
-
 @implementation SensorsAnalyticsPeople {
     SensorsAnalyticsSDK *_sdk;
 }
@@ -1981,19 +1984,6 @@ NSString * const SensorsAnalyticsAppPushProfilePrefix[] = {
 
 - (void)deleteUser {
     [_sdk track:nil withProperties:@{} withType:@"profile_delete"];
-}
-
-- (void)registerAppPushService:(SensorsAnalyticsAppPushService) appPushService
-                    withAppKey:(NSString *) appKey
-                 andRegisterId:(NSString*) registerId {
-    // 过滤 AppKey 中非 [a-zA-Z0-9] 字符
-    NSCharacterSet *alphaSet = [[ NSCharacterSet alphanumericCharacterSet ] invertedSet ];
-    NSString *filteredAppKey = [[appKey componentsSeparatedByCharactersInSet:alphaSet] componentsJoinedByString:@""];
-    
-    NSString *profileKey = [NSString stringWithFormat:@"%@_%@", @"$app_push_key", filteredAppKey];
-    NSString *profileValue = [SensorsAnalyticsAppPushProfilePrefix[appPushService] stringByAppendingString:registerId];
-    
-    [_sdk track:nil withProperties:@{profileKey : profileValue} withType:@"profile_set"];
 }
 
 @end

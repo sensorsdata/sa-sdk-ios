@@ -58,25 +58,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
 
 /**
  * @abstract
- * App推送平台，用于设定相关推送平台的 Register ID
- *
- * @discussion
- *   SensorsAnalyticsAppPushBaidu - 百度云推送
- *   SensorsAnalyticsAppPushJiguang - 极光推送
- *   SensorsAnalyticsAppPushQQ - 腾讯云推送
- *   SensorsAnalyticsAppPushGetui - 个推
- *   SensorsAnalyticsAppPushXiaomi - 小米推送
- */
-typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
-    SensorsAnalyticsAppPushBaidu,
-    SensorsAnalyticsAppPushJiguang,
-    SensorsAnalyticsAppPushQQ,
-    SensorsAnalyticsAppPushGetui,
-    SensorsAnalyticsAppPushXiaomi,
-};
-
-/**
- * @abstract
  * 自动追踪(AutoTrack)中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
  *
  * @discussion
@@ -681,17 +662,5 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAppPushService) {
  * 删除当前这个用户的所有记录
  */
 - (void)deleteUser;
-
-/**
- * @abstract
- * 将第三方推送平台的 AppKey 和 Register ID 提交到 Sensors Analytics
- *
- * @param appPushService    第三方推送平台
- * @param appKey            第三方推送平台中的 AppKey
- * @param registerId        推送平台的 Register ID
- */
-- (void)registerAppPushService:(SensorsAnalyticsAppPushService) appPushService
-                    withAppKey:(NSString *) appKey
-                 andRegisterId:(NSString*) registerId;
 
 @end
