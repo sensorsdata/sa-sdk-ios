@@ -154,6 +154,7 @@
 }
 
 - (BOOL) vacuum {
+#ifndef SENSORS_ANALYTICS_DISABLE_VACUUM
     @try {
         NSString* query = @"VACUUM";
         char* errMsg;
@@ -165,6 +166,9 @@
     } @catch (NSException *exception) {
         return NO;
     }
+#else
+    return YES;
+#endif
 }
 
 

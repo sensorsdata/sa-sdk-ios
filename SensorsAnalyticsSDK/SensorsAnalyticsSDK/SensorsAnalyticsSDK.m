@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.30"
+#define VERSION @"1.6.31"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -992,7 +992,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        [properties setValue:@"" forKey:@"$ios_install_source"];
+        NSString *idfa = [self getIDFA];
+        if (idfa != nil) {
+            [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:@"$ios_install_source"];
+        } else {
+            [properties setValue:@"" forKey:@"$ios_install_source"];
+        }
+
         if (propertyDict != nil) {
             [properties addEntriesFromDictionary:propertyDict];
         }
@@ -1017,13 +1023,42 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
     
         // 通过 '$ios_install_source' 属性标记渠道追踪请求
-        NSDictionary *properties = @{@"$ios_install_source" : @""};
-    
+        NSString *idfa = [self getIDFA];
+        NSDictionary *properties = nil;
+        if (idfa != nil) {
+            properties = @{@"$ios_install_source" : [NSString stringWithFormat:@"idfa=%@", idfa]};
+        } else {
+            properties = @{@"$ios_install_source" : @""};
+        }
         // 先发送 track
         [self track:event withProperties:properties withType:@"track"];
     
         // 再发送 profile_set_once
         [self track:nil withProperties:properties withType:@"profile_set_once"];
+    }
+}
+
+- (NSString  *)getIDFA {
+    NSString *idfa = nil;
+    @try {
+#if defined(SENSORS_ANALYTICS_IDFA)
+        Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
+        if (ASIdentifierManagerClass) {
+            SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
+            id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
+            SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
+            NSUUID *uuid = ((NSUUID* (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
+            NSString *temp = [uuid UUIDString];
+            // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
+            // 00000000-0000-0000-0000-000000000000
+            if (temp && ![temp hasPrefix:@"00000000"]) {
+                idfa = temp;
+            }
+        }
+        #endif
+        return idfa;
+    } @catch (NSException *exception) {
+        return idfa;
     }
 }
 
