@@ -14,7 +14,7 @@ NSString *const SADesignerDisconnectMessageType = @"disconnect";
 @implementation SADesignerDisconnectMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:@"disconnect"];
+    return [(SADesignerDisconnectMessage *)[self alloc] initWithType:@"disconnect"];
 }
 
 - (NSOperation *)responseCommandWithConnection:(SADesignerConnection *)connection {

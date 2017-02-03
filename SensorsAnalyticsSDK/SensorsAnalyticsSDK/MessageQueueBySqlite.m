@@ -100,9 +100,13 @@
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             char *ch = (char*)sqlite3_column_text(stmt, 0);
             if (ch) {
-                NSString *content =[NSString stringWithUTF8String:ch];
-                if (content) {
-                    [contentArray addObject:content];
+                @try {
+                    NSString *content =[NSString stringWithUTF8String:ch];
+                    if (content) {
+                        [contentArray addObject:content];
+                    }
+                } @catch (NSException *exception) {
+                    SAError(@"Found NON UTF8 String, ignore");
                 }
             }
         }

@@ -24,7 +24,7 @@ NSString *const SADesignerEventBindingRequestMessageType = @"event_binding_reque
 @implementation SADesignerEventBindingRequestMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:@"event_binding_request"];
+    return [(SADesignerEventBindingRequestMessage *)[self alloc] initWithType:@"event_binding_request"];
 }
 
 - (NSOperation *)responseCommandWithConnection:(SADesignerConnection *)connection {
@@ -58,7 +58,7 @@ NSString *const SADesignerEventBindingRequestMessageType = @"event_binding_reque
 @implementation SADesignerEventBindingResponseMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:@"event_binding_response"];
+    return [(SADesignerEventBindingResponseMessage *)[self alloc] initWithType:@"event_binding_response"];
 }
 
 - (void)setStatus:(NSString *)status {

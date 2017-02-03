@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.31"
+#define VERSION @"1.6.32"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -414,8 +414,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [libProperties setValue:@"iOS" forKey:@"type"];
     if ([self loginId] != nil) {
         [libProperties setValue:[self loginId] forKey:@"distinct_id"];
+        [libProperties setValue:[NSNumber numberWithBool:YES] forKey:@"is_login"];
     } else{
         [libProperties setValue:[self distinctId] forKey:@"distinct_id"];
+        [libProperties setValue:[NSNumber numberWithBool:NO] forKey:@"is_login"];
     }
     return [libProperties copy];
 }
@@ -584,6 +586,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return flushSucc;
     };
     
+    [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
+#ifdef SENSORS_ANALYTICS_IOS_MATCHING_WITH_COOKIE
     // 使用 SFSafariViewController 发送数据 (>= iOS 9.0)
     BOOL (^flushBySafariVC)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
         if (self.safariRequestInProgress) {
@@ -667,9 +671,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         });
         return YES;
     };
-    
-    [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-#ifdef SENSORS_ANALYTICS_IOS_MATCHING_WITH_COOKIE
     [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
 #else
     [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];

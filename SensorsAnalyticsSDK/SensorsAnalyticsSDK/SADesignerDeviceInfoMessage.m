@@ -21,7 +21,7 @@ NSString *const SADesignerDeviceInfoRequestMessageType = @"device_info_request";
 @implementation SADesignerDeviceInfoRequestMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:SADesignerDeviceInfoRequestMessageType];
+    return [(SADesignerDeviceInfoRequestMessage *)[self alloc] initWithType:SADesignerDeviceInfoRequestMessageType];
 }
 
 + (NSString *)defaultDeviceId{
@@ -75,7 +75,7 @@ NSString *const SADesignerDeviceInfoRequestMessageType = @"device_info_request";
 @implementation SADesignerDeviceInfoResponseMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:@"device_info_response"];
+    return [(SADesignerDeviceInfoResponseMessage *)[self alloc] initWithType:@"device_info_response"];
 }
 
 - (NSString *)libName {

@@ -28,7 +28,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 @implementation SADesignerSnapshotRequestMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:SADesignerSnapshotRequestMessageType];
+    return [(SADesignerSnapshotRequestMessage *)[self alloc] initWithType:SADesignerSnapshotRequestMessageType];
 }
 
 - (SAObjectSerializerConfig *)configuration {
@@ -95,7 +95,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 @implementation SADesignerSnapshotResponseMessage
 
 + (instancetype)message {
-    return [[self alloc] initWithType:@"snapshot_response"];
+    return [(SADesignerSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
 }
 
 - (void)setScreenshot:(UIImage *)screenshot {
