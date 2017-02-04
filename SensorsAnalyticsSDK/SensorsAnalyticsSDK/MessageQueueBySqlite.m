@@ -62,7 +62,13 @@
         return;
     }
     NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
-    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString* jsonString = nil;
+    @try {
+        jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    } @catch (NSException *exception) {
+        SAError(@"Found NON UTF8 String, ignore");
+        return;
+    }
     NSString* query = @"INSERT INTO dataCache(type, content) values(?, ?)";
     sqlite3_stmt *insertStatement;
     int rc;
