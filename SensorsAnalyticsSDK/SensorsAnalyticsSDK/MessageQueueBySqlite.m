@@ -164,7 +164,7 @@
 }
 
 - (BOOL) vacuum {
-#ifndef SENSORS_ANALYTICS_DISABLE_VACUUM
+#ifdef SENSORS_ANALYTICS_ENABLE_VACUUM
     @try {
         NSString* query = @"VACUUM";
         char* errMsg;
