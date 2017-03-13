@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.34"
+#define VERSION @"1.6.35"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -290,10 +290,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //        [self startFlushTimer];
     }
     
-    SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@'",
-            self, serverURL, configureURL);
+    SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
+            self, serverURL, configureURL, [self debugModeToString:debugMode]);
     
     return self;
+}
+
+- (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
+    switch (debugMode) {
+        case SensorsAnalyticsDebugOff:
+            return @"DebugOff";
+            break;
+
+        case SensorsAnalyticsDebugAndTrack:
+            return @"DebugAndTrack";
+            break;
+
+        case SensorsAnalyticsDebugOnly:
+            return @"DebugOnly";
+            break;
+
+        default:
+            return @"Unknown";
+            break;
+    }
 }
 
 - (void)showDebugModeWarning {
@@ -816,6 +836,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [p addEntriesFromDictionary:_automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
 
+            //update lib $app_version from super properties
+            id app_version = [_superProperties objectForKey:@"$app_version"];
+            if (app_version) {
+                [libProperties setValue:app_version forKey:@"$app_version"];
+            }
+
             // 每次 track 时手机网络状态
             NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
             [p setObject:networkType forKey:@"$network_type"];
@@ -1243,6 +1269,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // Use setValue semantics to avoid adding keys where value can be nil.
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
     [p setValue:carrier.carrierName forKey:@"$carrier"];
+//    BOOL isReal;
+//    [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
     [p addEntriesFromDictionary:@{
                                   @"$lib": @"iOS",
                                   @"$lib_version": [self libVersion],
@@ -1581,6 +1609,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [screenName isEqualToString:@"SFSafariViewController"] ||
                 [screenName isEqualToString:@"UIInputWindowController"] ||
                 [screenName isEqualToString:@"UINavigationController"] ||
+                [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||
+                [screenName isEqualToString:@"UICompatibilityInputViewController"] ||
                 [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
                 return;
             }
