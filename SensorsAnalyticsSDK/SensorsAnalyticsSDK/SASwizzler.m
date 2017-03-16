@@ -148,7 +148,9 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
                   named:(NSString *)aName {
     Method aMethod = class_getInstanceMethod(aClass, aSelector);
     if (!aMethod) {
-        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+//        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
+        SALog(@"SwizzleException:Cannot find method for %@ on %@",NSStringFromSelector(aSelector), NSStringFromClass(aClass));
+        return;
     }
     
     uint numArgs = method_getNumberOfArguments(aMethod);

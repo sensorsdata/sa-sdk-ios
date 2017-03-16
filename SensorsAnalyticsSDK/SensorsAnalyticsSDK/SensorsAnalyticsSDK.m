@@ -35,7 +35,7 @@
 #import <WebKit/WebKit.h>
 #endif
 
-#define VERSION @"1.6.35"
+#define VERSION @"1.6.36"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -119,6 +119,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     NSDateFormatter *_dateFormatter;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
+    BOOL _showDebugAlertView;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
 }
@@ -238,6 +239,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _vtrackWindow = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
+        _showDebugAlertView = YES;
         _referrerScreenUrl = nil;
         _lastScreenTrackProperties = nil;
         
@@ -253,11 +255,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
         if (self.messageQueue == nil) {
             SADebug(@"SqliteException: init Message Queue in Sqlite fail");
-        }
-        
-        //打开debug模式，弹出提示
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning];
         }
 
         // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
@@ -293,6 +290,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
             self, serverURL, configureURL, [self debugModeToString:debugMode]);
     
+    //打开debug模式，弹出提示
+    if (_debugMode != SensorsAnalyticsDebugOff) {
+        NSString *alertMessage = nil;
+        if (_debugMode == SensorsAnalyticsDebugOnly) {
+            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+        }
+        if (alertMessage != nil) {
+            [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
+        }
+    }
+
     return self;
 }
 
@@ -316,38 +326,54 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)showDebugModeWarning {
-    @try {
-        NSString *alertTitle = @"神策重要提示";
-        NSString *alertMessage = nil;
-        if (_debugMode == SensorsAnalyticsDebugOnly) {
-            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以 App Crash 的方式提示开发者，请上线前一定关闭。";
-        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以 App Crash 的方式提示开发者，请上线前一定关闭。";
-        } else {
-            return;
+- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
+    if (_debugMode == SensorsAnalyticsDebugOff) {
+        return;
+    }
+
+    if (!_showDebugAlertView) {
+        return;
+    }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            NSString *alertTitle = @"神策重要提示";
+            if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+                UIAlertController *connectAlert = [UIAlertController
+                                                   alertControllerWithTitle:alertTitle
+                                                   message:message
+                                                   preferredStyle:UIAlertControllerStyleAlert];
+
+                [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                }]];
+                if (showNoMore) {
+                    [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                        _showDebugAlertView = NO;
+                    }]];
+                }
+
+                UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+                alertWindow.rootViewController = [[UIViewController alloc] init];
+                alertWindow.windowLevel = UIWindowLevelAlert + 1;
+                [alertWindow makeKeyAndVisible];
+                [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
+            } else {
+                UIAlertView *connectAlert = nil;
+                if (showNoMore) {
+                    connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"不再显示",nil, nil];
+                } else {
+                    UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                }
+                [connectAlert show];
+            }
+        } @catch (NSException *exception) {
+        } @finally {
         }
+    });
+}
 
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-            UIAlertController *connectAlert = [UIAlertController
-                                               alertControllerWithTitle:alertTitle
-                                               message:alertMessage
-                                               preferredStyle:UIAlertControllerStyleAlert];
-
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-            }]];
-
-            UIWindow   *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
-            alertWindow.rootViewController = [[UIViewController alloc] init];
-            alertWindow.windowLevel = UIWindowLevelAlert + 1;
-            [alertWindow makeKeyAndVisible];
-            [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
-        } else {
-            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:nil cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
-            [connectAlert show];
-        }
-    } @catch (NSException *exception) {
-    } @finally {
+-(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
+    if (buttonIndex == 1) {
+        _showDebugAlertView = NO;
     }
 }
 
@@ -569,9 +595,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     SAError(@"%@ ret_content: %@", self, urlResponseContent);
                     
                     if ([urlResponse statusCode] >= 300) {
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"IllegalDataException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
+                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
                 } else {
                     SAError(@"%@", errMsg);
@@ -765,25 +789,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([type isEqualToString:@"track"]) {
         if (event == nil || [event length] == 0) {
             NSString *errMsg = @"SensorsAnalytics track called with empty event parameter";
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                  reason:errMsg
-                                                                userInfo:nil];
-            } else {
-                SAError(@"%@", errMsg);
-                return;
+                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            return;
         }
         if (![self isValidName:event]) {
             NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                  reason:errMsg
-                                                                userInfo:nil];
-            } else {
-                SAError(@"%@", errMsg);
-                return;
+                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            return;
         }
     }
     
@@ -974,14 +992,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
+        SAError(@"%@", errMsg);
         if (_debugMode != SensorsAnalyticsDebugOff) {
-            @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                              reason:errMsg
-                                                            userInfo:nil];
-        } else {
-            SAError(@"%@", errMsg);
-            return;
+            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
         }
+        return;
     }
     
     NSNumber *eventBegin = @([[self class] getCurrentTime]);
@@ -1140,27 +1155,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
             NSString *errMsg = @"Property Key should by NSString";
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                  reason:errMsg
-                                                                userInfo:nil];
-            } else {
-                SAError(@"%@", errMsg);
-                return NO;
+                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            return NO;
         }
         
         // key的名称必须符合要求
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                  reason:errMsg
-                                                                userInfo:nil];
-            } else {
-                SAError(@"%@", errMsg);
-                return NO;
+                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            return NO;
         }
         
         // value的类型检查
@@ -1170,14 +1179,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![properties[k] isKindOfClass:[NSSet class]] &&
            ![properties[k] isKindOfClass:[NSDate class]]) {
             NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
+            SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                  reason:errMsg
-                                                                userInfo:nil];
-            } else {
-                SAError(@"%@", errMsg);
-                return NO;
+                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
             }
+            return NO;
         }
         
         // NSSet 类型的属性中，每个元素必须是 NSString 类型
@@ -1187,26 +1193,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             while (object = [enumerator nextObject]) {
                 if (![object isKindOfClass:[NSString class]]) {
                     NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet must be NSString. got: %@ %@", self, [object class], object];
+                    SAError(@"%@", errMsg);
                     if (_debugMode != SensorsAnalyticsDebugOff) {
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
-                    } else {
-                        SAError(@"%@", errMsg);
-                        return NO;
+                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
+                    return NO;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
                     NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
+                    SAError(@"%@", errMsg);
                     if (_debugMode != SensorsAnalyticsDebugOff) {
-                        @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                          reason:errMsg
-                                                                        userInfo:nil];
-                    } else {
-                        SAError(@"%@", errMsg);
-                        return NO;
+                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
+                    return NO;
                 }
             }
         }
@@ -1216,14 +1216,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
             if (objLength > PROPERTY_LENGTH_LIMITATION) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                    return NO;
+                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
+                return NO;
             }
         }
         
@@ -1231,14 +1228,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([eventType isEqualToString:@"profile_increment"]) {
             if (![properties[k] isKindOfClass:[NSNumber class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], properties[k]];
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                    return NO;
+                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
+                return NO;
             }
         }
         
@@ -1246,14 +1240,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([eventType isEqualToString:@"profile_append"]) {
             if (![properties[k] isKindOfClass:[NSSet class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet. got %@ %@", self, [properties[k] class], properties[k]];
+                SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    @throw [SensorsAnalyticsDebugException exceptionWithName:@"InvalidDataException"
-                                                                      reason:errMsg
-                                                                    userInfo:nil];
-                } else {
-                    SAError(@"%@", errMsg);
-                    return NO;
+                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
+                return NO;
             }
         }
     }
@@ -1607,6 +1598,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *screenName = NSStringFromClass(klass);
             if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
                 [screenName isEqualToString:@"SFSafariViewController"] ||
+                [screenName isEqualToString:@"UIAlertController"] ||
                 [screenName isEqualToString:@"UIInputWindowController"] ||
                 [screenName isEqualToString:@"UINavigationController"] ||
                 [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||

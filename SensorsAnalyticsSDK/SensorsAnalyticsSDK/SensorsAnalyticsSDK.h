@@ -414,7 +414,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- * 使用该接口，必须在工程中引入 `SafariService.framework`
  *
  * @discussion
  * propertyDict是一个Map。
@@ -432,7 +431,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，SDK会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- * 使用该接口，必须在工程中引入 `SafariService.framework`
+ * 使用该接口
  *
  * @discussion
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
