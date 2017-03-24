@@ -298,8 +298,6 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
 /**
  * @abstract
  * 重置默认匿名id
- *
- * @return anonymousId 匿名id
  */
 - (void)resetAnonymousId;
 
@@ -341,7 +339,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  *
  * @param event             event的名称
- * @param propertieDict     event的属性
+ * @param propertyDict     event的属性
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertyDict;
 
@@ -396,7 +394,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
  *
  * @param newDistinctId     用户完成注册后生成的注册ID
- * @param propertieDict     event的属性
+ * @param propertyDict     event的属性
  */
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
 
@@ -424,7 +422,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
- * @param propertieDict     event的属性
+ * @param propertyDict     event的属性
  */
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict;
 
@@ -469,9 +467,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * Track $AppViewScreen事件
  *
  * @param url 当前页面url
- * @param 用户扩展属性
- *
- * @return
+ * @param properties 用户扩展属性
  */
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
 
@@ -651,8 +647,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * 如前面所述，这个<code>NSSet</code>的元素必须是<code>NSString</code>，否则，会忽略
  * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>
  *
- * @param profile
- * @param content <#content description#>
+ * @param profile profile
+ * @param content description
  */
 - (void)append:(NSString *)profile by:(NSSet *)content;
 

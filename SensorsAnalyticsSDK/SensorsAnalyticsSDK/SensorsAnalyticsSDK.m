@@ -4,10 +4,6 @@
 //  Created by 曹犟 on 15/7/1.
 //  Copyright (c) 2015年 SensorsData. All rights reserved.
 
-#if __IPHONE_OS_VERSION_MIN_REQUIRED >= __IPHONE_7_1
-#define supportsWKWebKit
-#endif
-
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
 
@@ -31,11 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 
-#if defined(supportsWKWebKit)
-#import <WebKit/WebKit.h>
-#endif
-
-#define VERSION @"1.6.36"
+#define VERSION @"1.6.37"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -122,6 +114,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     BOOL _showDebugAlertView;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
+    BOOL _applicationWillResignActive;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -242,6 +235,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _showDebugAlertView = YES;
         _referrerScreenUrl = nil;
         _lastScreenTrackProperties = nil;
+        _applicationWillResignActive = NO;
         
         _filterControllers = [[NSMutableArray alloc] init];
         _dateFormatter = [[NSDateFormatter alloc] init];
@@ -429,6 +423,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *scheme = @"sensorsanalytics://getAppInfo";
     NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
+
+    //判断系统是否支持WKWebView
+    Class wkWebViewClass = NSClassFromString(@"WKWebView");
+
     if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
         SADebug(@"showUpWebView: UIWebView");
         if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
@@ -436,20 +434,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return YES;
         }
         return NO;
-    }
-#if defined(supportsWKWebKit )
-    else if([webView isKindOfClass:[WKWebView class]] == YES) {//WKWebView
+    } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
         SADebug(@"showUpWebView: WKWebView");
         if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
-            [webView evaluateJavaScript:js completionHandler:^(id _Nullable response, NSError * _Nullable error) {
+            typedef void(^Myblock)(id,NSError *);
+            Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
                 NSLog(@"response: %@ error: %@", response, error);
-            }];
+            };
+            SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
+            if (sharedManagerSelector) {
+                ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
+            }
             return YES;
         }
         return NO;
-    }
-#endif
-    else{
+    } else{
         SADebug(@"showUpWebView: not UIWebView or WKWebView");
         return NO;
     }
@@ -1692,6 +1691,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
     
+    if (_applicationWillResignActive) {
+        _applicationWillResignActive = NO;
+        return;
+    }
+    _applicationWillResignActive = NO;
+
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
@@ -1736,12 +1741,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)applicationWillResignActive:(NSNotification *)notification {
     SADebug(@"%@ application will resign active", self);
-    
+    _applicationWillResignActive = YES;
     [self stopFlushTimer];
 }
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
+    _applicationWillResignActive = NO;
     
     // 遍历trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + timeStamp - eventBegin
