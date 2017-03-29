@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 
-#define VERSION @"1.6.37"
+#define VERSION @"1.6.38"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -112,6 +112,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
+    UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
@@ -233,6 +234,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
         _showDebugAlertView = YES;
+        _debugAlertViewHasShownNumber = 0;
         _referrerScreenUrl = nil;
         _lastScreenTrackProperties = nil;
         _applicationWillResignActive = NO;
@@ -330,6 +332,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
+            if (_debugAlertViewHasShownNumber >= 3) {
+                return;
+            }
+            _debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"神策重要提示";
             if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
                 UIAlertController *connectAlert = [UIAlertController
@@ -338,6 +344,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                    preferredStyle:UIAlertControllerStyleAlert];
 
                 [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    _debugAlertViewHasShownNumber -= 1;
                 }]];
                 if (showNoMore) {
                     [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
@@ -355,7 +362,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 if (showNoMore) {
                     connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:@"不再显示",nil, nil];
                 } else {
-                    UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
+                    connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:message delegate:self cancelButtonTitle:@"确定" otherButtonTitles:nil, nil];
                 }
                 [connectAlert show];
             }
@@ -368,6 +375,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
     if (buttonIndex == 1) {
         _showDebugAlertView = NO;
+    } else if (buttonIndex == 0) {
+        _debugAlertViewHasShownNumber -= 1;
     }
 }
 
@@ -506,6 +515,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)enableAutoTrack {
     _autoTrack = YES;
     [self _enableAutoTrack];
+}
+
+- (void)showDebugInfoView:(BOOL)show {
+    _showDebugAlertView = show;
 }
 
 - (void)flushByType:(NSString *)type withSize:(int)flushSize andFlushMethod:(BOOL (^)(NSArray *, NSString *))flushMethod {

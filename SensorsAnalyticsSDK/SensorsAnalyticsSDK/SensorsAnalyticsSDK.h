@@ -316,6 +316,17 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
 
 /**
  * @abstract
+ * 设置是否显示 debugInfoView，对于 iOS，是 UIAlertView／UIAlertController
+ *
+ * @discussion
+ * 设置是否显示 debugInfoView，默认显示
+ *
+ * @param show             是否显示
+ */
+- (void)showDebugInfoView:(BOOL)show;
+
+/**
+ * @abstract
  * 设置当前用户的distinctId
  *
  * @discussion
