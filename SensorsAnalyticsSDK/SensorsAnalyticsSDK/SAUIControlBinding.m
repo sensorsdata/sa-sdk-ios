@@ -163,10 +163,15 @@
                               named:self.name];
 
         // remove target-action pairs
-        for (UIControl *control in [self.appliedTo allObjects]) {
-            if (control && [control isKindOfClass:[UIControl class]]) {
-                [self stopOnView:control];
+        @try {
+        NSArray *allObjects = [NSArray arrayWithArray:[self.appliedTo allObjects]];
+            for (UIControl *control in allObjects) {
+                if (control && [control isKindOfClass:[UIControl class]]) {
+                    [self stopOnView:control];
+                }
             }
+        } @catch (NSException *exception) {
+            SADebug(@"stop error: %@", exception);
         }
         [self resetAppliedTo];
         self.running = false;

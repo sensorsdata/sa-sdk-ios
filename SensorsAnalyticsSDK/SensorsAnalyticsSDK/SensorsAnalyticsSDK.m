@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 
-#define VERSION @"1.6.38"
+#define VERSION @"1.6.39"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
