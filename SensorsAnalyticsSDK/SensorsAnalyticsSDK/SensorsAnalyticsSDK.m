@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 
-#define VERSION @"1.6.39"
+#define VERSION @"1.6.40"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -116,6 +116,7 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
+	SensorsAnalyticsAutoTrackEventType _ignoredAutoTrackEventType;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -213,6 +214,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         serverURL = [url absoluteString];
     }
     
+    _ignoredAutoTrackEventType = SensorsAnalyticsEventTypeNone;
+
     // 将 Configure URI Path 末尾补齐 iOS.conf
     NSURL *url = [NSURL URLWithString:configureURL];
     if ([[url lastPathComponent] isEqualToString:@"config"]) {
@@ -515,6 +518,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)enableAutoTrack {
     _autoTrack = YES;
     [self _enableAutoTrack];
+}
+
+- (BOOL)isAutoTrackEnabled {
+    return _autoTrack;
+}
+
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+    return _ignoredAutoTrackEventType & eventType;
+}
+
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
+    _ignoredAutoTrackEventType = _ignoredAutoTrackEventType | eventType;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -837,11 +852,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     [libProperties setValue:@"code" forKey:@"$lib_method"];
+
+    NSString *lib_detail = nil;
+    if (_autoTrack && propertieDict) {
+        if ([event isEqualToString:@"$AppClick"]) {
+            if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppClick)) {
+                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
+            }
+        } else if ([event isEqualToString:@"$AppViewScreen"]) {
+            if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+                lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
+            }
+        }
+    }
     
 #ifndef SENSORS_ANALYTICS_DISABLE_CALL_STACK
     NSArray *syms = [NSThread callStackSymbols];
     
-    if ([syms count] > 2) {
+    if ([syms count] > 2 && !lib_detail) {
         NSString *trace = [syms objectAtIndex:2];
         
         NSRange start = [trace rangeOfString:@"["];
@@ -852,11 +880,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *class = [trace_info substringWithRange:NSMakeRange(0, split.location)];
             NSString *function = [trace_info substringWithRange:NSMakeRange(split.location + 1, trace_info.length-(split.location + 1))];
             
-            NSString *detail = [NSString stringWithFormat:@"%@##%@####", class, function];
-            [libProperties setValue:detail forKey:@"$lib_detail"];
+            lib_detail = [NSString stringWithFormat:@"%@##%@####", class, function];
         }
     }
 #endif
+
+    if (lib_detail) {
+        [libProperties setValue:lib_detail forKey:@"$lib_detail"];
+    }
 
     dispatch_async(self.serialQueue, ^{
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
@@ -1597,6 +1628,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)_enableAutoTrack {
     void (^block)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         if (_autoTrack) {
+            if ((_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+                return;
+            }
             UIViewController *controller = (UIViewController *)obj;
             if (!controller) {
                 return;
@@ -1615,6 +1649,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [screenName isEqualToString:@"UINavigationController"] ||
                 [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||
                 [screenName isEqualToString:@"UICompatibilityInputViewController"] ||
+                [screenName isEqualToString:@"UIApplicationRotationFollowingController"] ||
                 [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
                 return;
             }
@@ -1641,7 +1676,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     [properties setValue:controllerTitle forKey:@"$title"];
                 }
             } @catch (NSException *exception) {
-
+                SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
             }
 
             if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
@@ -1669,10 +1704,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
+if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
         [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
                             onClass:[UIViewController class]
                           withBlock:block
                               named:@"track_view_screen"];
+	}
     }
 }
 
@@ -1735,12 +1772,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (_autoTrack) {
         // 追踪 AppStart 事件
-        [self track:APP_START_EVENT withProperties:@{
-                                                     RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
-                                                     APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                     }];
+        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppStart)) {
+            [self track:APP_START_EVENT withProperties:@{
+                                                         RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                         APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                         }];
+        }
         // 启动 AppEnd 事件计时器
-        [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+            [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        }
     }
     
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
@@ -1791,7 +1832,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (_autoTrack) {
         // 追踪 AppEnd 事件
-        [self track:APP_END_EVENT];
+        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+            [self track:APP_END_EVENT];
+        }
     }
     
     if (self.flushBeforeEnterBackground) {

@@ -56,6 +56,25 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
     SensorsAnalyticsTimeUnitHours
 };
 
+
+/**
+ * @abstract
+ * AutoTrack 中的事件类型
+ *
+ * @discussion
+ *   SensorsAnalyticsEventTyppeAppStart - $AppStart
+ *   SensorsAnalyticsEventTyppeAppEnd - $AppEnd
+ *   SensorsAnalyticsEventTyppeAppClick - $AppClick
+ *   SensorsAnalyticsEventTyppeAppViewScreen - $AppViewScreen
+ */
+typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
+    SensorsAnalyticsEventTypeNone      = 0,
+    SensorsAnalyticsEventTypeAppStart      = 1 << 0,
+    SensorsAnalyticsEventTypeAppEnd        = 1 << 1,
+    SensorsAnalyticsEventTypeAppClick      = 1 << 2,
+    SensorsAnalyticsEventTypeAppViewScreen = 1 << 3,
+};
+
 /**
  * @abstract
  * 自动追踪(AutoTrack)中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
@@ -313,6 +332,32 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  * 该功能默认关闭
  */
 - (void)enableAutoTrack;
+
+/**
+ * @abstract
+ * 是否开启 AutoTrack
+ *
+ * @return YES:开启 AutoTrack; NO:关闭 AutoTrack
+ */
+- (BOOL)isAutoTrackEnabled;
+
+/**
+ * @abstract
+ * 判断某个 AutoTrack 事件类型是否被忽略
+ *
+ * @param eventType SensorsAnalyticsAutoTrackEventType 要判断的 AutoTrack 事件类型
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
+
+/**
+ * @abstract
+ * 过滤掉 AutoTrack 的某个事件类型
+ *
+ * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
+ */
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType;
 
 /**
  * @abstract
