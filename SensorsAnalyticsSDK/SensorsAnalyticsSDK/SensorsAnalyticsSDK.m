@@ -26,8 +26,9 @@
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
-
-#define VERSION @"1.6.40"
+#import "UIApplication+AutoTrack.h"
+#import "SASwizzle.h"
+#define VERSION @"1.7.0"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -48,15 +49,49 @@ NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
 NSString* const SCREEN_URL_PROPERTY = @"$url";
 // App 浏览页面 Referrer Url
 NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
-// App 推送相关:
-NSString* const APP_PUSH_ID_PROPERTY_BAIDU = @"$app_push_id_baidu";
-NSString* const APP_PUSH_ID_PROPERTY_JIGUANG = @"$app_push_id_jiguang";
-NSString* const APP_PUSH_ID_PROPERTY_QQ = @"$app_push_id_qq";
-NSString* const APP_PUSH_ID_PROPERTY_GETUI = @"$app_push_id_xiaomi";
-NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 
 @implementation SensorsAnalyticsDebugException
 
+@end
+
+@implementation UIView (SensorsAnalytics)
+- (UIViewController *)viewController {
+    UIResponder *next = [self nextResponder];
+    do {
+        if ([next isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)next;
+        }
+        next = [next nextResponder];
+    } while (next != nil);
+    return nil;
+}
+
+//viewID
+- (NSString *)sensorsAnalyticsViewID {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsViewID");
+}
+
+- (void)setSensorsAnalyticsViewID:(NSString *)sensorsAnalyticsViewID {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsViewID", sensorsAnalyticsViewID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+//ignoreView
+- (BOOL)sensorsAnalyticsIgnoreView {
+    return [objc_getAssociatedObject(self, @"sensorsAnalyticsIgnoreView") boolValue];
+}
+
+- (void)setSensorsAnalyticsIgnoreView:(BOOL)sensorsAnalyticsIgnoreView {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsIgnoreView", [NSNumber numberWithBool:sensorsAnalyticsIgnoreView], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+//viewProperty
+- (NSDictionary *)sensorsAnalyticsViewProperties {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsViewProperties");
+}
+
+- (void)setSensorsAnalyticsViewProperties:(NSDictionary *)sensorsAnalyticsViewProperties {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsViewProperties", sensorsAnalyticsViewProperties, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
 @end
 
 @interface SensorsAnalyticsSDK()
@@ -91,7 +126,9 @@ NSString* const APP_PUSH_ID_PROPERTY_XIAOMI = @"$app_push_id_getui";
 @property (nonatomic, strong) NSTimer *vtrackConnectorTimer;
 
 //用户设置的不被AutoTrack的Controllers
-@property (nonatomic, strong) NSMutableArray *filterControllers;
+@property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
+
+@property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 // 用于 SafariViewController
 @property (strong, nonatomic) UIWindow *secondWindow;
@@ -242,7 +279,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _lastScreenTrackProperties = nil;
         _applicationWillResignActive = NO;
         
-        _filterControllers = [[NSMutableArray alloc] init];
+        _ignoredViewControllers = [[NSMutableArray alloc] init];
+        _ignoredViewTypeList = [[NSMutableArray alloc] init];
         _dateFormatter = [[NSDateFormatter alloc] init];
         [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
         
@@ -526,6 +564,40 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     return _ignoredAutoTrackEventType & eventType;
+}
+
+- (void)ignoreViewType:(Class)aClass {
+    [_ignoredViewTypeList addObject:aClass];
+}
+
+- (BOOL)isViewTypeIgnored:(Class)aClass {
+    return [_ignoredViewTypeList containsObject:aClass];
+}
+
+- (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
+    if (viewController == nil) {
+        return false;
+    }
+    NSString *screenName = NSStringFromClass([viewController class]);
+    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+        if ([_ignoredViewControllers containsObject:screenName]) {
+            return true;
+        }
+    }
+    return false;
+}
+
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerString {
+    if (viewControllerString == nil) {
+        return false;
+    }
+
+    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+        if ([_ignoredViewControllers containsObject:viewControllerString]) {
+            return true;
+        }
+    }
+    return false;
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
@@ -1147,18 +1219,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)filterAutoTrackControllers:(NSArray *)controllers {
+- (void)ignoreAutoTrackViewControllers:(NSArray *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
     }
-    [_filterControllers addObjectsFromArray:controllers];
+    [_ignoredViewControllers addObjectsFromArray:controllers];
 
     //去重
-    NSSet *set = [NSSet setWithArray:_filterControllers];
+    NSSet *set = [NSSet setWithArray:_ignoredViewControllers];
     if (set != nil) {
-        _filterControllers = [NSMutableArray arrayWithArray:[set allObjects]];
+        _ignoredViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
     } else{
-        _filterControllers = [[NSMutableArray alloc] init];
+        _ignoredViewControllers = [[NSMutableArray alloc] init];
     }
 }
 
@@ -1303,8 +1375,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // Use setValue semantics to avoid adding keys where value can be nil.
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
     [p setValue:carrier.carrierName forKey:@"$carrier"];
-//    BOOL isReal;
-//    [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
+    BOOL isReal;
+    [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
     [p addEntriesFromDictionary:@{
                                   @"$lib": @"iOS",
                                   @"$lib_version": [self libVersion],
@@ -1655,15 +1727,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             //过滤用户设置的不被AutoTrack的Controllers
-            if (_filterControllers != nil && _filterControllers.count > 0) {
-                @try {
-                    for (id controller in _filterControllers) {
-                        if ([screenName isEqualToString:controller]) {
-                            return;
-                        }
-                    }
-                } @catch (NSException *exception) {
-                    SAError(@" unable to parse filterController");
+            if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+                if ([_ignoredViewControllers containsObject:screenName]) {
+                    return;
                 }
             }
 
@@ -1704,12 +1770,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
-if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
-        [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
-                            onClass:[UIViewController class]
-                          withBlock:block
-                              named:@"track_view_screen"];
-	}
+        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
+                                onClass:[UIViewController class]
+                              withBlock:block
+                                  named:@"track_view_screen"];
+        }
+
+        NSError *error = NULL;
+        // Actions & Events
+        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                         withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                              error:&error];
+        if (error) {
+            SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+            error = NULL;
+        }
     }
 }
 

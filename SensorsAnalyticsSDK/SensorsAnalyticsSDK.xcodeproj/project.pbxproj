@@ -7,6 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 002DB9491EB1647F00A9632C /* SASwizzle.h */; };
+		002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94A1EB1647F00A9632C /* SASwizzle.m */; };
+		002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
+		002DB9501EB1647F00A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
+		002DB9511EB1648800A9632C /* SASwizzle.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9491EB1647F00A9632C /* SASwizzle.h */; };
+		002DB9521EB1648800A9632C /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94A1EB1647F00A9632C /* SASwizzle.m */; };
+		002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
+		002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
+		002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9561EB1681900A9632C /* AutoTrackViewController.m */; };
 		00DC9CD71D7E9CFA00C7DF6C /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		00DC9CDA1D7E9D9D00C7DF6C /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */; };
 		00DC9CDC1D7E9E3F00C7DF6C /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
@@ -130,6 +139,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		002DB9491EB1647F00A9632C /* SASwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASwizzle.h; sourceTree = "<group>"; };
+		002DB94A1EB1647F00A9632C /* SASwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASwizzle.m; sourceTree = "<group>"; };
+		002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
+		002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+AutoTrack.m"; sourceTree = "<group>"; };
+		002DB9551EB1681900A9632C /* AutoTrackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackViewController.h; sourceTree = "<group>"; };
+		002DB9561EB1681900A9632C /* AutoTrackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackViewController.m; sourceTree = "<group>"; };
 		00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		00DC9CD81D7E9D9D00C7DF6C /* JSCallOCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController.h; sourceTree = "<group>"; };
 		00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController.m; sourceTree = "<group>"; };
@@ -262,6 +277,8 @@
 				00DC9CD91D7E9D9D00C7DF6C /* JSCallOCViewController.m */,
 				00DC9CDD1D7E9EC900C7DF6C /* JSCallOCViewController2.h */,
 				00DC9CDE1D7E9EC900C7DF6C /* JSCallOCViewController2.m */,
+				002DB9551EB1681900A9632C /* AutoTrackViewController.h */,
+				002DB9561EB1681900A9632C /* AutoTrackViewController.m */,
 			);
 			path = HelloSensorsAnalytics;
 			sourceTree = "<group>";
@@ -300,6 +317,10 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				002DB9491EB1647F00A9632C /* SASwizzle.h */,
+				002DB94A1EB1647F00A9632C /* SASwizzle.m */,
+				002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */,
+				002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */,
 				A3E388A01D509B8900F6B9FC /* SAReachability.h */,
 				A3E3889E1D509B7100F6B9FC /* SAReachability.m */,
 				A3746E791C3115EB008A50A3 /* SAAbstractDesignerMessage.h */,
@@ -399,6 +420,7 @@
 				A3746E921C313A0D008A50A3 /* SADesignerSnapshotMessage.h in Headers */,
 				A3997A311C3AC3B8005A9374 /* SAEventBinding.h in Headers */,
 				A3746EBC1C3190E7008A50A3 /* SAClassDescription.h in Headers */,
+				002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */,
 				4D14F1711B4A51B7006AD786 /* LFCGzipUtility.h in Headers */,
 				4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */,
 				A3A85C161C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h in Headers */,
@@ -414,6 +436,7 @@
 				A3746E7E1C3115EB008A50A3 /* SAAbstractDesignerMessage.h in Headers */,
 				A3746EB01C318B65008A50A3 /* SAObjectSerializerContext.h in Headers */,
 				A3746EBE1C3190E7008A50A3 /* SAEnumDescription.h in Headers */,
+				002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */,
 				A3746ECB1C32D8B2008A50A3 /* SADesignerSessionCollection.h in Headers */,
 				A3997A291C3AC342005A9374 /* SASwizzler.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
@@ -514,6 +537,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				002DB9511EB1648800A9632C /* SASwizzle.h in Sources */,
+				002DB9521EB1648800A9632C /* SASwizzle.m in Sources */,
+				002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */,
+				002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */,
 				A3E3889F1D509B7100F6B9FC /* SAReachability.m in Sources */,
 				A3333BD61C5A12300013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3BD57C51C58B1700006392F /* SAValueTransformers.m in Sources */,
@@ -539,6 +566,7 @@
 				A3746EDA1C32E5BB008A50A3 /* SATypeDescription.m in Sources */,
 				A3746EDB1C32E5BB008A50A3 /* UIView+SAHelpers.m in Sources */,
 				A3746EDC1C32E5BB008A50A3 /* SADesignerConnection.m in Sources */,
+				002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */,
 				A3746EDD1C32E5BB008A50A3 /* SAWebSocket.m in Sources */,
 				4D1EFDD51B4BC6930008D3EA /* MessageQueueBySqlite.m in Sources */,
 				A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */,
@@ -568,6 +596,7 @@
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
 				A3997A361C3AC3B8005A9374 /* SAUITableViewBinding.m in Sources */,
+				002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */,
 				A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */,
 				A3997A321C3AC3B8005A9374 /* SAEventBinding.m in Sources */,
 				A3746EC11C3190E7008A50A3 /* SAPropertyDescription.m in Sources */,
@@ -587,6 +616,7 @@
 				A3746ECF1C32DCBF008A50A3 /* SAWebSocket.m in Sources */,
 				A3997A341C3AC3B8005A9374 /* SAUIControlBinding.m in Sources */,
 				4D5CA77D1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m in Sources */,
+				002DB9501EB1647F00A9632C /* UIApplication+AutoTrack.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

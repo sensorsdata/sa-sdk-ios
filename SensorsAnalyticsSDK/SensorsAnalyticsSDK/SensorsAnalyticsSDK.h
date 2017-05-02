@@ -18,6 +18,19 @@
 
 @end
 
+@interface UIView (SensorsAnalytics)
+- (UIViewController *)viewController;
+
+//viewID
+@property (assign,nonatomic) NSString* sensorsAnalyticsViewID;
+
+//AutoTrack 时，是否忽略该 View
+@property (nonatomic,assign) BOOL sensorsAnalyticsIgnoreView;
+
+//AutoTrack 时，View 的扩展属性
+@property (assign,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
+@end
+
 /**
  * @abstract
  * Debug模式，用于检验数据导入是否正确。该模式下，事件会逐条实时发送到SensorsAnalytics，并根据返回值检查
@@ -353,6 +366,44 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
 
 /**
  * @abstract
+ * 忽略某一类型的 View
+ *
+ * @param aClass View 对应的 Class
+ */
+- (void)ignoreViewType:(Class)aClass;
+
+/**
+ * @abstract
+ * 判断某个 View 类型是否被忽略
+ *
+ * @param aClass Class View 对应的 Class
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewTypeIgnored:(Class)aClass;
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewController UIViewController
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerIgnored:(UIViewController*)viewController;
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewController UIViewController
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerStringIgnored:(NSString*)viewController;
+
+/**
+ * @abstract
  * 过滤掉 AutoTrack 的某个事件类型
  *
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
@@ -500,7 +551,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  *
  * @param controllers   controller‘字符串’数组
  */
-- (void)filterAutoTrackControllers:(NSArray *)controllers;
+- (void)ignoreAutoTrackViewControllers:(NSArray *)controllers;
 
 /**
  * @abstract
