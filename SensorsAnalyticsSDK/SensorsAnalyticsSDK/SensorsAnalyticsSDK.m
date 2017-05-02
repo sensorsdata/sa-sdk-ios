@@ -28,7 +28,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.0"
+#define VERSION @"1.7.1"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -153,7 +153,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
-	SensorsAnalyticsAutoTrackEventType _ignoredAutoTrackEventType;
+	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -251,7 +251,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         serverURL = [url absoluteString];
     }
     
-    _ignoredAutoTrackEventType = SensorsAnalyticsEventTypeNone;
+    _autoTrackEventType = SensorsAnalyticsEventTypeNone;
 
     // 将 Configure URI Path 末尾补齐 iOS.conf
     NSURL *url = [NSURL URLWithString:configureURL];
@@ -554,6 +554,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack {
+    [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
+}
+
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
+    _autoTrackEventType |= eventType;
     _autoTrack = YES;
     [self _enableAutoTrack];
 }
@@ -563,7 +568,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    return _ignoredAutoTrackEventType & eventType;
+    return !(_autoTrackEventType & eventType);
 }
 
 - (void)ignoreViewType:(Class)aClass {
@@ -601,7 +606,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _ignoredAutoTrackEventType = _ignoredAutoTrackEventType | eventType;
+    _autoTrackEventType = _autoTrackEventType ^ eventType;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
@@ -928,11 +933,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *lib_detail = nil;
     if (_autoTrack && propertieDict) {
         if ([event isEqualToString:@"$AppClick"]) {
-            if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppClick)) {
+            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         } else if ([event isEqualToString:@"$AppViewScreen"]) {
-            if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         }
@@ -1700,7 +1705,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)_enableAutoTrack {
     void (^block)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         if (_autoTrack) {
-            if ((_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+            if (!(_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
                 return;
             }
             UIViewController *controller = (UIViewController *)obj;
@@ -1770,7 +1775,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
-        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen) {
             [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
                                 onClass:[UIViewController class]
                               withBlock:block
@@ -1848,14 +1853,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (_autoTrack) {
         // 追踪 AppStart 事件
-        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppStart)) {
+        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
-        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
@@ -1908,7 +1913,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if (_autoTrack) {
         // 追踪 AppEnd 事件
-        if (!(_ignoredAutoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
+        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
             [self track:APP_END_EVENT];
         }
     }

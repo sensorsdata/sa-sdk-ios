@@ -337,14 +337,27 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  * @property
  *
  * @abstract
- * 打开 SDK 自动追踪
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
  *
  * @discussion
  * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-- (void)enableAutoTrack;
+- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @property
+ *
+ * @abstract
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
+ *
+ * @discussion
+ * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ *   https://sensorsdata.cn/manual/ios_sdk.html
+ * 该功能默认关闭
+ */
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType;
 
 /**
  * @abstract
@@ -408,7 +421,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  *
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
  */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType;
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
 
 /**
  * @abstract
