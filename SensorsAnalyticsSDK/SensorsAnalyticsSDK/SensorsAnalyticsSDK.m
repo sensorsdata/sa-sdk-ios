@@ -28,7 +28,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.1"
+#define VERSION @"1.7.2"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -154,6 +154,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
 	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
+    SensorsAnalyticsNetworkType _networkTypePolicy;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -252,6 +253,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     _autoTrackEventType = SensorsAnalyticsEventTypeNone;
+    _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
     // 将 Configure URI Path 末尾补齐 iOS.conf
     NSURL *url = [NSURL URLWithString:configureURL];
@@ -440,6 +442,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *current = [dateFormatter stringFromDate:[NSDate date]];
 
     return [[self firstDay] isEqualToString:current];
+}
+
+- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
+    _networkTypePolicy = networkType;
+}
+
+- (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
+    if ([@"NULL" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeALL;
+    } else if ([@"WIFI" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkTypeWIFI;
+    } else if ([@"2G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType2G;
+    }   else if ([@"3G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType3G;
+    }   else if ([@"4G" isEqualToString:networkType]) {
+        return SensorsAnalyticsNetworkType4G;
+    }
+    return SensorsAnalyticsNetworkTypeALL;
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
@@ -633,6 +654,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
+    // 判断当前网络类型是否是2G/3G/4G/WIFI
+    NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+    if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
+        return;
+    }
     // 使用 Post 发送数据
     BOOL (^flushByPost)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
         NSString *jsonString;
@@ -1087,11 +1113,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } else {
             // 否则，在满足发送条件时，发送事件
             if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
-                // 2. 判断当前网络类型是否是3G/4G/WIFI
-                NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
-                if (![networkType isEqualToString:@"NULL"] && ![networkType isEqualToString:@"2G"]) {
-                    [self _flush:NO];
-                }
+                [self _flush:NO];
             }
         }
     });

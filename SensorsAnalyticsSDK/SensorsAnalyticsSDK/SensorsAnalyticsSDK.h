@@ -90,6 +90,27 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
 
 /**
  * @abstract
+ * 网络类型
+ *
+ * @discussion
+ *   SensorsAnalyticsNetworkTypeNONE - NULL
+ *   SensorsAnalyticsNetworkType2G - 2G
+ *   SensorsAnalyticsNetworkType3G - 3G
+ *   SensorsAnalyticsNetworkType4G - 4G
+ *   SensorsAnalyticsNetworkTypeWIFI - WIFI
+ *   SensorsAnalyticsNetworkTypeALL - ALL
+ */
+typedef NS_ENUM(NSInteger, SensorsAnalyticsNetworkType) {
+    SensorsAnalyticsNetworkTypeNONE      = 0,
+    SensorsAnalyticsNetworkType2G       = 1 << 0,
+    SensorsAnalyticsNetworkType3G       = 1 << 1,
+    SensorsAnalyticsNetworkType4G       = 1 << 2,
+    SensorsAnalyticsNetworkTypeWIFI     = 1 << 3,
+    SensorsAnalyticsNetworkTypeALL      = 0xFF,
+};
+
+/**
+ * @abstract
  * 自动追踪(AutoTrack)中，实现该 Protocal 的 Controller 对象可以通过接口向自动采集的事件中加入属性
  *
  * @discussion
@@ -303,6 +324,17 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 设置 flush 时网络发送策略
+ *
+ * @discussion
+ * 默认 3G、4G、WI-FI 环境下都会尝试 flush
+ *
+ * @param networkType SensorsAnalyticsNetworkType
+ */
+- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType;
 
 /**
  * @abstract

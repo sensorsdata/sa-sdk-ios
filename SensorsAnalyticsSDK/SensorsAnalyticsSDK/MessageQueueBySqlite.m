@@ -59,6 +59,7 @@
 - (void)addObejct:(id)obj withType:(NSString *)type {
     if (_messageCount >= MAX_MESSAGE_SIZE) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, do not insert", MAX_MESSAGE_SIZE);
+        [self removeFirstRecords:100 withType:@"Post"];
         return;
     }
     NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
