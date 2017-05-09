@@ -58,9 +58,14 @@
 
 - (void)addObejct:(id)obj withType:(NSString *)type {
     if (_messageCount >= MAX_MESSAGE_SIZE) {
-        SAError(@"touch MAX_MESSAGE_SIZE:%d, do not insert", MAX_MESSAGE_SIZE);
-        [self removeFirstRecords:100 withType:@"Post"];
-        return;
+        SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events", MAX_MESSAGE_SIZE);
+        BOOL ret = [self removeFirstRecords:100 withType:@"Post"];
+        if (ret) {
+            _messageCount = [self sqliteCount];
+        } else {
+            SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events FAILED", MAX_MESSAGE_SIZE);
+            return;
+        }
     }
     NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
     NSString* query = @"INSERT INTO dataCache(type, content) values(?, ?)";
