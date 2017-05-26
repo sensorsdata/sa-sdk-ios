@@ -327,6 +327,19 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 设置本地缓存最多事件条数
+ *
+ * @discussion
+ * 默认为 10000 条事件
+ *
+ * @param maxCacheSize 本地缓存最多事件条数
+ */
+- (void)setMaxCacheSize:(UInt64)maxCacheSize;
+
+- (UInt64)getMaxCacheSize;
+
+/**
+ * @abstract
  * 设置 flush 时网络发送策略
  *
  * @discussion
@@ -522,6 +535,23 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event的名称
+ */
+- (void)trackTimerBegin:(NSString *)event;
+
+/**
+ * @abstract
  * 初始化事件的计时器，允许用户指定计时单位。
  *
  * @discussion
@@ -531,6 +561,22 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsNetworkType) {
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
+
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
+
+- (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict;
+
+- (void)trackTimerEnd:(NSString *)event;
 
 /**
  * @abstract

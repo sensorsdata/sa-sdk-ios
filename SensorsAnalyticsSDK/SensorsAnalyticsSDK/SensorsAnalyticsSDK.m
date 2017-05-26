@@ -28,7 +28,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.3"
+#define VERSION @"1.7.4"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -144,6 +144,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     SensorsAnalyticsDebugMode _debugMode;
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
+    UInt64 _maxCacheSize;
     UIWindow *_vtrackWindow;
     NSDateFormatter *_dateFormatter;
     BOOL _autoTrack;                    // 自动采集事件
@@ -272,6 +273,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
+        _maxCacheSize = 10000;
         _vtrackWindow = nil;
         _autoTrack = NO;
         _appRelaunched = NO;
@@ -523,6 +525,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SADebug(@"showUpWebView: not UIWebView or WKWebView");
         return NO;
     }
+}
+
+- (void)setMaxCacheSize:(UInt64)maxCacheSize {
+    if (maxCacheSize > 0) {
+        _maxCacheSize = maxCacheSize;
+    }
+}
+
+- (UInt64)getMaxCacheSize {
+    return _maxCacheSize;
 }
 
 - (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
@@ -1069,6 +1081,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             bestId = [self distinctId];
         }
 
+        if (bestId == nil) {
+            [self resetAnonymousId];
+            bestId = [self anonymousId];
+        }
+
         if ([type isEqualToString:@"track_signup"]) {
             e = @{
                   @"event": event,
@@ -1131,6 +1148,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
 }
 
+- (void)trackTimerBegin:(NSString *)event {
+    [self trackTimer:event];
+}
+
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
+    [self trackTimer:event withTimeUnit:timeUnit];
+}
+
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
     if (![self isValidName:event]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
@@ -1146,6 +1171,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : [NSNumber numberWithLong:0], @"timeUnit" : [NSNumber numberWithInt:timeUnit]};
     });
+}
+
+- (void)trackTimerEnd:(NSString *)event {
+    [self track:event];
+}
+
+- (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self track:event withProperties:propertyDict];
 }
 
 - (void)clearTrackTimer {
