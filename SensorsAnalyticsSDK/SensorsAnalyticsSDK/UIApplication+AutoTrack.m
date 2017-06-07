@@ -50,7 +50,8 @@
         }
     }
     
-    if (event.type==UIEventTypeTouches) {//0
+    //在 iOS7上，Tabbar点击时，此时 event 是 UITabBarButton 类型，WHY ？？？
+    if ([event isKindOfClass:[UIEvent class]] && event.type==UIEventTypeTouches) {//0
         if (![from isKindOfClass:[UIView class]]) {
             return;
         }
@@ -69,12 +70,6 @@
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
             [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
-        }
-        
-        //View Properties
-        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
-        if (propDict != nil) {
-            [properties addEntriesFromDictionary:propDict];
         }
         
         //获取 Controller 的 title($title)
@@ -101,6 +96,11 @@
         //UISwitch
         if ([from isKindOfClass:[UISwitch class]]) {
             [properties setValue:@"UISwitch" forKey:@"$element_type"];
+            //View Properties
+            NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+            if (propDict != nil) {
+                [properties addEntriesFromDictionary:propDict];
+            }
             [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
             return;
         }
@@ -124,6 +124,11 @@
             [properties setValue:@"UISegmentedControl" forKey:@"$element_type"];
             [properties setValue:[NSString stringWithFormat: @"%ld", [segmented selectedSegmentIndex]] forKey:@"$element_position"];
             [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
+            //View Properties
+            NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+            if (propDict != nil) {
+                [properties addEntriesFromDictionary:propDict];
+            }
             [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
             return;
             
@@ -134,14 +139,50 @@
             if ([from isKindOfClass:[NSClassFromString(@"UINavigationButton") class]]) {
                 UIButton *button = (UIButton *)from;
                 [properties setValue:@"UIBarButtonItem" forKey:@"$element_type"];
-                if (button != NULL) {
+                if (button != nil) {
                     [properties setValue:[button currentTitle] forKey:@"$element_content"];
                 }
             } else if ([from isKindOfClass:[UIButton class]]) {//UIButton
                 UIButton *button = (UIButton *)from;
                 [properties setValue:@"UIButton" forKey:@"$element_type"];
-                if (button != NULL) {
-                    [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                if (button != nil) {
+                    if ([button currentTitle] != nil) {
+                        [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                    } else {
+                        if (button.subviews.count > 0) {
+                            NSString *elementContent = nil;
+                            for (UIView *subView in [button subviews]) {
+                                if (subView) {
+                                    if ([subView isKindOfClass:[UIButton class]]) {
+                                        UIButton *button = (UIButton *)subView;
+                                        if ([button currentTitle] != nil) {
+                                            if (elementContent == nil) {
+                                                elementContent = [[NSString alloc] init];
+                                            } else {
+                                                elementContent = [elementContent stringByAppendingString:@"-"];
+                                            }
+                                            elementContent = [elementContent stringByAppendingString:[button currentTitle]];
+                                        }
+                                    } else if ([subView isKindOfClass:[UILabel class]]) {
+                                        UILabel *label = (UILabel *)subView;
+                                        if (label.text != nil) {
+                                            if (elementContent == nil) {
+                                                elementContent = [[NSString alloc] init];
+                                            } else {
+                                                elementContent = [elementContent stringByAppendingString:@"-"];
+                                            }
+                                            elementContent = [elementContent stringByAppendingString:label.text];
+                                        }
+                                    } else {
+
+                                    }
+                                }
+                            }
+                            if (elementContent != nil) {
+                                [properties setValue:elementContent forKey:@"$element_content"];
+                            }
+                        }
+                    }
                 }
             } else if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {//UITabBarButton
                 if ([to isKindOfClass:[UITabBar class]]) {//UITabBar
@@ -158,6 +199,50 @@
                     [properties setValue:@"UISlider" forKey:@"$element_type"];
                     [properties setValue:[NSString stringWithFormat:@"%f",slide.value] forKey:@"$element_content"];
                 }
+            } else {
+                if ([from isKindOfClass:[UIControl class]]) {
+                    [properties setValue:@"UIControl" forKey:@"$element_type"];
+                    UIControl *fromView = (UIControl *)from;
+                    if (fromView.subviews.count > 0) {
+                        NSString *elementContent = nil;
+                        for (UIView *subView in [fromView subviews]) {
+                            if (subView) {
+                                if ([subView isKindOfClass:[UIButton class]]) {
+                                    UIButton *button = (UIButton *)subView;
+                                    if ([button currentTitle] != nil) {
+                                        if (elementContent == nil) {
+                                            elementContent = [[NSString alloc] init];
+                                        } else {
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                        elementContent = [elementContent stringByAppendingString:[button currentTitle]];
+                                    }
+                                } else if ([subView isKindOfClass:[UILabel class]]) {
+                                    UILabel *label = (UILabel *)subView;
+                                    if (label.text != nil) {
+                                        if (elementContent == nil) {
+                                            elementContent = [[NSString alloc] init];
+                                        } else {
+                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        }
+                                        elementContent = [elementContent stringByAppendingString:label.text];
+                                    }
+                                } else {
+
+                                }
+                            }
+                        }
+                        if (elementContent != nil) {
+                            [properties setValue:elementContent forKey:@"$element_content"];
+                        }
+                    }
+                }
+            }
+
+            //View Properties
+            NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+            if (propDict != nil) {
+                [properties addEntriesFromDictionary:propDict];
             }
             [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
         }

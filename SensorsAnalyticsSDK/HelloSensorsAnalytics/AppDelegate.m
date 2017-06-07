@@ -18,12 +18,17 @@
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://${service_name}.cloud.sensorsdata.cn:8006/sa?token=${token}&project=${project_name}"
-                                     andConfigureURL:@"http://${service_name}.cloud.sensorsdata.cn/api/vtrack/config"
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://test-zouyuhan.cloud.sensorsdata.cn:8006/sa?project=wangzhuozhou&token=db52d13749514676"
+                                     andConfigureURL:@"http://test-zouyuhan.cloud.sensorsdata.cn:8006/config/?project=wangzhuozhou"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
+     SensorsAnalyticsEventTypeAppEnd |
+     SensorsAnalyticsEventTypeAppViewScreen |
+     SensorsAnalyticsEventTypeAppClick];
 #ifdef DEBUG
     [[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif
+    [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     return YES;
 }
 

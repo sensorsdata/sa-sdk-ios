@@ -18,7 +18,7 @@
             var js_var_1 = 1;
             var js_var_3 = 2;
 
-            function sensorsdata_call_js(a){
+            function sensorsdata_app_js_bridge_call_js(a){
                 alert(a);
                 js_var_3 = a;
             }
@@ -36,6 +36,6 @@
         <div id='buttons'></div>
         <div id='log'></div>
         <input type="button" value="Call" onclick="call_app('哈哈，小提示用我');" />
-        
+        <a href="sensorsanalytics://getAppInfo">打通</a>
     </body>
 </html>

@@ -28,7 +28,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.4"
+#define VERSION @"1.7.5"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1034,7 +1034,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
                 SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
                 
-                long eventDuration;
+                float eventDuration;
                 if (eventAccumulatedDuration) {
                     eventDuration = [timeStamp longValue] - [eventBegin longValue] + [eventAccumulatedDuration longValue];
                 } else {
@@ -1047,16 +1047,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 switch (timeUnit) {
                     case SensorsAnalyticsTimeUnitHours:
-                        eventDuration = eventDuration / 60;
+                        eventDuration = eventDuration / 60.0;
                     case SensorsAnalyticsTimeUnitMinutes:
-                        eventDuration = eventDuration / 60;
+                        eventDuration = eventDuration / 60.0;
                     case SensorsAnalyticsTimeUnitSeconds:
-                        eventDuration = eventDuration / 1000;
+                        eventDuration = eventDuration / 1000.0;
                     case SensorsAnalyticsTimeUnitMilliseconds:
                         break;
                 }
-                
-                [p setObject:@(eventDuration) forKey:@"event_duration"];
+                @try {
+                    [p setObject:@([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]) forKey:@"event_duration"];
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
+                }
             }
         }
         
@@ -1947,6 +1950,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *key = nil;
         NSMutableDictionary *eventTimer = nil;
         for (key in keys) {
+            if (key != nil) {
+                if ([key isEqualToString:@"$AppEnd"]) {
+                    continue;
+                }
+            }
             eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
             if (eventTimer) {
                 NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];

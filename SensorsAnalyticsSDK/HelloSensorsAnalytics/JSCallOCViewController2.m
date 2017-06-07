@@ -10,7 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 @import WebKit;
 
-@interface JSCallOCViewController2 ()
+@interface JSCallOCViewController2 ()<WKNavigationDelegate, WKUIDelegate>
 @property WKWebView *webView;
 @end
 @implementation JSCallOCViewController2
@@ -20,25 +20,44 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
-    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+//    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
+//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
 
     [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
+    _webView.UIDelegate = self;
+    _webView.navigationDelegate = self;
 
     [self.view addSubview:_webView];
 
-    //    //网址
-    //    NSString *httpStr=@"http://192.168.199.231:8080/index.html";
-    //    NSURL *httpUrl=[NSURL URLWithString:httpStr];
-    //    NSURLRequest *httpRequest=[NSURLRequest requestWithURL:httpUrl];
-    //    [self.webView loadRequest:httpRequest];
+    //网址
+    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
+    NSURL *httpUrl=[NSURL URLWithString:httpStr];
+    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
+    
+    [self.webView loadRequest:request];
 
-    [_webView loadRequest:request];
+}
+
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:message?:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:([UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler();
+    }])];
+    [self presentViewController:alertController animated:YES completion:nil];
+}
+
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView WithRequest:navigationAction.request]) {
+        decisionHandler(WKNavigationActionPolicyCancel);
+        return;
+    }
+    
+    decisionHandler(WKNavigationActionPolicyAllow);
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
     if (!_webView.loading) {
-        [[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView];
+        //[[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView];
     }
 }
 
