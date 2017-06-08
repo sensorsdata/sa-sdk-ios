@@ -20,6 +20,44 @@
     return ret;
 }
 
+- (UIViewController *)getCurrentVC {
+    @try {
+        UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+        if (rootViewController != nil) {
+            UIViewController *currentVC = [self getCurrentVCFrom:rootViewController];
+            return currentVC;
+        }
+    } @catch (NSException *exception) {
+
+    }
+    return nil;
+}
+
+- (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC {
+    @try {
+        UIViewController *currentVC;
+        if ([rootVC presentedViewController]) {
+            // 视图是被presented出来的
+            rootVC = [rootVC presentedViewController];
+        }
+
+        if ([rootVC isKindOfClass:[UITabBarController class]]) {
+            // 根视图为UITabBarController
+            currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController]];
+        } else if ([rootVC isKindOfClass:[UINavigationController class]]){
+            // 根视图为UINavigationController
+            currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
+        } else {
+            // 根视图为非导航类
+            currentVC = rootVC;
+        }
+
+        return currentVC;
+    } @catch (NSException *exception) {
+
+    }
+}
+
 - (void)sa_track:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
     //关闭 AutoTrack
     if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
@@ -76,6 +114,10 @@
 //        if ([to isKindOfClass:[UIViewController class]]) {
 //            UIViewController *viewController = (UIViewController*)to;
             UIViewController *viewController = [view viewController];
+
+            if (viewController == nil) {
+                viewController = [self getCurrentVC];
+            }
 
             if (viewController != nil) {
                 if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {

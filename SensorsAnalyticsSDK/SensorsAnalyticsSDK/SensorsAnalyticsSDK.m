@@ -28,7 +28,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.5"
+#define VERSION @"1.7.6"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 

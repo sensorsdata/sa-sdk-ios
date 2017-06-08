@@ -95,7 +95,8 @@
     if (!self.running) {
         void (^executeBlock)(id, SEL) = ^(id view, SEL command) {
             NSArray *objects;
-            NSObject *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
+            //NSObject *root = [[UIApplication sharedApplication] keyWindow].rootViewController;
+            NSObject *root = [[UIApplication sharedApplication].delegate window].rootViewController;
             if (view && [self.appliedTo containsObject:view]) {
                 if (![self.path fuzzyIsLeafSelected:view fromRoot:root]) {
                     [self stopOnView:view];
