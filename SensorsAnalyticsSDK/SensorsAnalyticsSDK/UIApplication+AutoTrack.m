@@ -164,6 +164,11 @@
         if ([from isKindOfClass:[UISegmentedControl class]]) {
             UISegmentedControl *segmented = (UISegmentedControl *)from;
             [properties setValue:@"UISegmentedControl" forKey:@"$element_type"];
+
+            if ([segmented selectedSegmentIndex] == UISegmentedControlNoSegment) {
+                return;
+            }
+
             [properties setValue:[NSString stringWithFormat: @"%ld", [segmented selectedSegmentIndex]] forKey:@"$element_position"];
             [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
             //View Properties
