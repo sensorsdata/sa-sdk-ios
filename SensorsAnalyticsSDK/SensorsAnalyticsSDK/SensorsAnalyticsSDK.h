@@ -80,7 +80,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTimeUnit) {
  *   SensorsAnalyticsEventTyppeAppClick - $AppClick
  *   SensorsAnalyticsEventTyppeAppViewScreen - $AppViewScreen
  */
-typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
+typedef NS_OPTIONS(NSInteger, SensorsAnalyticsAutoTrackEventType) {
     SensorsAnalyticsEventTypeNone      = 0,
     SensorsAnalyticsEventTypeAppStart      = 1 << 0,
     SensorsAnalyticsEventTypeAppEnd        = 1 << 1,
@@ -100,7 +100,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsAutoTrackEventType) {
  *   SensorsAnalyticsNetworkTypeWIFI - WIFI
  *   SensorsAnalyticsNetworkTypeALL - ALL
  */
-typedef NS_ENUM(NSInteger, SensorsAnalyticsNetworkType) {
+typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkTypeNONE      = 0,
     SensorsAnalyticsNetworkType2G       = 1 << 0,
     SensorsAnalyticsNetworkType3G       = 1 << 1,
