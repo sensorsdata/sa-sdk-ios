@@ -6,6 +6,7 @@
 
 #import <objc/runtime.h>
 #include <sys/sysctl.h>
+#include <stdlib.h>
 
 #import <CoreTelephony/CTCarrier.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
@@ -28,7 +29,7 @@
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
-#define VERSION @"1.7.8"
+#define VERSION @"1.7.9"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -84,6 +85,16 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     objc_setAssociatedObject(self, @"sensorsAnalyticsIgnoreView", [NSNumber numberWithBool:sensorsAnalyticsIgnoreView], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
+//afterSendAction
+- (BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
+    return [objc_getAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction") boolValue];
+}
+
+- (void)setSensorsAnalyticsAutoTrackAfterSendAction:(BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction", [NSNumber numberWithBool:sensorsAnalyticsAutoTrackAfterSendAction], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+
 //viewProperty
 - (NSDictionary *)sensorsAnalyticsViewProperties {
     return objc_getAssociatedObject(self, @"sensorsAnalyticsViewProperties");
@@ -91,6 +102,14 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 
 - (void)setSensorsAnalyticsViewProperties:(NSDictionary *)sensorsAnalyticsViewProperties {
     objc_setAssociatedObject(self, @"sensorsAnalyticsViewProperties", sensorsAnalyticsViewProperties, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (id)sensorsAnalyticsDelegate {
+    return objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
+}
+
+- (void)setSensorsAnalyticsDelegate:(id)sensorsAnalyticsDelegate {
+    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 @end
 
@@ -465,6 +484,127 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return SensorsAnalyticsNetworkTypeALL;
 }
 
+- (UIViewController *)currentViewController {
+    @try {
+        UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+        if (rootViewController != nil) {
+            UIViewController *currentVC = [self getCurrentVCFrom:rootViewController];
+            return currentVC;
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+    return nil;
+}
+
+- (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC {
+    @try {
+        UIViewController *currentVC;
+        if ([rootVC presentedViewController]) {
+            // 视图是被presented出来的
+            rootVC = [rootVC presentedViewController];
+        }
+        
+        if ([rootVC isKindOfClass:[UITabBarController class]]) {
+            // 根视图为UITabBarController
+            currentVC = [self getCurrentVCFrom:[(UITabBarController *)rootVC selectedViewController]];
+        } else if ([rootVC isKindOfClass:[UINavigationController class]]){
+            // 根视图为UINavigationController
+            currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
+        } else {
+            // 根视图为非导航类
+            currentVC = rootVC;
+        }
+        
+        return currentVC;
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
+
+- (void)trackFromH5WithEvent:(NSString *)eventInfo {
+    dispatch_async(self.serialQueue, ^{
+        @try {
+            if (eventInfo == nil) {
+                return;
+            }
+
+            NSData *jsonData = [eventInfo dataUsingEncoding:NSUTF8StringEncoding];
+            NSError *err;
+            NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
+                                                                             options:NSJSONReadingMutableContainers
+                                                                               error:&err];
+            if(err) {
+                return;
+            }
+
+            if (!eventDict) {
+                return;
+            }
+
+            NSString *bestId;
+            if ([self loginId] != nil) {
+                bestId = [self loginId];
+            } else{
+                bestId = [self distinctId];
+            }
+
+            if (bestId == nil) {
+                [self resetAnonymousId];
+                bestId = [self anonymousId];
+            }
+            [eventDict setValue:bestId forKey:@"distinct_id"];
+            [eventDict setValue:@(rand()) forKey:@"_track_id"];
+
+            NSDictionary *libDict = [eventDict objectForKey:@"lib"];
+            id app_version = [_automaticProperties objectForKey:@"$app_version"];
+            if (app_version) {
+                [libDict setValue:app_version forKey:@"$app_version"];
+            }
+
+            //update lib $app_version from super properties
+            app_version = [_superProperties objectForKey:@"$app_version"];
+            if (app_version) {
+                [libDict setValue:app_version forKey:@"$app_version"];
+            }
+
+            NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:_automaticProperties];
+            [automaticPropertiesCopy removeObjectForKey:@"$lib"];
+            [automaticPropertiesCopy removeObjectForKey:@"$lib_version"];
+
+            NSString *type = [eventDict valueForKey:@"type"];
+            if([type isEqualToString:@"track"]){
+                NSMutableDictionary *propertiesDict = [eventDict objectForKey:@"properties"];
+                [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
+                [propertiesDict addEntriesFromDictionary:_superProperties];
+
+                // 每次 track 时手机网络状态
+                NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+                [propertiesDict setObject:networkType forKey:@"$network_type"];
+                if ([networkType isEqualToString:@"WIFI"]) {
+                    [propertiesDict setObject:@YES forKey:@"$wifi"];
+                } else {
+                    [propertiesDict setObject:@NO forKey:@"$wifi"];
+                }
+
+                //  是否首日访问
+                if ([self isFirstDay]) {
+                    [propertiesDict setObject:@YES forKey:@"$is_first_day"];
+                } else {
+                    [propertiesDict setObject:@NO forKey:@"$is_first_day"];
+                }
+
+                [propertiesDict removeObjectForKey:@"$is_first_time"];
+                [propertiesDict removeObjectForKey:@"_nocache"];
+            }
+
+            [self enqueueWithType:type andEvent:[eventDict copy]];
+        } @catch (NSException *exception) {
+            SAError(@"%@: %@", self, exception);
+        }
+    });
+}
+
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
     return [self showUpWebView:webView WithRequest:request andProperties:nil];
 }
@@ -497,19 +637,52 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *scheme = @"sensorsanalytics://getAppInfo";
     NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
 
+    NSString *trackEventScheme = @"sensorsanalytics://trackEvent";
+
     //判断系统是否支持WKWebView
     Class wkWebViewClass = NSClassFromString(@"WKWebView");
 
+    NSString *urlstr = request.URL.absoluteString;
+    if (urlstr == nil) {
+        return NO;
+    }
+    NSArray *urlArray = [urlstr componentsSeparatedByString:@"?"];
+    if (urlArray == nil) {
+        return NO;
+    }
+    //解析参数
+    NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
+    //判读是否有参数
+    if (urlArray.count > 1) {
+        //这里解析参数,将参数放入字典中
+        NSArray *paramsArray = [urlArray[1] componentsSeparatedByString:@"&"];
+        for (NSString *param in paramsArray) {
+            NSArray *keyValue = [param componentsSeparatedByString:@"="];
+            if (keyValue.count == 2) {
+                [paramsDic setObject:keyValue[1] forKey:keyValue[0]];
+            }
+        }
+    }
+
     if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
         SADebug(@"showUpWebView: UIWebView");
-        if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
+        if ([urlstr rangeOfString:scheme].location != NSNotFound) {
             [webView stringByEvaluatingJavaScriptFromString:js];
+            return YES;
+        } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+//            if ([paramsDic count] > 0) {
+//                NSString *eventInfo = [paramsDic objectForKey:@"event"];
+//                if (eventInfo != nil) {
+//                    NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+//                    [self trackFromH5WithEvent:encodedString];
+//                }
+//            }
             return YES;
         }
         return NO;
     } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
         SADebug(@"showUpWebView: WKWebView");
-        if ([request.URL.absoluteString rangeOfString:scheme].location != NSNotFound) {
+        if ([urlstr rangeOfString:scheme].location != NSNotFound) {
             typedef void(^Myblock)(id,NSError *);
             Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
                 NSLog(@"response: %@ error: %@", response, error);
@@ -518,6 +691,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (sharedManagerSelector) {
                 ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
             }
+            return YES;
+        } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+//            if ([paramsDic count] > 0) {
+//                NSString *eventInfo = [paramsDic objectForKey:@"event"];
+//                if (eventInfo != nil) {
+//                    NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+//                    [self trackFromH5WithEvent:encodedString];
+//                }
+//            }
             return YES;
         }
         return NO;
@@ -732,7 +914,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
-                    SAError(@"%@ invalid message: %@", self, jsonString);
+                    @try {
+                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                        SAError(@"%@ invalid message: %@", self, dict);
+                    } @catch (NSException *exception) {
+                        SAError(@"%@: %@", self, exception);
+                    }
                     SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
                     SAError(@"%@ ret_content: %@", self, urlResponseContent);
                     
@@ -748,7 +936,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
-                    SAError(@"%@ valid message: %@", self, jsonString);
+                    @try {
+                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                        SAError(@"%@ valid message: %@", self, dict);
+                    } @catch (NSException *exception) {
+                        SAError(@"%@: %@", self, exception);
+                    }
                 }
             }
             
@@ -1045,20 +1239,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     eventDuration = 0;
                 }
 
-                switch (timeUnit) {
-                    case SensorsAnalyticsTimeUnitHours:
-                        eventDuration = eventDuration / 60.0;
-                    case SensorsAnalyticsTimeUnitMinutes:
-                        eventDuration = eventDuration / 60.0;
-                    case SensorsAnalyticsTimeUnitSeconds:
-                        eventDuration = eventDuration / 1000.0;
-                    case SensorsAnalyticsTimeUnitMilliseconds:
-                        break;
-                }
-                @try {
-                    [p setObject:@([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]) forKey:@"event_duration"];
-                } @catch (NSException *exception) {
-                    SAError(@"%@: %@", self, exception);
+                if (eventDuration > 0 && eventDuration < 24 * 60 * 60 * 1000) {
+                    switch (timeUnit) {
+                        case SensorsAnalyticsTimeUnitHours:
+                            eventDuration = eventDuration / 60.0;
+                        case SensorsAnalyticsTimeUnitMinutes:
+                            eventDuration = eventDuration / 60.0;
+                        case SensorsAnalyticsTimeUnitSeconds:
+                            eventDuration = eventDuration / 1000.0;
+                        case SensorsAnalyticsTimeUnitMilliseconds:
+                            break;
+                    }
+                    @try {
+                        [p setObject:@([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]) forKey:@"event_duration"];
+                    } @catch (NSException *exception) {
+                        SAError(@"%@: %@", self, exception);
+                    }
                 }
             }
         }
@@ -1098,6 +1294,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
+                  @"_track_id": @(rand()),
                   };
         } else if([type isEqualToString:@"track"]){
             //  是否首日访问
@@ -1113,6 +1310,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
+                  @"_track_id": @(rand()),
                   };
         } else {
             // 此时应该都是对Profile的操作
@@ -1122,6 +1320,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
+                  @"_track_id": @(rand()),
                   };
         }
         
@@ -1800,9 +1999,54 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
 
             @try {
+                //先获取 controller.navigationItem.title
                 NSString *controllerTitle = controller.navigationItem.title;
                 if (controllerTitle != nil) {
                     [properties setValue:controllerTitle forKey:@"$title"];
+                }
+                
+                //再获取 controller.navigationItem.titleView, 并且优先级比较高
+                UIView *titleView = controller.navigationItem.titleView;
+                if (titleView != nil) {
+                    NSString *elementContent = [[NSString alloc] init];
+                    if ([titleView isKindOfClass:[UIButton class]]) {
+                        UIButton *button = (UIButton *)titleView;
+                        if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
+                            elementContent = [elementContent stringByAppendingString:[button currentTitle]];
+                            elementContent = [elementContent stringByAppendingString:@"-"];
+                        }
+                    } else if ([titleView isKindOfClass:[UILabel class]]) {
+                        UILabel *label = (UILabel *)titleView;
+                        if (label.text != nil && ![@"" isEqualToString:label.text]) {
+                            elementContent = [elementContent stringByAppendingString:label.text];
+                            elementContent = [elementContent stringByAppendingString:@"-"];
+                        }
+                    } else if (titleView.subviews.count > 0) {
+                        for (UIView *subView in [titleView subviews]) {
+                            if (subView) {
+                                if (subView.sensorsAnalyticsIgnoreView) {
+                                    continue;
+                                }
+                                if ([subView isKindOfClass:[UIButton class]]) {
+                                    UIButton *button = (UIButton *)subView;
+                                    if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
+                                        elementContent = [elementContent stringByAppendingString:[button currentTitle]];
+                                        elementContent = [elementContent stringByAppendingString:@"-"];
+                                    }
+                                } else if ([subView isKindOfClass:[UILabel class]]) {
+                                    UILabel *label = (UILabel *)subView;
+                                    if (label.text != nil && ![@"" isEqualToString:label.text]) {
+                                        elementContent = [elementContent stringByAppendingString:label.text];
+                                        elementContent = [elementContent stringByAppendingString:@"-"];
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    if (elementContent != nil && [elementContent length] > 0) {
+                        elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                        [properties setValue:elementContent forKey:@"$title"];
+                    }
                 }
             } @catch (NSException *exception) {
                 SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);

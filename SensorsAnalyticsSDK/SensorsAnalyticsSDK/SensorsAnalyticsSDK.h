@@ -5,8 +5,10 @@
 //  Copyright (c) 2015年 SensorsData. All rights reserved.
 
 #import <Foundation/Foundation.h>
-
+#import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+
+NS_ASSUME_NONNULL_BEGIN
 
 @class SensorsAnalyticsPeople;
 
@@ -18,6 +20,23 @@
 
 @end
 
+@protocol SAUIViewAutoTrackDelegate
+
+//UITableView
+@optional
+-(NSDictionary *) sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+
+//UICollectionView
+@optional
+-(NSDictionary *) sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+
+@optional
+-(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+
+@optional
+-(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
+@end
+
 @interface UIView (SensorsAnalytics)
 - (UIViewController *)viewController;
 
@@ -27,8 +46,13 @@
 //AutoTrack 时，是否忽略该 View
 @property (nonatomic,assign) BOOL sensorsAnalyticsIgnoreView;
 
+//AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
+@property (nonatomic,assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
+
 //AutoTrack 时，View 的扩展属性
 @property (assign,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
+
+@property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
 @end
 
 /**
@@ -54,7 +78,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsDebugMode) {
 /**
  * @abstract
  * TrackTimer 接口的时间单位。调用该接口时，传入时间单位，可以设置 event_duration 属性的时间单位。
- * 
+ *
  * @discuss
  * 时间单位有以下选项：
  *   SensorsAnalyticsTimeUnitMilliseconds - 毫秒
@@ -180,7 +204,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @proeprty
- * 
+ *
  * @abstract
  * 当App进入后台时，是否执行flush将数据发送到SensrosAnalytics
  *
@@ -191,7 +215,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @property
- *  
+ *
  * @abstract
  * 两次数据发送的最小时间间隔，单位毫秒
  *
@@ -273,7 +297,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                      andConfigureURL:(NSString *)configureURL
-                                  andVTrackServerURL:(NSString *)vtrackServerURL
+                                  andVTrackServerURL:(nullable NSString *)vtrackServerURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**
@@ -323,7 +347,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict;
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
 
 /**
  * @abstract
@@ -506,7 +530,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param event             event的名称
  * @param propertyDict     event的属性
  */
-- (void)track:(NSString *)event withProperties:(NSDictionary *)propertyDict;
+- (void)track:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
 /**
  * @abstract
@@ -574,9 +598,11 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
 
-- (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict;
+- (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
 - (void)trackTimerEnd:(NSString *)event;
+
+- (UIViewController *_Nullable)currentViewController;
 
 /**
  * @abstract
@@ -594,7 +620,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param newDistinctId     用户完成注册后生成的注册ID
  * @param propertyDict     event的属性
  */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
 
 /**
  * @abstract
@@ -616,13 +642,13 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 其中的key是Property的名称，必须是<code>NSString</code>
  * value则是Property的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,<code>NSDate</code>这些类型
  * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
- * 
+ *
  * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
  *
  * @param event             event的名称
  * @param propertyDict     event的属性
  */
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict;
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
 /**
  * @abstract
@@ -857,3 +883,5 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (void)deleteUser;
 
 @end
+
+NS_ASSUME_NONNULL_END

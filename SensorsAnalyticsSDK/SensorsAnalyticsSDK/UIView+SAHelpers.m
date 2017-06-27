@@ -69,7 +69,7 @@
                 UIControlEvents event = allEvents & (0x01 << e);
                 if(event) {
                     NSArray *actions = [(UIControl *)(self) actionsForTarget:target forControlEvent:event];
-                    NSArray *ignoreActions = @[@"preVerify:forEvent:", @"execute:forEvent:"];
+                    NSArray *ignoreActions = @[@"caojiangPreVerify:forEvent:", @"caojiangExecute:forEvent:"];
                     for (NSString *action in actions) {
                         if ([ignoreActions indexOfObject:action] == NSNotFound) {
                             [targetActions addObject:[NSString stringWithFormat:@"%lu/%@", (unsigned long)event, action]];
