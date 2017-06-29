@@ -21,14 +21,14 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         @try {
-            NSError *error = NULL;
-            [[self class] sa_swizzleMethod:@selector(setDelegate:)
-                                withMethod:@selector(sa_collectionViewSetDelegate:)
-                                     error:&error];
-            if (error) {
-                SAError(@"Failed to swizzle setDelegate: on UICollectionView. Details: %@", error);
-                error = NULL;
-            }
+//            NSError *error = NULL;
+//            [[self class] sa_swizzleMethod:@selector(setDelegate:)
+//                                withMethod:@selector(sa_collectionViewSetDelegate:)
+//                                     error:&error];
+//            if (error) {
+//                SAError(@"Failed to swizzle setDelegate: on UICollectionView. Details: %@", error);
+//                error = NULL;
+//            }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
         }

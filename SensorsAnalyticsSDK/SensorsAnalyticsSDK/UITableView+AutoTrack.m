@@ -22,14 +22,14 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         @try {
-            NSError *error = NULL;
-            [[self class] sa_swizzleMethod:@selector(setDelegate:)
-                                withMethod:@selector(sa_tableViewSetDelegate:)
-                                     error:&error];
-            if (error) {
-                SAError(@"Failed to swizzle setDelegate: on UITableView. Details: %@", error);
-                error = NULL;
-            }
+//            NSError *error = NULL;
+//            [[self class] sa_swizzleMethod:@selector(setDelegate:)
+//                                withMethod:@selector(sa_tableViewSetDelegate:)
+//                                     error:&error];
+//            if (error) {
+//                SAError(@"Failed to swizzle setDelegate: on UITableView. Details: %@", error);
+//                error = NULL;
+//            }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
         }
