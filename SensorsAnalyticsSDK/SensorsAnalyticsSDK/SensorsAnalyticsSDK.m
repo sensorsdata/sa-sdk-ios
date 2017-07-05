@@ -34,7 +34,7 @@
 //#import <React/RCTUIManager.h>
 #import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.11"
+#define VERSION @"1.7.12"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
