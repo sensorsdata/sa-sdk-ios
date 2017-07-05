@@ -51,8 +51,8 @@
                     }
                     #pragma clang diagnostic pop
                 } else if ([subView isKindOfClass:NSClassFromString(@"YYLabel")]) {//RTLabel:https://github.com/ibireme/YYKit
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                    #pragma clang diagnostic push
+                    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
                     if ([subView respondsToSelector:NSSelectorFromString(@"text")]) {
                         NSString *title = [subView performSelector:NSSelectorFromString(@"text")];
                         if (title != nil && ![@"" isEqualToString:title]) {
@@ -60,7 +60,7 @@
                             [elementContent appendString:@"-"];
                         }
                     }
-#pragma clang diagnostic pop
+                    #pragma clang diagnostic pop
                 } else if ([subView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
                             [subView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
                             subView.subviews.count > 0){

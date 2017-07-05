@@ -270,8 +270,8 @@
                                             [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
                                         }
                                     }
-                                }
 #endif
+                                }
                             }
                         }
                     }
