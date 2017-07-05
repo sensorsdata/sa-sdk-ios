@@ -45,5 +45,6 @@
     return image;
 }
 
-@end
 #endif
+
+@end
