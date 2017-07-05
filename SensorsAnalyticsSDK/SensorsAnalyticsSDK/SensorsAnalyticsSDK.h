@@ -30,11 +30,15 @@ NS_ASSUME_NONNULL_BEGIN
 @optional
 -(NSDictionary *) sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
 
-@optional
--(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+//@optional
+//-(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
+//
+//@optional
+//-(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
+@end
 
-@optional
--(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
+@interface UIImage (SensorsAnalytics)
+@property (assign,nonatomic) NSString* sensorsAnalyticsImageName;
 @end
 
 @interface UIView (SensorsAnalytics)
@@ -503,6 +507,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)showDebugInfoView:(BOOL)show;
 
+- (NSString *)getUIViewControllerTitle:(UIViewController *)controller;
+
 /**
  * @abstract
  * 设置当前用户的distinctId
@@ -749,6 +755,112 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)flush;
 
+/**
+ * @abstract
+ * 直接设置用户的一个或者几个Profiles
+ *
+ * @discussion
+ * 这些Profile的内容用一个<code>NSDictionary</code>来存储
+ * 其中的key是Profile的名称，必须是<code>NSString</code>
+ * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,
+ *                              <code>NSDate</code>这些类型
+ * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
+ * 如果某个Profile之前已经存在了，则这次会被覆盖掉；不存在，则会创建
+ *
+ * @param profileDict 要替换的那些Profile的内容
+ */
+- (void)set:(NSDictionary *)profileDict;
+
+/**
+ * @abstract
+ * 首次设置用户的一个或者几个Profiles
+ *
+ * @discussion
+ * 与set接口不同的是，如果该用户的某个Profile之前已经存在了，会被忽略；不存在，则会创建
+ *
+ * @param profileDict 要替换的那些Profile的内容
+ */
+- (void)setOnce:(NSDictionary *)profileDict;
+
+/**
+ * @abstract
+ * 设置用户的单个Profile的内容
+ *
+ * @discussion
+ * 如果这个Profile之前已经存在了，则这次会被覆盖掉；不存在，则会创建
+ *
+ * @param profile Profile的名称
+ * @param content Profile的内容
+ */
+- (void)set:(NSString *) profile to:(id)content;
+
+/**
+ * @abstract
+ * 首次设置用户的单个Profile的内容
+ *
+ * @discussion
+ * 与set类接口不同的是，如果这个Profile之前已经存在了，则这次会被忽略；不存在，则会创建
+ *
+ * @param profile Profile的名称
+ * @param content Profile的内容
+ */
+- (void)setOnce:(NSString *) profile to:(id)content;
+
+/**
+ * @abstract
+ * 删除某个Profile的全部内容
+ *
+ * @discussion
+ * 如果这个Profile之前不存在，则直接忽略
+ *
+ * @param profile Profile的名称
+ */
+- (void)unset:(NSString *) profile;
+
+/**
+ * @abstract
+ * 给一个数值类型的Profile增加一个数值
+ *
+ * @discussion
+ * 只能对<code>NSNumber</code>类型的Profile调用这个接口，否则会被忽略
+ * 如果这个Profile之前不存在，则初始值当做0来处理
+ *
+ * @param profile  待增加数值的Profile的名称
+ * @param amount   要增加的数值
+ */
+- (void)increment:(NSString *)profile by:(NSNumber *)amount;
+
+/**
+ * @abstract
+ * 给多个数值类型的Profile增加数值
+ *
+ * @discussion
+ * profileDict中，key是<code>NSString</code>，value是<code>NSNumber</code>
+ * 其它与-(void)increment:by:相同
+ *
+ * @param profileDict 多个
+ */
+- (void)increment:(NSDictionary *)profileDict;
+
+/**
+ * @abstract
+ * 向一个<code>NSSet</code>类型的value添加一些值
+ *
+ * @discussion
+ * 如前面所述，这个<code>NSSet</code>的元素必须是<code>NSString</code>，否则，会忽略
+ * 同时，如果要append的Profile之前不存在，会初始化一个空的<code>NSSet</code>
+ *
+ * @param profile profile
+ * @param content description
+ */
+- (void)append:(NSString *)profile by:(NSSet *)content;
+
+/**
+ * @abstract
+ * 删除当前这个用户的所有记录
+ */
+- (void)deleteUser;
+
 @end
 
 /**
@@ -783,7 +895,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @discussion
  * 这些Profile的内容用一个<code>NSDictionary</code>来存储
  * 其中的key是Profile的名称，必须是<code>NSString</code>
- * Valie则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,
+ * Value则是Profile的内容，只支持 <code>NSString</code>,<code>NSNumber</code>,<code>NSSet</code>,
  *                              <code>NSDate</code>这些类型
  * 特别的，<code>NSSet</code>类型的value中目前只支持其中的元素是<code>NSString</code>
  * 如果某个Profile之前已经存在了，则这次会被覆盖掉；不存在，则会创建

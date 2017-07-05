@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */; };
+		0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
+		002BF6711F0A875100824F76 /* UIImage+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */; };
+		002BF6721F0A875100824F76 /* UIImage+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */; };
 		002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */ = {isa = PBXBuildFile; fileRef = 002DB9491EB1647F00A9632C /* SASwizzle.h */; };
 		002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94A1EB1647F00A9632C /* SASwizzle.m */; };
 		002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
@@ -159,6 +163,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackUtils.h; sourceTree = "<group>"; };
+		0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackUtils.m; sourceTree = "<group>"; };
+		002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+AutoTrack.h"; sourceTree = "<group>"; };
+		002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+AutoTrack.m"; sourceTree = "<group>"; };
 		002DB9491EB1647F00A9632C /* SASwizzle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASwizzle.h; sourceTree = "<group>"; };
 		002DB94A1EB1647F00A9632C /* SASwizzle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASwizzle.m; sourceTree = "<group>"; };
 		002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
@@ -347,6 +355,8 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */,
+				002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */,
 				00D3B57B1EFB382A0086F1F8 /* UITabBar+AutoTrack.m */,
 				00D3B57C1EFB382A0086F1F8 /* UITabBar+AutoTrack.h */,
 				00EA990C1EEF9D1A005E524F /* UICollectionView+AutoTrack.m */,
@@ -425,6 +435,8 @@
 				00EA99EB1EEFAEC6005E524F /* UIAlertView+AutoTrack.m */,
 				00EA99F01EEFB7DB005E524F /* UIActionSheet+AutoTrack.h */,
 				00EA99F11EEFB7DB005E524F /* UIActionSheet+AutoTrack.m */,
+				0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */,
+				0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -482,6 +494,7 @@
 				A3746EBE1C3190E7008A50A3 /* SAEnumDescription.h in Headers */,
 				002DB94F1EB1647F00A9632C /* UIApplication+AutoTrack.h in Headers */,
 				A3746ECB1C32D8B2008A50A3 /* SADesignerSessionCollection.h in Headers */,
+				002BF6711F0A875100824F76 /* UIImage+AutoTrack.h in Headers */,
 				A3997A291C3AC342005A9374 /* SASwizzler.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
 				00D3B57E1EFB382A0086F1F8 /* UITabBar+AutoTrack.h in Headers */,
@@ -582,6 +595,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				002BF88E1F0B1E3800824F76 /* UIImage+AutoTrack.h in Sources */,
+				002BF88F1F0B1E3800824F76 /* UIImage+AutoTrack.m in Sources */,
+				0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */,
+				0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */,
 				00D3B57F1EFB38360086F1F8 /* UITabBar+AutoTrack.m in Sources */,
 				00D3B5801EFB38360086F1F8 /* UITabBar+AutoTrack.h in Sources */,
 				00EA99F61EEFBCEA005E524F /* UIActionSheet+AutoTrack.h in Sources */,
@@ -652,6 +669,7 @@
 				A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
+				002BF6721F0A875100824F76 /* UIImage+AutoTrack.m in Sources */,
 				A3997A361C3AC3B8005A9374 /* SAUITableViewBinding.m in Sources */,
 				002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */,
 				A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */,

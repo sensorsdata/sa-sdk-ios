@@ -41,7 +41,7 @@ void sa_uiTabBarDidSelectRowAtIndexPath(id self, SEL _cmd, id tabBar, UITabBarIt
     
     //插入埋点
     @try {
-        //关闭 AutoTrarff
+        //关闭 AutoTrack
         if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
             return;
         }

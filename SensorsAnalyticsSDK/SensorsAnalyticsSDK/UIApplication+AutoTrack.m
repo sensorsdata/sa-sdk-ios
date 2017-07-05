@@ -9,6 +9,7 @@
 #import "UIApplication+AutoTrack.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
+#import "AutoTrackUtils.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -108,6 +109,7 @@
         
         if (([event isKindOfClass:[UIEvent class]] && event.type==UIEventTypeTouches) ||
             [from isKindOfClass:[UISwitch class]] ||
+            [from isKindOfClass:[UIStepper class]] ||
             [from isKindOfClass:[UISegmentedControl class]]) {//0
             if (![from isKindOfClass:[UIView class]]) {
                 return;
@@ -148,41 +150,12 @@
                 NSString *controllerTitle = viewController.navigationItem.title;
                 if (controllerTitle != nil) {
                     [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-                } else {
-                    @try {
-                        UIView *titleView = viewController.navigationItem.titleView;
-                        if (titleView != nil) {
-                            if (titleView.subviews.count > 0) {
-                                NSString *elementContent = [[NSString alloc] init];
-                                for (UIView *subView in [titleView subviews]) {
-                                    if (subView) {
-                                        if (subView.sensorsAnalyticsIgnoreView) {
-                                            continue;
-                                        }
-                                        if ([subView isKindOfClass:[UIButton class]]) {
-                                            UIButton *button = (UIButton *)subView;
-                                            if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                                                elementContent = [elementContent stringByAppendingString:[button currentTitle]];
-                                                elementContent = [elementContent stringByAppendingString:@"-"];
-                                            }
-                                        } else if ([subView isKindOfClass:[UILabel class]]) {
-                                            UILabel *label = (UILabel *)subView;
-                                            if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                                                elementContent = [elementContent stringByAppendingString:label.text];
-                                                elementContent = [elementContent stringByAppendingString:@"-"];
-                                            }
-                                        }
-                                    }
-                                }
-                                if (elementContent != nil && [elementContent length] > 0) {
-                                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                                    [properties setValue:elementContent forKey:@"$title"];
-                                }
-                            }
-                        }
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
+                }
+                //再获取 controller.navigationItem.titleView, 并且优先级比较高
+                NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
+                if (elementContent != nil && [elementContent length] > 0) {
+                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                    [properties setValue:elementContent forKey:@"$title"];
                 }
             }
             
@@ -203,7 +176,23 @@
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
                 return;
             }
-            
+
+            //UIStepper
+            if ([from isKindOfClass:[UIStepper class]]) {
+                [properties setValue:@"UIStepper" forKey:@"$element_type"];
+                UIStepper *stepper = (UIStepper *)from;
+                if (stepper) {
+                    [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:@"$element_content"];
+                }
+                //View Properties
+                NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+                if (propDict != nil) {
+                    [properties addEntriesFromDictionary:propDict];
+                }
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+                return;
+            }
+
             //UISearchBar
             //        if ([to isKindOfClass:[UISearchBar class]] && [from isKindOfClass:[[NSClassFromString(@"UISearchBarTextField") class] class]]) {
             //            UISearchBar *searchBar = (UISearchBar *)to;
@@ -244,7 +233,20 @@
                     UIButton *button = (UIButton *)from;
                     [properties setValue:@"UIBarButtonItem" forKey:@"$element_type"];
                     if (button != nil) {
-                        [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                        NSString *currentTitle = [button currentTitle];
+                        if (currentTitle != nil) {
+                            [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                        } else {
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+                            UIImage *image = button.currentImage;
+                            if (image) {
+                                NSString *imageName = image.sensorsAnalyticsImageName;
+                                if (imageName != nil) {
+                                    [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
+                                }
+                            }
+#endif
+                        }
                     }
                 } else if ([from isKindOfClass:[UIButton class]]) {//UIButton
                     UIButton *button = (UIButton *)from;
@@ -255,32 +257,21 @@
                         } else {
                             if (button.subviews.count > 0) {
                                 NSString *elementContent = [[NSString alloc] init];
-                                for (UIView *subView in [button subviews]) {
-                                    if (subView) {
-                                        if (subView.sensorsAnalyticsIgnoreView) {
-                                            continue;
-                                        }
-                                        if ([subView isKindOfClass:[UIButton class]]) {
-                                            UIButton *button = (UIButton *)subView;
-                                            if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                                                elementContent = [elementContent stringByAppendingString:[button currentTitle]];
-                                                elementContent = [elementContent stringByAppendingString:@"-"];
-                                            }
-                                        } else if ([subView isKindOfClass:[UILabel class]]) {
-                                            UILabel *label = (UILabel *)subView;
-                                            if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                                                elementContent = [elementContent stringByAppendingString:label.text];
-                                                elementContent = [elementContent stringByAppendingString:@"-"];
-                                            }
-                                        } else {
-                                            
-                                        }
-                                    }
-                                }
+                                elementContent = [AutoTrackUtils contentFromView:button];
                                 if (elementContent != nil && [elementContent length] > 0) {
                                     elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
                                     [properties setValue:elementContent forKey:@"$element_content"];
+                                } else {
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
+                                    UIImage *image = button.currentImage;
+                                    if (image) {
+                                        NSString *imageName = image.sensorsAnalyticsImageName;
+                                        if (imageName != nil) {
+                                            [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
+                                        }
+                                    }
                                 }
+#endif
                             }
                         }
                     }
@@ -293,7 +284,7 @@
                             [properties setValue:item.title forKey:@"$element_content"];
                         }
                     }
-                }  else if([from isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
+                } else if([from isKindOfClass:[UITabBarItem class]]){//For iOS7 TabBar
                     UITabBarItem *tabBarItem = (UITabBarItem *)from;
                     if (tabBarItem) {
                         [properties setValue:@"UITabbar" forKey:@"$element_type"];
@@ -311,28 +302,7 @@
                         UIControl *fromView = (UIControl *)from;
                         if (fromView.subviews.count > 0) {
                             NSString *elementContent = [[NSString alloc] init];
-                            for (UIView *subView in [fromView subviews]) {
-                                if (subView) {
-                                    if (subView.sensorsAnalyticsIgnoreView) {
-                                        continue;
-                                    }
-                                    if ([subView isKindOfClass:[UIButton class]]) {
-                                        UIButton *button = (UIButton *)subView;
-                                        if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                                            elementContent = [elementContent stringByAppendingString:[button currentTitle]];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
-                                        }
-                                    } else if ([subView isKindOfClass:[UILabel class]]) {
-                                        UILabel *label = (UILabel *)subView;
-                                        if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                                            elementContent = [elementContent stringByAppendingString:label.text];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
-                                        }
-                                    } else {
-                                        
-                                    }
-                                }
-                            }
+                            elementContent = [AutoTrackUtils contentFromView:fromView];
                             if (elementContent != nil && [elementContent length] > 0) {
                                 elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
                                 [properties setValue:elementContent forKey:@"$element_content"];

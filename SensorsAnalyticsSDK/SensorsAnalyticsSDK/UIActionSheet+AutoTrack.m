@@ -17,23 +17,23 @@
 
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIACTIONSHEET
 
-+ (void)load {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        @try {
-            NSError *error = NULL;
-            [[self class] sa_swizzleMethod:@selector(setDelegate:)
-                                withMethod:@selector(sa_sheetViewSetDelegate:)
-                                     error:&error];
-            if (error) {
-                SAError(@"Failed to swizzle setDelegate: on UIActionSheet. Details: %@", error);
-                error = NULL;
-            }
-        } @catch (NSException *exception) {
-            SAError(@"%@ error: %@", self, exception);
-        }
-    });
-}
+//+ (void)load {
+//    static dispatch_once_t onceToken;
+//    dispatch_once(&onceToken, ^{
+//        @try {
+//            NSError *error = NULL;
+//            [[self class] sa_swizzleMethod:@selector(setDelegate:)
+//                                withMethod:@selector(sa_sheetViewSetDelegate:)
+//                                     error:&error];
+//            if (error) {
+//                SAError(@"Failed to swizzle setDelegate: on UIActionSheet. Details: %@", error);
+//                error = NULL;
+//            }
+//        } @catch (NSException *exception) {
+//            SAError(@"%@ error: %@", self, exception);
+//        }
+//    });
+//}
 
 void sa_actionSheetClickedButtonAtIndex(id self, SEL _cmd, id actionSheet, NSInteger buttonIndex) {
     SEL selector = NSSelectorFromString(@"sa_actionSheetClickedButtonAtIndex");
@@ -146,11 +146,11 @@ void sa_actionSheetClickedButtonAtIndex(id self, SEL _cmd, id actionSheet, NSInt
         
         @try {
             if (view.sensorsAnalyticsDelegate) {
-                if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)]) {
-                    if ([view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_actionSheet:clickedButtonAtIndex:)]) {
-                        [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_actionSheet:actionSheet clickedButtonAtIndex:buttonIndex]];
-                    }
-                }
+//                if ([view.sensorsAnalyticsDelegate conformsToProtocol:@protocol(SAUIViewAutoTrackDelegate)]) {
+//                    if ([view.sensorsAnalyticsDelegate respondsToSelector:@selector(sensorsAnalytics_actionSheet:clickedButtonAtIndex:)]) {
+//                        [properties addEntriesFromDictionary:[view.sensorsAnalyticsDelegate sensorsAnalytics_actionSheet:actionSheet clickedButtonAtIndex:buttonIndex]];
+//                    }
+//                }
             }
         } @catch (NSException *exception) {
             SAError(@"%@ error: %@", self, exception);
