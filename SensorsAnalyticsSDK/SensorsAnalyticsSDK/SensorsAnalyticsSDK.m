@@ -30,11 +30,12 @@
 #import "UIApplication+AutoTrack.h"
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
+#import "NSString+HashCode.h"
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
 //#import <React/RCTUIManager.h>
 #import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.12"
+#define VERSION @"1.7.13"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -881,13 +882,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
             // 3. base64
             b64String = [zippedData sa_base64EncodedString];
+            int hashCode = [b64String sensorsdata_hashCode];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                   (CFStringRef)b64String,
                                                                                   NULL,
                                                                                   CFSTR("!*'();:@&=+$,/?%#[]"),
                                                                                   kCFStringEncodingUTF8));
         
-            postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@", b64String];
+            postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@&crc=%d", b64String, hashCode];
         } @catch (NSException *exception) {
             SAError(@"%@ flushByPost format data error: %@", self, exception);
             return YES;
@@ -1006,6 +1008,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
         // 3. base64
         NSString *b64String = [zippedData sa_base64EncodedString];
+        int hashCode = [b64String sensorsdata_hashCode];
         b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                   (CFStringRef)b64String,
                                                                                   NULL,
@@ -1015,13 +1018,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSURL *url = [NSURL URLWithString:self.serverURL];
         NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (components.query.length > 0) {
-            NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data_list=%@", components.percentEncodedQuery, b64String];
+            NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data_list=%@&crc=%d", components.percentEncodedQuery, b64String, hashCode];
             components.percentEncodedQuery = urlQuery;
         } else {
-            NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data_list=%@", b64String];
+            NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data_list=%@&crc=%d", b64String, hashCode];
             components.percentEncodedQuery = urlQuery;
         }
-        
+
         NSURL *postUrl = [components URL];
         
         // Must be on next run loop to avoid a warning
