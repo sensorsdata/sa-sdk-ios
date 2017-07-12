@@ -692,6 +692,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (NSDictionary *)getLastScreenTrackProperties;
 
+- (void)addWebViewUserAgentSensorsDataFlag;
+
 /**
  * @abstract
  * Track $AppViewScreen事件

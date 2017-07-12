@@ -35,7 +35,7 @@
 //#import <React/RCTUIManager.h>
 #import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.13"
+#define VERSION @"1.7.14"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1950,6 +1950,23 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return _lastScreenTrackProperties;
 }
 
+- (void)addWebViewUserAgentSensorsDataFlag {
+    @try {
+        UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+        NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        NSString * newAgent = oldAgent;
+        if (![oldAgent containsString:@"sa-sdk-ios"]){
+            newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
+        }
+
+        NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
+        [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    } @catch (NSException *exception) {
+        SADebug(@"%@: %@", self, exception);
+    }
+}
+
 - (NSString *)getUIViewControllerTitle:(UIViewController *)controller {
     @try {
         if (controller == nil) {
@@ -2589,7 +2606,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSError *parseError;
         NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
         if (parseError) {
-            SAError(@"%@ configure check json error: %@, data: %@", self, error, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
+            SAError(@"%@ configure check json error: %@, data: %@", self, parseError, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
             return;
         }
         
