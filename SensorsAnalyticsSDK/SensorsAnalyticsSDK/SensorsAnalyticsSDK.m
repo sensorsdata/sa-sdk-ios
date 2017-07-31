@@ -32,10 +32,10 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-//#import <React/RCTUIManager.h>
+#import <React/RCTUIManager.h>
 #import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.14"
+#define VERSION @"1.7.15"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1772,6 +1772,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)archiveDistinctId {
     NSString *filePath = [self filePathForData:@"distinct_id"];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
     if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive distinctId", self);
     }
@@ -1780,6 +1786,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)archiveLoginId {
     NSString *filePath = [self filePathForData:@"login_id"];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
     if (![NSKeyedArchiver archiveRootObject:[[self loginId] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive loginId", self);
     }
@@ -1788,6 +1800,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)archiveFirstDay {
     NSString *filePath = [self filePathForData:@"first_day"];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
     if (![NSKeyedArchiver archiveRootObject:[[self firstDay] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive firstDay", self);
     }
@@ -1796,6 +1814,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)archiveSuperProperties {
     NSString *filePath = [self filePathForData:@"super_properties"];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.superProperties copy] toFile:filePath]) {
         SAError(@"%@ unable to archive super properties", self);
     }
@@ -1804,6 +1828,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)archiveEventBindings {
     NSString *filePath = [self filePathForData:@"event_bindings"];
+    /* 为filePath文件设置保护等级 */
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+                                                           forKey:NSFileProtectionKey];
+    [[NSFileManager defaultManager] setAttributes:protection
+                                     ofItemAtPath:filePath
+                                            error:nil];
     if (![NSKeyedArchiver archiveRootObject:[self.eventBindings copy] toFile:filePath]) {
         SAError(@"%@ unable to archive tracking events data", self);
     }
@@ -2261,9 +2291,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-//            if ([NSClassFromString(@"RCTUIManager") class]) {
-//                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:[RCTUIManager class] withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-//            }
+            if ([NSClassFromString(@"RCTUIManager") class]) {
+                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:[RCTUIManager class] withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+            }
 #endif
             NSError *error = NULL;
             // Actions & Events

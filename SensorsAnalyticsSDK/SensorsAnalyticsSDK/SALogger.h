@@ -18,7 +18,11 @@ static inline void SALog(NSString *format, ...) {
     NSLog(@"[SensorsAnalytics] %@", formattedString);
 }
 
+#if (defined DEBUG) && (defined SENSORS_ANALYTICS_ENABLE_LOG)
 #define SAError(...) SALog(__VA_ARGS__)
+#else
+#define SAError(...)
+#endif
 
 #if (defined DEBUG) && (defined SENSORS_ANALYTICS_ENABLE_LOG)
 #define SADebug(...) SALog(__VA_ARGS__)
