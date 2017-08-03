@@ -336,7 +336,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request __attribute__((deprecated("已过时，请参考showUpWebView: WithRequest:andProperties")));
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
 
 /**
  * @abstract

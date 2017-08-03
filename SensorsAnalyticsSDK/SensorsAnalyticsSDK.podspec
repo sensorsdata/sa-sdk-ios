@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.7.15"
+  s.version      = "1.7.16"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -69,6 +69,11 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME=1'}
+  end
+
+  s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
   end
 
   s.subspec 'DISABLE_AUTOTRACK_UITABBAR' do |f|

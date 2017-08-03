@@ -35,7 +35,7 @@
 #import <React/RCTUIManager.h>
 #import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.15"
+#define VERSION @"1.7.16"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -558,6 +558,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return;
             }
 
+            NSString *type = [eventDict valueForKey:@"type"];
             NSString *bestId;
             if ([self loginId] != nil) {
                 bestId = [self loginId];
@@ -569,7 +570,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self resetAnonymousId];
                 bestId = [self anonymousId];
             }
-            [eventDict setValue:bestId forKey:@"distinct_id"];
+            
+            if([type isEqualToString:@"track_signup"]){
+                [eventDict setValue:bestId forKey:@"original_id"];
+            } else {
+                [eventDict setValue:bestId forKey:@"distinct_id"];
+            }
             [eventDict setValue:@(rand()) forKey:@"_track_id"];
 
             NSDictionary *libDict = [eventDict objectForKey:@"lib"];
@@ -588,9 +594,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [automaticPropertiesCopy removeObjectForKey:@"$lib"];
             [automaticPropertiesCopy removeObjectForKey:@"$lib_version"];
 
-            NSString *type = [eventDict valueForKey:@"type"];
-            if([type isEqualToString:@"track"]){
-                NSMutableDictionary *propertiesDict = [eventDict objectForKey:@"properties"];
+            NSMutableDictionary *propertiesDict = [eventDict objectForKey:@"properties"];
+            if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]){
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
                 [propertiesDict addEntriesFromDictionary:_superProperties];
 
@@ -604,17 +609,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
 
                 //  是否首日访问
-                if ([self isFirstDay]) {
-                    [propertiesDict setObject:@YES forKey:@"$is_first_day"];
-                } else {
-                    [propertiesDict setObject:@NO forKey:@"$is_first_day"];
+                if([type isEqualToString:@"track"]) {
+                    if ([self isFirstDay]) {
+                        [propertiesDict setObject:@YES forKey:@"$is_first_day"];
+                    } else {
+                        [propertiesDict setObject:@NO forKey:@"$is_first_day"];
+                    }
                 }
 
                 [propertiesDict removeObjectForKey:@"$is_first_time"];
                 [propertiesDict removeObjectForKey:@"_nocache"];
             }
 
-            [self enqueueWithType:type andEvent:[eventDict copy]];
+            if([type isEqualToString:@"track_signup"]) {
+                NSString *newLoginId = [eventDict objectForKey:@"distinct_id"];
+                if (![newLoginId isEqualToString:[self loginId]]) {
+                    self.loginId = newLoginId;
+                    [self archiveLoginId];
+                    if (![newLoginId isEqualToString:[self distinctId]]) {
+                        self.originalId = [self distinctId];
+                        [self enqueueWithType:type andEvent:[eventDict copy]];
+                    }
+                }
+            } else {
+                [self enqueueWithType:type andEvent:[eventDict copy]];
+            }
         } @catch (NSException *exception) {
             SAError(@"%@: %@", self, exception);
         }
@@ -757,16 +776,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ max length of login_id is 255, login_id: %@", self, loginId);
         return;
     }
-    dispatch_async(self.serialQueue, ^{
-        if (![loginId isEqualToString:[self loginId]]) {
-            self.loginId = loginId;
-            [self archiveLoginId];
-            if (![loginId isEqualToString:[self distinctId]]) {
-                self.originalId = [self distinctId];
-                [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
-            }
+    if (![loginId isEqualToString:[self loginId]]) {
+        self.loginId = loginId;
+        [self archiveLoginId];
+        if (![loginId isEqualToString:[self distinctId]]) {
+            self.originalId = [self distinctId];
+            [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
         }
-    });
+    }
 }
 
 - (void)logout {
