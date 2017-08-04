@@ -33,9 +33,8 @@
 #import "NSString+HashCode.h"
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
 #import <React/RCTUIManager.h>
-#import "RCTUIManager.h"
 #endif
-#define VERSION @"1.7.17"
+#define VERSION @"1.7.18"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
