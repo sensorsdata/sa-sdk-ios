@@ -31,10 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-#import <React/RCTUIManager.h>
-#endif
-#define VERSION @"1.7.18"
+#define VERSION @"1.8.0"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -948,10 +945,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
                     @try {
+                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
                         NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
                         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
                         NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
                         SAError(@"%@ invalid message: %@", self, logString);
+                        #endif
                     } @catch (NSException *exception) {
                         SAError(@"%@: %@", self, exception);
                     }
@@ -971,10 +970,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     SAError(@"==========================================================================");
                     @try {
+                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
                         NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
                         NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
                         NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
                         SAError(@"%@ valid message: %@", self, logString);
+                        #endif
                     } @catch (NSException *exception) {
                         SAError(@"%@: %@", self, exception);
                     }
@@ -2193,32 +2194,39 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     return;
                 }
 
-                RCTUIManager *rctUIManager = (RCTUIManager *)obj;
-                UIView *uiView = [rctUIManager viewForReactTag:reactTag];
+                if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
+                    SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
+                    UIView *uiView = ((UIView* (*)(id, SEL, NSNumber*))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
+                    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-                NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
-                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
-                    //好像跟 UISwitch 会重复
-                    return;
-                }
-
-                [properties setValue:@"RNView" forKey:@"$element_type"];
-                [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:@"$element_content"];
-
-                UIViewController *viewController = uiView.reactViewController;
-                if (viewController) {
-                    //获取 Controller 名称($screen_name)
-                    NSString *screenName = NSStringFromClass([viewController class]);
-                    [properties setValue:screenName forKey:@"$screen_name"];
-
-                    NSString *controllerTitle = viewController.navigationItem.title;
-                    if (controllerTitle != nil) {
-                        [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                    if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
+                        //好像跟 UISwitch 会重复
+                        return;
                     }
-                }
 
-                [self track:@"$AppClick" withProperties:properties];
+                    [properties setValue:@"RNView" forKey:@"$element_type"];
+                    [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:@"$element_content"];
+
+                    UIViewController *viewController = nil;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                    if ([uiView respondsToSelector:NSSelectorFromString(@"reactViewController")]) {
+                        viewController = [uiView performSelector:NSSelectorFromString(@"reactViewController")];
+                    }
+#pragma clang diagnostic pop
+                    if (viewController) {
+                        //获取 Controller 名称($screen_name)
+                        NSString *screenName = NSStringFromClass([viewController class]);
+                        [properties setValue:screenName forKey:@"$screen_name"];
+
+                        NSString *controllerTitle = viewController.navigationItem.title;
+                        if (controllerTitle != nil) {
+                            [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                        }
+                    }
+
+                    [self track:@"$AppClick" withProperties:properties];
+                }
             } @catch (NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
             }
@@ -2307,8 +2315,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-            if ([NSClassFromString(@"RCTUIManager") class]) {
-                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:[RCTUIManager class] withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+            if (NSClassFromString(@"RCTUIManager")) {
+                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
             }
 #endif
             NSError *error = NULL;
