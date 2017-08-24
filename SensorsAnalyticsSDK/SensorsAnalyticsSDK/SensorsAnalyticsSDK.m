@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.0"
+#define VERSION @"1.8.1"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -363,6 +363,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self, serverURL, configureURL, [self debugModeToString:debugMode]);
     
     //打开debug模式，弹出提示
+#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
     if (_debugMode != SensorsAnalyticsDebugOff) {
         NSString *alertMessage = nil;
         if (_debugMode == SensorsAnalyticsDebugOnly) {
@@ -374,6 +375,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
         }
     }
+#endif
 
     return self;
 }
@@ -399,6 +401,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
+#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
     if (_debugMode == SensorsAnalyticsDebugOff) {
         return;
     }
@@ -446,6 +449,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @finally {
         }
     });
+#endif
 }
 
 -(void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{

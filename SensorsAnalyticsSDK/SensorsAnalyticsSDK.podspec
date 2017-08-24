@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.8.0"
+  s.version      = "1.8.1"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -34,6 +34,11 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_CALL_STACK' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_CALL_STACK=1'}
+  end
+
+  s.subspec 'DISABLE_DEBUG_WARNING' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
   end
 
   s.subspec 'DISABLE_VTRACK' do |f|
