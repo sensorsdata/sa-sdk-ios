@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.1"
+#define VERSION @"1.8.2"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -268,33 +268,34 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    if (serverURL == nil || [serverURL length] == 0) {
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            @throw [NSException exceptionWithName:@"InvalidArgumentException"
-                                       reason:@"serverURL is nil"
-                                     userInfo:nil];
-        } else {
-            SAError(@"serverURL is nil");
-        }
-    }
-    
-    if (debugMode != SensorsAnalyticsDebugOff) {
-        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-        NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
-        serverURL = [url absoluteString];
-    }
-    
-    _autoTrackEventType = SensorsAnalyticsEventTypeNone;
-    _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
-
-    // 将 Configure URI Path 末尾补齐 iOS.conf
-    NSURL *url = [NSURL URLWithString:configureURL];
-    if ([[url lastPathComponent] isEqualToString:@"config"]) {
-        url = [url URLByAppendingPathComponent:@"iOS.conf"];
-    }
-    configureURL = [url absoluteString];
     
     if (self = [self init]) {
+        if (serverURL == nil || [serverURL length] == 0) {
+            if (_debugMode != SensorsAnalyticsDebugOff) {
+                @throw [NSException exceptionWithName:@"InvalidArgumentException"
+                                               reason:@"serverURL is nil"
+                                             userInfo:nil];
+            } else {
+                SAError(@"serverURL is nil");
+            }
+        }
+
+        if (debugMode != SensorsAnalyticsDebugOff) {
+            // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+            NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
+            serverURL = [url absoluteString];
+        }
+
+        _autoTrackEventType = SensorsAnalyticsEventTypeNone;
+        _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+
+        // 将 Configure URI Path 末尾补齐 iOS.conf
+        NSURL *url = [NSURL URLWithString:configureURL];
+        if ([[url lastPathComponent] isEqualToString:@"config"]) {
+            url = [url URLByAppendingPathComponent:@"iOS.conf"];
+        }
+        configureURL = [url absoluteString];
+
         self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
         
         self.serverURL = serverURL;
@@ -357,25 +358,25 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 //        [self checkForConfigure];
         // XXX: App Active 的时候会启动计时器，此处不需要启动
 //        [self startFlushTimer];
-    }
-    
-    SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
-            self, serverURL, configureURL, [self debugModeToString:debugMode]);
-    
-    //打开debug模式，弹出提示
+
+        SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
+                self, serverURL, configureURL, [self debugModeToString:debugMode]);
+
+        //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        NSString *alertMessage = nil;
-        if (_debugMode == SensorsAnalyticsDebugOnly) {
-            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            NSString *alertMessage = nil;
+            if (_debugMode == SensorsAnalyticsDebugOnly) {
+                alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+            } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+                alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+            }
+            if (alertMessage != nil) {
+                [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
+            }
         }
-        if (alertMessage != nil) {
-            [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-        }
-    }
 #endif
+    }
 
     return self;
 }
@@ -1677,7 +1678,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     CTCarrier *carrier = [[[CTTelephonyNetworkInfo alloc] init] subscriberCellularProvider];
     // Use setValue semantics to avoid adding keys where value can be nil.
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
-    [p setValue:carrier.carrierName forKey:@"$carrier"];
+    if (carrier != nil) {
+        NSString *networkCode = [carrier mobileNetworkCode];
+        if (networkCode != nil) {
+            NSString *carrierName = nil;
+            //中国移动
+            if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
+                carrierName= @"中国移动";
+            }
+
+            //中国联通
+            if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
+                carrierName= @"中国联通";
+            }
+
+            //中国电信
+            if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
+                carrierName= @"中国电信";
+            }
+            if (carrierName != nil) {
+                [p setValue:carrier.carrierName forKey:@"$carrier"];
+            }
+        }
+    }
     BOOL isReal;
     [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
     [p addEntriesFromDictionary:@{

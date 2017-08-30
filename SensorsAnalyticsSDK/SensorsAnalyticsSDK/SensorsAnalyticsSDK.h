@@ -42,7 +42,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIView (SensorsAnalytics)
-- (UIViewController *)viewController;
+- (nullable UIViewController *)viewController;
 
 //viewID
 @property (assign,nonatomic) NSString* sensorsAnalyticsViewID;
