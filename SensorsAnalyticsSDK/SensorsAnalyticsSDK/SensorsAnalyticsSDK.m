@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.2"
+#define VERSION @"1.8.3"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -572,6 +572,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 bestId = [self anonymousId];
             }
             
+            [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
+
             if([type isEqualToString:@"track_signup"]){
                 [eventDict setValue:bestId forKey:@"original_id"];
             } else {
