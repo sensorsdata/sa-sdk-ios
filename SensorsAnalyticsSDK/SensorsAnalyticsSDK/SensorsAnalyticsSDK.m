@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.3"
+#define VERSION @"1.8.4"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2306,7 +2306,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     // 监听所有 UIViewController 显示事件
     if (_autoTrack) {
         //$AppViewScreen
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen) {
+        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
+            _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
             [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
                                 onClass:[UIViewController class]
                               withBlock:block
