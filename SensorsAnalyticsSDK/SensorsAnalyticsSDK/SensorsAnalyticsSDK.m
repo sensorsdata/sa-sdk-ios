@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.4"
+#define VERSION @"1.8.5"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2041,6 +2041,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SADebug(@"%@: %@", self, exception);
     }
+}
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return _debugMode;
 }
 
 - (NSString *)getUIViewControllerTitle:(UIViewController *)controller {
