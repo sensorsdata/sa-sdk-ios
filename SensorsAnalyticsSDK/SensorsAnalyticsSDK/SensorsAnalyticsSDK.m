@@ -31,7 +31,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.5"
+#define VERSION @"1.8.6"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2045,6 +2045,89 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return _debugMode;
+}
+
+- (void)trackViewAppClick:(UIView *)view {
+    [self trackViewAppClick:view withProperties:nil];
+}
+
+- (void)trackViewAppClick:(UIView *)view withProperties:(NSDictionary *)p {
+    @try {
+        if (view == nil) {
+            return;
+        }
+
+        //关闭 AutoTrack
+        if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+            return;
+        }
+
+        //忽略 $AppClick 事件
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+            return;
+        }
+
+        if ([self isViewTypeIgnored:[view class]]) {
+            return;
+        }
+
+        if (view.sensorsAnalyticsIgnoreView) {
+            return;
+        }
+
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+
+        UIViewController *viewController = [self currentViewController];
+        if (viewController != nil) {
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewControllerIgnored:viewController]) {
+                return;
+            }
+
+            //获取 Controller 名称($screen_name)
+            NSString *screenName = NSStringFromClass([viewController class]);
+            [properties setValue:screenName forKey:@"$screen_name"];
+
+            NSString *controllerTitle = viewController.navigationItem.title;
+            if (controllerTitle != nil) {
+                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+            }
+
+            //再获取 controller.navigationItem.titleView, 并且优先级比较高
+            NSString *elementContent = [self getUIViewControllerTitle:viewController];
+            if (elementContent != nil && [elementContent length] > 0) {
+                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                [properties setValue:elementContent forKey:@"$title"];
+            }
+        }
+
+        //ViewID
+        if (view.sensorsAnalyticsViewID != nil) {
+            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+        }
+
+        [properties setValue:NSStringFromClass([view class]) forKey:@"$element_type"];
+
+        NSString *elementContent = [[NSString alloc] init];
+        elementContent = [AutoTrackUtils contentFromView:view];
+        if (elementContent != nil && [elementContent length] > 0) {
+            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+            [properties setValue:elementContent forKey:@"$element_content"];
+        }
+
+        if (p != nil) {
+            [properties addEntriesFromDictionary:p];
+        }
+
+        //View Properties
+        NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
+        if (propDict != nil) {
+            [properties addEntriesFromDictionary:propDict];
+        }
+
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+    }
 }
 
 - (NSString *)getUIViewControllerTitle:(UIViewController *)controller {

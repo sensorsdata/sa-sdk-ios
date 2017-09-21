@@ -698,6 +698,23 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 通过代码触发 UIView 的 $AppClick 事件
+ *
+ * @param view UIView
+ */
+- (void)trackViewAppClick:(nonnull UIView *)view;
+
+/**
+ * @abstract
+ * 通过代码触发 UIView 的 $AppClick 事件
+ *
+ * @param view UIView
+ * @param properties 自定义属性
+ */
+- (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
+
+/**
+ * @abstract
  * Track $AppViewScreen事件
  *
  * @param url 当前页面url
