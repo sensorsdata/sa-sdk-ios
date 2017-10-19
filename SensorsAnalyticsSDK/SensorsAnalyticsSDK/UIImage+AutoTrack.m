@@ -40,8 +40,16 @@
 }
 
 + (UIImage *)myImageNamed:(NSString *)name {
-    UIImage *image = [self myImageNamed:name];
-    image.sensorsAnalyticsImageName = name;
+    __block UIImage *image;
+    if ([[NSThread currentThread] isMainThread]) {
+        image = [self myImageNamed:name];
+        image.sensorsAnalyticsImageName = name;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            image = [self myImageNamed:name];
+            image.sensorsAnalyticsImageName = name;
+        });
+    }
     return image;
 }
 

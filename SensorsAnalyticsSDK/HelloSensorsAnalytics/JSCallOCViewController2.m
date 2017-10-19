@@ -20,8 +20,8 @@
     _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"WKWebView";
 
-//    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
-//    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
+    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
+    NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
 
     [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     _webView.UIDelegate = self;
@@ -30,9 +30,9 @@
     [self.view addSubview:_webView];
 
     //网址
-    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
-    NSURL *httpUrl=[NSURL URLWithString:httpStr];
-    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
+//    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
+//    NSURL *httpUrl=[NSURL URLWithString:httpStr];
+//    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
     
     [self.webView loadRequest:request];
 
@@ -47,7 +47,7 @@
 }
 
 - (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:_webView WithRequest:navigationAction.request]) {
+    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:navigationAction.request]) {
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }

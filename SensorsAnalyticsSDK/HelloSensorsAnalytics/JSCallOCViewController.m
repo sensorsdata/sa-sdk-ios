@@ -16,7 +16,7 @@
     UIWebView *webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"UIWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"sdk_test.html"];
+    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
     [webView loadRequest:request];
 

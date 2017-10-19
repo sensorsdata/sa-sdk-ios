@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */; };
+		000919881F973CD100E5D3C5 /* UIImage+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */; };
+		0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */; };
+		0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
+		0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */; };
+		0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */; };
 		0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */; };
 		0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		002BF6711F0A875100824F76 /* UIImage+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */; };
@@ -20,6 +26,7 @@
 		002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
 		002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
 		002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9561EB1681900A9632C /* AutoTrackViewController.m */; };
+		005EB7E71F9723F700C14AF1 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */; };
 		008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
 		008D82B21F0E2EFA00052CFF /* NSString+HashCode.h in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */; };
@@ -167,6 +174,8 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
+		0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
 		0025D99B1F04C03D001248F4 /* AutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackUtils.h; sourceTree = "<group>"; };
 		0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackUtils.m; sourceTree = "<group>"; };
 		002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+AutoTrack.h"; sourceTree = "<group>"; };
@@ -361,6 +370,8 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
+				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */,
 				002BF6701F0A875100824F76 /* UIImage+AutoTrack.m */,
 				00D3B57B1EFB382A0086F1F8 /* UITabBar+AutoTrack.m */,
@@ -474,6 +485,7 @@
 				00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */,
 				A3997A251C3AC1DE005A9374 /* SAObjectSelector.h in Headers */,
 				A3997A1F1C3ABCE3005A9374 /* SADesignerEventBindingMessage.h in Headers */,
+				0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */,
 				A3746EC01C3190E7008A50A3 /* SAPropertyDescription.h in Headers */,
 				4D14F17E1B4A7A32006AD786 /* SALogger.h in Headers */,
 				00EA97C31EEF7418005E524F /* UITableView+AutoTrack.h in Headers */,
@@ -604,6 +616,10 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */,
+				0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
+				000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */,
+				000919881F973CD100E5D3C5 /* UIImage+AutoTrack.m in Sources */,
 				008D82B21F0E2EFA00052CFF /* NSString+HashCode.h in Sources */,
 				008D82B31F0E2EFA00052CFF /* NSString+HashCode.m in Sources */,
 				0025E0481F09D79A001248F4 /* AutoTrackUtils.h in Sources */,
@@ -666,6 +682,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				005EB7E71F9723F700C14AF1 /* AutoTrackUtils.m in Sources */,
 				A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */,
 				A3F32BD11C57302700C3B98D /* NSData+SABase64.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
@@ -686,6 +703,7 @@
 				A3746EC11C3190E7008A50A3 /* SAPropertyDescription.m in Sources */,
 				A3A85C171C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.m in Sources */,
 				008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */,
+				0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
 				4D2AF15D1B4BAE77007716F8 /* JSONUtil.m in Sources */,
 				A3746EBD1C3190E7008A50A3 /* SAClassDescription.m in Sources */,
 				A3746E881C31196C008A50A3 /* SADesignerDeviceInfoMessage.m in Sources */,
@@ -742,7 +760,7 @@
 					"SENSORS_ANALYTICS_ENABLE_LOG=1",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk.HelloSensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -761,7 +779,7 @@
 					"SENSORS_ANALYTICS_IDFA=1",
 				);
 				INFOPLIST_FILE = HelloSensorsAnalytics/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.sensorsdata.sdk.HelloSensorsAnalytics;
 				PRODUCT_NAME = "$(TARGET_NAME)";

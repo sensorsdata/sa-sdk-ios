@@ -14,6 +14,11 @@
 
 @implementation DemoController
 
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.tableView.sensorsAnalyticsDelegate = self;
+}
+
 - (NSDictionary *)getTrackProperties {
     return @{@"shuxing" : @"Gaga"};
 }
@@ -22,37 +27,44 @@
     return @"WoShiYiGeURL";
 }
 
+- (NSDictionary*)sa_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
+    return @{@"test": @"test"};
+}
+
+- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
+    
+}
+
 - (void)testTrack {
-    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"test": @"test"}];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:nil];
 }
 
 - (void)testTrackSignup {
-    [[SensorsAnalyticsSDK sharedInstance] trackSignUp:@"new id"];
+    [[SensorsAnalyticsSDK sharedInstance] login:@"newId"];
 }
 
 - (void)testTrackInstallation {
-    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall"];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:nil];
 }
 
 - (void)testProfileSet {
-//    [[SensorsAnalyticsSDK sharedInstance].people set:@"name" to:@"caojiang"];
-//    [[[SensorsAnalyticsSDK sharedInstance] people] setAppPushContext:SensorsAnalyticsAppPushJiguang withRegisterId:@"123456"];
+    [[SensorsAnalyticsSDK sharedInstance] set:@"name" to:@"caojiang"];
 }
 
 - (void)testProfileAppend {
-    [[SensorsAnalyticsSDK sharedInstance].people append:@"array" by:[NSSet setWithObjects:@"123", nil]];
+    [[SensorsAnalyticsSDK sharedInstance] append:@"array" by:[NSSet setWithObjects:@"123", nil]];
 }
 
 - (void)testProfileIncrement {
-    [[SensorsAnalyticsSDK sharedInstance].people increment:@"age" by:@1];
+    [[SensorsAnalyticsSDK sharedInstance] increment:@"age" by:@1];
 }
 
 - (void)testProfileUnset {
-    [[SensorsAnalyticsSDK sharedInstance].people unset:@"age"];
+    [[SensorsAnalyticsSDK sharedInstance] unset:@"age"];
 }
 
 - (void)testProfileDelete {
-    [[SensorsAnalyticsSDK sharedInstance].people deleteUser];
+    [[SensorsAnalyticsSDK sharedInstance] deleteUser];
 }
 
 - (void)testFlush {

@@ -706,6 +706,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 通过代码触发 UIViewController 的 $AppViewScreen 事件
+ *
+ * @param viewController 当前的 UIViewController
+ */
+- (void)trackViewScreen:(UIViewController *)viewController;
+
+/**
+ * @abstract
  * 通过代码触发 UIView 的 $AppClick 事件
  *
  * @param view UIView

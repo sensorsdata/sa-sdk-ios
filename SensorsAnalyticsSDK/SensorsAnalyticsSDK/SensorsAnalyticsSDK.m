@@ -28,10 +28,11 @@
 #import "SensorsAnalyticsSDK.h"
 #import "JSONUtil.h"
 #import "UIApplication+AutoTrack.h"
+#import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.6"
+#define VERSION @"1.8.7"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -498,7 +499,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }   else if ([@"4G" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkType4G;
     }
-    return SensorsAnalyticsNetworkTypeALL;
+    return SensorsAnalyticsNetworkTypeNONE;
 }
 
 - (UIViewController *)currentViewController {
@@ -884,7 +885,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
-    // 判断当前网络类型是否是2G/3G/4G/WIFI
+    // 判断当前网络类型是否符合同步数据的网络策略
     NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
         return;
@@ -2027,20 +2028,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag {
-    @try {
-        UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        NSString * newAgent = oldAgent;
-        if (![oldAgent containsString:@"sa-sdk-ios"]){
-            newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
-        }
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            NSString * newAgent = oldAgent;
+            if (![oldAgent containsString:@"sa-sdk-ios"]){
+                newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
+            }
 
-        NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
-        [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    } @catch (NSException *exception) {
-        SADebug(@"%@: %@", self, exception);
-    }
+            NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
+            [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+            [[NSUserDefaults standardUserDefaults] synchronize];
+        } @catch (NSException *exception) {
+            SADebug(@"%@: %@", self, exception);
+        }
+    });
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -2175,123 +2178,120 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self _enableAutoTrack];
 }
 
-- (void)_enableAutoTrack {
-    void (^block)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
-        if (_autoTrack) {
-            UIViewController *controller = (UIViewController *)obj;
-            if (!controller) {
-                return;
-            }
-            
-            Class klass = [controller class];
-            if (!klass) {
-                return;
-            }
-
-            NSString *screenName = NSStringFromClass(klass);
-            if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
-                [screenName isEqualToString:@"SFSafariViewController"] ||
-                [screenName isEqualToString:@"UIAlertController"] ||
-                [screenName isEqualToString:@"UIInputWindowController"] ||
-                [screenName isEqualToString:@"UINavigationController"] ||
-                [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||
-                [screenName isEqualToString:@"UICompatibilityInputViewController"] ||
-                [screenName isEqualToString:@"UIApplicationRotationFollowingController"] ||
-                [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
-                return;
-            }
-            
-            if ([controller isKindOfClass:NSClassFromString(@"UINavigationController")] ||
-                [controller isKindOfClass:NSClassFromString(@"UITabBarController")]) {
-                return;
-            }
-
-            //过滤用户设置的不被AutoTrack的Controllers
-            if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
-                if ([_ignoredViewControllers containsObject:screenName]) {
-                    return;
-                }
-            }
-
-            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-                //UITableView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
-                void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
-                    [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
-                };
-                if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
-                    [SASwizzler swizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass withBlock:tableViewBlock named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
-                }
-#endif
-                
-                //UICollectionView
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
-                void (^collectionViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UICollectionView *collectionView, NSIndexPath *indexPath) {
-                    [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
-                };
-                if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
-                    [SASwizzler swizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass withBlock:collectionViewBlock named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
-                }
-#endif
-            }
-            
-            if (!(_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
-                return;
-            }
-            
-            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-            [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
-
-            @try {
-                //先获取 controller.navigationItem.title
-                NSString *controllerTitle = controller.navigationItem.title;
-                if (controllerTitle != nil) {
-                    [properties setValue:controllerTitle forKey:@"$title"];
-                }
-                
-                //再获取 controller.navigationItem.titleView, 并且优先级比较高
-                NSString *elementContent = [self getUIViewControllerTitle:controller];
-                if (elementContent != nil && [elementContent length] > 0) {
-                    elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-                    [properties setValue:elementContent forKey:@"$title"];
-                }
-            } @catch (NSException *exception) {
-                SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
-            }
-
-            if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
-                UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-                [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
-                _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
-            }
-
-#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
-            [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
-            @synchronized(_referrerScreenUrl) {
-                if (_referrerScreenUrl) {
-                    [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
-                }
-                _referrerScreenUrl = screenName;
-            }
-#endif
-
-            if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
-                UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
-                NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
-
-                [properties setValue:currentScreenUrl forKey:SCREEN_URL_PROPERTY];
-                @synchronized(_referrerScreenUrl) {
-                    if (_referrerScreenUrl) {
-                        [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
-                    }
-                    _referrerScreenUrl = currentScreenUrl;
-                }
-            }
-            
-            [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
+- (void)trackViewScreen:(UIViewController *)controller {
+    if (!controller) {
+        return;
+    }
+    
+    Class klass = [controller class];
+    if (!klass) {
+        return;
+    }
+    
+    NSString *screenName = NSStringFromClass(klass);
+    if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
+        [screenName isEqualToString:@"SFSafariViewController"] ||
+        [screenName isEqualToString:@"UIAlertController"] ||
+        [screenName isEqualToString:@"UIInputWindowController"] ||
+        [screenName isEqualToString:@"UINavigationController"] ||
+        [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||
+        [screenName isEqualToString:@"UICompatibilityInputViewController"] ||
+        [screenName isEqualToString:@"UIApplicationRotationFollowingController"] ||
+        [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
+        return;
+    }
+    
+    if ([controller isKindOfClass:NSClassFromString(@"UINavigationController")] ||
+        [controller isKindOfClass:NSClassFromString(@"UITabBarController")]) {
+        return;
+    }
+    
+    //过滤用户设置的不被AutoTrack的Controllers
+    if (_ignoredViewControllers != nil && _ignoredViewControllers.count > 0) {
+        if ([_ignoredViewControllers containsObject:screenName]) {
+            return;
         }
-    };
+    }
+    
+    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+        //UITableView
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
+        void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
+            [AutoTrackUtils trackAppClickWithUITableView:tableView didSelectRowAtIndexPath:indexPath];
+        };
+        if ([controller respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
+            [SASwizzler swizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:klass withBlock:tableViewBlock named:[NSString stringWithFormat:@"%@_%@", screenName, @"UITableView_AutoTrack"]];
+        }
+#endif
+        
+        //UICollectionView
+#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW
+        void (^collectionViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UICollectionView *collectionView, NSIndexPath *indexPath) {
+            [AutoTrackUtils trackAppClickWithUICollectionView:collectionView didSelectItemAtIndexPath:indexPath];
+        };
+        if ([controller respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
+            [SASwizzler swizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:klass withBlock:collectionViewBlock named:[NSString stringWithFormat:@"%@_%@", screenName, @"UICollectionView_AutoTrack"]];
+        }
+#endif
+    }
+    
+    if (!(_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+        return;
+    }
+    
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
+    
+    @try {
+        //先获取 controller.navigationItem.title
+        NSString *controllerTitle = controller.navigationItem.title;
+        if (controllerTitle != nil) {
+            [properties setValue:controllerTitle forKey:@"$title"];
+        }
+        
+        //再获取 controller.navigationItem.titleView, 并且优先级比较高
+        NSString *elementContent = [self getUIViewControllerTitle:controller];
+        if (elementContent != nil && [elementContent length] > 0) {
+            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+            [properties setValue:elementContent forKey:@"$title"];
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ failed to get UIViewController's title error: %@", self, exception);
+    }
+    
+    if ([controller conformsToProtocol:@protocol(SAAutoTracker)]) {
+        UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
+        [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
+        _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
+    }
+    
+#ifdef SENSORS_ANALYTICS_AUTOTRACT_APPVIEWSCREEN_URL
+    [properties setValue:screenName forKey:SCREEN_URL_PROPERTY];
+    @synchronized(_referrerScreenUrl) {
+        if (_referrerScreenUrl) {
+            [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
+        }
+        _referrerScreenUrl = screenName;
+    }
+#endif
+    
+    if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)controller;
+        NSString *currentScreenUrl = [screenAutoTrackerController getScreenUrl];
+        
+        [properties setValue:currentScreenUrl forKey:SCREEN_URL_PROPERTY];
+        @synchronized(_referrerScreenUrl) {
+            if (_referrerScreenUrl) {
+                [properties setValue:_referrerScreenUrl forKey:SCREEN_REFERRER_URL_PROPERTY];
+            }
+            _referrerScreenUrl = currentScreenUrl;
+        }
+    }
+    
+    [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
+}
 
+- (void)_enableAutoTrack {
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     void (^reactNativeAutoTrackBlock)(id, SEL, id, id) = ^(id obj, SEL sel, NSNumber* reactTag, id blockNativeResponder) {
         dispatch_async(dispatch_get_main_queue(), ^{
@@ -2395,10 +2395,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //$AppViewScreen
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
             _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
-                                onClass:[UIViewController class]
-                              withBlock:block
-                                  named:@"track_view_screen"];
+//            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
+//                                onClass:[UIViewController class]
+//                              withBlock:block
+//                                  named:@"track_view_screen"];
+            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
         }
 
         //$AppClick

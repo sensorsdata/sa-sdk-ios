@@ -17,6 +17,24 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    _myLabel.userInteractionEnabled = YES;
+    UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
+    
+    [_myLabel addGestureRecognizer:labelTapGestureRecognizer];
+    
+    [_myUISwitch addTarget:self action:@selector(picSwitchClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    _myButton1.sensorsAnalyticsDelegate = self;
+}
+
+-(void)picSwitchClick:(UISwitch *)sender {
+    
+}
+
+-(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
+    UILabel *label=(UILabel*)recognizer.view;
+    NSLog(@"%@被点击了",label.text);
 }
 
 - (void)didReceiveMemoryWarning {
@@ -35,5 +53,7 @@
 */
 
 - (IBAction)onButton1Click:(id)sender {
+}
+- (IBAction)segmentOnClick:(id)sender {
 }
 @end
