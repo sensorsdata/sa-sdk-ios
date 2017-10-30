@@ -32,7 +32,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.7"
+#define VERSION @"1.8.8"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1444,11 +1444,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:@"$SignUp" withProperties:nil withType:@"track_signup"];
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
     BOOL isFirstTrackInstallation = NO;
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasTrackInstallation"]) {
+    NSString *userDefaultsKey = nil;
+    if (disableCallback) {
+        userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
+    } else {
+        userDefaultsKey = @"HasTrackInstallation";
+    }
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
         isFirstTrackInstallation = YES;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasTrackInstallation"];
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
     
@@ -1463,43 +1469,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:@"$ios_install_source"];
         }
 
+        if (disableCallback) {
+            [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
+        }
+
         if (propertyDict != nil) {
             [properties addEntriesFromDictionary:propertyDict];
         }
 
         // 先发送 track
         [self track:event withProperties:properties withType:@"track"];
-    
+
         // 再发送 profile_set_once
         [self track:nil withProperties:properties withType:@"profile_set_once"];
     }
 }
 
-- (void)trackInstallation:(NSString *)event {
-    BOOL isFirstTrackInstallation = NO;
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasTrackInstallation"]) {
-        isFirstTrackInstallation = YES;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasTrackInstallation"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
-    }
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
+}
 
-    if (isFirstTrackInstallation) {
-        // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-    
-        // 通过 '$ios_install_source' 属性标记渠道追踪请求
-        NSString *idfa = [self getIDFA];
-        NSDictionary *properties = nil;
-        if (idfa != nil) {
-            properties = @{@"$ios_install_source" : [NSString stringWithFormat:@"idfa=%@", idfa]};
-        } else {
-            properties = @{@"$ios_install_source" : @""};
-        }
-        // 先发送 track
-        [self track:event withProperties:properties withType:@"track"];
-    
-        // 再发送 profile_set_once
-        [self track:nil withProperties:properties withType:@"profile_set_once"];
-    }
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
 }
 
 - (NSString  *)getIDFA {
