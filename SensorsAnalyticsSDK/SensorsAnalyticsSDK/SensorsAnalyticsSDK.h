@@ -38,14 +38,14 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIImage (SensorsAnalytics)
-@property (assign,nonatomic) NSString* sensorsAnalyticsImageName;
+@property (nonatomic,copy) NSString* sensorsAnalyticsImageName;
 @end
 
 @interface UIView (SensorsAnalytics)
 - (nullable UIViewController *)viewController;
 
 //viewID
-@property (assign,nonatomic) NSString* sensorsAnalyticsViewID;
+@property (copy,nonatomic) NSString* sensorsAnalyticsViewID;
 
 //AutoTrack 时，是否忽略该 View
 @property (nonatomic,assign) BOOL sensorsAnalyticsIgnoreView;
@@ -54,7 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic,assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
 
 //AutoTrack 时，View 的扩展属性
-@property (assign,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
+@property (strong,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
 
 @property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
 @end

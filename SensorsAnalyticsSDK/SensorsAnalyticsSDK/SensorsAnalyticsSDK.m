@@ -32,7 +32,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.8"
+#define VERSION @"1.8.9"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -64,7 +64,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 }
 
 - (void)setSensorsAnalyticsImageName:(NSString *)sensorsAnalyticsImageName {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsImageName", sensorsAnalyticsImageName, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @"sensorsAnalyticsImageName", sensorsAnalyticsImageName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 @end
 
@@ -86,7 +86,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 }
 
 - (void)setSensorsAnalyticsViewID:(NSString *)sensorsAnalyticsViewID {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsViewID", sensorsAnalyticsViewID, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @"sensorsAnalyticsViewID", sensorsAnalyticsViewID, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
 //ignoreView
@@ -95,7 +95,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 }
 
 - (void)setSensorsAnalyticsIgnoreView:(BOOL)sensorsAnalyticsIgnoreView {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsIgnoreView", [NSNumber numberWithBool:sensorsAnalyticsIgnoreView], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @"sensorsAnalyticsIgnoreView", [NSNumber numberWithBool:sensorsAnalyticsIgnoreView], OBJC_ASSOCIATION_ASSIGN);
 }
 
 //afterSendAction
@@ -104,7 +104,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 }
 
 - (void)setSensorsAnalyticsAutoTrackAfterSendAction:(BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction", [NSNumber numberWithBool:sensorsAnalyticsAutoTrackAfterSendAction], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction", [NSNumber numberWithBool:sensorsAnalyticsAutoTrackAfterSendAction], OBJC_ASSOCIATION_ASSIGN);
 }
 
 
@@ -122,7 +122,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 }
 
 - (void)setSensorsAnalyticsDelegate:(id)sensorsAnalyticsDelegate {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_ASSIGN);
 }
 @end
 
