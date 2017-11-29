@@ -1,5 +1,5 @@
 /**
- @file LFCGzipUtility.h
+ @file SAGzipUtility.h
  @author Clint Harris (www.clintharris.net)
  
  Note: The code in this file has been commented so as to be compatible with
@@ -10,7 +10,7 @@
 #import <Foundation/Foundation.h>
 
 
-@interface LFCGzipUtility : NSObject {
+@interface SAGzipUtility : NSObject {
     
 }
 

@@ -1,5 +1,5 @@
 /**
- @file LFCGzipUtility.m
+ @file SAGzipUtility.m
  @author Clint Harris (www.clintharris.net)
  
  Note: The code in this file has been commented so as to be compatible with
@@ -8,10 +8,10 @@
  */
 #import "zlib.h"
 
-#import "LFCGzipUtility.h"
+#import "SAGzipUtility.h"
 
 
-@implementation LFCGzipUtility
+@implementation SAGzipUtility
 
 /*******************************************************************************
  See header for documentation.

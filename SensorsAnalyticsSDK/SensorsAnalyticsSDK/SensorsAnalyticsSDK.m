@@ -15,7 +15,7 @@
 #import <UIKit/UIScreen.h>
 
 #import "JSONUtil.h"
-#import "LFCGzipUtility.h"
+#import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
 #import "NSData+SABase64.h"
 #import "SADesignerConnection.h"
@@ -32,7 +32,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.10"
+#define VERSION @"1.8.11"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -982,7 +982,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 1. 先完成这一系列Json字符串的拼接
             jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
             // 2. 使用gzip进行压缩
-            zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+            zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
             // 3. base64
             b64String = [zippedData sa_base64EncodedString];
             int hashCode = [b64String sensorsdata_hashCode];

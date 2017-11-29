@@ -686,6 +686,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)trackInstallation:(NSString *)event;
 
+- (void)trackFromH5WithEvent:(NSString *)eventInfo;
+
 /**
  * @abstract
  * 在AutoTrack时，用户可以设置哪些controlls不被AutoTrack
