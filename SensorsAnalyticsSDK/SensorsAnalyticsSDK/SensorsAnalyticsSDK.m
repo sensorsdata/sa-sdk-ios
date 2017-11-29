@@ -32,7 +32,7 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.9"
+#define VERSION @"1.8.10"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -186,6 +186,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
     BOOL _applicationWillResignActive;
+    BOOL _clearReferrerWhenAppEnd;
 	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
     SensorsAnalyticsNetworkType _networkTypePolicy;
 }
@@ -265,6 +266,86 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return distinctId;
 }
 
+- (BOOL)shouldTrackClass:(Class)aClass {
+    static NSSet *blacklistedClasses = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        NSArray *_blacklistedViewControllerClassNames = @[@"SFBrowserRemoteViewController",
+                                                          @"SFSafariViewController",
+                                                          @"UIAlertController",
+                                                          @"UIInputWindowController",
+                                                          @"UINavigationController",
+                                                          @"UIKeyboardCandidateGridCollectionViewController",
+                                                          @"UICompatibilityInputViewController",
+                                                          @"UIApplicationRotationFollowingController",
+                                                          @"UIApplicationRotationFollowingControllerNoTouches",
+                                                          @"AVPlayerViewController",
+                                                          @"UIActivityGroupViewController",
+                                                          @"UIReferenceLibraryViewController",
+                                                          @"UIKeyboardCandidateRowViewController",
+                                                          @"UIKeyboardHiddenViewController",
+                                                          @"_UIAlertControllerTextFieldViewController",
+                                                          @"_UILongDefinitionViewController",
+                                                          @"_UIResilientRemoteViewContainerViewController",
+                                                          @"_UIShareExtensionRemoteViewController",
+                                                          @"_UIRemoteDictionaryViewController",
+                                                          @"UISystemKeyboardDockController",
+                                                          @"_UINoDefinitionViewController",
+                                                          @"UIImagePickerController",
+                                                          @"_UIActivityGroupListViewController",
+                                                          @"_UIRemoteViewController",
+                                                          @"_UIFallbackPresentationViewController",
+                                                          @"_UIDocumentPickerRemoteViewController",
+                                                          @"_UIAlertShimPresentingViewController",
+                                                          @"_UIWaitingForRemoteViewContainerViewController",
+                                                          @"UIAlertController",
+                                                          @"UIDocumentMenuViewController",
+                                                          @"UIActivityViewController",
+                                                          @"_UIActivityUserDefaultsViewController",
+                                                          @"_UIActivityViewControllerContentController",
+                                                          @"_UIRemoteInputViewController",
+                                                          @"UIViewController",
+                                                          @"UITableViewController",
+                                                          @"_UIUserDefaultsActivityNavigationController",
+                                                          @"UISnapshotModalViewController",
+                                                          @"WKActionSheet",
+                                                          @"DDSafariViewController",
+                                                          @"SFAirDropActivityViewController",
+                                                          @"CKSMSComposeController",
+                                                          @"DDParsecLoadingViewController",
+                                                          @"PLUIPrivacyViewController",
+                                                          @"PLUICameraViewController",
+                                                          @"SLRemoteComposeViewController",
+                                                          @"CAMViewfinderViewController",
+                                                          @"DDParsecNoDataViewController",
+                                                          @"CAMPreviewViewController",
+                                                          @"DDParsecCollectionViewController",
+                                                          @"SLComposeViewController",
+                                                          @"DDParsecRemoteCollectionViewController",
+                                                          @"AVFullScreenPlaybackControlsViewController",
+                                                          @"PLPhotoTileViewController",
+                                                          @"AVFullScreenViewController",
+                                                          @"CAMImagePickerCameraViewController",
+                                                          @"CKSMSComposeRemoteViewController",
+                                                          @"PUPhotoPickerHostViewController",
+                                                          @"PUUIAlbumListViewController",
+                                                          @"PUUIPhotosAlbumViewController",
+                                                          @"SFAppAutoFillPasswordViewController",
+                                                          @"PUUIMomentsGridViewController",
+                                                          @"SFPasswordRemoteViewController",
+                                                          ];
+        NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
+        for (NSString *className in _blacklistedViewControllerClassNames) {
+            if (NSClassFromString(className) != nil) {
+                [transformedClasses addObject:NSClassFromString(className)];
+            }
+        }
+        blacklistedClasses = [transformedClasses copy];
+    });
+
+    return ![blacklistedClasses containsObject:aClass];
+}
+
 - (instancetype)initWithServerURL:(NSString *)serverURL
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
@@ -315,6 +396,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         _referrerScreenUrl = nil;
         _lastScreenTrackProperties = nil;
         _applicationWillResignActive = NO;
+        _clearReferrerWhenAppEnd = NO;
         
         _ignoredViewControllers = [[NSMutableArray alloc] init];
         _ignoredViewTypeList = [[NSMutableArray alloc] init];
@@ -572,7 +654,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [self resetAnonymousId];
                 bestId = [self anonymousId];
             }
-            
+
             [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
 
             if([type isEqualToString:@"track_signup"]){
@@ -2014,6 +2096,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return _referrerScreenUrl;
 }
 
+- (void)clearReferrerWhenAppEnd {
+    _clearReferrerWhenAppEnd = YES;
+}
+
 - (NSDictionary *)getLastScreenTrackProperties {
     return _lastScreenTrackProperties;
 }
@@ -2180,15 +2266,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     NSString *screenName = NSStringFromClass(klass);
-    if ([screenName isEqualToString:@"SFBrowserRemoteViewController"] ||
-        [screenName isEqualToString:@"SFSafariViewController"] ||
-        [screenName isEqualToString:@"UIAlertController"] ||
-        [screenName isEqualToString:@"UIInputWindowController"] ||
-        [screenName isEqualToString:@"UINavigationController"] ||
-        [screenName isEqualToString:@"UIKeyboardCandidateGridCollectionViewController"] ||
-        [screenName isEqualToString:@"UICompatibilityInputViewController"] ||
-        [screenName isEqualToString:@"UIApplicationRotationFollowingController"] ||
-        [screenName isEqualToString:@"UIApplicationRotationFollowingControllerNoTouches"]) {
+    if (![self shouldTrackClass:klass]) {
         return;
     }
     
@@ -2734,6 +2812,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (_autoTrack) {
         // 追踪 AppEnd 事件
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+            if (_clearReferrerWhenAppEnd) {
+                _referrerScreenUrl = nil;
+            }
             [self track:APP_END_EVENT];
         }
     }

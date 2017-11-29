@@ -704,6 +704,12 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * App 退出或进到后台时清空 referrer，默认情况下不清空
+ */
+- (void)clearReferrerWhenAppEnd;
+
+/**
+ * @abstract
  * 获取LastScreenTrackProperties
  *
  * @return LastScreenTrackProperties
