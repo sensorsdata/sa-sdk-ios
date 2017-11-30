@@ -26,6 +26,10 @@
 		002DB9531EB1648800A9632C /* UIApplication+AutoTrack.h in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94B1EB1647F00A9632C /* UIApplication+AutoTrack.h */; };
 		002DB9541EB1648800A9632C /* UIApplication+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */; };
 		002DB9571EB1681900A9632C /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 002DB9561EB1681900A9632C /* AutoTrackViewController.m */; };
+		0038C5D71FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = 0038C5D51FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h */; };
+		0038C5D81FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5D61FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m */; };
+		0038C5D91FCFA32D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5D51FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h */; };
+		0038C5DA1FCFA32D00C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = 0038C5D61FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m */; };
 		005EB7E71F9723F700C14AF1 /* AutoTrackUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0025D99C1F04C03D001248F4 /* AutoTrackUtils.m */; };
 		008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */ = {isa = PBXBuildFile; fileRef = 008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */; };
 		008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = 008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */; };
@@ -186,6 +190,8 @@
 		002DB94C1EB1647F00A9632C /* UIApplication+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+AutoTrack.m"; sourceTree = "<group>"; };
 		002DB9551EB1681900A9632C /* AutoTrackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackViewController.h; sourceTree = "<group>"; };
 		002DB9561EB1681900A9632C /* AutoTrackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackViewController.m; sourceTree = "<group>"; };
+		0038C5D51FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsExceptionHandler.h; sourceTree = "<group>"; };
+		0038C5D61FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsExceptionHandler.m; sourceTree = "<group>"; };
 		008D82AC1F0E22ED00052CFF /* NSString+HashCode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+HashCode.h"; sourceTree = "<group>"; };
 		008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
 		00D3B57B1EFB382A0086F1F8 /* UITabBar+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UITabBar+AutoTrack.m"; sourceTree = "<group>"; };
@@ -370,6 +376,8 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				0038C5D51FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h */,
+				0038C5D61FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */,
@@ -480,6 +488,7 @@
 			files = (
 				008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */,
 				A3746E9C1C313E15008A50A3 /* SAApplicationStateSerializer.h in Headers */,
+				0038C5D71FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				A3E388A11D509B8900F6B9FC /* SAReachability.h in Headers */,
 				A3997A331C3AC3B8005A9374 /* SAUIControlBinding.h in Headers */,
 				00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */,
@@ -616,8 +625,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0038C5D91FCFA32D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Sources */,
+				0038C5DA1FCFA32D00C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
 				0009198D1F974D1C00E5D3C5 /* UIViewController+AutoTrack.h in Sources */,
 				0009198E1F974D1C00E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
+				00EA99F61EEFBCEA005E524F /* UIActionSheet+AutoTrack.h in Sources */,
 				000919871F973CD100E5D3C5 /* UIImage+AutoTrack.h in Sources */,
 				000919881F973CD100E5D3C5 /* UIImage+AutoTrack.m in Sources */,
 				008D82B21F0E2EFA00052CFF /* NSString+HashCode.h in Sources */,
@@ -626,7 +638,6 @@
 				0025E0491F09D79A001248F4 /* AutoTrackUtils.m in Sources */,
 				00D3B57F1EFB38360086F1F8 /* UITabBar+AutoTrack.m in Sources */,
 				00D3B5801EFB38360086F1F8 /* UITabBar+AutoTrack.h in Sources */,
-				00EA99F61EEFBCEA005E524F /* UIActionSheet+AutoTrack.h in Sources */,
 				00EA99F71EEFBCEA005E524F /* UIActionSheet+AutoTrack.m in Sources */,
 				00EA99EE1EEFAF75005E524F /* UIAlertView+AutoTrack.h in Sources */,
 				00EA99EF1EEFAF75005E524F /* UIAlertView+AutoTrack.m in Sources */,
@@ -709,6 +720,7 @@
 				A3746E881C31196C008A50A3 /* SADesignerDeviceInfoMessage.m in Sources */,
 				A3746EC91C32D789008A50A3 /* SADesignerConnection.m in Sources */,
 				A3746EC51C3190E7008A50A3 /* UIView+SAHelpers.m in Sources */,
+				0038C5D81FCFA2F300C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
 				00EA99F31EEFB7DB005E524F /* UIActionSheet+AutoTrack.m in Sources */,
 				A3746EAF1C318B65008A50A3 /* SAObjectSerializerConfig.m in Sources */,
 				00EA99ED1EEFAEC6005E524F /* UIAlertView+AutoTrack.m in Sources */,

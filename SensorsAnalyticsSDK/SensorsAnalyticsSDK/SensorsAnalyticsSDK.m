@@ -32,7 +32,8 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
-#define VERSION @"1.8.11"
+#import "SensorsAnalyticsExceptionHandler.h"
+#define VERSION @"1.8.12"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -885,6 +886,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     BOOL isReal;
     self.distinctId = [[self class] getUniqueHardwareId:&isReal];
     [self archiveDistinctId];
+}
+
+- (void)trackAppCrash {
+    // Install uncaught exception handlers first
+    [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
 
 - (void)enableAutoTrack {

@@ -407,6 +407,12 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (void)resetAnonymousId;
 
 /**
+ * @abstract
+ * 自动收集 App Crash 日志，该功能默认是关闭的
+ */
+- (void)trackAppCrash;
+
+/**
  * @property
  *
  * @abstract
