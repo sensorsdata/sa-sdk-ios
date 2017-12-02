@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.12"
+#define VERSION @"1.8.13"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1973,67 +1973,43 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SADebug(@"In unit test, set NetWorkStates to wifi");
     return @"WIFI";
 #endif
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-    SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
-    SANetworkStatus status = [reachability currentReachabilityStatus];
-    
     NSString* network = @"NULL";
-    if (status == SAReachableViaWiFi) {
-        network = @"WIFI";
-    } else if (status == SAReachableViaWWAN) {
-        CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
-        if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
-            network = @"2G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
-            network = @"2G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
-            network = @"3G";
-        } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
-            network = @"4G";
-        }
-    }
-    
-    return network;
-#else
-    UIApplication *app = [UIApplication sharedApplication];
-    NSArray *children = [[[app valueForKeyPath:@"statusBar"]valueForKeyPath:@"foregroundView"]subviews];
-    //获取到网络返回码
-    for (id child in children) {
-        if ([child isKindOfClass:NSClassFromString(@"UIStatusBarDataNetworkItemView")]) {
-            //获取到状态栏
-            int netType = [[child valueForKeyPath:@"dataNetworkType"]intValue];
-            switch (netType) {
-                case 0:
-                    //无网模式
-                    return @"NULL"
-                case 1:
-                    return @"2G";
-                case 2:
-                    return @"3G";
-                case 3:
-                    return @"4G";
-                case 5:
-                    return @"WIFI";
+    @try {
+        SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
+        SANetworkStatus status = [reachability currentReachabilityStatus];
+
+        if (status == SAReachableViaWiFi) {
+            network = @"WIFI";
+        } else if (status == SAReachableViaWWAN) {
+            CTTelephonyNetworkInfo *netinfo = [[CTTelephonyNetworkInfo alloc] init];
+            if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+                network = @"2G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
+                network = @"2G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
+                network = @"3G";
+            } else if ([netinfo.currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
+                network = @"4G";
             }
         }
+    } @catch(NSException *exception) {
+        SADebug(@"%@: %@", self, exception);
     }
-    return @"NULL";
-#endif
+    return network;
 }
 
 - (UInt64)flushInterval {
