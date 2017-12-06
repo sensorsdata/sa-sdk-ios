@@ -285,7 +285,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                     andConfigureURL:(NSString *)configureURL
+                                     andConfigureURL:(nullable NSString *)configureURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**

@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.13"
+#define VERSION @"1.8.14"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2342,66 +2342,88 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self track:APP_VIEW_SCREEN_EVENT withProperties:properties];
 }
 
-- (void)_enableAutoTrack {
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-    void (^reactNativeAutoTrackBlock)(id, SEL, id, id) = ^(id obj, SEL sel, NSNumber* reactTag, id blockNativeResponder) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            @try {
-                //关闭 AutoTrack
-                if (![self isAutoTrackEnabled]) {
+static inline void __sa_methodExchange(const char *className, const char *originalMethodName, const char *replacementMethodName, IMP imp) {
+    @try {
+        Class cls = objc_getClass(className);//得到指定类的类定义
+        SEL oriSEL = sel_getUid(originalMethodName);//把originalMethodName注册到RunTime系统中
+        Method oriMethod = class_getInstanceMethod(cls, oriSEL);//获取实例方法
+        struct objc_method_description *desc = method_getDescription(oriMethod);//获得指定方法的描述
+        if (desc->types) {
+            SEL buSel = sel_registerName(replacementMethodName);//把replacementMethodName注册到RunTime系统中
+            if (class_addMethod(cls, buSel, imp, desc->types)) {//通过运行时，把方法动态添加到类中
+                Method buMethod  = class_getInstanceMethod(cls, buSel);//获取实例方法
+                method_exchangeImplementations(oriMethod, buMethod);//交换方法
+            }
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
+    }
+}
+
+static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactTag, BOOL blockNativeResponder){
+    //先执行原来的方法
+    SEL oriSel = sel_getUid("sda_setJSResponder:blockNativeResponder:");
+    void (*setJSResponderWithBlockNativeResponder)(id, SEL, id, BOOL) = (void (*)(id,SEL,id,BOOL))[NSClassFromString(@"RCTUIManager") instanceMethodForSelector:oriSel];//函数指针
+    setJSResponderWithBlockNativeResponder(obj, cmd, reactTag, blockNativeResponder);
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        @try {
+            //关闭 AutoTrack
+            if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
+                return;
+            }
+
+            //忽略 $AppClick 事件
+            if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+                return;
+            }
+
+            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[NSClassFromString(@"RNView") class]]) {
+                return;
+            }
+
+            if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
+                SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
+                UIView *uiView = ((UIView* (*)(id, SEL, NSNumber*))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
+                NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+
+                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
+                    //好像跟 UISwitch 会重复
                     return;
                 }
 
-                //忽略 $AppClick 事件
-                if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-                    return;
-                }
+                [properties setValue:@"RNView" forKey:@"$element_type"];
+                [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:@"$element_content"];
 
-                if ([self isViewTypeIgnored:[NSClassFromString(@"RNView") class]]) {
-                    return;
-                }
-
-                if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
-                    SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
-                    UIView *uiView = ((UIView* (*)(id, SEL, NSNumber*))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
-                    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
-                    if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
-                        //好像跟 UISwitch 会重复
-                        return;
-                    }
-
-                    [properties setValue:@"RNView" forKey:@"$element_type"];
-                    [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:@"$element_content"];
-
-                    UIViewController *viewController = nil;
+                UIViewController *viewController = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    if ([uiView respondsToSelector:NSSelectorFromString(@"reactViewController")]) {
-                        viewController = [uiView performSelector:NSSelectorFromString(@"reactViewController")];
-                    }
-#pragma clang diagnostic pop
-                    if (viewController) {
-                        //获取 Controller 名称($screen_name)
-                        NSString *screenName = NSStringFromClass([viewController class]);
-                        [properties setValue:screenName forKey:@"$screen_name"];
-
-                        NSString *controllerTitle = viewController.navigationItem.title;
-                        if (controllerTitle != nil) {
-                            [properties setValue:viewController.navigationItem.title forKey:@"$title"];
-                        }
-                    }
-
-                    [self track:@"$AppClick" withProperties:properties];
+                if ([uiView respondsToSelector:NSSelectorFromString(@"reactViewController")]) {
+                    viewController = [uiView performSelector:NSSelectorFromString(@"reactViewController")];
                 }
-            } @catch (NSException *exception) {
-                SAError(@"%@ error: %@", self, exception);
-            }
-        });
+#pragma clang diagnostic pop
+                if (viewController) {
+                    //获取 Controller 名称($screen_name)
+                    NSString *screenName = NSStringFromClass([viewController class]);
+                    [properties setValue:screenName forKey:@"$screen_name"];
 
-    };
+                    NSString *controllerTitle = viewController.navigationItem.title;
+                    if (controllerTitle != nil) {
+                        [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                    }
+                }
+
+                [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
+            }
+        } @catch (NSException *exception) {
+            SAError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
+        }
+    });
+}
 #endif
 
+- (void)_enableAutoTrack {
     void (^unswizzleUITableViewAppClickBlock)(id, SEL, id) = ^(id obj, SEL sel, NSNumber* a) {
         UIViewController *controller = (UIViewController *)obj;
         if (!controller) {
@@ -2485,7 +2507,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
             if (NSClassFromString(@"RCTUIManager")) {
-                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+//                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+                __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
             }
 #endif
             NSError *error = NULL;
