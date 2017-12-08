@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.14"
+#define VERSION @"1.8.15"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1393,7 +1393,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         if (propertieDict) {
-            for (id key in propertieDict) {
+            NSArray *keys = propertieDict.allKeys;
+            for (id key in keys) {
                 NSObject *obj = propertieDict[key];
                 if ([obj isKindOfClass:[NSDate class]]) {
                     // 序列化所有 NSDate 类型
@@ -2092,7 +2093,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
             NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
             NSString * newAgent = oldAgent;
-            if (![oldAgent containsString:@"sa-sdk-ios"]){
+            if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
             }
 
