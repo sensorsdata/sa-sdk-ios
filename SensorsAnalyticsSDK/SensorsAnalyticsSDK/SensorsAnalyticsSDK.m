@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.15"
+#define VERSION @"1.8.16"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -190,6 +190,8 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     BOOL _clearReferrerWhenAppEnd;
 	SensorsAnalyticsAutoTrackEventType _autoTrackEventType;
     SensorsAnalyticsNetworkType _networkTypePolicy;
+    NSString *_deviceModel;
+    NSString *_osVersion;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -1205,7 +1207,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL) isValidName : (NSString *) name {
-    return [self.regexTestName evaluateWithObject:name];
+    @try {
+        if (_deviceModel == nil) {
+            _deviceModel = [self deviceModel];
+        }
+
+        if (_osVersion == nil) {
+            UIDevice *device = [UIDevice currentDevice];
+            _osVersion = [device systemVersion];
+        }
+
+        //据反馈，该函数在 iPhone 8、iPhone 8 Plus，并且系统版本号为 11.0 上可能会 crash，具体原因暂未查明
+        if ([_osVersion isEqualToString:@"11.0"]) {
+            if ([_deviceModel isEqualToString:@"iPhone10,1"] ||
+                [_deviceModel isEqualToString:@"iPhone10,4"] ||
+                [_deviceModel isEqualToString:@"iPhone10,2"] ||
+                [_deviceModel isEqualToString:@"iPhone10,5"]) {
+                return YES;
+            }
+        }
+        return [self.regexTestName evaluateWithObject:name];
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+        return NO;
+    }
 }
 
 - (NSString *)filePathForData:(NSString *)data {
@@ -1756,7 +1781,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSDictionary *)collectAutomaticProperties {
     NSMutableDictionary *p = [NSMutableDictionary dictionary];
     UIDevice *device = [UIDevice currentDevice];
-    NSString *deviceModel = [self deviceModel];
+    _deviceModel = [self deviceModel];
+    _osVersion = [device systemVersion];
     struct CGSize size = [UIScreen mainScreen].bounds.size;
     CTCarrier *carrier = [[[CTTelephonyNetworkInfo alloc] init] subscriberCellularProvider];
     // Use setValue semantics to avoid adding keys where value can be nil.
@@ -1791,8 +1817,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   @"$lib_version": [self libVersion],
                                   @"$manufacturer": @"Apple",
                                   @"$os": @"iOS",
-                                  @"$os_version": [device systemVersion],
-                                  @"$model": deviceModel,
+                                  @"$os_version": _osVersion,
+                                  @"$model": _deviceModel,
                                   @"$screen_height": @((NSInteger)size.height),
                                   @"$screen_width": @((NSInteger)size.width),
                                       }];
