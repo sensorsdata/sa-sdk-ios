@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.16"
+#define VERSION @"1.8.17"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -222,6 +222,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return sharedInstance;
 }
 
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
+                                            andConfigureURL:nil
+                                         andVTrackServerURL:nil
+                                               andDebugMode:debugMode];
+}
+
 + (SensorsAnalyticsSDK *)sharedInstance {
     return sharedInstance;
 }
@@ -353,26 +361,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   andConfigureURL:(NSString *)configureURL
                andVTrackServerURL:(NSString *)vtrackServerURL
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    
-    if (self = [self init]) {
-        if (serverURL == nil || [serverURL length] == 0) {
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                @throw [NSException exceptionWithName:@"InvalidArgumentException"
-                                               reason:@"serverURL is nil"
-                                             userInfo:nil];
-            } else {
-                SAError(@"serverURL is nil");
-            }
-        }
-
-        if (debugMode != SensorsAnalyticsDebugOff) {
-            // 将 Server URI Path 替换成 Debug 模式的 '/debug'
-            NSURL *url = [[[NSURL URLWithString:serverURL] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
-            serverURL = [url absoluteString];
-        }
-
-        _autoTrackEventType = SensorsAnalyticsEventTypeNone;
-        _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+    @try {
+        if (self = [self init]) {
+            _autoTrackEventType = SensorsAnalyticsEventTypeNone;
+            _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
         // 将 Configure URI Path 末尾补齐 iOS.conf
         NSURL *url = [NSURL URLWithString:configureURL];
@@ -383,11 +375,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
         
-        self.serverURL = serverURL;
         self.configureURL = configureURL;
         self.vtrackServerURL = vtrackServerURL;
         _debugMode = debugMode;
         
+		[self setServerUrl:serverURL];
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
@@ -438,33 +430,118 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self setUpListeners];
         
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-        [self executeEventBindings:self.eventBindings];
+            if (configureURL != nil) {
+                [self executeEventBindings:self.eventBindings];
+            }
 #endif
         // XXX: App Active 的时候会获取配置，此处不需要获取
 //        [self checkForConfigure];
         // XXX: App Active 的时候会启动计时器，此处不需要启动
 //        [self startFlushTimer];
 
-        SAError(@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
-                self, serverURL, configureURL, [self debugModeToString:debugMode]);
-
-        //打开debug模式，弹出提示
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            NSString *alertMessage = nil;
-            if (_debugMode == SensorsAnalyticsDebugOnly) {
-                alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-            } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-                alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+            NSString *logMessage = nil;
+            if (configureURL != nil) {
+                logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
+                              self, serverURL, configureURL, [self debugModeToString:debugMode]];
+            } else {
+                logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
+                              self, serverURL, [self debugModeToString:debugMode]];
             }
-            if (alertMessage != nil) {
-                [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-            }
-        }
+            BOOL printLog = NO;
+#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
+            printLog = YES;
 #endif
-    }
 
+            if (_debugMode != SensorsAnalyticsDebugOff) {
+                printLog = YES;
+            }
+
+            if (printLog) {
+                NSLog(@"%@", logMessage);
+            }
+
+            //打开debug模式，弹出提示
+#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
+            if (_debugMode != SensorsAnalyticsDebugOff) {
+                [self checkDebugMode:_serverURL];
+            }
+#endif
+        }
+    } @catch(NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
     return self;
+}
+
+- (void)setServerUrl:(NSString *)serverUrl {
+    if (serverUrl == nil || [serverUrl length] == 0 || _debugMode == SensorsAnalyticsDebugOff) {
+        _serverURL = serverUrl;
+    } else {
+        // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+        NSURL *url = [[[NSURL URLWithString:serverUrl] URLByDeletingLastPathComponent] URLByAppendingPathComponent:@"debug"];
+        _serverURL = [url absoluteString];
+    }
+}
+
+- (void)checkDebugMode:(NSString *)serverUrl {
+    if (serverUrl == nil || [serverUrl length] == 0) {
+        [self disableDebugMode];
+        return;
+    }
+    __block BOOL disableDebugMode = YES;
+    dispatch_semaphore_t checkDebugModeSem = dispatch_semaphore_create(0);
+    @try {
+        NSURL *URL = [NSURL URLWithString:serverUrl];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+        [request setHTTPMethod:@"GET"];
+        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
+            if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
+                SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
+                dispatch_semaphore_signal(checkDebugModeSem);
+                return;
+            }
+
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+            if([urlResponse statusCode] == 200) {
+                NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+                if (urlResponseContent != nil) {
+                    if ([urlResponseContent rangeOfString:@"Sensors Analytics is ready to receive your data!"].location != NSNotFound) {
+                        disableDebugMode = NO;
+                        NSString *alertMessage = nil;
+                        if (_debugMode == SensorsAnalyticsDebugOnly) {
+                            alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+                        } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
+                            alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+                        }
+                        [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
+                    }
+                }
+            }
+            dispatch_semaphore_signal(checkDebugModeSem);
+        };
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
+        NSURLSession *session = [NSURLSession sharedSession];
+        NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
+
+        [task resume];
+#else
+        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
+         ^(NSURLResponse *response, NSData* data, NSError *error) {
+             return block(data, response, error);
+         }];
+#endif
+        dispatch_semaphore_wait(checkDebugModeSem, DISPATCH_TIME_FOREVER);
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    } @finally {
+        if (disableDebugMode) {
+            [self disableDebugMode];
+        }
+    }
+}
+
+- (void)disableDebugMode {
+    _debugMode = SensorsAnalyticsDebugOff;
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
@@ -502,7 +579,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 return;
             }
             _debugAlertViewHasShownNumber += 1;
-            NSString *alertTitle = @"神策重要提示";
+            NSString *alertTitle = @"SensorsData 重要提示";
             if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
                 UIAlertController *connectAlert = [UIAlertController
                                                    alertControllerWithTitle:alertTitle
@@ -549,14 +626,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)enableEditingVTrack {
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-    dispatch_async(dispatch_get_main_queue(), ^{
-        // 5 秒
-        self.vtrackConnectorTimer = [NSTimer scheduledTimerWithTimeInterval:10
-                                                                     target:self
-                                                                   selector:@selector(connectToVTrackDesigner)
-                                                                   userInfo:nil
-                                                                    repeats:YES];
-    });
+    if (_configureURL != nil) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 5 秒
+            self.vtrackConnectorTimer = [NSTimer scheduledTimerWithTimeInterval:10
+                                                                         target:self
+                                                                       selector:@selector(connectToVTrackDesigner)
+                                                                       userInfo:nil
+                                                                        repeats:YES];
+        });
+    }
 #endif
 }
 
@@ -588,16 +667,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (UIViewController *)currentViewController {
-    @try {
-        UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
-        if (rootViewController != nil) {
-            UIViewController *currentVC = [self getCurrentVCFrom:rootViewController];
-            return currentVC;
+    __block UIViewController *currentVC = nil;
+    if ([NSThread isMainThread]) {
+        @try {
+            UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+            if (rootViewController != nil) {
+                currentVC = [self getCurrentVCFrom:rootViewController];
+            }
+        } @catch (NSException *exception) {
+            SAError(@"%@ error: %@", self, exception);
         }
-    } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        return currentVC;
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), ^{
+            @try {
+                UIViewController *rootViewController = [UIApplication sharedApplication].delegate.window.rootViewController;
+                if (rootViewController != nil) {
+                    currentVC = [self getCurrentVCFrom:rootViewController];
+                }
+            } @catch (NSException *exception) {
+                SAError(@"%@ error: %@", self, exception);
+            }
+        });
+        return currentVC;
     }
-    return nil;
 }
 
 - (UIViewController *)getCurrentVCFrom:(UIViewController *)rootVC {
@@ -708,6 +801,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 [propertiesDict removeObjectForKey:@"$is_first_time"];
                 [propertiesDict removeObjectForKey:@"_nocache"];
+            }
+
+            if (_debugMode != SensorsAnalyticsDebugOff) {
+                SALog(@"track event from H5:%@", eventDict);
             }
 
             if([type isEqualToString:@"track_signup"]) {
@@ -975,6 +1072,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
+    if (_serverURL == nil || [_serverURL isEqualToString:@""]) {
+        return;
+    }
     // 判断当前网络类型是否符合同步数据的网络策略
     NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
     if (!([self toNetworkType:networkType] & _networkTypePolicy)) {
@@ -1120,7 +1220,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         // 1. 先完成这一系列Json字符串的拼接
         NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
         // 2. 使用gzip进行压缩
-        NSData *zippedData = [LFCGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
         // 3. base64
         NSString *b64String = [zippedData sa_base64EncodedString];
         int hashCode = [b64String sensorsdata_hashCode];
@@ -1483,15 +1583,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   };
         }
         
+        if (_debugMode != SensorsAnalyticsDebugOff) {
+            SALog(@"track event:%@", e);
+        }
+
         [self enqueueWithType:type andEvent:[e copy]];
         
         if (_debugMode != SensorsAnalyticsDebugOff) {
             // 在DEBUG模式下，直接发送事件
-            [self _flush:NO];
+            [self flush];
         } else {
             // 否则，在满足发送条件时，发送事件
             if ([type isEqualToString:@"track_signup"] || [[self messageQueue] count] >= self.flushBulkSize) {
-                [self _flush:NO];
+                [self flush];
             }
         }
     });
@@ -1595,7 +1699,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [self track:event withProperties:properties withType:@"track"];
 
         // 再发送 profile_set_once
-        [self track:nil withProperties:properties withType:@"profile_set_once"];
+        NSMutableDictionary *profileProperties = [properties mutableCopy];
+        [profileProperties setValue:[NSDate date] forKey:@"$first_visit_time"];
+        [self track:nil withProperties:profileProperties withType:@"profile_set_once"];
+
+        [self flush];
     }
 }
 
@@ -1610,7 +1718,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSString  *)getIDFA {
     NSString *idfa = nil;
     @try {
-#if defined(SENSORS_ANALYTICS_IDFA)
+//#if defined(SENSORS_ANALYTICS_IDFA)
         Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
         if (ASIdentifierManagerClass) {
             SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
@@ -1624,9 +1732,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 idfa = temp;
             }
         }
-        #endif
+//#endif
         return idfa;
     } @catch (NSException *exception) {
+        SADebug(@"%@: %@", self, exception);
         return idfa;
     }
 }
@@ -1869,7 +1978,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self unarchiveDistinctId];
     [self unarchiveLoginId];
     [self unarchiveSuperProperties];
-    [self unarchiveEventBindings];
+#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
+    if (_configureURL != nil) {
+        [self unarchiveEventBindings];
+    }
+#endif
     [self unarchiveFirstDay];
 }
 
@@ -2791,8 +2904,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-    if (self.checkForEventBindingsOnActive) {
-        [self checkForConfigure];
+    if (_configureURL != nil) {
+        if (self.checkForEventBindingsOnActive) {
+            [self checkForConfigure];
+        }
     }
 #endif
     

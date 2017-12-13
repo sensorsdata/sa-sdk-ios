@@ -284,7 +284,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return 返回的单例
  */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
                                      andConfigureURL:(nullable NSString *)configureURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
@@ -299,9 +299,21 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return 返回的单例
  */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                     andConfigureURL:(NSString *)configureURL
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
+                                     andConfigureURL:(nullable NSString *)configureURL
                                   andVTrackServerURL:(nullable NSString *)vtrackServerURL
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
+ *
+ * @param serverURL 收集事件的URL
+ * @param debugMode Sensors Analytics 的Debug模式
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**
@@ -314,6 +326,13 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstance;
+
+/**
+ * @abstract
+ * 设置当前 serverUrl
+ *
+ */
+- (void)setServerUrl:(NSString *)serverUrl;
 
 /**
  * @abstract
