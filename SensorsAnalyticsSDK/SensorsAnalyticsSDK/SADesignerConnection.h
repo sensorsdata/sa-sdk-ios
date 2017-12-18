@@ -20,7 +20,7 @@
 @property (nonatomic, assign) BOOL useGzip;
 
 - (instancetype)initWithURL:(NSURL *)url;
-- (instancetype)initWithURL:(NSURL *)url keepTrying:(BOOL)keepTrying connectCallback:(void (^)())connectCallback disconnectCallback:(void (^)())disconnectCallback;
+- (instancetype)initWithURL:(NSURL *)url keepTrying:(BOOL)keepTrying connectCallback:(void (^)(void))connectCallback disconnectCallback:(void (^)(void))disconnectCallback;
 
 - (void)setSessionObject:(id)object forKey:(NSString *)key;
 - (id)sessionObjectForKey:(NSString *)key;

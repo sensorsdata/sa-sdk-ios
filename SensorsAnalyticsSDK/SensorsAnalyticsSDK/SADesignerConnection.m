@@ -39,14 +39,14 @@
     SAWebSocket *_webSocket;
     NSOperationQueue *_commandQueue;
     UIView *_recordingView;
-    void (^_connectCallback)();
-    void (^_disconnectCallback)();
+    void (^_connectCallback)(void);
+    void (^_disconnectCallback)(void);
 }
 
 - (instancetype)initWithURL:(NSURL *)url
                  keepTrying:(BOOL)keepTrying
-            connectCallback:(void (^)())connectCallback
-         disconnectCallback:(void (^)())disconnectCallback {
+            connectCallback:(void (^)(void))connectCallback
+         disconnectCallback:(void (^)(void))disconnectCallback {
     self = [super init];
     if (self) {
         _typeToMessageClassMap = @{

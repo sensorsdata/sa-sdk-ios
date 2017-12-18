@@ -14,7 +14,10 @@
 // Cast to turn things that are not ids into NSMapTable keys
 #define MAPTABLE_ID(x) (__bridge id)((void *)x)
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 typedef void (^swizzleBlock)();
+#pragma clang diagnostic pop
 
 @interface SASwizzler : NSObject
 

@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.17"
+#define VERSION @"1.8.18"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -309,7 +309,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                           @"_UIDocumentPickerRemoteViewController",
                                                           @"_UIAlertShimPresentingViewController",
                                                           @"_UIWaitingForRemoteViewContainerViewController",
-                                                          @"UIAlertController",
                                                           @"UIDocumentMenuViewController",
                                                           @"UIActivityViewController",
                                                           @"_UIActivityUserDefaultsViewController",
@@ -485,6 +484,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)checkDebugMode:(NSString *)serverUrl {
     if (serverUrl == nil || [serverUrl length] == 0) {
+        SALog(@"In order to be safe (serverUrl is nil), we must disable debugMode");
         [self disableDebugMode];
         return;
     }
@@ -535,6 +535,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ error: %@", self, exception);
     } @finally {
         if (disableDebugMode) {
+            SALog(@"In order to be safe, we must disable debugMode");
             [self disableDebugMode];
         }
     }
@@ -586,16 +587,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                    message:message
                                                    preferredStyle:UIAlertControllerStyleAlert];
 
+                UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
                 [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+                    alertWindow.hidden = YES;
                     _debugAlertViewHasShownNumber -= 1;
                 }]];
                 if (showNoMore) {
                     [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                        alertWindow.hidden = YES;
                         _showDebugAlertView = NO;
                     }]];
                 }
 
-                UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
                 alertWindow.rootViewController = [[UIViewController alloc] init];
                 alertWindow.windowLevel = UIWindowLevelAlert + 1;
                 [alertWindow makeKeyAndVisible];
@@ -831,102 +834,106 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
-    SADebug(@"showUpWebView");
-    if (webView == nil) {
-        SADebug(@"showUpWebView == nil");
-        return NO;
-    }
-
-    if (request == nil) {
-        SADebug(@"request == nil");
-        return NO;
-    }
-
-    JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
-
-    NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    if (bridgeCallbackInfo) {
-        [properties addEntriesFromDictionary:bridgeCallbackInfo];
-    }
-    if (propertyDict) {
-        [properties addEntriesFromDictionary:propertyDict];
-    }
-    NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
-    NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-    NSString *scheme = @"sensorsanalytics://getAppInfo";
-    NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
-
-    NSString *trackEventScheme = @"sensorsanalytics://trackEvent";
-
-    //判断系统是否支持WKWebView
-    Class wkWebViewClass = NSClassFromString(@"WKWebView");
-
-    NSString *urlstr = request.URL.absoluteString;
-    if (urlstr == nil) {
-        return NO;
-    }
-    NSArray *urlArray = [urlstr componentsSeparatedByString:@"?"];
-    if (urlArray == nil) {
-        return NO;
-    }
-    //解析参数
-    NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
-    //判读是否有参数
-    if (urlArray.count > 1) {
-        //这里解析参数,将参数放入字典中
-        NSArray *paramsArray = [urlArray[1] componentsSeparatedByString:@"&"];
-        for (NSString *param in paramsArray) {
-            NSArray *keyValue = [param componentsSeparatedByString:@"="];
-            if (keyValue.count == 2) {
-                [paramsDic setObject:keyValue[1] forKey:keyValue[0]];
-            }
+    @try {
+        SADebug(@"showUpWebView");
+        if (webView == nil) {
+            SADebug(@"showUpWebView == nil");
+            return NO;
         }
-    }
 
-    if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
-        SADebug(@"showUpWebView: UIWebView");
-        if ([urlstr rangeOfString:scheme].location != NSNotFound) {
-            [webView stringByEvaluatingJavaScriptFromString:js];
-            return YES;
-        } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
-            if ([paramsDic count] > 0) {
-                NSString *eventInfo = [paramsDic objectForKey:@"event"];
-                if (eventInfo != nil) {
-                    NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                    [self trackFromH5WithEvent:encodedString];
+        if (request == nil) {
+            SADebug(@"request == nil");
+            return NO;
+        }
+
+        JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+
+        NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
+        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+        if (bridgeCallbackInfo) {
+            [properties addEntriesFromDictionary:bridgeCallbackInfo];
+        }
+        if (propertyDict) {
+            [properties addEntriesFromDictionary:propertyDict];
+        }
+        NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
+        NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+        NSString *scheme = @"sensorsanalytics://getAppInfo";
+        NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
+
+        NSString *trackEventScheme = @"sensorsanalytics://trackEvent";
+
+        //判断系统是否支持WKWebView
+        Class wkWebViewClass = NSClassFromString(@"WKWebView");
+
+        NSString *urlstr = request.URL.absoluteString;
+        if (urlstr == nil) {
+            return NO;
+        }
+        NSArray *urlArray = [urlstr componentsSeparatedByString:@"?"];
+        if (urlArray == nil) {
+            return NO;
+        }
+        //解析参数
+        NSMutableDictionary *paramsDic = [[NSMutableDictionary alloc] init];
+        //判读是否有参数
+        if (urlArray.count > 1) {
+            //这里解析参数,将参数放入字典中
+            NSArray *paramsArray = [urlArray[1] componentsSeparatedByString:@"&"];
+            for (NSString *param in paramsArray) {
+                NSArray *keyValue = [param componentsSeparatedByString:@"="];
+                if (keyValue.count == 2) {
+                    [paramsDic setObject:keyValue[1] forKey:keyValue[0]];
                 }
             }
-            return YES;
         }
-        return NO;
-    } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
-        SADebug(@"showUpWebView: WKWebView");
-        if ([urlstr rangeOfString:scheme].location != NSNotFound) {
-            typedef void(^Myblock)(id,NSError *);
-            Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
-                NSLog(@"response: %@ error: %@", response, error);
-            };
-            SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
-            if (sharedManagerSelector) {
-                ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
-            }
-            return YES;
-        } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
-            if ([paramsDic count] > 0) {
-                NSString *eventInfo = [paramsDic objectForKey:@"event"];
-                if (eventInfo != nil) {
-                    NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                    [self trackFromH5WithEvent:encodedString];
+
+        if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
+            SADebug(@"showUpWebView: UIWebView");
+            if ([urlstr rangeOfString:scheme].location != NSNotFound) {
+                [webView stringByEvaluatingJavaScriptFromString:js];
+                return YES;
+            } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+                if ([paramsDic count] > 0) {
+                    NSString *eventInfo = [paramsDic objectForKey:@"event"];
+                    if (eventInfo != nil) {
+                        NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                        [self trackFromH5WithEvent:encodedString];
+                    }
                 }
+                return YES;
             }
-            return YES;
+            return NO;
+        } else if(wkWebViewClass && [webView isKindOfClass:wkWebViewClass] == YES) {//WKWebView
+            SADebug(@"showUpWebView: WKWebView");
+            if ([urlstr rangeOfString:scheme].location != NSNotFound) {
+                typedef void(^Myblock)(id,NSError *);
+                Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
+                    NSLog(@"response: %@ error: %@", response, error);
+                };
+                SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
+                if (sharedManagerSelector) {
+                    ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
+                }
+                return YES;
+            } else if ([urlstr rangeOfString:trackEventScheme].location != NSNotFound) {
+                if ([paramsDic count] > 0) {
+                    NSString *eventInfo = [paramsDic objectForKey:@"event"];
+                    if (eventInfo != nil) {
+                        NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+                        [self trackFromH5WithEvent:encodedString];
+                    }
+                }
+                return YES;
+            }
+            return NO;
+        } else{
+            SADebug(@"showUpWebView: not UIWebView or WKWebView");
+            return NO;
         }
-        return NO;
-    } else{
-        SADebug(@"showUpWebView: not UIWebView or WKWebView");
-        return NO;
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
     }
 }
 

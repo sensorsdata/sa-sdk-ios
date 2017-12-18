@@ -98,7 +98,10 @@ static void sa_swizzledMethod_4(id self, SEL _cmd, id arg, id arg2) {
     }
 }
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wstrict-prototypes"
 static void (*sa_swizzledMethods[MAX_ARGS - MIN_ARGS + 1])() = {sa_swizzledMethod_2, sa_swizzledMethod_3, sa_swizzledMethod_4};
+#pragma clang diagnostic pop
 static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SEL, BOOL) = {sa_swizzledMethod_3_bool};
 
 @implementation SASwizzler
