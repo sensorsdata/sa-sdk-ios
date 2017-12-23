@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.18"
+#define VERSION @"1.8.19"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -470,6 +470,54 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ error: %@", self, exception);
     }
     return self;
+}
+
+- (NSDictionary *)getPresetProperties {
+    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    @try {
+        NSString *bestId;
+        if ([self loginId] != nil) {
+            bestId = [self loginId];
+        } else{
+            bestId = [self distinctId];
+        }
+
+        if (bestId == nil) {
+            [self resetAnonymousId];
+            bestId = [self anonymousId];
+        }
+        [properties setValue:bestId forKey:@"distinct_id"];
+        [properties setValue:@([[self class] getCurrentTime]) forKey:@"time"];
+        id app_version = [_automaticProperties objectForKey:@"$app_version"];
+        if (app_version) {
+            [properties setValue:app_version forKey:@"$app_version"];
+        }
+        [properties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
+        [properties setValue:[_automaticProperties objectForKey:@"$lib_version"] forKey:@"$lib_version"];
+        [properties setValue:@"Apple" forKey:@"$manufacturer"];
+        [properties setValue:_deviceModel forKey:@"$model"];
+        [properties setValue:@"iOS" forKey:@"$os"];
+        [properties setValue:_osVersion forKey:@"$os_version"];
+        [properties setValue:[_automaticProperties objectForKey:@"$screen_height"] forKey:@"$screen_height"];
+        [properties setValue:[_automaticProperties objectForKey:@"$screen_width"] forKey:@"$screen_width"];
+        NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+        [properties setObject:networkType forKey:@"$network_type"];
+        if ([networkType isEqualToString:@"WIFI"]) {
+            [properties setObject:@YES forKey:@"$wifi"];
+        } else {
+            [properties setObject:@NO forKey:@"$wifi"];
+        }
+        [properties setValue:[_automaticProperties objectForKey:@"$carrier"] forKey:@"$carrier"];
+        if ([self isFirstDay]) {
+            [properties setObject:@YES forKey:@"$is_first_day"];
+        } else {
+            [properties setObject:@NO forKey:@"$is_first_day"];
+        }
+        [properties setValue:[_automaticProperties objectForKey:@"$device_id"] forKey:@"$device_id"];
+    } @catch(NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+    return [properties copy];
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {

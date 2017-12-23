@@ -329,6 +329,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 返回预置的属性
+ *
+ * @return NSDictionary 返回预置的属性
+ */
+- (NSDictionary *)getPresetProperties;
+
+/**
+ * @abstract
  * 设置当前 serverUrl
  *
  */
