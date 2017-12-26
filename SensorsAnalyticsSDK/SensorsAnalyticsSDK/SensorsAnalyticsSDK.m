@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.19"
+#define VERSION @"1.8.20"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -462,7 +462,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
             if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self checkDebugMode:_serverURL];
+                // 创建
+                NSThread *thread = [[NSThread alloc] initWithTarget:self selector:@selector(checkDebugMode) object:nil];
+                // 启动
+                [thread start];
             }
 #endif
         }
@@ -530,16 +533,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)checkDebugMode:(NSString *)serverUrl {
-    if (serverUrl == nil || [serverUrl length] == 0) {
-        SALog(@"In order to be safe (serverUrl is nil), we must disable debugMode");
+- (void)checkDebugMode {
+    if (_serverURL == nil || [_serverURL length] == 0) {
+        SALog(@"In order to be safe (_serverURL is nil), we must disable debugMode");
         [self disableDebugMode];
         return;
     }
     __block BOOL disableDebugMode = YES;
     dispatch_semaphore_t checkDebugModeSem = dispatch_semaphore_create(0);
     @try {
-        NSURL *URL = [NSURL URLWithString:serverUrl];
+        NSURL *URL = [NSURL URLWithString:_serverURL];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"GET"];
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
