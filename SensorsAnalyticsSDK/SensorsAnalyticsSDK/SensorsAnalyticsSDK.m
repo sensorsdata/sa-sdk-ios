@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.20"
+#define VERSION @"1.8.21"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -2695,11 +2695,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
             //UIAlertController & UIActionSheet
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTCONTROLLER
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
             //iOS9
             [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
 
             //iOS10
             [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
+#endif
 #endif
 
             //React Natove
@@ -2758,12 +2760,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if ([self isViewTypeIgnored:[UIImageView class]]) {
                 return;
             }
-        } else if ([view isKindOfClass:NSClassFromString(@"_UIAlertControllerView")] ||
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([view isKindOfClass:NSClassFromString(@"_UIAlertControllerView")] ||
                    [view isKindOfClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView")]) {//UIAlertController
             if ([self isViewTypeIgnored:NSClassFromString(@"UIAlertController")]) {
                 return;
             }
         }
+#endif
 
         if (view.sensorsAnalyticsIgnoreView) {
             return;
@@ -2816,7 +2821,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
             }
 #endif
-        } else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerView"]) {//iOS9
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([NSStringFromClass([view class]) isEqualToString:@"_UIAlertControllerView"]) {//iOS9
             BOOL isOK = NO;
             Ivar ivar = class_getInstanceVariable([view class], "_actionViews");
             NSMutableArray *actionviews =  object_getIvar(view, ivar);
@@ -2874,7 +2881,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             if (!isOK) {
                 return;
             }
-        } else {
+        }
+#endif
+        else {
             return;
         }
 

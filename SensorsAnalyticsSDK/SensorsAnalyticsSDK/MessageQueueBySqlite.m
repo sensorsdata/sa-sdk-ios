@@ -58,7 +58,7 @@
 }
 
 - (void)addObejct:(id)obj withType:(NSString *)type {
-    NSUInteger maxCacheSize = [[SensorsAnalyticsSDK sharedInstance] getMaxCacheSize];
+    UInt64 maxCacheSize = [[SensorsAnalyticsSDK sharedInstance] getMaxCacheSize];
     if (_messageCount >= maxCacheSize) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecords:100 withType:@"Post"];

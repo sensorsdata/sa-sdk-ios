@@ -92,7 +92,7 @@ void SASignalHandler(int signal, struct __siginfo *info, void *context) {
     if (exceptionCount <= UncaughtExceptionMaximum) {
         NSDictionary *userInfo = @{UncaughtExceptionHandlerSignalKey: @(signal)};
         NSException *exception = [NSException exceptionWithName:UncaughtExceptionHandlerSignalExceptionName
-                                                         reason:[NSString stringWithFormat:@"Signal %d was raised.", signal]
+                                                         reason:[NSString stringWithFormat:@"Signal %d was raised. %@", signal,[NSThread callStackSymbols]]
                                                        userInfo:userInfo];
         
         [handler sa_handleUncaughtException:exception];
@@ -127,7 +127,9 @@ void SAHandleException(NSException *exception) {
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         [properties setValue:[exception reason] forKey:@"app_crashed_reason"];
         [instance track:@"AppCrashed" withProperties:properties];
-        [instance track:@"$AppEnd"];
+        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+            [instance track:@"$AppEnd"];
+        }
         dispatch_sync(instance.serialQueue, ^{
             
         });

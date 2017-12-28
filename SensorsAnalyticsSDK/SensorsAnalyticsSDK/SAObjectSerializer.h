@@ -16,9 +16,6 @@
 
 @interface SAObjectSerializer : NSObject
 
-/*!
- @param     An array of SAClassDescription instances.
- */
 - (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
                objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
