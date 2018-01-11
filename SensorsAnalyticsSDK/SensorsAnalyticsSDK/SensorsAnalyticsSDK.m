@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.21"
+#define VERSION @"1.8.22"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -192,6 +192,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     SensorsAnalyticsNetworkType _networkTypePolicy;
     NSString *_deviceModel;
     NSString *_osVersion;
+    NSString *_userAgent;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -428,6 +429,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         [self setUpListeners];
         
+        // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
+        if ([NSThread isMainThread]) {
+            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+        } else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            });
+        }
+
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
             if (configureURL != nil) {
                 [self executeEventBindings:self.eventBindings];
@@ -1168,17 +1180,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
         [request setHTTPBody:[postBody dataUsingEncoding:NSUTF8StringEncoding]];
-        if ([type isEqualToString:@"SFSafariViewController"]) {
-            // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
-            dispatch_sync(dispatch_get_main_queue(), ^{
-                UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-                NSString* userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                [request setValue:userAgent forHTTPHeaderField:@"User-Agent"];
-            });
-        } else {
-            // 普通事件请求，使用标准 UserAgent
-            [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-        }
+        // 普通事件请求，使用标准 UserAgent
+        [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
         if (_debugMode == SensorsAnalyticsDebugOnly) {
             [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
@@ -1259,95 +1262,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     
     [self flushByType:@"Post" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-#ifdef SENSORS_ANALYTICS_IOS_MATCHING_WITH_COOKIE
-    // 使用 SFSafariViewController 发送数据 (>= iOS 9.0)
-    BOOL (^flushBySafariVC)(NSArray *, NSString *) = ^(NSArray *recordArray, NSString *type) {
-        if (self.safariRequestInProgress) {
-            return NO;
-        }
-        
-        self.safariRequestInProgress = YES;
-        
-        Class SFSafariViewControllerClass = NSClassFromString(@"SFSafariViewController");
-        if (!SFSafariViewControllerClass) {
-            SAError(@"Cannot use cookie-based installation tracking. Please import the SafariService.framework.");
-            self.safariRequestInProgress = NO;
-            return YES;
-        }
-        
-        // 1. 先完成这一系列Json字符串的拼接
-        NSString *jsonString = [NSString stringWithFormat:@"[%@]",[recordArray componentsJoinedByString:@","]];
-        // 2. 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        // 3. base64
-        NSString *b64String = [zippedData sa_base64EncodedString];
-        int hashCode = [b64String sensorsdata_hashCode];
-        b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
-                                                                                  (CFStringRef)b64String,
-                                                                                  NULL,
-                                                                                  CFSTR("!*'();:@&=+$,/?%#[]"),
-                                                                                  kCFStringEncodingUTF8));
-        
-        NSURL *url = [NSURL URLWithString:self.serverURL];
-        NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        if (components.query.length > 0) {
-            NSString *urlQuery = [[NSString alloc] initWithFormat:@"%@&gzip=1&data_list=%@&crc=%d", components.percentEncodedQuery, b64String, hashCode];
-            components.percentEncodedQuery = urlQuery;
-        } else {
-            NSString *urlQuery = [[NSString alloc] initWithFormat:@"gzip=1&data_list=%@&crc=%d", b64String, hashCode];
-            components.percentEncodedQuery = urlQuery;
-        }
-
-        NSURL *postUrl = [components URL];
-        
-        // Must be on next run loop to avoid a warning
-        dispatch_async(dispatch_get_main_queue(), ^{
-            
-            UIViewController *safController = [[SFSafariViewControllerClass alloc] initWithURL:postUrl];
-            
-            UIViewController *windowRootController = [[UIViewController alloc] init];
-            
-            if (self.vtrackWindow == nil) {
-                self.secondWindow = [[UIWindow alloc] initWithFrame:[[[[UIApplication sharedApplication] delegate] window] bounds]];
-            } else {
-                self.secondWindow = [[UIWindow alloc] initWithFrame:[self.vtrackWindow bounds]];
-            }
-            self.secondWindow.rootViewController = windowRootController;
-            self.secondWindow.windowLevel = UIWindowLevelNormal - 1;
-            [self.secondWindow setHidden:NO];
-            [self.secondWindow setAlpha:0];
-            
-            // Add the safari view controller using view controller containment
-            [windowRootController addChildViewController:safController];
-            [windowRootController.view addSubview:safController.view];
-            [safController didMoveToParentViewController:windowRootController];
-            
-            // Give a little bit of time for safari to load the request.
-            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                // Remove the safari view controller from view controller containment
-                [safController willMoveToParentViewController:nil];
-                [safController.view removeFromSuperview];
-                [safController removeFromParentViewController];
-                
-                // Remove the window and release it's strong reference. This is important to ensure that
-                // applications using view controller based status bar appearance are restored.
-                [self.secondWindow removeFromSuperview];
-                self.secondWindow = nil;
-                
-                self.safariRequestInProgress = NO;
-                
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SAError(@"%@ The validation in DEBUG mode is unavailable while using track_installtion. Please check the result with 'debug_data_viewer'.", self);
-                    SAError(@"%@ 使用 track_installation 时无法直接获得 Debug 模式数据校验结果，请登录 Sensors Analytics 并进入 '数据接入辅助工具' 查看校验结果。", self);
-                }
-            });
-        });
-        return YES;
-    };
-    [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushBySafariVC];
-#else
-    [self flushByType:@"SFSafariViewController" withSize:(_debugMode == SensorsAnalyticsDebugOff ? 50 : 1) andFlushMethod:flushByPost];
-#endif
     
     if (vacuumAfterFlushing) {
         if (![self.messageQueue vacuum]) {
@@ -1425,15 +1339,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [event setObject:libProperties forKey:@"lib"];
     }
     
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
-    if ([properties objectForKey:@"$ios_install_source"]) {
-        [self.messageQueue addObejct:event withType:@"SFSafariViewController"];
-    } else {
-#endif
-        [self.messageQueue addObejct:event withType:@"Post"];
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 90000
-    }
-#endif
+    [self.messageQueue addObejct:event withType:@"Post"];
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
@@ -1747,6 +1653,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         if (disableCallback) {
             [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
+        }
+
+        if (_userAgent) {
+            [properties setValue:_userAgent forKey:@"$user_agent"];
         }
 
         if (propertyDict != nil) {
