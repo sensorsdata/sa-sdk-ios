@@ -104,7 +104,7 @@
     
     NSMutableArray* contentArray = [[NSMutableArray alloc] init];
     
-    NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache WHERE type='%@' ORDER BY id ASC LIMIT %lu", type, (unsigned long)recordSize];
+    NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
     
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
@@ -137,7 +137,7 @@
 
 - (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     NSUInteger removeSize = MIN(recordSize, _messageCount);
-    NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache WHERE type = '%@' ORDER BY id ASC LIMIT %lu);", type, (unsigned long)removeSize];
+    NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];
     char* errMsg;
     @try {
         if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {

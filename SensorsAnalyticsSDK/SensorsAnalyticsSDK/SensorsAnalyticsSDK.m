@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.22"
+#define VERSION @"1.8.23"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
