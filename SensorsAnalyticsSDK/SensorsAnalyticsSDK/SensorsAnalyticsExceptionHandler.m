@@ -92,7 +92,7 @@ void SASignalHandler(int signal, struct __siginfo *info, void *context) {
     if (exceptionCount <= UncaughtExceptionMaximum) {
         NSDictionary *userInfo = @{UncaughtExceptionHandlerSignalKey: @(signal)};
         NSException *exception = [NSException exceptionWithName:UncaughtExceptionHandlerSignalExceptionName
-                                                         reason:[NSString stringWithFormat:@"Signal %d was raised. %@", signal,[NSThread callStackSymbols]]
+                                                         reason:[NSString stringWithFormat:@"Signal %d was raised. %@", signal, [NSThread callStackSymbols]]
                                                        userInfo:userInfo];
         
         [handler sa_handleUncaughtException:exception];
@@ -138,3 +138,4 @@ void SAHandleException(NSException *exception) {
 }
 
 @end
+

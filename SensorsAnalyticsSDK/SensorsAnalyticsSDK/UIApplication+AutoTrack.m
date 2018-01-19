@@ -111,6 +111,10 @@
             if ([from isKindOfClass:[NSClassFromString(@"UITabBarButton") class]]) {
                 return;
             }
+#else
+            if ([to isKindOfClass:[UITabBar class]]) {
+                return;
+            }
 #endif
         }
         

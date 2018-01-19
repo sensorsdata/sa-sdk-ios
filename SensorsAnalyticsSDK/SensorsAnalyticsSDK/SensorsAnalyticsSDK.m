@@ -33,7 +33,7 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.23"
+#define VERSION @"1.8.24"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -502,7 +502,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             bestId = [self anonymousId];
         }
         [properties setValue:bestId forKey:@"distinct_id"];
-        [properties setValue:@([[self class] getCurrentTime]) forKey:@"time"];
         id app_version = [_automaticProperties objectForKey:@"$app_version"];
         if (app_version) {
             [properties setValue:app_version forKey:@"$app_version"];
@@ -824,7 +823,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 [eventDict setValue:bestId forKey:@"distinct_id"];
             }
-            [eventDict setValue:@(rand()) forKey:@"_track_id"];
+            [eventDict setValue:@(arc4random()) forKey:@"_track_id"];
 
             NSDictionary *libDict = [eventDict objectForKey:@"lib"];
             id app_version = [_automaticProperties objectForKey:@"$app_version"];
@@ -869,6 +868,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:@"_nocache"];
             }
 
+			[eventDict removeObjectForKey:@"_nocache"];
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 SALog(@"track event from H5:%@", eventDict);
             }
@@ -1517,7 +1517,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
-                  @"_track_id": @(rand()),
+                  @"_track_id": @(arc4random()),
                   };
         } else if([type isEqualToString:@"track"]){
             //  是否首日访问
@@ -1533,7 +1533,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
-                  @"_track_id": @(rand()),
+                  @"_track_id": @(arc4random()),
                   };
         } else {
             // 此时应该都是对Profile的操作
@@ -1543,7 +1543,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   @"time": timeStamp,
                   @"type": type,
                   @"lib": libProperties,
-                  @"_track_id": @(rand()),
+                  @"_track_id": @(arc4random()),
                   };
         }
         
@@ -2990,7 +2990,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 for (id obj in eventBindings) {
                     SAEventBinding *binding = [SAEventBinding bindingWithJSONObject:obj];
                     if (binding) {
-                        [binding execute];
+                        if ([NSThread isMainThread]) {
+                            [binding execute];
+                        } else {
+                            dispatch_sync(dispatch_get_main_queue(), ^{
+                                [binding execute];
+                            });
+                        }
                         [parsedEventBindings addObject:binding];
                     }
                 }
@@ -3153,7 +3159,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if (eventBindings) {
         for (id binding in eventBindings) {
             if ([binding isKindOfClass:[SAEventBinding class]]) {
-                [binding execute];
+                if ([NSThread isMainThread]) {
+                    [binding execute];
+                } else {
+                    dispatch_sync(dispatch_get_main_queue(), ^{
+                        [binding execute];
+                    });
+                }
             }
         }
         SADebug(@"%@ execute event bindings %@", self, eventBindings);

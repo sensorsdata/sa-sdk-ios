@@ -61,15 +61,24 @@
                         }
                     }
                     #pragma clang diagnostic pop
-                } else if ([subView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
+                }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+                else if ([subView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
                             [subView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
                             subView.subviews.count > 0){
                     NSString *temp = [self contentFromView:subView];
                     if (temp != nil && ![@"" isEqualToString:temp]) {
                         [elementContent appendString:temp];
-                        //[elementContent appendString:@"-"];
                     }
                 }
+#else
+                else {
+                    NSString *temp = [self contentFromView:subView];
+                    if (temp != nil && ![@"" isEqualToString:temp]) {
+                        [elementContent appendString:temp];
+                    }
+                }
+#endif
             }
         }
         return elementContent;

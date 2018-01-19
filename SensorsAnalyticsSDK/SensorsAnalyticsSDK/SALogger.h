@@ -17,13 +17,13 @@ static inline void SALog(NSString *format, ...) {
     printLog = YES;
 #endif
 
-    if ([[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff) {
-        printLog = YES;
-    }
-
 #if (defined SENSORS_ANALYTICS_DISABLE_LOG)
     printLog = NO;
 #endif
+
+    if ([[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff) {
+        printLog = YES;
+    }
 
     if (printLog) {
         __block va_list arg_list;
