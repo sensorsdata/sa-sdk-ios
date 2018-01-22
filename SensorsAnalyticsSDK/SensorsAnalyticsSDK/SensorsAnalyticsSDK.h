@@ -267,6 +267,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 @property (atomic) UIWindow *vtrackWindow;
 
+#pragma mark- init instance
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
@@ -352,6 +353,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)enableEditingVTrack;
 
+#pragma mark- about webView
 /**
  * @abstract
  * 将distinctId传递给当前的WebView
@@ -364,6 +366,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @return YES:SDK已进行处理，NO:SDK没有进行处理
  */
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify;
 
 /**
  * @abstract
@@ -380,6 +384,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
 
+#pragma mark--cache and flush
 /**
  * @abstract
  * 设置本地缓存最多事件条数
@@ -555,7 +560,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param distinctId 当前用户的distinctId
  */
 - (void)identify:(NSString *)distinctId;
-
+#pragma mark - track event
 /**
  * @abstract
  * 调用track接口，追踪一个带有属性的event
@@ -721,6 +726,8 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
+- (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
+
 /**
  * @abstract
  * 在AutoTrack时，用户可以设置哪些controlls不被AutoTrack
@@ -790,6 +797,15 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
 
 /**
+ @abstract
+ * Track App Extension groupIdentifier 中缓存的数据
+ *
+ * @param groupIdentifier groupIdentifier
+ * @param completion  完成 track 后的 callback
+ */
+- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
+
+/**
  * @abstract
  * 用来设置每个事件都带有的一些公共属性
  *
@@ -843,6 +859,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)flush;
 
+#pragma mark- profile
 /**
  * @abstract
  * 直接设置用户的一个或者几个Profiles

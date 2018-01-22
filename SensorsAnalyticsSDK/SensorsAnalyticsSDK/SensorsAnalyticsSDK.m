@@ -33,7 +33,9 @@
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#define VERSION @"1.8.24"
+#import "SAServerUrl.h"
+#import "SAAppExtensionDataManager.h"
+#define VERSION @"1.8.25"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -193,6 +195,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     NSString *_deviceModel;
     NSString *_osVersion;
     NSString *_userAgent;
+    NSString *_originServerUrl;
 }
 
 static SensorsAnalyticsSDK *sharedInstance = nil;
@@ -535,6 +538,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
+    _originServerUrl = serverUrl;
     if (serverUrl == nil || [serverUrl length] == 0 || _debugMode == SensorsAnalyticsDebugOff) {
         _serverURL = serverUrl;
     } else {
@@ -605,6 +609,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
+    _serverURL = _originServerUrl;
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
@@ -763,7 +768,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         UIViewController *currentVC;
         if ([rootVC presentedViewController]) {
             // 视图是被presented出来的
-            rootVC = [rootVC presentedViewController];
+            rootVC = [self getCurrentVCFrom:rootVC.presentedViewController];
         }
         
         if ([rootVC isKindOfClass:[UITabBarController class]]) {
@@ -774,7 +779,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             currentVC = [self getCurrentVCFrom:[(UINavigationController *)rootVC visibleViewController]];
         } else {
             // 根视图为非导航类
-            currentVC = rootVC;
+            if ([rootVC respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+                UIViewController *tempViewController = [rootVC performSelector:NSSelectorFromString(@"contentViewController")];
+#pragma clang diagnostic pop
+                if (tempViewController) {
+                    currentVC = [self getCurrentVCFrom:tempViewController];
+                }
+            } else {
+                currentVC = rootVC;
+            }
         }
         
         return currentVC;
@@ -783,7 +798,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (void)trackFromH5WithEvent:(NSString *)eventInfo {
+- (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     dispatch_async(self.serialQueue, ^{
         @try {
             if (eventInfo == nil) {
@@ -801,6 +816,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             if (!eventDict) {
                 return;
+            }
+
+            if (enableVerify) {
+                NSString *serverUrl = [eventDict valueForKey:@"server_url"];
+                if (serverUrl != nil) {
+                    SAServerUrl *h5ServerUrl = [[SAServerUrl alloc] initWithUrl:serverUrl];
+                    SAServerUrl *appServerUrl = [[SAServerUrl alloc] initWithUrl:_serverURL];
+                    if (![appServerUrl check:h5ServerUrl]) {
+                        return;
+                    }
+                }
             }
 
             NSString *type = [eventDict valueForKey:@"type"];
@@ -868,7 +894,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:@"_nocache"];
             }
 
-			[eventDict removeObjectForKey:@"_nocache"];
+            [eventDict removeObjectForKey:@"_nocache"];
+            [eventDict removeObjectForKey:@"server_url"];
+
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 SALog(@"track event from H5:%@", eventDict);
             }
@@ -892,11 +920,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)trackFromH5WithEvent:(NSString *)eventInfo {
+    [self trackFromH5WithEvent:eventInfo enableVerify:NO];
+}
+
 - (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
     return [self showUpWebView:webView WithRequest:request andProperties:nil];
 }
 
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify {
+    return [self showUpWebView:webView WithRequest:request andProperties:nil enableVerify:enableVerify];
+}
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict enableVerify:(BOOL)enableVerify {
     @try {
         SADebug(@"showUpWebView");
         if (webView == nil) {
@@ -962,7 +998,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
                     if (eventInfo != nil) {
                         NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                        [self trackFromH5WithEvent:encodedString];
+                        [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
                 return YES;
@@ -985,7 +1021,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     NSString *eventInfo = [paramsDic objectForKey:@"event"];
                     if (eventInfo != nil) {
                         NSString* encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                        [self trackFromH5WithEvent:encodedString];
+                        [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
                     }
                 }
                 return YES;
@@ -998,6 +1034,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
+    return NO;
+}
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
+    return [self showUpWebView:webView WithRequest:request andProperties:propertyDict enableVerify:NO];
 }
 
 - (void)setMaxCacheSize:(UInt64)maxCacheSize {
@@ -1069,6 +1110,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
     _autoTrackEventType |= eventType;
     _autoTrack = YES;
+    // 是否首次启动
+    BOOL isFirstStart = NO;
+    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
+        isFirstStart = YES;
+        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    }
+    // 追踪 AppStart 事件
+    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
+        [self track:APP_START_EVENT withProperties:@{
+                                                     RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                     APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                     }];
+    }
+    // 启动 AppEnd 事件计时器
+    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+        [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+    }
     [self _enableAutoTrack];
 }
 
@@ -2828,6 +2887,26 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self track:APP_VIEW_SCREEN_EVENT withProperties:trackProperties];
 }
 
+- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
+    @try {
+        if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {
+            return;
+        }
+        NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
+        if (eventArray) {
+            for (NSDictionary *dict in eventArray) {
+                [[SensorsAnalyticsSDK sharedInstance] track:dict[@"event"] withProperties:dict[@"properties"]];
+            }
+            [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
+            if (completion) {
+                completion(groupIdentifier, eventArray);
+            }
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+}
+
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SADebug(@"%@ application will enter foreground", self);
     
@@ -2847,8 +2926,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
         isFirstStart = YES;
-        [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
-        [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
     // 遍历trackTimer,修改eventBegin为当前timeStamp
@@ -2866,7 +2943,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
 
-    if (_autoTrack) {
+    if (_autoTrack && _appRelaunched) {
         // 追踪 AppStart 事件
         if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
             [self track:APP_START_EVENT withProperties:@{
