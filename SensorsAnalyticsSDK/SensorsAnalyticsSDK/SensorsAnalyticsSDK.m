@@ -35,7 +35,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.8.25"
+#define VERSION @"1.8.26"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -493,18 +493,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSDictionary *)getPresetProperties {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     @try {
-        NSString *bestId;
-        if ([self loginId] != nil) {
-            bestId = [self loginId];
-        } else{
-            bestId = [self distinctId];
-        }
-
-        if (bestId == nil) {
-            [self resetAnonymousId];
-            bestId = [self anonymousId];
-        }
-        [properties setValue:bestId forKey:@"distinct_id"];
         id app_version = [_automaticProperties objectForKey:@"$app_version"];
         if (app_version) {
             [properties setValue:app_version forKey:@"$app_version"];
