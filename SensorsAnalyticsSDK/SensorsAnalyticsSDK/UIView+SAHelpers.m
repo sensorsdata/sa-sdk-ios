@@ -22,6 +22,10 @@
     return MP_FINGERPRINT_VERSION;
 }
 
+- (int)jjf_fingerprintVersion {
+    return [self mp_fingerprintVersion];
+}
+
 - (UIImage *)sa_snapshotImage {
     CGFloat offsetHeight = 0.0f;
     
@@ -198,12 +202,24 @@ static NSString* sa_encryptHelper(id input) {
     return sa_encryptHelper([self sa_viewId]);
 }
 
+- (NSString *)jjf_varA {
+    return [self mp_varA];
+}
+
 - (NSString *)mp_varB {
     return sa_encryptHelper([self sa_controllerVariable]);
 }
 
+- (NSString *)jjf_varB {
+    return [self mp_varB];
+}
+
 - (NSString *)mp_varC {
     return sa_encryptHelper([self sa_imageFingerprint]);
+}
+
+- (NSString *)jjf_varC {
+    return [self mp_varC];
 }
 
 - (NSArray *)mp_varSetD {
@@ -215,8 +231,16 @@ static NSString* sa_encryptHelper(id input) {
     return encryptedActions;
 }
 
+- (NSArray *)jjf_varSetD {
+    return [self mp_varSetD];
+}
+
 - (NSString *)mp_varE {
     return sa_encryptHelper([self sa_text]);
+}
+
+- (NSString *)jjf_varE {
+    return [self mp_varE];
 }
 
 @end

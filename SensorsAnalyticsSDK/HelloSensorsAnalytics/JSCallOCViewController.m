@@ -16,7 +16,7 @@
     UIWebView *webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
     self.title = @"UIWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
+    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"test2.html"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
     [webView loadRequest:request];
 
@@ -33,7 +33,7 @@
 }
 
 - (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:request]) {
+    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:request enableVerify:YES]) {
         return NO;
     }
     return YES;

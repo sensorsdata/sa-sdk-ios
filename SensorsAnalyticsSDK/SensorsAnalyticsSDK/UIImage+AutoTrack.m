@@ -20,13 +20,13 @@
 //    dispatch_once(&onceToken, ^{
 //        @try {
 //            Class selfClass = object_getClass([self class]);
-//            
+//
 //            SEL oriSEL = @selector(imageNamed:);
 //            Method oriMethod = class_getInstanceMethod(selfClass, oriSEL);
-//            
+//
 //            SEL cusSEL = @selector(myImageNamed:);
 //            Method cusMethod = class_getInstanceMethod(selfClass, cusSEL);
-//            
+//
 //            BOOL addSucc = class_addMethod(selfClass, oriSEL, method_getImplementation(cusMethod), method_getTypeEncoding(cusMethod));
 //            if (addSucc) {
 //                class_replaceMethod(selfClass, cusSEL, method_getImplementation(oriMethod), method_getTypeEncoding(oriMethod));

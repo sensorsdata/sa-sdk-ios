@@ -32,10 +32,11 @@
 #import "SASwizzle.h"
 #import "AutoTrackUtils.h"
 #import "NSString+HashCode.h"
+#import "SAHeatMapConnection.h"
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.8.26"
+#define VERSION @"1.9.0"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -163,6 +164,8 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
 
+@property (nonatomic, strong) NSMutableArray *heatMapViewControllers;
+
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
 // 用于 SafariViewController
@@ -185,6 +188,7 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
+    BOOL _heatMap;
     UInt8 _debugAlertViewHasShownNumber;
     NSString *_referrerScreenUrl;
     NSDictionary *_lastScreenTrackProperties;
@@ -285,69 +289,70 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static NSSet *blacklistedClasses = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        NSArray *_blacklistedViewControllerClassNames = @[@"SFBrowserRemoteViewController",
-                                                          @"SFSafariViewController",
-                                                          @"UIAlertController",
-                                                          @"UIInputWindowController",
-                                                          @"UINavigationController",
-                                                          @"UIKeyboardCandidateGridCollectionViewController",
-                                                          @"UICompatibilityInputViewController",
-                                                          @"UIApplicationRotationFollowingController",
-                                                          @"UIApplicationRotationFollowingControllerNoTouches",
-                                                          @"AVPlayerViewController",
-                                                          @"UIActivityGroupViewController",
-                                                          @"UIReferenceLibraryViewController",
-                                                          @"UIKeyboardCandidateRowViewController",
-                                                          @"UIKeyboardHiddenViewController",
-                                                          @"_UIAlertControllerTextFieldViewController",
-                                                          @"_UILongDefinitionViewController",
-                                                          @"_UIResilientRemoteViewContainerViewController",
-                                                          @"_UIShareExtensionRemoteViewController",
-                                                          @"_UIRemoteDictionaryViewController",
-                                                          @"UISystemKeyboardDockController",
-                                                          @"_UINoDefinitionViewController",
-                                                          @"UIImagePickerController",
-                                                          @"_UIActivityGroupListViewController",
-                                                          @"_UIRemoteViewController",
-                                                          @"_UIFallbackPresentationViewController",
-                                                          @"_UIDocumentPickerRemoteViewController",
-                                                          @"_UIAlertShimPresentingViewController",
-                                                          @"_UIWaitingForRemoteViewContainerViewController",
-                                                          @"UIDocumentMenuViewController",
-                                                          @"UIActivityViewController",
-                                                          @"_UIActivityUserDefaultsViewController",
-                                                          @"_UIActivityViewControllerContentController",
-                                                          @"_UIRemoteInputViewController",
-                                                          @"UIViewController",
-                                                          @"UITableViewController",
-                                                          @"_UIUserDefaultsActivityNavigationController",
-                                                          @"UISnapshotModalViewController",
-                                                          @"WKActionSheet",
-                                                          @"DDSafariViewController",
-                                                          @"SFAirDropActivityViewController",
-                                                          @"CKSMSComposeController",
-                                                          @"DDParsecLoadingViewController",
-                                                          @"PLUIPrivacyViewController",
-                                                          @"PLUICameraViewController",
-                                                          @"SLRemoteComposeViewController",
-                                                          @"CAMViewfinderViewController",
-                                                          @"DDParsecNoDataViewController",
-                                                          @"CAMPreviewViewController",
-                                                          @"DDParsecCollectionViewController",
-                                                          @"SLComposeViewController",
-                                                          @"DDParsecRemoteCollectionViewController",
-                                                          @"AVFullScreenPlaybackControlsViewController",
-                                                          @"PLPhotoTileViewController",
-                                                          @"AVFullScreenViewController",
-                                                          @"CAMImagePickerCameraViewController",
-                                                          @"CKSMSComposeRemoteViewController",
-                                                          @"PUPhotoPickerHostViewController",
-                                                          @"PUUIAlbumListViewController",
-                                                          @"PUUIPhotosAlbumViewController",
-                                                          @"SFAppAutoFillPasswordViewController",
-                                                          @"PUUIMomentsGridViewController",
-                                                          @"SFPasswordRemoteViewController",
-                                                          ];
+        NSArray *_blacklistedViewControllerClassNames = @[
+            @"SFBrowserRemoteViewController",
+            @"SFSafariViewController",
+            @"UIAlertController",
+            @"UIInputWindowController",
+            @"UINavigationController",
+            @"UIKeyboardCandidateGridCollectionViewController",
+            @"UICompatibilityInputViewController",
+            @"UIApplicationRotationFollowingController",
+            @"UIApplicationRotationFollowingControllerNoTouches",
+            @"AVPlayerViewController",
+            @"UIActivityGroupViewController",
+            @"UIReferenceLibraryViewController",
+            @"UIKeyboardCandidateRowViewController",
+            @"UIKeyboardHiddenViewController",
+            @"_UIAlertControllerTextFieldViewController",
+            @"_UILongDefinitionViewController",
+            @"_UIResilientRemoteViewContainerViewController",
+            @"_UIShareExtensionRemoteViewController",
+            @"_UIRemoteDictionaryViewController",
+            @"UISystemKeyboardDockController",
+            @"_UINoDefinitionViewController",
+            @"UIImagePickerController",
+            @"_UIActivityGroupListViewController",
+            @"_UIRemoteViewController",
+            @"_UIFallbackPresentationViewController",
+            @"_UIDocumentPickerRemoteViewController",
+            @"_UIAlertShimPresentingViewController",
+            @"_UIWaitingForRemoteViewContainerViewController",
+            @"UIDocumentMenuViewController",
+            @"UIActivityViewController",
+            @"_UIActivityUserDefaultsViewController",
+            @"_UIActivityViewControllerContentController",
+            @"_UIRemoteInputViewController",
+            @"UIViewController",
+            @"UITableViewController",
+            @"_UIUserDefaultsActivityNavigationController",
+            @"UISnapshotModalViewController",
+            @"WKActionSheet",
+            @"DDSafariViewController",
+            @"SFAirDropActivityViewController",
+            @"CKSMSComposeController",
+            @"DDParsecLoadingViewController",
+            @"PLUIPrivacyViewController",
+            @"PLUICameraViewController",
+            @"SLRemoteComposeViewController",
+            @"CAMViewfinderViewController",
+            @"DDParsecNoDataViewController",
+            @"CAMPreviewViewController",
+            @"DDParsecCollectionViewController",
+            @"SLComposeViewController",
+            @"DDParsecRemoteCollectionViewController",
+            @"AVFullScreenPlaybackControlsViewController",
+            @"PLPhotoTileViewController",
+            @"AVFullScreenViewController",
+            @"CAMImagePickerCameraViewController",
+            @"CKSMSComposeRemoteViewController",
+            @"PUPhotoPickerHostViewController",
+            @"PUUIAlbumListViewController",
+            @"PUUIPhotosAlbumViewController",
+            @"SFAppAutoFillPasswordViewController",
+            @"PUUIMomentsGridViewController",
+            @"SFPasswordRemoteViewController",
+        ];
         NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
         for (NSString *className in _blacklistedViewControllerClassNames) {
             if (NSClassFromString(className) != nil) {
@@ -369,89 +374,92 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _autoTrackEventType = SensorsAnalyticsEventTypeNone;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
 
-        // 将 Configure URI Path 末尾补齐 iOS.conf
-        NSURL *url = [NSURL URLWithString:configureURL];
-        if ([[url lastPathComponent] isEqualToString:@"config"]) {
-            url = [url URLByAppendingPathComponent:@"iOS.conf"];
-        }
-        configureURL = [url absoluteString];
+            // 将 Configure URI Path 末尾补齐 iOS.conf
+            NSURL *url = [NSURL URLWithString:configureURL];
+            if ([[url lastPathComponent] isEqualToString:@"config"]) {
+                url = [url URLByAppendingPathComponent:@"iOS.conf"];
+            }
+            configureURL = [url absoluteString];
 
-        self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
-        
-        self.configureURL = configureURL;
-        self.vtrackServerURL = vtrackServerURL;
-        _debugMode = debugMode;
-        
-		[self setServerUrl:serverURL];
-        _flushInterval = 15 * 1000;
-        _flushBulkSize = 100;
-        _maxCacheSize = 10000;
-        _vtrackWindow = nil;
-        _autoTrack = NO;
-        _appRelaunched = NO;
-        _showDebugAlertView = YES;
-        _debugAlertViewHasShownNumber = 0;
-        _referrerScreenUrl = nil;
-        _lastScreenTrackProperties = nil;
-        _applicationWillResignActive = NO;
-        _clearReferrerWhenAppEnd = NO;
-        
-        _ignoredViewControllers = [[NSMutableArray alloc] init];
-        _ignoredViewTypeList = [[NSMutableArray alloc] init];
-        _dateFormatter = [[NSDateFormatter alloc] init];
-        [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-        
-        self.checkForEventBindingsOnActive = YES;
-        self.flushBeforeEnterBackground = YES;
-        
-        self.safariRequestInProgress = NO;
+            self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
 
-        self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
-        if (self.messageQueue == nil) {
-            SADebug(@"SqliteException: init Message Queue in Sqlite fail");
-        }
+            self.configureURL = configureURL;
+            self.vtrackServerURL = vtrackServerURL;
+            _debugMode = debugMode;
 
-        // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
-        [self unarchive];
-        
-        if (self.firstDay == nil) {
-            NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-            [dateFormatter setDateFormat:@"yyyy-MM-dd"];
-            self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-            [self archiveFirstDay];
-        }
+            [self setServerUrl:serverURL];
 
-        self.automaticProperties = [self collectAutomaticProperties];
-        self.trackTimer = [NSMutableDictionary dictionary];
-        
-        NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-        self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
-        
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
-        self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-        
-        [self setUpListeners];
-        
-        // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
-        if ([NSThread isMainThread]) {
-            UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-            _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        } else {
-            dispatch_sync(dispatch_get_main_queue(), ^{
+            _flushInterval = 15 * 1000;
+            _flushBulkSize = 100;
+            _maxCacheSize = 10000;
+            _vtrackWindow = nil;
+            _autoTrack = NO;
+            _heatMap = NO;
+            _appRelaunched = NO;
+            _showDebugAlertView = YES;
+            _debugAlertViewHasShownNumber = 0;
+            _referrerScreenUrl = nil;
+            _lastScreenTrackProperties = nil;
+            _applicationWillResignActive = NO;
+            _clearReferrerWhenAppEnd = NO;
+
+            _ignoredViewControllers = [[NSMutableArray alloc] init];
+            _ignoredViewTypeList = [[NSMutableArray alloc] init];
+            _heatMapViewControllers = [[NSMutableArray alloc] init];
+            _dateFormatter = [[NSDateFormatter alloc] init];
+            [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
+
+            self.checkForEventBindingsOnActive = YES;
+            self.flushBeforeEnterBackground = YES;
+
+            self.safariRequestInProgress = NO;
+
+            self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
+            if (self.messageQueue == nil) {
+                SADebug(@"SqliteException: init Message Queue in Sqlite fail");
+            }
+
+            // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
+            [self unarchive];
+
+            if (self.firstDay == nil) {
+                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+                [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+                self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
+                [self archiveFirstDay];
+            }
+
+            self.automaticProperties = [self collectAutomaticProperties];
+            self.trackTimer = [NSMutableDictionary dictionary];
+
+            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            self.regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
+
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.%@.%p", @"test", self];
+            self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+
+            [self setUpListeners];
+
+            // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
+            if ([NSThread isMainThread]) {
                 UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
                 _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            });
-        }
+            } else {
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
+                    _userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+                });
+            }
 
 #ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
             if (configureURL != nil) {
                 [self executeEventBindings:self.eventBindings];
             }
 #endif
-        // XXX: App Active 的时候会获取配置，此处不需要获取
-//        [self checkForConfigure];
-        // XXX: App Active 的时候会启动计时器，此处不需要启动
-//        [self startFlushTimer];
+            // XXX: App Active 的时候会获取配置，此处不需要获取
+            //        [self checkForConfigure];
+            // XXX: App Active 的时候会启动计时器，此处不需要启动
+            //        [self startFlushTimer];
 
             NSString *logMessage = nil;
             if (configureURL != nil) {
@@ -927,14 +935,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             SADebug(@"showUpWebView == nil");
             return NO;
         }
-
+        
         if (request == nil) {
             SADebug(@"request == nil");
             return NO;
         }
-
+        
         JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
-
+        
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -945,15 +953,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         NSData* jsonData = [_jsonUtil JSONSerializeObject:properties];
         NSString* jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
+        
         NSString *scheme = @"sensorsanalytics://getAppInfo";
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
-
+        
         NSString *trackEventScheme = @"sensorsanalytics://trackEvent";
-
+        
         //判断系统是否支持WKWebView
         Class wkWebViewClass = NSClassFromString(@"WKWebView");
-
+        
         NSString *urlstr = request.URL.absoluteString;
         if (urlstr == nil) {
             return NO;
@@ -975,7 +983,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
             }
         }
-
+        
         if ([webView isKindOfClass:[UIWebView class]] == YES) {//UIWebView
             SADebug(@"showUpWebView: UIWebView");
             if ([urlstr rangeOfString:scheme].location != NSNotFound) {
@@ -1325,6 +1333,93 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (BOOL)handleHeatMapUrl:(NSURL *)url {
+    @try {
+        if (!url) {
+            return NO;
+        }
+        if ([@"heatmap" isEqualToString:url.host]) {
+            NSString *featureCode = nil;
+            NSString *postUrl = nil;
+            NSString *query = [url query];
+            if (query != nil) {
+                NSArray *subArray = [query componentsSeparatedByString:@"&"];
+                NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
+                if (subArray) {
+                    for (int j = 0 ; j < subArray.count; j++) {
+                        //在通过=拆分键和值
+                        NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
+                        //给字典加入元素
+                        [tempDic setObject:dicArray[1] forKey:dicArray[0]];
+                    }
+                    featureCode = [tempDic objectForKey:@"feature_code"];
+                    postUrl = [tempDic objectForKey:@"url"];
+                }
+            }
+            NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
+            BOOL isWifi = NO;
+            if ([networkType isEqualToString:@"WIFI"]) {
+                isWifi = YES;
+            }
+            SAHeatMapConnection *connection = [[SAHeatMapConnection alloc] initWithURL:nil];
+            if (connection) {
+                [connection showOpenHeatMapDialog:featureCode withUrl:postUrl isWifi:isWifi];
+                return YES;
+            }
+        }
+    } @catch (NSException *exception) {
+         SAError(@"%@: %@", self, exception);
+    }
+    return NO;
+}
+
+- (void)enableHeatMap {
+    _heatMap = YES;
+}
+
+- (BOOL)isHeatMapEnabled {
+    return _heatMap;
+}
+
+- (void)addHeatMapViewControllers:(NSArray *)controllers {
+    @try {
+        if (controllers == nil || controllers.count == 0) {
+            return;
+        }
+        [_heatMapViewControllers addObjectsFromArray:controllers];
+        
+        //去重
+        NSSet *set = [NSSet setWithArray:_heatMapViewControllers];
+        if (set != nil) {
+            _heatMapViewControllers = [NSMutableArray arrayWithArray:[set allObjects]];
+        } else{
+            _heatMapViewControllers = [[NSMutableArray alloc] init];
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+    }
+}
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController {
+    @try {
+        if (viewController == nil) {
+            return NO;
+        }
+        
+        if (_heatMapViewControllers == nil || _heatMapViewControllers.count == 0) {
+            return YES;
+        }
+        
+        NSString *screenName = NSStringFromClass([viewController class]);
+        if ([_heatMapViewControllers containsObject:screenName]) {
+            return YES;
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@: %@", self, exception);
+    }
+    return NO;
+}
+
 - (BOOL) isValidName : (NSString *) name {
     @try {
         if (_deviceModel == nil) {
@@ -1342,7 +1437,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [_deviceModel isEqualToString:@"iPhone10,4"] ||
                 [_deviceModel isEqualToString:@"iPhone10,2"] ||
                 [_deviceModel isEqualToString:@"iPhone10,5"]) {
-                return YES;
+                    return YES;
             }
         }
         return [self.regexTestName evaluateWithObject:name];
@@ -1597,7 +1692,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (_debugMode != SensorsAnalyticsDebugOff) {
             SALog(@"track event:%@", e);
         }
-
+        
         [self enqueueWithType:type andEvent:[e copy]];
         
         if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -1689,7 +1784,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     if (isFirstTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
-
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSString *idfa = [self getIDFA];
         if (idfa != nil) {
@@ -2521,36 +2615,36 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SEL oriSel = sel_getUid("sda_setJSResponder:blockNativeResponder:");
     void (*setJSResponderWithBlockNativeResponder)(id, SEL, id, BOOL) = (void (*)(id,SEL,id,BOOL))[NSClassFromString(@"RCTUIManager") instanceMethodForSelector:oriSel];//函数指针
     setJSResponderWithBlockNativeResponder(obj, cmd, reactTag, blockNativeResponder);
-
+    
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             //关闭 AutoTrack
             if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
                 return;
             }
-
+            
             //忽略 $AppClick 事件
             if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
                 return;
             }
-
+            
             if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[NSClassFromString(@"RNView") class]]) {
                 return;
             }
-
+            
             if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
                 SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
                 UIView *uiView = ((UIView* (*)(id, SEL, NSNumber*))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
                 NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-
+                
                 if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]]) {
                     //好像跟 UISwitch 会重复
                     return;
                 }
-
+                
                 [properties setValue:@"RNView" forKey:@"$element_type"];
                 [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:@"$element_content"];
-
+                
                 UIViewController *viewController = nil;
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -2562,13 +2656,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     //获取 Controller 名称($screen_name)
                     NSString *screenName = NSStringFromClass([viewController class]);
                     [properties setValue:screenName forKey:@"$screen_name"];
-
+                    
                     NSString *controllerTitle = viewController.navigationItem.title;
                     if (controllerTitle != nil) {
                         [properties setValue:viewController.navigationItem.title forKey:@"$title"];
                     }
                 }
-
+                
                 [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties];
             }
         } @catch (NSException *exception) {
@@ -2765,10 +2859,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [properties setValue:@"UILabel" forKey:@"$element_type"];
             UILabel *label = (UILabel*)view;
             [properties setValue:label.text forKey:@"$element_content"];
+            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:@"$element_type"];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
             UIImageView *imageView = (UIImageView *)view;
+            [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
             if (imageView) {
                 if (imageView.image) {
                     NSString *imageName = imageView.image.sensorsAnalyticsImageName;

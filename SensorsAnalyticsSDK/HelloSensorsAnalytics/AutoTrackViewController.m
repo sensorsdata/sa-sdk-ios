@@ -23,6 +23,10 @@
     
     [_myLabel addGestureRecognizer:labelTapGestureRecognizer];
     
+    UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
+    _imageView.userInteractionEnabled = YES;
+    [_imageView addGestureRecognizer:imageViewTapGestureRecognizer];
+    
     [_myUISwitch addTarget:self action:@selector(picSwitchClick:) forControlEvents:UIControlEventTouchUpInside];
     
     _myButton1.sensorsAnalyticsDelegate = self;
@@ -35,6 +39,10 @@
 -(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
     UILabel *label=(UILabel*)recognizer.view;
     NSLog(@"%@被点击了",label.text);
+}
+
+-(void) imageViewTouchUpInside:(UITapGestureRecognizer *)recognizer{
+    NSLog(@"UIImageView被点击了");
 }
 
 - (void)didReceiveMemoryWarning {

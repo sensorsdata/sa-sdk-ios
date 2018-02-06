@@ -248,6 +248,38 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
         // the "fast" (also also simple) path is to use KVC
         id valueForKey = [object valueForKey:selectorDescription.selectorName];
 
+        if ([object isKindOfClass:[UICollectionView class]]) {
+            NSString *name = propertyDescription.name;
+            if ([name isEqualToString:@"subviews"]) {
+                @try {
+                    NSArray *result;
+                    result = [valueForKey sortedArrayUsingComparator:^NSComparisonResult(UIView *obj1, UIView *obj2) {
+                        if (obj2.frame.origin.y > obj1.frame.origin.y) {
+                            return NSOrderedDescending;
+                        } else {
+                            if (obj2.frame.origin.x > obj1.frame.origin.x) {
+                                return NSOrderedDescending;
+                            } else {
+                                return NSOrderedAscending;
+                            }
+                        }
+                        return NSOrderedSame;
+                    }];
+                    valueForKey = [result copy];
+                    //valueForKey =  [[valueForKey reverseObjectEnumerator] allObjects];
+                } @catch (NSException *exception) {
+
+                }
+            }
+        }
+
+        if ([object isKindOfClass:[UITableView class]] || [object isKindOfClass:[UICollectionView class]]) {
+            NSString *name = propertyDescription.name;
+            if ([name isEqualToString:@"subviews"]) {
+                valueForKey =  [[valueForKey reverseObjectEnumerator] allObjects];
+            }
+        }
+
         id value = [self propertyValue:valueForKey
                    propertyDescription:propertyDescription
                                context:context];

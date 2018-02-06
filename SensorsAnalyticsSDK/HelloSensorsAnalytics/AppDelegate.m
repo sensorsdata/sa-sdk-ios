@@ -7,30 +7,40 @@
 //
 
 #import "AppDelegate.h"
-
 #import "SensorsAnalyticsSDK.h"
-
+#import "SAAppExtensionDataManager.h"
 @interface AppDelegate ()
 
 @end
-
 @implementation AppDelegate
 
-
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://test-zouyuhan.cloud.sensorsdata.cn:8006/sa?project=wangzhuozhou&token=db52d13749514676"
-                                     andConfigureURL:@"http://test-zouyuhan.cloud.sensorsdata.cn:8006/config/?project=wangzhuozhou"
+    
+  
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
+#ifdef DEBUG
+    //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
+#endif
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    
-    [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeWIFI];
-
+    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+    [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
+    //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
+    [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
+    [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     return YES;
+}
+
+- (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
+    if ([[SensorsAnalyticsSDK sharedInstance] handleHeatMapUrl:url]) {
+        return YES;
+    }
+    return NO;
 }
 
 - (void)applicationWillResignActive:(UIApplication *)application {
@@ -48,11 +58,27 @@
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
+    //@"group.cn.com.sensorsAnalytics.share"
+    [[SensorsAnalyticsSDK sharedInstance]trackEventFromExtensionWithGroupIdentifier:@"group.cn.com.sensorsAnalytics.share" completion:^(NSString *identifiy ,NSArray *events){
+        
+    }];
+//   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
+//    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
+//    for (NSDictionary *dict in eventArray  ) {
+//        [[SensorsAnalyticsSDK sharedInstance]track:dict[@"event"] withProperties:dict[@"properties"]];
+//    }
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
+    //[[SAAppExtensionDataManager sharedInstance]deleteEventsWithGroupIdentifier:@"dd"];
+    //[[SAAppExtensionDataManager sharedInstance]readAllEventsWithGroupIdentifier:NULL];
+    //[[SAAppExtensionDataManager sharedInstance]writeEvent:@"eee" properties:@"" groupIdentifier:@"ff"];
+    //[[SAAppExtensionDataManager sharedInstance]fileDataCountForGroupIdentifier:@"ff"];
+    //[[SAAppExtensionDataManager sharedInstance]fileDataArrayWithPath:@"fff" limit:-1];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
+
+
 
 @end

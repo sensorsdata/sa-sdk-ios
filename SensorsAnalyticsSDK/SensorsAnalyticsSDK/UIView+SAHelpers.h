@@ -12,5 +12,11 @@
 - (UIImage *)sa_snapshotForBlur;
 - (int)mp_fingerprintVersion;
 
+- (NSString *)jjf_varA;
+- (NSString *)jjf_varB;
+- (NSString *)jjf_varC;
+- (NSArray *)jjf_varSetD;
+- (NSString *)jjf_varE;
+
 @end
 

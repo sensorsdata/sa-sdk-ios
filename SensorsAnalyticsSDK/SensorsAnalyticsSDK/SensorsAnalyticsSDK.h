@@ -858,7 +858,24 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 主动调用flush接口，则不论flushInterval和网络类型的限制条件是否满足，都尝试向服务器上传一次数据
  */
 - (void)flush;
+#pragma mark- heatMap
+- (BOOL)handleHeatMapUrl:(NSURL *)url;
 
+/**
+ * @abstract
+ * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap;
+
+- (BOOL)isHeatMapEnabled;
+
+/**
+ * @abstract
+ * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
+ */
+- (void)addHeatMapViewControllers:(NSArray *)controllers;
+
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 #pragma mark- profile
 /**
  * @abstract

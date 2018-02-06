@@ -5,7 +5,8 @@
 //  Created by ZouYuhan on 1/19/16.
 //  Copyright © 2016 SensorsData. All rights reserved.
 //
-
+#import "TestTableViewController.h"
+#import "TestCollectionViewController.h"
 #import <Foundation/Foundation.h>
 
 #import "zlib.h"
@@ -78,13 +79,20 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     NSUInteger row = [indexPath row];
     switch (row) {
-        case 0l:
+        case 0:{
             NSLog(@"测试track");
-            [self testTrack];
+            //[self testTrack];
+            TestTableViewController *vc =  [[TestTableViewController alloc]init ];
+            //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
+            [self.navigationController pushViewController:vc  animated:YES];
+        }
             break;
-        case 1l:
+        case 1l: {
             NSLog(@"测试track_signup");
             [self testTrackSignup];
+            TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc] init];
+            [self.navigationController pushViewController:collectionVC animated:YES];
+        }
             break;
         case 2l:
             NSLog(@"测试track_installation");

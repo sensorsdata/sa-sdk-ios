@@ -10,6 +10,7 @@
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
 #import "AutoTrackUtils.h"
+#import "UIView+SAHelpers.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -179,6 +180,9 @@
                 } else {
                     [properties setValue:@"unchecked" forKey:@"$element_content"];
                 }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:uiSwitch withViewController:viewController];
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -195,6 +199,9 @@
                 if (stepper) {
                     [properties setValue:[NSString stringWithFormat:@"%g", stepper.value] forKey:@"$element_content"];
                 }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:stepper withViewController:viewController];
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -228,6 +235,9 @@
                 
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:@"$element_position"];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:segmented withViewController:viewController];
+                
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;
                 if (propDict != nil) {
@@ -328,6 +338,8 @@
                         }
                     }
                 }
+                
+                [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
                 
                 //View Properties
                 NSDictionary* propDict = view.sensorsAnalyticsViewProperties;

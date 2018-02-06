@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16F73" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="O4G-ih-TAZ">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="12121" systemVersion="16G29" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="O4G-ih-TAZ">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
@@ -306,9 +306,12 @@
                                 </connections>
                             </button>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OYz-cB-xTq">
-                                <rect key="frame" x="198" y="99" width="90" height="30"/>
+                                <rect key="frame" x="198" y="99" width="144" height="30"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <state key="normal" title="第二个button"/>
+                                <connections>
+                                    <segue destination="E0X-FZ-J62" kind="push" id="ebD-e1-sIg"/>
+                                </connections>
                             </button>
                             <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="left" contentVerticalAlignment="center" text="我是TextField" borderStyle="roundedRect" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="Xab-Ib-gIt">
                                 <rect key="frame" x="42" y="150" width="261" height="30"/>
@@ -317,13 +320,16 @@
                                 <textInputTraits key="textInputTraits"/>
                             </textField>
                             <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="e12-WC-C07">
-                                <rect key="frame" x="42" y="211" width="334" height="261"/>
+                                <rect key="frame" x="42" y="211" width="286" height="90"/>
                                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                 <subviews>
                                     <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DlD-v3-Nle">
                                         <rect key="frame" x="32" y="40" width="150" height="30"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <state key="normal" title="我是个滚动板里的按钮"/>
+                                        <connections>
+                                            <action selector="onButton1Click:" destination="pvM-Qg-FGW" eventType="touchUpInside" id="ZFu-HQ-fyz"/>
+                                        </connections>
                                     </button>
                                 </subviews>
                             </scrollView>
@@ -349,11 +355,16 @@
                                     <action selector="segmentOnClick:" destination="pvM-Qg-FGW" eventType="valueChanged" id="Ni4-zF-biF"/>
                                 </connections>
                             </segmentedControl>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="ic_test.png" translatesAutoresizingMaskIntoConstraints="NO" id="L9V-ek-xdw">
+                                <rect key="frame" x="66" y="329" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     </view>
                     <navigationItem key="navigationItem" title="Codeless Test" id="dDg-bN-ajN"/>
                     <connections>
+                        <outlet property="imageView" destination="L9V-ek-xdw" id="nPe-MJ-G0q"/>
                         <outlet property="myButton1" destination="AQe-ge-t3D" id="WG1-4Y-fhJ"/>
                         <outlet property="myLabel" destination="6vd-Bp-g3F" id="U87-g7-tAZ"/>
                         <outlet property="myUISwitch" destination="g3O-Bv-ZAs" id="CcS-1f-qBr"/>
@@ -361,7 +372,37 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="b9t-xA-BCI" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="772" y="707"/>
+            <point key="canvasLocation" x="772" y="706.59670164917543"/>
+        </scene>
+        <!--Test View Controller-->
+        <scene sceneID="4Me-yb-Kxd">
+            <objects>
+                <viewController id="E0X-FZ-J62" customClass="TestViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="6nO-Z9-MT9"/>
+                        <viewControllerLayoutGuide type="bottom" id="pqM-IW-ODi"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="H6f-X6-QeR">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="5wG-vy-4Mj">
+                                <rect key="frame" x="164" y="231" width="46" height="30"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                <state key="normal" title="Button"/>
+                                <connections>
+                                    <action selector="onButtonClick2:" destination="E0X-FZ-J62" eventType="touchUpInside" id="xst-DB-Ao1"/>
+                                    <action selector="onButtonClick:" destination="E0X-FZ-J62" eventType="touchUpInside" id="qg8-sS-hyt"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
+                    <navigationItem key="navigationItem" id="DeD-GC-Knk"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="X6F-iz-rzj" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="1628" y="713"/>
         </scene>
         <!--Main-->
         <scene sceneID="DZC-Fr-w8Z">
@@ -380,4 +421,7 @@
             <point key="canvasLocation" x="26" y="-79"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="ic_test.png" width="750" height="446"/>
+    </resources>
 </document>
