@@ -36,7 +36,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.1"
+#define VERSION @"1.9.2"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -3388,35 +3388,51 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)set:(NSDictionary *)profileDict {
-    [_sdk track:nil withProperties:profileDict withType:@"profile_set"];
+    if (profileDict) {
+        [_sdk track:nil withProperties:profileDict withType:@"profile_set"];
+    }
 }
 
 - (void)setOnce:(NSDictionary *)profileDict {
-    [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
+    if (profileDict) {
+        [_sdk track:nil withProperties:profileDict withType:@"profile_set_once"];
+    }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
-    [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
+    if (profile && content) {
+        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set"];
+    }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
-    [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
+    if (profile && content) {
+        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_set_once"];
+    }
 }
 
 - (void)unset:(NSString *) profile {
-    [_sdk track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
+    if (profile) {
+        [_sdk track:nil withProperties:@{profile: @""} withType:@"profile_unset"];
+    }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
-    [_sdk track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
+    if (profile && amount) {
+        [_sdk track:nil withProperties:@{profile: amount} withType:@"profile_increment"];
+    }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
-    [_sdk track:nil withProperties:profileDict withType:@"profile_increment"];
+    if (profileDict) {
+        [_sdk track:nil withProperties:profileDict withType:@"profile_increment"];
+    }
 }
 
 - (void)append:(NSString *)profile by:(NSSet *)content {
-    [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+    if (profile && content) {
+        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+    }
 }
 
 - (void)deleteUser {

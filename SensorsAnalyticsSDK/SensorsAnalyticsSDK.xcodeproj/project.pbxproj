@@ -102,7 +102,7 @@
 		4DBA6FA01B4B8DC4004F0ADB /* NSData+SABase64.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */; };
 		4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DBA6FA11B4B9B9C004F0ADB /* MessageQueueBySqlite.h */; };
 		4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DBA6FA21B4B9B9C004F0ADB /* MessageQueueBySqlite.m */; };
-		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; };
+		A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A11C5457201075020074E817 /* SAAppExtensionDataManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
@@ -122,7 +122,6 @@
 		A1D1C5831FB44902006685C1 /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = A1D1C5811FB448FA006685C1 /* libz.tbd */; };
 		A1D1C5841FB44908006685C1 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		A1D1C5851FB44913006685C1 /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A366491F1CC784A1008D991E /* SafariServices.framework */; };
-		A1D1C58B1FB45019006685C1 /* snapshot_request_ios.json in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8411FA201CE002EA41B /* snapshot_request_ios.json */; };
 		A1D1C58C1FB45019006685C1 /* snapshot_payload.json in Resources */ = {isa = PBXBuildFile; fileRef = A39898A01C33FB330046B1F4 /* snapshot_payload.json */; };
 		A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = 0027C8521FA201E9002EA41B /* ic_test.png */; };
 		A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = 00DC9CDB1D7E9E3F00C7DF6C /* JSCallOC.html */; };
@@ -261,7 +260,6 @@
 		0027C83E1FA201CE002EA41B /* SAAbstractHeatMapMessage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAbstractHeatMapMessage.m; sourceTree = "<group>"; };
 		0027C83F1FA201CE002EA41B /* SAHeapMapConnection.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAHeapMapConnection.m; sourceTree = "<group>"; };
 		0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapMessage.h; sourceTree = "<group>"; };
-		0027C8411FA201CE002EA41B /* snapshot_request_ios.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = snapshot_request_ios.json; sourceTree = "<group>"; };
 		0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAHeatMapSnapshotMessage.h; sourceTree = "<group>"; };
 		0027C8521FA201E9002EA41B /* ic_test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_test.png; sourceTree = "<group>"; };
 		0027C8541FA201FC002EA41B /* TestTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTableViewController.h; sourceTree = "<group>"; };
@@ -531,7 +529,6 @@
 				0027C8401FA201CE002EA41B /* SAHeatMapMessage.h */,
 				0027C8421FA201CE002EA41B /* SAHeatMapSnapshotMessage.h */,
 				0027C83C1FA201CE002EA41B /* SAHeatMapSnapshotMessage.m */,
-				0027C8411FA201CE002EA41B /* snapshot_request_ios.json */,
 				000919891F974CE100E5D3C5 /* UIViewController+AutoTrack.h */,
 				0009198A1F974CE100E5D3C5 /* UIViewController+AutoTrack.m */,
 				002BF66F1F0A875100824F76 /* UIImage+AutoTrack.h */,
@@ -672,6 +669,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				008D82AE1F0E22ED00052CFF /* NSString+HashCode.h in Headers */,
+				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
 				A3746E9C1C313E15008A50A3 /* SAApplicationStateSerializer.h in Headers */,
 				0027C8491FA201CE002EA41B /* SAHeatMapSnapshotMessage.h in Headers */,
 				A3E388A11D509B8900F6B9FC /* SAReachability.h in Headers */,
@@ -679,7 +677,6 @@
 				00EA990F1EEF9D1A005E524F /* UICollectionView+AutoTrack.h in Headers */,
 				A3997A251C3AC1DE005A9374 /* SAObjectSelector.h in Headers */,
 				A3997A1F1C3ABCE3005A9374 /* SADesignerEventBindingMessage.h in Headers */,
-				A11C5459201075020074E817 /* SAAppExtensionDataManager.h in Headers */,
 				0009198B1F974CE100E5D3C5 /* UIViewController+AutoTrack.h in Headers */,
 				A3746EC01C3190E7008A50A3 /* SAPropertyDescription.h in Headers */,
 				4D14F17E1B4A7A32006AD786 /* SALogger.h in Headers */,
@@ -885,7 +882,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1D1C58B1FB45019006685C1 /* snapshot_request_ios.json in Resources */,
 				A1D1C58C1FB45019006685C1 /* snapshot_payload.json in Resources */,
 				A1D1C58D1FB45019006685C1 /* ic_test.png in Resources */,
 				A1D1C58E1FB45019006685C1 /* JSCallOC.html in Resources */,
