@@ -36,7 +36,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.2"
+#define VERSION @"1.9.3"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 

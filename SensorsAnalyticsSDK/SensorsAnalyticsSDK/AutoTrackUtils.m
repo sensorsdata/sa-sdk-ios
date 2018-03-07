@@ -97,7 +97,9 @@
             }
         }
         if (count <= 1) {
-            [viewPathArray addObject:NSStringFromClass([responder class])];
+            if (NSStringFromClass([responder class])) {
+                [viewPathArray addObject:NSStringFromClass([responder class])];
+            }
         } else {
             NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
             for (UIView *v in subviews) {
@@ -305,7 +307,7 @@
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
         NSString *cellClass =NSStringFromClass([cell class]);
         
-        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
+        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             long section = (unsigned long)indexPath.section;
             int count = 0;
@@ -468,7 +470,7 @@
         NSString *cellClass =NSStringFromClass([cell class]);
         NSString *elementContent = [[NSString alloc] init];
 
-        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
+        if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
             NSMutableArray *viewPathArray = [[NSMutableArray alloc] init];
             long section = (unsigned long)indexPath.section;
             int count = 0;
