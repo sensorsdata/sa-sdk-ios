@@ -752,13 +752,25 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 获取LastScreenTrackProperties
+ * 获取 LastScreenTrackProperties
  *
  * @return LastScreenTrackProperties
  */
 - (NSDictionary *)getLastScreenTrackProperties;
 
+/**
+ * @abstract
+ * H5 数据打通的时候默认通过 ServerUrl 校验
+ */
 - (void)addWebViewUserAgentSensorsDataFlag;
+
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
 
 - (SensorsAnalyticsDebugMode)debugMode;
 

@@ -80,7 +80,8 @@
 }
 
 + (void)sa_find_responder:(id)responder withViewPathArray:(NSMutableArray *)viewPathArray {
-    while (![responder isKindOfClass:[UIViewController class]] &&
+
+    while (responder!=nil&&![responder isKindOfClass:[UIViewController class]] &&
            ![responder isKindOfClass:[UIWindow class]]) {
         long count = 0;
         NSArray<__kindof UIView *> *subviews;
@@ -305,6 +306,10 @@
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
+        if (cell==nil) {
+            [collectionView layoutIfNeeded];
+            cell = [collectionView cellForItemAtIndexPath:indexPath];
+        }
         NSString *cellClass =NSStringFromClass([cell class]);
         
         if ([[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled] && [[SensorsAnalyticsSDK sharedInstance] isHeatMapViewController:viewController]) {
@@ -467,6 +472,10 @@
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+        if (cell == nil) {
+            [tableView layoutIfNeeded];
+            cell = [tableView cellForRowAtIndexPath:indexPath];
+        }
         NSString *cellClass =NSStringFromClass([cell class]);
         NSString *elementContent = [[NSString alloc] init];
 

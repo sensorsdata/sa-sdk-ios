@@ -91,11 +91,22 @@ void SASignalHandler(int signal, struct __siginfo *info, void *context) {
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
     if (exceptionCount <= UncaughtExceptionMaximum) {
         NSDictionary *userInfo = @{UncaughtExceptionHandlerSignalKey: @(signal)};
-        NSException *exception = [NSException exceptionWithName:UncaughtExceptionHandlerSignalExceptionName
-                                                         reason:[NSString stringWithFormat:@"Signal %d was raised. %@", signal, [NSThread callStackSymbols]]
-                                                       userInfo:userInfo];
-        
-        [handler sa_handleUncaughtException:exception];
+        NSString *reason;
+        @try {
+            reason = [NSString stringWithFormat:@"Signal %d was raised. %@", signal, [NSThread callStackSymbols]];
+        } @catch(NSException *exception) {
+            reason = [NSString stringWithFormat:@"Signal %d was raised", signal];
+        }
+
+        @try {
+            NSException *exception = [NSException exceptionWithName:UncaughtExceptionHandlerSignalExceptionName
+                                                             reason:reason
+                                                           userInfo:userInfo];
+
+            [handler sa_handleUncaughtException:exception];
+        } @catch(NSException *exception) {
+
+        }
     }
     
     struct sigaction prev_action = handler.prev_signal_handlers[signal];
@@ -123,18 +134,22 @@ void SAHandleException(NSException *exception) {
 
 - (void) sa_handleUncaughtException:(NSException *)exception {
     // Archive the values for each SensorsAnalytics instance
-    for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        [properties setValue:[exception reason] forKey:@"app_crashed_reason"];
-        [instance track:@"AppCrashed" withProperties:properties];
-        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-            [instance track:@"$AppEnd"];
+    @try {
+        for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
+            NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            [properties setValue:[exception reason] forKey:@"app_crashed_reason"];
+            [instance track:@"AppCrashed" withProperties:properties];
+            if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
+                [instance track:@"$AppEnd"];
+            }
+            dispatch_sync(instance.serialQueue, ^{
+
+            });
         }
-        dispatch_sync(instance.serialQueue, ^{
-            
-        });
+        NSLog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
+    } @catch(NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
     }
-    NSLog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
 }
 
 @end

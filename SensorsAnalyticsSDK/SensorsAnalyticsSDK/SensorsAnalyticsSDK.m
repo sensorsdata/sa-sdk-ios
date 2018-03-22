@@ -36,7 +36,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.3"
+#define VERSION @"1.9.4"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1104,8 +1104,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType |= eventType;
-    _autoTrack = YES;
+    _autoTrackEventType = eventType;
+    _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
@@ -1512,8 +1512,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
     
     [libProperties setValue:[_automaticProperties objectForKey:@"$lib"] forKey:@"$lib"];
@@ -1563,6 +1561,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
+        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -2336,16 +2335,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag {
+    [self addWebViewUserAgentSensorsDataFlag:YES];
+}
+
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
+    __block BOOL verify = enableVerify;
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            UIWebView * tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-            NSString * oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            NSString * newAgent = oldAgent;
-            if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
-                newAgent = [oldAgent stringByAppendingString:@"/sa-sdk-ios"];
+            if (self->_serverURL == nil || self->_serverURL.length == 0) {
+                verify = NO;
             }
-
-            NSDictionary * dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
+            SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
+            UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
+            NSString *oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            NSString *newAgent = oldAgent;
+            if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
+                if (verify) {
+                    newAgent = [oldAgent stringByAppendingString:[NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ",ss.host,ss.project]];
+                } else {
+                    newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
+                }
+            }
+            NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
