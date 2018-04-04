@@ -60,7 +60,7 @@
         if (sameTypeViews.count > 1) {
             NSString * className = nil;
             NSUInteger index = [sameTypeViews indexOfObject:view];
-            className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([view class]), index];
+            className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([view class]), (unsigned long)index];
             [viewPathArray addObject:className];
         } else {
             [viewPathArray addObject:NSStringFromClass([view class])];
@@ -113,7 +113,7 @@
             if (sameTypeViews.count > 1) {
                 NSString * className = nil;
                 NSUInteger index = [sameTypeViews indexOfObject:responder];
-                className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), index];
+                className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
                 [viewPathArray addObject:className];
             } else {
                 [viewPathArray addObject:NSStringFromClass([responder class])];
@@ -140,7 +140,7 @@
                     if (items.count > 1) {
                         NSString * className = nil;
                         NSUInteger index = [items indexOfObject:responder];
-                        className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), index];
+                        className = [NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index];
                         [viewPathArray addObject:className];
                     } else {
                         [viewPathArray addObject:NSStringFromClass([responder class])];
@@ -351,8 +351,8 @@
             if ([viewsArray count] == 1) {
                 [viewPathArray addObject:NSStringFromClass([responder class])];
             } else {
-                NSInteger index = [viewsArray indexOfObject:collectionView];
-                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld]", NSStringFromClass([responder class]), index]];
+                NSUInteger index = [viewsArray indexOfObject:collectionView];
+                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index]];
             }
             
             responder = [responder nextResponder];
@@ -516,8 +516,8 @@
             if ([viewsArray count] == 1) {
                 [viewPathArray addObject:NSStringFromClass([responder class])];
             } else {
-                NSInteger index = [viewsArray indexOfObject:tableView];
-                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%ld]", NSStringFromClass([responder class]), index]];
+                NSUInteger index = [viewsArray indexOfObject:tableView];
+                [viewPathArray addObject:[NSString stringWithFormat:@"%@[%lu]", NSStringFromClass([responder class]), (unsigned long)index]];
             }
             responder = [responder nextResponder];
             [self sa_find_responder:responder withViewPathArray:viewPathArray];
