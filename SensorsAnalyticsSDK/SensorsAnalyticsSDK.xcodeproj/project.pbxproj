@@ -92,6 +92,8 @@
 		A1624B60200894940088FBC9 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1624B5F200894940088FBC9 /* ShareViewController.m */; };
 		A1624B63200894940088FBC9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1624B61200894940088FBC9 /* MainInterface.storyboard */; };
 		A1624B67200894940088FBC9 /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1624B5C200894940088FBC9 /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		A1753DD72074AEC400425771 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1753DD62074AEC400425771 /* SALogger.m */; };
+		A1753DD82074AEC400425771 /* SALogger.m in Sources */ = {isa = PBXBuildFile; fileRef = A1753DD62074AEC400425771 /* SALogger.m */; };
 		A1A5A1A81FAC640800D06C7F /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */; };
 		A1D1C5691FB445BC006685C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C5681FB445BC006685C1 /* AppDelegate.swift */; };
 		A1D1C56B1FB445BC006685C1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C56A1FB445BC006685C1 /* ViewController.swift */; };
@@ -315,6 +317,7 @@
 		A1624B64200894940088FBC9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		A1624B6C200894D70088FBC9 /* HelloSensorsAnalytics.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = HelloSensorsAnalytics.entitlements; sourceTree = "<group>"; };
 		A1624B6D200894E10088FBC9 /* share.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = share.entitlements; sourceTree = "<group>"; };
+		A1753DD62074AEC400425771 /* SALogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALogger.m; sourceTree = "<group>"; };
 		A1A5A1A61FAC640800D06C7F /* TestCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCollectionViewController.h; sourceTree = "<group>"; };
 		A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
 		A1D1C5661FB445BC006685C1 /* SensorsDataSwiftDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwiftDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -588,6 +591,7 @@
 				4D14F17F1B4A7B15006AD786 /* NSData+SABase64.h */,
 				4D14F1801B4A7B15006AD786 /* NSData+SABase64.m */,
 				4D14F17C1B4A7A32006AD786 /* SALogger.h */,
+				A1753DD62074AEC400425771 /* SALogger.m */,
 				4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */,
 				4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */,
 				00EA99EA1EEFAEC6005E524F /* UIAlertView+AutoTrack.h */,
@@ -908,6 +912,7 @@
 				A3A85C1D1C3BB8E100DCA1A4 /* SASwizzler.m in Sources */,
 				A3A85C1E1C3BB8E100DCA1A4 /* SAEventBinding.m in Sources */,
 				A3A85C1F1C3BB8E100DCA1A4 /* SAUIControlBinding.m in Sources */,
+				A1753DD82074AEC400425771 /* SALogger.m in Sources */,
 				A3A85C201C3BB8E100DCA1A4 /* SAUITableViewBinding.m in Sources */,
 				A3746EE01C32E7AC008A50A3 /* SAAbstractDesignerMessage.m in Sources */,
 				A3746EDE1C32E796008A50A3 /* SADesignerDeviceInfoMessage.m in Sources */,
@@ -970,6 +975,7 @@
 				A3A85C171C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.m in Sources */,
 				008D82AF1F0E22ED00052CFF /* NSString+HashCode.m in Sources */,
 				0009198C1F974CE100E5D3C5 /* UIViewController+AutoTrack.m in Sources */,
+				A1753DD72074AEC400425771 /* SALogger.m in Sources */,
 				A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */,
 				4D2AF15D1B4BAE77007716F8 /* JSONUtil.m in Sources */,
 				A3746EBD1C3190E7008A50A3 /* SAClassDescription.m in Sources */,

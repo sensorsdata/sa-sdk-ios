@@ -101,11 +101,8 @@
     if (_messageCount == 0) {
         return @[];
     }
-    
     NSMutableArray* contentArray = [[NSMutableArray alloc] init];
-    
     NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
-    
     sqlite3_stmt* stmt = NULL;
     int rc = sqlite3_prepare_v2(_database, [query UTF8String], -1, &stmt, NULL);
     if(rc == SQLITE_OK) {
@@ -190,6 +187,5 @@
     return YES;
 #endif
 }
-
 
 @end

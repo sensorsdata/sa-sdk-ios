@@ -36,7 +36,7 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.5"
+#define VERSION @"1.9.6"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -386,9 +386,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.configureURL = configureURL;
             self.vtrackServerURL = vtrackServerURL;
             _debugMode = debugMode;
-
             [self setServerUrl:serverURL];
-
+            [self enableLog];
+            
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
@@ -469,19 +469,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
                               self, serverURL, [self debugModeToString:debugMode]];
             }
-            BOOL printLog = NO;
-#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
-            printLog = YES;
-#endif
 
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                printLog = YES;
-            }
-
-            if (printLog) {
-                NSLog(@"%@", logMessage);
-            }
-
+            SALog(@"%@", logMessage);
+            
             //打开debug模式，弹出提示
 #ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
             if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -606,26 +596,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)disableDebugMode {
     _debugMode = SensorsAnalyticsDebugOff;
     _serverURL = _originServerUrl;
+    [self enableLog:NO];
 }
 
 - (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
+    NSString *modeStr = nil;
     switch (debugMode) {
         case SensorsAnalyticsDebugOff:
-            return @"DebugOff";
+            modeStr = @"DebugOff";
             break;
-
         case SensorsAnalyticsDebugAndTrack:
-            return @"DebugAndTrack";
+            modeStr = @"DebugAndTrack";
             break;
-
         case SensorsAnalyticsDebugOnly:
-            return @"DebugOnly";
+            modeStr = @"DebugOnly";
             break;
-
         default:
-            return @"Unknown";
+            modeStr = @"Unknown";
             break;
     }
+    return modeStr;
 }
 
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
@@ -893,9 +883,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
 
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                SALog(@"track event from H5:%@", eventDict);
-            }
+            SALog(@"\n【track event from H5】:\n%@", eventDict);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *newLoginId = [eventDict objectForKey:@"distinct_id"];
@@ -1005,7 +993,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if ([urlstr rangeOfString:scheme].location != NSNotFound) {
                 typedef void(^Myblock)(id,NSError *);
                 Myblock myBlock = ^(id _Nullable response, NSError * _Nullable error){
-                    NSLog(@"response: %@ error: %@", response, error);
+                    SALog(@"response: %@ error: %@", response, error);
                 };
                 SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
                 if (sharedManagerSelector) {
@@ -1253,48 +1241,37 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
-            if([urlResponse statusCode] != 200) {
-                NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-                NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+            NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
+            NSString *messageDesc = nil;
+            NSInteger statusCode = urlResponse.statusCode;
+            if(statusCode != 200) {
+                messageDesc = @"\n【invalid message】\n";
                 if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SAError(@"==========================================================================");
-                    @try {
-                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
-                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                        NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                        SAError(@"%@ invalid message: %@", self, logString);
-                        #endif
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
-                    SAError(@"%@ ret_code: %ld", self, [urlResponse statusCode]);
-                    SAError(@"%@ ret_content: %@", self, urlResponseContent);
-                    
-                    if ([urlResponse statusCode] >= 300) {
+                    if (statusCode >= 300) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                     }
                 } else {
-                    SAError(@"%@", errMsg);
-                    if ([urlResponse statusCode] >= 300) {
+                    if (statusCode >= 300) {
                         flushSucc = NO;
                     }
                 }
             } else {
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    SAError(@"==========================================================================");
-                    @try {
-                        #if (defined DEBUG) || (defined SENSORS_ANALYTICS_ENABLE_LOG)
-                        NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                        NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                        NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                        SAError(@"%@ valid message: %@", self, logString);
-                        #endif
-                    } @catch (NSException *exception) {
-                        SAError(@"%@: %@", self, exception);
-                    }
+                messageDesc = @"\n【valid message】\n";
+            }
+            SAError(@"==========================================================================");
+            if ([SALogger isLoggerEnabled]) {
+                @try {
+                    NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
+                    NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                    NSString *logString=[[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
+                    SAError(@"%@ %@: %@", self,messageDesc,logString);
+                } @catch (NSException *exception) {
+                    SAError(@"%@: %@", self, exception);
                 }
             }
+            SAError(@"%@ ret_code: %ld", self, statusCode);
+            SAError(@"%@ ret_content: %@", self, urlResponseContent);
             
             dispatch_semaphore_signal(flushSem);
         };
@@ -1688,9 +1665,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                   };
         }
         
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            SALog(@"track event:%@", e);
-        }
+        SALog(@"\n【track event】:\n%@", e);
         
         [self enqueueWithType:type andEvent:[e copy]];
         
@@ -3380,6 +3355,27 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)deleteUser {
     [[self people] deleteUser];
+}
+
+-(void)enableLog:(BOOL)enabelLog
+{
+    [SALogger enableLog:enabelLog];
+}
+
+-(void)enableLog{
+    BOOL printLog = NO;
+#if (defined SENSORS_ANALYTICS_ENABLE_LOG)
+    printLog = YES;
+#endif
+    
+#if (defined SENSORS_ANALYTICS_DISABLE_LOG)
+    printLog = NO;
+#endif
+    
+    if ( [self debugMode] != SensorsAnalyticsDebugOff) {
+        printLog = YES;
+    }
+    [SALogger enableLog:printLog];
 }
 
 @end

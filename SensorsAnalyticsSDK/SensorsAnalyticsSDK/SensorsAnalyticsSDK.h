@@ -995,6 +995,18 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)deleteUser;
 
+/**
+ * @abstract
+ * log功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启 SDK log , SensorsAnalyticsDebugOff 模式默认关闭 log
+ * SensorsAnalyticsDebugOnly  SensorsAnalyticsDebugAndTrack 模式默认开启log
+ *
+ * @param enabelLog YES/NO
+ */
+- (void)enableLog:(BOOL)enabelLog;
+
 @end
 
 /**

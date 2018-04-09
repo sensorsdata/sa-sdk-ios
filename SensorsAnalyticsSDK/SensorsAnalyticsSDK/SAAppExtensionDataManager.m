@@ -7,7 +7,7 @@
 //
 
 #import "SAAppExtensionDataManager.h"
-
+#import "SALogger.h"
 void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 
 @interface SAAppExtensionDataManager() {
@@ -154,7 +154,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             if(![[NSFileManager defaultManager]fileExistsAtPath:path]){
                 BOOL success = [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
                 if (success) {
-                    NSLog(@"create plist file success!!!!!!! APPEXtension...");
+                    SALog(@"create plist file success!!!!!!! APPEXtension...");
                 }
             }
             NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];

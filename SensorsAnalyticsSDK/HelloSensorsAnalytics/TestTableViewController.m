@@ -98,11 +98,11 @@
 {
     NSString *title = nil;
     if (tableView == self.tableView) {
-        title = [NSString stringWithFormat:@"table :section %ld",section];
+        title = [NSString stringWithFormat:@"table :section %ld",(long)section];
 
     }else{
         
-        title = [NSString stringWithFormat:@"table_1 :section %ld",section];
+        title = [NSString stringWithFormat:@"table_1 :section %ld",(long)section];
     }
     return title;
 

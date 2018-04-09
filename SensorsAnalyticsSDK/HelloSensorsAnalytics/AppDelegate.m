@@ -23,6 +23,7 @@
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
+
 #ifdef DEBUG
     //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
 #endif

@@ -7,9 +7,8 @@
  source code. See http://www.doxygen.org for more info.
  */
 #import "zlib.h"
-
+#import "SALogger.h"
 #import "SAGzipUtility.h"
-
 
 @implementation SAGzipUtility
 
@@ -29,7 +28,7 @@
     
     if (!pUncompressedData || [pUncompressedData length] == 0)
     {
-        NSLog(@"%s: Error: Can't compress an empty or null NSData object.", __func__);
+        SALog(@" Error: Can't compress an empty or null NSData object.");
         return nil;
     }
     
@@ -99,7 +98,7 @@
                     errorMsg = @"Unknown error code.";
                     break;
             }
-            NSLog(@"%s: deflateInit2() Error: \"%@\" Message: \"%s\"", __func__, errorMsg, zlibStreamStruct.msg);
+            SALog(@"deflateInit2() Error: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             return nil;
         }
     
@@ -159,7 +158,7 @@
                     errorMsg = @"Unknown error code.";
                     break;
             }
-            NSLog(@"%s: zlib error while attempting compression: \"%@\" Message: \"%s\"", __func__, errorMsg, zlibStreamStruct.msg);
+            SALog(@"zlib error while attempting compression: \"%@\" Message: \"%s\"", errorMsg, zlibStreamStruct.msg);
             
             // Free data structures that were dynamically created for the stream.
             deflateEnd(&zlibStreamStruct);

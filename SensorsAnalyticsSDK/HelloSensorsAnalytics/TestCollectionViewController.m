@@ -59,7 +59,7 @@
 //    button.frame = CGRectMake(0, 0, 60, 60);
     
     UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 60, 60)];
-    label.text = [NSString stringWithFormat:@"%ld:%@",indexPath.section, self.dataArray[indexPath.item]];
+    label.text = [NSString stringWithFormat:@"%ld:%@",(long)indexPath.section, self.dataArray[indexPath.item]];
     label.textColor = [UIColor redColor];
     [cell.contentView addSubview:label];
 //    [cell.contentView addSubview:button];
