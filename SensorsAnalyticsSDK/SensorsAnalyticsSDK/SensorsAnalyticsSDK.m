@@ -36,7 +36,8 @@
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
-#define VERSION @"1.9.6"
+#import "SAKeyChainItemWrapper.h"
+#define VERSION @"1.9.7"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -110,7 +111,6 @@ NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
 - (void)setSensorsAnalyticsAutoTrackAfterSendAction:(BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
     objc_setAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction", [NSNumber numberWithBool:sensorsAnalyticsAutoTrackAfterSendAction], OBJC_ASSOCIATION_ASSIGN);
 }
-
 
 //viewProperty
 - (NSDictionary *)sensorsAnalyticsViewProperties {
@@ -1743,20 +1743,31 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    BOOL isFirstTrackInstallation = NO;
+    BOOL hasTrackInstallation = NO;
     NSString *userDefaultsKey = nil;
     if (disableCallback) {
         userDefaultsKey = @"HasTrackInstallationWithDisableCallback";
+        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallationWithDisableCallback];
     } else {
         userDefaultsKey = @"HasTrackInstallation";
+        hasTrackInstallation = [SAKeyChainItemWrapper hasTrackInstallation];
     }
+
+    if (hasTrackInstallation) {
+        return;
+    }
+
     if (![[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey]) {
-        isFirstTrackInstallation = YES;
+        hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-    
-    if (isFirstTrackInstallation) {
+    if (disableCallback) {
+        [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];
+    }else{
+        [SAKeyChainItemWrapper markHasTrackInstallation];
+    }
+    if (!hasTrackInstallation) {
         // 追踪渠道是特殊功能，需要同时发送 track 和 profile_set_once
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         NSString *idfa = [self getIDFA];
@@ -2082,13 +2093,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unarchiveDistinctId {
     NSString *archivedDistinctId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"distinct_id"]];
-    if (archivedDistinctId == nil) {
-        BOOL isReal;
-        self.distinctId = [[self class] getUniqueHardwareId:&isReal];
-        [self archiveDistinctId];
+    NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
+    if (distinctIdInKeychain != nil && distinctIdInKeychain.length>0) {
+        self.distinctId = distinctIdInKeychain;
     } else {
-        self.distinctId = archivedDistinctId;
+        if (archivedDistinctId == nil) {
+            BOOL isReal;
+            self.distinctId = [[self class] getUniqueHardwareId:&isReal];
+        } else {
+            self.distinctId = archivedDistinctId;
+        }
     }
+    [self archiveDistinctId];
 }
 
 - (void)unarchiveLoginId {
@@ -2130,6 +2146,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (![NSKeyedArchiver archiveRootObject:[[self distinctId] copy] toFile:filePath]) {
         SAError(@"%@ unable to archive distinctId", self);
     }
+    [SAKeyChainItemWrapper saveUdid:self.distinctId];
     SADebug(@"%@ archived distinctId", self);
 }
 

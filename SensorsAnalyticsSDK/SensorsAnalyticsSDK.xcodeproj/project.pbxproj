@@ -89,6 +89,9 @@
 		A11C545A201075020074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545D2010751F0074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */; };
 		A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A11C5458201075020074E817 /* SAAppExtensionDataManager.m */; };
+		A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */; };
+		A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
+		A14938C9207B8746006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
 		A1624B60200894940088FBC9 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1624B5F200894940088FBC9 /* ShareViewController.m */; };
 		A1624B63200894940088FBC9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1624B61200894940088FBC9 /* MainInterface.storyboard */; };
 		A1624B67200894940088FBC9 /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1624B5C200894940088FBC9 /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -310,6 +313,8 @@
 		A11C5458201075020074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
 		A11C545B2010751E0074E817 /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppExtensionDataManager.h; sourceTree = "<group>"; };
 		A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
+		A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAKeyChainItemWrapper.h; sourceTree = "<group>"; };
+		A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapper.m; sourceTree = "<group>"; };
 		A1624B5C200894940088FBC9 /* share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1624B5E200894940088FBC9 /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		A1624B5F200894940088FBC9 /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
@@ -504,6 +509,8 @@
 		4D5CA7791B43E92D00D7ACB7 /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */,
+				A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */,
 				A11C5457201075020074E817 /* SAAppExtensionDataManager.h */,
 				A11C5458201075020074E817 /* SAAppExtensionDataManager.m */,
 				0038C5CF1FCFA13D00C1BBC1 /* SensorsAnalyticsExceptionHandler.h */,
@@ -684,6 +691,7 @@
 				A3997A351C3AC3B8005A9374 /* SAUITableViewBinding.h in Headers */,
 				A3746EC41C3190E7008A50A3 /* UIView+SAHelpers.h in Headers */,
 				0027C8431FA201CE002EA41B /* SAHeatMapConnection.h in Headers */,
+				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
 				A399F50D1C3C281D00B44340 /* SAValueTransformers.h in Headers */,
 				4D2AF15C1B4BAE77007716F8 /* JSONUtil.h in Headers */,
 				A3746EAE1C318B65008A50A3 /* SAObjectSerializerConfig.h in Headers */,
@@ -885,6 +893,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A14938C9207B8746006EF04A /* SAKeyChainItemWrapper.m in Sources */,
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
 				0041360D1FFB4938009F2097 /* SAServerUrl.m in Sources */,
 				0038C5D41FCFA16600C1BBC1 /* SensorsAnalyticsExceptionHandler.m in Sources */,
@@ -955,6 +964,7 @@
 				A3F32BD11C57302700C3B98D /* NSData+SABase64.m in Sources */,
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
 				A3997A2A1C3AC342005A9374 /* SASwizzler.m in Sources */,
+				A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */,
 				00EA97C21EEF7418005E524F /* UITableView+AutoTrack.m in Sources */,
 				0027C8441FA201CE002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
 				0027C8461FA201CE002EA41B /* SAAbstractHeatMapMessage.m in Sources */,
