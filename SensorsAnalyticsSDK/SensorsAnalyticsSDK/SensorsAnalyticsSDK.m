@@ -37,7 +37,7 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#define VERSION @"1.9.9"
+#define VERSION @"1.9.10"
 
 #define PROPERTY_LENGTH_LIMITATION 8191
 
@@ -1767,6 +1767,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         hasTrackInstallation = NO;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
         [[NSUserDefaults standardUserDefaults] synchronize];
+    } else {
+        hasTrackInstallation = YES;
     }
     if (disableCallback) {
         [SAKeyChainItemWrapper markHasTrackInstallationWithDisableCallback];

@@ -8,10 +8,10 @@
 //
 #import "SALogger.h"
 #import "SAKeyChainItemWrapper.h"
-NSString * kSAService = @"com.sensorsdata.analytics.udid";
-NSString * kSAUdidAccount = @"com.sensorsdata.analytics.udid";
-NSString * kSAAppInstallationAccount = @"com.sensorsdata.analytics.install";
-NSString * kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdata.analytics.install.disablecallback";
+NSString * const kSAService = @"com.sensorsdata.analytics.udid";
+NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
+NSString * const kSAAppInstallationAccount = @"com.sensorsdata.analytics.install";
+NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdata.analytics.install.disablecallback";
 @implementation SAKeyChainItemWrapper
 + (NSString *)saUdid {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAUdidAccount service:kSAService];
@@ -57,7 +57,7 @@ NSString * kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdata.anal
 }
 
 + (BOOL)deletePasswordWithAccount:(NSString *)account service:(NSString *)service {
-    return [self deletePasswordWithAccount:account service:service];
+    return [self deletePasswordWithAccount:account service:service accessGroup:nil];
 }
 
 + (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service accessGroup:(NSString *)accessGroup {
