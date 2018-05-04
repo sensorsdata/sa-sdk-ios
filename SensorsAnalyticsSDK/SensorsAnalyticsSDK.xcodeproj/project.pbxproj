@@ -92,6 +92,9 @@
 		A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */; };
 		A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
 		A14938C9207B8746006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
+		A15CBCA4208ED5D50014DE74 /* SASDKConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = A15CBCA2208ED5D50014DE74 /* SASDKConfig.h */; };
+		A15CBCA5208ED5D50014DE74 /* SASDKConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CBCA3208ED5D50014DE74 /* SASDKConfig.m */; };
+		A15CBCA6208ED9D80014DE74 /* SASDKConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CBCA3208ED5D50014DE74 /* SASDKConfig.m */; };
 		A1624B60200894940088FBC9 /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1624B5F200894940088FBC9 /* ShareViewController.m */; };
 		A1624B63200894940088FBC9 /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1624B61200894940088FBC9 /* MainInterface.storyboard */; };
 		A1624B67200894940088FBC9 /* share.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = A1624B5C200894940088FBC9 /* share.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -315,6 +318,8 @@
 		A11C545C2010751E0074E817 /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppExtensionDataManager.m; sourceTree = "<group>"; };
 		A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAKeyChainItemWrapper.h; sourceTree = "<group>"; };
 		A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapper.m; sourceTree = "<group>"; };
+		A15CBCA2208ED5D50014DE74 /* SASDKConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASDKConfig.h; sourceTree = "<group>"; };
+		A15CBCA3208ED5D50014DE74 /* SASDKConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASDKConfig.m; sourceTree = "<group>"; };
 		A1624B5C200894940088FBC9 /* share.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = share.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1624B5E200894940088FBC9 /* ShareViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
 		A1624B5F200894940088FBC9 /* ShareViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
@@ -611,6 +616,8 @@
 				008D82AD1F0E22ED00052CFF /* NSString+HashCode.m */,
 				004136081FFB4682009F2097 /* SAServerUrl.h */,
 				004136091FFB4682009F2097 /* SAServerUrl.m */,
+				A15CBCA2208ED5D50014DE74 /* SASDKConfig.h */,
+				A15CBCA3208ED5D50014DE74 /* SASDKConfig.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -687,6 +694,7 @@
 				002DB94D1EB1647F00A9632C /* SASwizzle.h in Headers */,
 				4D14F1711B4A51B7006AD786 /* SAGzipUtility.h in Headers */,
 				4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */,
+				A15CBCA4208ED5D50014DE74 /* SASDKConfig.h in Headers */,
 				A3A85C161C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h in Headers */,
 				A3997A351C3AC3B8005A9374 /* SAUITableViewBinding.h in Headers */,
 				A3746EC41C3190E7008A50A3 /* UIView+SAHelpers.h in Headers */,
@@ -893,6 +901,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A15CBCA6208ED9D80014DE74 /* SASDKConfig.m in Sources */,
 				A14938C9207B8746006EF04A /* SAKeyChainItemWrapper.m in Sources */,
 				A11C545E201077200074E817 /* SAAppExtensionDataManager.m in Sources */,
 				0041360D1FFB4938009F2097 /* SAServerUrl.m in Sources */,
@@ -975,6 +984,7 @@
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
 				A3333BD51C5A0EE80013353F /* SADesignerDisconnectMessage.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
+				A15CBCA5208ED5D50014DE74 /* SASDKConfig.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
 				002BF6721F0A875100824F76 /* UIImage+AutoTrack.m in Sources */,
 				A3997A361C3AC3B8005A9374 /* SAUITableViewBinding.m in Sources */,
@@ -1172,7 +1182,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
@@ -1209,7 +1219,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos;
 				VALIDATE_PRODUCT = YES;
@@ -1219,7 +1229,7 @@
 		4D5CA78C1B43E92D00D7ACB7 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				ONLY_ACTIVE_ARCH = NO;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
@@ -1234,7 +1244,7 @@
 		4D5CA78D1B43E92D00D7ACB7 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 7.0;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
