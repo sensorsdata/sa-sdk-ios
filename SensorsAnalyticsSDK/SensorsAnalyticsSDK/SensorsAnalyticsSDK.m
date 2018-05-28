@@ -37,8 +37,11 @@
 #import "SAServerUrl.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
-#import "SASDKConfig.h"
-#define VERSION @"1.10.0"
+#import "SASDKRemoteConfig.h"
+#import "SADeviceOrientationManager.h"
+#import "SALocationManager.h"
+
+#define VERSION @"1.10.1"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -170,7 +173,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, strong) NSMutableArray *ignoredViewTypeList;
 
-@property (nonatomic, strong) SASDKConfig *config;
+@property (nonatomic, strong) SASDKRemoteConfig *remoteConfig;
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+@property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
+@property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+@property (nonatomic, strong) SALocationManager *locationManager;
+@property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
+#endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
@@ -244,7 +257,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 + (SensorsAnalyticsSDK *)sharedInstance {
-    if (sharedInstance.config.disableSDK) {
+    if (sharedInstance.remoteConfig.disableSDK) {
         return nil;
     }
     return sharedInstance;
@@ -365,6 +378,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             @"SFAppAutoFillPasswordViewController",
             @"PUUIMomentsGridViewController",
             @"SFPasswordRemoteViewController",
+            @"UIWebRotatingAlertController"
         ];
         NSMutableSet *transformedClasses = [NSMutableSet setWithCapacity:_blacklistedViewControllerClassNames.count];
         for (NSString *className in _blacklistedViewControllerClassNames) {
@@ -416,9 +430,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _applicationWillResignActive = NO;
             _clearReferrerWhenAppEnd = NO;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
+            _remoteConfig = [[SASDKRemoteConfig alloc]init];
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-            [self setSDKWithConfigDict:sdkConfig];
+            [self setSDKWithRemoteConfigDict:sdkConfig];
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+            _deviceOrientationConfig = [[SADeviceOrientationConfig alloc]init];
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+            _locationConfig = [[SAGPSLocationConfig alloc]init];
+#endif
             _ignoredViewControllers = [[NSMutableArray alloc] init];
             _ignoredViewTypeList = [[NSMutableArray alloc] init];
             _heatMapViewControllers = [[NSMutableArray alloc] init];
@@ -1052,8 +1074,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
-    _autoTrackEventType = eventType;
-    _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
+    if (_autoTrackEventType != eventType) {
+        _autoTrackEventType = eventType;
+        _autoTrack = (_autoTrackEventType != SensorsAnalyticsEventTypeNone);
+        [self _enableAutoTrack];
+    }
     // 是否首次启动
     BOOL isFirstStart = NO;
     if (![[NSUserDefaults standardUserDefaults] boolForKey:@"HasLaunchedOnce"]) {
@@ -1061,28 +1086,48 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:@"HasLaunchedOnce"];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-    // 追踪 AppStart 事件
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
-        [self track:APP_START_EVENT withProperties:@{
-                                                     RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
-                                                     APP_FIRST_START_PROPERTY : @(isFirstStart),
-                                                     }];
-    }
-    // 启动 AppEnd 事件计时器
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
-        [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
-    }
-    [self _enableAutoTrack];
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 追踪 AppStart 事件
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
+            [self track:APP_START_EVENT withProperties:@{
+                                                         RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
+                                                         APP_FIRST_START_PROPERTY : @(isFirstStart),
+                                                         }];
+        }
+        // 启动 AppEnd 事件计时器
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
+            [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+        }
+    });
 }
 
 - (BOOL)isAutoTrackEnabled {
-    if (sharedInstance.config.disableSDK == YES) {
+    if (sharedInstance.remoteConfig.disableSDK == YES) {
         return NO;
+    }
+    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+            return NO;
+        } else {
+            return YES;
+        }
     }
     return _autoTrack;
 }
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+
+    if (sharedInstance.remoteConfig.disableSDK == YES) {
+        return YES;
+    }
+    if (self.remoteConfig.autoTrackMode != kSAAutoTrackModeDefault) {
+        if (self.remoteConfig.autoTrackMode == kSAAutoTrackModeDisabledAll) {
+            return YES;
+        } else {
+            return !(self.remoteConfig.autoTrackMode & eventType);
+        }
+    }
     return !(_autoTrackEventType & eventType);
 }
 
@@ -1426,7 +1471,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withType:(NSString *)type {
-    if (self.config.disableSDK) {
+    if (self.remoteConfig.disableSDK) {
         return;
     }
     // 对于type是track数据，它们的event名称是有意义的
@@ -1469,13 +1514,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [libProperties setValue:@"code" forKey:@"$lib_method"];
 
     NSString *lib_detail = nil;
-    if (_autoTrack && propertieDict) {
+    if ([self isAutoTrackEnabled] && propertieDict) {
         if ([event isEqualToString:@"$AppClick"]) {
-            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         } else if ([event isEqualToString:@"$AppViewScreen"]) {
-            if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen) {
+            if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppViewScreen] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:@"$screen_name"]];
             }
         }
@@ -1612,6 +1657,34 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 [p setObject:@NO forKey:@"$is_first_day"];
             }
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+            @try {
+                //采集设备方向
+                if (self.deviceOrientationConfig.enableTrackScreenOrientation && self.deviceOrientationConfig.deviceOrientation.length) {
+                    [p setObject:self.deviceOrientationConfig.deviceOrientation forKey:@"$screen_orientation"];
+                }
+            } @catch (NSException *e) {
+                 SAError(@"%@: %@", self, e);
+            }
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+            @try {
+                //采集地理位置信息
+                if (self.locationConfig.enableGPSLocation) {
+                    if (CLLocationCoordinate2DIsValid(self.locationConfig.coordinate)) {
+                        NSInteger latitude = self.locationConfig.coordinate.latitude * pow(10, 6);
+                        NSInteger longitude = self.locationConfig.coordinate.longitude * pow(10, 6);
+                        [p setObject:@(latitude) forKey:@"$latitude"];
+                        [p setObject:@(longitude) forKey:@"$longitude"];
+                    }
+                }
+            } @catch (NSException *e) {
+                SAError(@"%@: %@", self, e);
+            }
+#endif
+
             e = @{
                   @"event": event,
                   @"properties": [NSDictionary dictionaryWithDictionary:p],
@@ -1898,7 +1971,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     }
                     return NO;
                 }
-                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
+                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
                     NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
                     SAError(@"%@", errMsg);
@@ -1912,8 +1985,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         
         // NSString 检查长度，但忽略部分属性
         if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
-            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUnicodeStringEncoding];
-            if (objLength > PROPERTY_LENGTH_LIMITATION) {
+            NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+            NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
+            if ([k isEqualToString:@"app_crashed_reason"]) {
+                valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
+            }
+            if (objLength > valueMaxLength) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
@@ -2493,7 +2570,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
     }
     
-    if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
+    if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
         //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
         void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
@@ -2515,7 +2592,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     }
     
-    if (!(_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen)) {
+    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
         return;
     }
     
@@ -2693,68 +2770,59 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     };
 
     // 监听所有 UIViewController 显示事件
-    if (_autoTrack) {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
         //$AppViewScreen
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppViewScreen ||
-            _autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-//            [SASwizzler swizzleBoolSelector:@selector(viewWillAppear:)
-//                                onClass:[UIViewController class]
-//                              withBlock:block
-//                                  named:@"track_view_screen"];
-            [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
-        }
-
+        [UIViewController sa_swizzleMethod:@selector(viewWillAppear:) withMethod:@selector(sa_autotrack_viewWillAppear:) error:NULL];
+        NSError *error = NULL;
         //$AppClick
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppClick) {
-            //UITableView、UICollectionView
+        // Actions & Events
+        [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
+                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
+                                      error:&error];
+        if (error) {
+            SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+            error = NULL;
+        }
+    });
+    //$AppClick
+    //UITableView、UICollectionView
 #if (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW) || (!defined SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW)
-            [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
+    [SASwizzler swizzleBoolSelector:@selector(viewWillDisappear:)
                                     onClass:[UIViewController class]
                                   withBlock:unswizzleUITableViewAppClickBlock
                                       named:@"track_UITableView_UICollectionView_AppClick_viewWillDisappear"];
 #endif
 
-            //UILabel
+    //UILabel
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UILABEL
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UILabel class] withBlock:gestureRecognizerAppClickBlock named:@"track_UILabel_addGestureRecognizer"];
 #endif
 
-            //UIImageView
+    //UIImageView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGEVIEW
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:[UIImageView class] withBlock:gestureRecognizerAppClickBlock named:@"track_UIImageView_addGestureRecognizer"];
 #endif
 
-            //UIAlertController & UIActionSheet
+    //UIAlertController & UIActionSheet
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTCONTROLLER
 #if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-            //iOS9
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
-
-            //iOS10
-            [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
+    //iOS9
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerView_addGestureRecognizer"];
+    //iOS10
+    [SASwizzler swizzleSelector:@selector(addGestureRecognizer:) onClass:NSClassFromString(@"_UIAlertControllerInterfaceActionGroupView") withBlock:gestureRecognizerAppClickBlock named:@"track__UIAlertControllerInterfaceActionGroupView_addGestureRecognizer"];
 #endif
 #endif
 #endif
 
-            //React Natove
+    //React Natove
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
-            if (NSClassFromString(@"RCTUIManager")) {
-//                [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-                __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
-            }
-#endif
-            NSError *error = NULL;
-            // Actions & Events
-            [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
-                                 withMethod:@selector(sa_sendAction:to:from:forEvent:)
-                                      error:&error];
-            if (error) {
-                SAError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-                error = NULL;
-            }
-        }
+    if (NSClassFromString(@"RCTUIManager")) {
+//        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
+        __sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
     }
+#endif
 }
 
 - (void)trackGestureRecognizerAppClick:(id)target {
@@ -2981,10 +3049,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SADebug(@"%@ application did become active", self);
-    //下次启动 app 的时候重新初始化
-    NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
-    [self setSDKWithConfigDict:sdkConfig];
-    if (self.config.disableSDK == YES) {
+    if (_appRelaunched) {
+        //下次启动 app 的时候重新初始化
+        NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"SASDKConfig"];
+        [self setSDKWithRemoteConfigDict:sdkConfig];
+    }
+    if (self.remoteConfig.disableSDK == YES) {
         //停止 SDK 的 flushtimer
         if (self.timer.isValid) {
             [self.timer invalidate];
@@ -2993,14 +3063,33 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if (self.vtrackConnectorTimer.isValid) {
             [self.vtrackConnectorTimer invalidate];
         }
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        //停止采集设备方向信息
+        [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+        [self.locationManager stopUpdatingLocation];
+#endif
+
         [self flush];//停止采集数据之后 flush 本地数据
         dispatch_sync(self.serialQueue, ^{
         });
 
     }else{
-        [self startFlushTimer];
-    }
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+        if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
+            [self.deviceOrientationManager startDeviceMotionUpdates];
+        }
+#endif
 
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+        if (self.locationConfig.enableGPSLocation) {
+            [self.locationManager startUpdatingLocation];
+        }
+#endif
+    }
     [self requestFunctionalManagermentConfig];
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
@@ -3030,16 +3119,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
 
-    if (_autoTrack && _appRelaunched) {
+    if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppStart) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             [self track:APP_START_EVENT withProperties:@{
                                                          RESUME_FROM_BACKGROUND_PROPERTY : @(_appRelaunched),
                                                          APP_FIRST_START_PROPERTY : @(isFirstStart),
                                                          }];
         }
         // 启动 AppEnd 事件计时器
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             [self trackTimer:APP_END_EVENT withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
         }
     }
@@ -3051,7 +3140,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
 #endif
-    
+
     [self startFlushTimer];
 }
 
@@ -3065,6 +3154,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SADebug(@"%@ application did enter background", self);
     _applicationWillResignActive = NO;
     [NSObject cancelPreviousPerformRequestsWithTarget:self selector:@selector(requestFunctionalManagermentConfigWithCompletion:) object:self.reqConfigBlock];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+    [self.deviceOrientationManager stopDeviceMotionUpdates];
+#endif
+
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+    [self.locationManager stopUpdatingLocation];
+#endif
+
     // 遍历 trackTimer
     // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
     dispatch_async(self.serialQueue, ^{
@@ -3095,9 +3193,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     });
 
-    if (_autoTrack) {
+    if ([self isAutoTrackEnabled]) {
         // 追踪 AppEnd 事件
-        if (_autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+        if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd] == NO) {
             if (_clearReferrerWhenAppEnd) {
                 _referrerScreenUrl = nil;
             }
@@ -3407,10 +3505,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
             componets.query = nil;
             componets.path = @"/config/iOS";
-            if (!self.config.v) {
+            if (!self.remoteConfig.v) {
                 componets.query = nil;
             } else {
-                componets.query = [NSString stringWithFormat:@"v=%@",self.config.v];
+                componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
             }
             retStr = componets.URL.absoluteString;
         }
@@ -3422,13 +3520,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)setSDKWithConfigDict:(NSDictionary *)configDict {
+- (void)setSDKWithRemoteConfigDict:(NSDictionary *)configDict {
     @try {
-        if (configDict) {
-            self.config = [SASDKConfig configWithDict:configDict];
-            if (self.config.disableDebugMode) {
-                [self disableDebugMode];
-            }
+        self.remoteConfig = [SASDKRemoteConfig configWithDict:configDict];
+        if (self.remoteConfig.disableDebugMode) {
+            [self disableDebugMode];
         }
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
@@ -3448,12 +3544,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     void(^block)(BOOL success , NSDictionary *configDict) = ^(BOOL success , NSDictionary *configDict) {
         @try {
             if (success) {
-                if(configDict != nil) {//重新设置 config,处理 configDict 中的缺失参数
+                if(configDict != nil) {
+                    //重新设置 config,处理 configDict 中的缺失参数
+                    //用户没有配置远程控制选项，服务端默认返回{"disableSDK":false,"disableDebugMode":false}
                     NSString *v = [configDict valueForKey:@"v"];
                     NSNumber *disableSDK = [configDict valueForKeyPath:@"configs.disableSDK"];
                     NSNumber *disableDebugMode = [configDict valueForKeyPath:@"configs.disableDebugMode"];
+                    NSNumber *autoTrackMode = [configDict valueForKeyPath:@"configs.autoTrackMode"];
                     //只在 disableSDK 由 false 变成 true 的时候发，主要是跟踪 SDK 关闭的情况。
-                    if (disableSDK.boolValue == YES && weakself.config.disableSDK == NO) {
+                    if (disableSDK.boolValue == YES && weakself.remoteConfig.disableSDK == NO) {
                         [weakself track:@"DisableSensorsDataSDK" withProperties:@{}];
                     }
                     //如果有字段缺失，需要设置为默认值
@@ -3463,11 +3562,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     if (disableDebugMode == nil) {
                         disableDebugMode = [NSNumber numberWithBool:NO];
                     }
+                    if (autoTrackMode == nil) {
+                        autoTrackMode = [NSNumber numberWithInteger:-1];
+                    }
                     NSDictionary *configToBeSet = nil;
                     if (v) {
-                        configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                        configToBeSet = @{@"v":v,@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode,@"autoTrackMode":autoTrackMode}};
                     } else {
-                        configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode}};
+                        configToBeSet = @{@"configs":@{@"disableSDK":disableSDK,@"disableDebugMode":disableDebugMode,@"autoTrackMode":autoTrackMode}};
                     }
                     [[NSUserDefaults standardUserDefaults] setObject:configToBeSet forKey:@"SASDKConfig"];
                     [[NSUserDefaults standardUserDefaults] synchronize];
@@ -3540,6 +3642,66 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     } @catch (NSException *e) {
         SAError(@"%@ error: %@", self, e);
     }
+}
+
+- (void)enableTrackScreenOrientation:(BOOL)enable {
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
+    @try {
+        self.deviceOrientationConfig.enableTrackScreenOrientation = enable;
+        if (enable) {
+            if (_deviceOrientationManager == nil) {
+                _deviceOrientationManager = [[SADeviceOrientationManager alloc]init];
+                __weak SensorsAnalyticsSDK *weakSelf = self;
+                _deviceOrientationManager.deviceOrientationBlock = ^(NSString *deviceOrientation) {
+                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
+                    if (deviceOrientation) {
+                        strongSelf.deviceOrientationConfig.deviceOrientation = deviceOrientation;
+                    }
+                };
+            }
+            [_deviceOrientationManager startDeviceMotionUpdates];
+        } else {
+            _deviceOrientationConfig.deviceOrientation = @"";
+            if (_deviceOrientationManager) {
+                [_deviceOrientationManager stopDeviceMotionUpdates];
+            }
+        }
+    } @catch (NSException * e) {
+        SAError(@"%@ error: %@", self, e);
+    }
+#endif
+}
+
+- (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
+#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
+    self.locationConfig.enableGPSLocation = enableGPSLocation;
+    if (enableGPSLocation) {
+        if (_locationManager == nil) {
+            _locationManager = [[SALocationManager alloc]init];
+            __weak SensorsAnalyticsSDK *weakSelf = self;
+            _locationManager.updateLocationBlock = ^(CLLocation * location,NSError *error){
+                __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
+                if (location) {
+                    strongSelf.locationConfig.coordinate = location.coordinate;
+                }
+                if (error) {
+                    SALog(@"%@",error);
+                }
+            };
+        }
+        [_locationManager startUpdatingLocation];
+    }else{
+        if (_locationManager != nil) {
+            [_locationManager stopUpdatingLocation];
+        }
+    }
+#endif
+}
+
+- (void)clearKeychainData {
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationAccount service:kSAService];
+    [SAKeyChainItemWrapper deletePasswordWithAccount:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
 }
 
 @end

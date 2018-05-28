@@ -65,17 +65,27 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
         NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
         CFTypeRef queryResults = NULL;
         CFErrorRef error = NULL;
-        SecAccessControlRef secAccessControl = SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-        if (error ) {
+
+        if (@available(iOS 8.0, *) ) {
+            SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+            if (error) {
+                return NO;
+            }
+            [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
             CFRelease(secAccessControl);
-            return NO;
+        }else{
+            @try {
+                [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+            } @catch (NSException *e) {
+                SAError(@"%@",e);
+            }
         }
+
         [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
         [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
         [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];
         [query setObject:(__bridge id)kSecMatchLimitOne forKey:(__bridge id)kSecMatchLimit];
-        [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
-        CFRelease(secAccessControl);
+
         if (isStringParamValid(account)) {
             [query setObject:account forKey:(__bridge id) kSecAttrAccount];
         }
@@ -123,7 +133,17 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
             [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
             [query removeObjectForKey:(__bridge id)kSecReturnAttributes];
             [query removeObjectForKey:(__bridge id)kSecReturnData];
-            [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
+
+            if (@available(iOS 8.0, *) ) {
+                [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
+            }else{
+                @try {
+                    [query removeObjectForKey:(__bridge id)kSecAttrAccessible];
+                } @catch (NSException *e) {
+                    SAError(@"%@",e);
+                }
+            }
+
             status= SecItemAdd((__bridge CFDictionaryRef)query, &queryResults);
             NSAssert( status == noErr || status == errSecDuplicateItem, @"Couldn't add the Keychain Item." );
             SALog(@"SecItemAdd result = %d",status);
@@ -140,12 +160,19 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
         NSMutableDictionary *query = [[NSMutableDictionary alloc]init];
         CFTypeRef queryResults = NULL;
         CFErrorRef error = NULL;
-        SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-        if (error) {
-            return nil;
-        }else {
+        if (@available(iOS 8.0, *) ) {
+            SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+            if (error) {
+                return nil;
+            }
             [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
             CFRelease(secAccessControl);
+        }else{
+            @try {
+                [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+            } @catch (NSException *e) {
+                SAError(@"%@",e);
+            }
         }
         
         [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];

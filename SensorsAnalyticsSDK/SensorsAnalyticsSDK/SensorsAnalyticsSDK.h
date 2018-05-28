@@ -1006,6 +1006,42 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param enabelLog YES/NO
  */
 - (void)enableLog:(BOOL)enabelLog;
+
+/**
+ * @abstract
+ * 设备方向信息采集功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启设备方向采集
+ * 默认关闭
+ *
+ * @param enable YES/NO
+ */
+- (void)enableTrackScreenOrientation:(BOOL)enable;
+
+/**
+ * @abstract
+ * 位置信息采集功能开关
+ *
+ * @discussion
+ * 根据需要决定是否开启位置采集
+ * 默认关闭
+ *
+ * @param enable YES/NO
+ */
+- (void)enableTrackGPSLocation:(BOOL)enable;
+
+/**
+ * @abstract
+ * 清除 keychain 缓存数据
+ *
+ * @discussion
+ * 注意：清除 keychain 中 kSAService 名下的数据，包括 distinct_id 和 AppInstall 标记。
+ *          清除后 AppInstall 可以再次触发，造成 AppInstall 事件统计不准确。
+ *
+ */
+-(void)clearKeychainData;
+
 @end
 
 /**

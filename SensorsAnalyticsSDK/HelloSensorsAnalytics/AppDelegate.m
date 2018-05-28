@@ -15,10 +15,9 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
-  
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
@@ -34,6 +33,8 @@
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
+    [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
+    [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;
 }
 
