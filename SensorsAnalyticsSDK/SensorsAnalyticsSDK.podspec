@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "7.0"
   s.default_subspec = 'core'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
+  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
