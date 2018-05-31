@@ -41,7 +41,7 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 
-#define VERSION @"1.10.1"
+#define VERSION @"1.10.2"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -3504,7 +3504,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 return nil;
             }
             componets.query = nil;
-            componets.path = @"/config/iOS";
+            componets.path = @"/config/iOS.conf";
             if (!self.remoteConfig.v) {
                 componets.query = nil;
             } else {
@@ -3607,19 +3607,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 NSInteger statusCode = [(NSHTTPURLResponse*)response statusCode];
                 if (statusCode == 200) {
                     NSError *err = NULL;
-                    NSDictionary *dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
-                    if (err) {
-                        if (completion) {
-                            completion(NO,nil);
-                        }
-                    } else {
-                        if (completion) {
-                            if ([dict respondsToSelector:@selector(count)] && dict.count) {
-                                completion(YES,dict);
-                            } else {
-                                completion(NO,nil);
-                            }
-                        }
+                    NSDictionary *dict = nil;
+                    if (data !=nil && data.length ) {
+                        dict = [NSJSONSerialization  JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:&err];
+                    }
+                    if (completion) {
+                        completion(YES,dict);
                     }
                 } else if (statusCode == 304) {
                     //304 config 没有更新

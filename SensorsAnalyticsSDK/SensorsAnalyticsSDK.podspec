@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.10.1"
+  s.version      = "1.10.2"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "7.0"
   s.default_subspec = 'core'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
+  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreLocation', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
