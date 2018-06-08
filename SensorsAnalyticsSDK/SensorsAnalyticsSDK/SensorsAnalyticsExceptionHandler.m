@@ -85,17 +85,17 @@ static const int32_t UncaughtExceptionMaximum = 10;
     [self.sensorsAnalyticsSDKInstances addObject:instance];
 }
 
-void SASignalHandler(int signal, struct __siginfo *info, void *context) {
+void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
     SensorsAnalyticsExceptionHandler *handler = [SensorsAnalyticsExceptionHandler sharedHandler];
     
     int32_t exceptionCount = OSAtomicIncrement32(&UncaughtExceptionCount);
     if (exceptionCount <= UncaughtExceptionMaximum) {
-        NSDictionary *userInfo = @{UncaughtExceptionHandlerSignalKey: @(signal)};
+        NSDictionary *userInfo = @{UncaughtExceptionHandlerSignalKey: @(crashSignal)};
         NSString *reason;
         @try {
-            reason = [NSString stringWithFormat:@"Signal %d was raised. %@", signal, [NSThread callStackSymbols]];
+            reason = [NSString stringWithFormat:@"Signal %d was raised.", crashSignal];
         } @catch(NSException *exception) {
-            reason = [NSString stringWithFormat:@"Signal %d was raised", signal];
+            //ignored
         }
 
         @try {
@@ -109,13 +109,13 @@ void SASignalHandler(int signal, struct __siginfo *info, void *context) {
         }
     }
     
-    struct sigaction prev_action = handler.prev_signal_handlers[signal];
+    struct sigaction prev_action = handler.prev_signal_handlers[crashSignal];
     if (prev_action.sa_flags & SA_SIGINFO) {
         if (prev_action.sa_sigaction) {
-            prev_action.sa_sigaction(signal, info, context);
+            prev_action.sa_sigaction(crashSignal, info, context);
         }
     } else if (prev_action.sa_handler) {
-        prev_action.sa_handler(signal);
+        prev_action.sa_handler(crashSignal);
     }
 }
 
@@ -137,7 +137,15 @@ void SAHandleException(NSException *exception) {
     @try {
         for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-            [properties setValue:[exception reason] forKey:@"app_crashed_reason"];
+            @try {
+                if ([exception callStackSymbols]) {
+                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                } else {
+                    [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
+                }
+            } @catch(NSException *exception) {
+                SAError(@"%@ error: %@", self, exception);
+            }
             [instance track:@"AppCrashed" withProperties:properties];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [instance track:@"$AppEnd"];
@@ -150,6 +158,14 @@ void SAHandleException(NSException *exception) {
     } @catch(NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
+
+    NSSetUncaughtExceptionHandler(NULL);
+    signal(SIGABRT, SIG_DFL);
+    signal(SIGILL, SIG_DFL);
+    signal(SIGSEGV, SIG_DFL);
+    signal(SIGFPE, SIG_DFL);
+    signal(SIGBUS, SIG_DFL);
+    signal(SIGPIPE, SIG_DFL);
 }
 
 @end

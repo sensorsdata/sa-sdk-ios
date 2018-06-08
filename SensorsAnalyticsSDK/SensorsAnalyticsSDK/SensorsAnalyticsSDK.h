@@ -318,6 +318,20 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**
+  * @abstract
+  * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
+  *
+  * @param serverURL 收集事件的URL
+  * @param launchOptions launchOptions
+  * @param debugMode Sensors Analytics 的Debug模式
+  *
+  * @return 返回的单例
+  */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
+                                        andLaunchOptions:(NSDictionary *)launchOptions
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
+
+/**
  * @abstract
  * 返回之前所初始化好的单例
  *
