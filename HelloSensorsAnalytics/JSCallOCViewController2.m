@@ -8,7 +8,7 @@
 
 #import "JSCallOCViewController2.h"
 #import "SensorsAnalyticsSDK.h"
-@import WebKit;
+#import <WebKit/WebKit.h>
 
 @interface JSCallOCViewController2 ()<WKNavigationDelegate, WKUIDelegate>
 @property WKWebView *webView;
