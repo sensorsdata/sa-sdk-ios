@@ -10,7 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 #import "UIView+SAHelpers.h"
-
+#import "UIView+AutoTrack.h"
 @implementation AutoTrackUtils
 
 + (void)sa_find_view_responder:(UIView *)view withViewPathArray:(NSMutableArray *)viewPathArray {
@@ -171,22 +171,26 @@
 
                 if ([subView isKindOfClass:[UIButton class]]) {
                     UIButton *button = (UIButton *)subView;
-                    if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                        [elementContent appendString:[button currentTitle]];
+                    NSString *currentTitle = button.sa_elementContent;
+                    if (currentTitle != nil && currentTitle.length) {
+                        [elementContent appendString:currentTitle];
                         [elementContent appendString:@"-"];
                     }
                 } else if ([subView isKindOfClass:[UILabel class]]) {
                     UILabel *label = (UILabel *)subView;
-                    if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                        [elementContent appendString:label.text];
+                    NSString *currentTitle = label.sa_elementContent;
+                    if (currentTitle != nil && currentTitle.length) {
+                        [elementContent appendString:currentTitle];
                         [elementContent appendString:@"-"];
                     }
                 } else if ([subView isKindOfClass:[UITextView class]]) {
                     UITextView *textView = (UITextView *)subView;
-                    if (textView.text != nil && ![@"" isEqualToString:textView.text]) {
-                        [elementContent appendString:textView.text];
+                    NSString *currentTitle = textView.sa_elementContent;
+                    if (currentTitle != nil && currentTitle.length) {
+                        [elementContent appendString:currentTitle];
                         [elementContent appendString:@"-"];
                     }
+
                 } else if ([subView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
                     #pragma clang diagnostic push
                     #pragma clang diagnostic ignored "-Warc-performSelector-leaks"

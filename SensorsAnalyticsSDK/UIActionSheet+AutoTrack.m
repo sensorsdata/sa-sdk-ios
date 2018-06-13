@@ -12,7 +12,7 @@
 #import "SASwizzle.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
-
+#import "UIView+AutoTrack.h"
 @implementation UIActionSheet (AutoTrack)
 
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIACTIONSHEET
@@ -101,7 +101,7 @@ void sa_actionSheetClickedButtonAtIndex(id self, SEL _cmd, id actionSheet, NSInt
                     UIView *titleView = viewController.navigationItem.titleView;
                     if (titleView != nil) {
                         if (titleView.subviews.count > 0) {
-                            NSString *elementContent = [[NSString alloc] init];
+                            NSMutableString *elementContent = [[NSMutableString alloc] init];
                             for (UIView *subView in [titleView subviews]) {
                                 if (subView) {
                                     if (subView.sensorsAnalyticsIgnoreView) {
@@ -109,15 +109,17 @@ void sa_actionSheetClickedButtonAtIndex(id self, SEL _cmd, id actionSheet, NSInt
                                     }
                                     if ([subView isKindOfClass:[UIButton class]]) {
                                         UIButton *button = (UIButton *)subView;
-                                        if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                                            elementContent = [elementContent stringByAppendingString:[button currentTitle]];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        NSString *currentTitle = button.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            [elementContent appendString:currentTitle];
+                                            [elementContent appendString:@"-"];
                                         }
                                     } else if ([subView isKindOfClass:[UILabel class]]) {
                                         UILabel *label = (UILabel *)subView;
-                                        if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                                            elementContent = [elementContent stringByAppendingString:label.text];
-                                            elementContent = [elementContent stringByAppendingString:@"-"];
+                                        NSString *currentTitle = label.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length > 0) {
+                                            [elementContent appendString:currentTitle];
+                                            [elementContent appendString:@"-"];
                                         }
                                     }
                                 }

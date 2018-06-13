@@ -40,8 +40,8 @@
 #import "SASDKRemoteConfig.h"
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
-
-#define VERSION @"1.10.4"
+#import "UIView+AutoTrack.h"
+#define VERSION @"1.10.5"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -936,6 +936,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
+
+            // $project & $token
+            NSString *project = [propertiesDict objectForKey:@"$project"];
+            NSString *token = [propertiesDict objectForKey:@"$token"];
+            if (project) {
+                [propertiesDict removeObjectForKey:@"$project"];
+                [eventDict setValue:project forKey:@"project"];
+            }
+            if (token) {
+                [propertiesDict removeObjectForKey:@"$token"];
+                [eventDict setValue:token forKey:@"token"];
+            }
 
             SALog(@"\n【track event from H5】:\n%@", eventDict);
 
@@ -2986,9 +2998,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 #endif
 
-        if (view.sensorsAnalyticsIgnoreView) {
-            return;
-        }
+//        if (view.sensorsAnalyticsIgnoreView) {
+//            return;
+//        }
 
         UIViewController *viewController = [self currentViewController];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -3023,7 +3035,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         if ([view isKindOfClass:[UILabel class]]) {
             [properties setValue:@"UILabel" forKey:@"$element_type"];
             UILabel *label = (UILabel*)view;
-            [properties setValue:label.text forKey:@"$element_content"];
+            NSString *sa_elementContent = label.sa_elementContent;
+            if (sa_elementContent && sa_elementContent.length > 0) {
+                [properties setValue:sa_elementContent forKey:@"$element_content"];
+            }
             [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
         } else if ([view isKindOfClass:[UIImageView class]]) {
             [properties setValue:@"UIImageView" forKey:@"$element_type"];

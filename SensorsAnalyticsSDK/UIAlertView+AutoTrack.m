@@ -12,7 +12,7 @@
 #import "SASwizzle.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
-
+#import "UIView+AutoTrack.h"
 @implementation UIAlertView (AutoTrack)
 
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIALERTVIEW
@@ -109,14 +109,16 @@ void sa_alertViewClickedButtonAtIndex(id self, SEL _cmd, id alertView, NSInteger
                                     }
                                     if ([subView isKindOfClass:[UIButton class]]) {
                                         UIButton *button = (UIButton *)subView;
-                                        if ([button currentTitle] != nil && ![@"" isEqualToString:[button currentTitle]]) {
-                                            elementContent = [elementContent stringByAppendingString:[button currentTitle]];
+                                        NSString *currentTitle = button.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
                                             elementContent = [elementContent stringByAppendingString:@"-"];
                                         }
                                     } else if ([subView isKindOfClass:[UILabel class]]) {
                                         UILabel *label = (UILabel *)subView;
-                                        if (label.text != nil && ![@"" isEqualToString:label.text]) {
-                                            elementContent = [elementContent stringByAppendingString:label.text];
+                                        NSString *currentTitle = label.sa_elementContent;
+                                        if (currentTitle != nil && currentTitle.length) {
+                                            elementContent = [elementContent stringByAppendingString:currentTitle];
                                             elementContent = [elementContent stringByAppendingString:@"-"];
                                         }
                                     }

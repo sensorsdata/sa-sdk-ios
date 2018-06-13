@@ -11,7 +11,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "AutoTrackUtils.h"
 #import "UIView+SAHelpers.h"
-
+#import "UIView+AutoTrack.h"
 @implementation UIApplication (AutoTrack)
 
 - (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
@@ -232,7 +232,6 @@
                 if ([segmented selectedSegmentIndex] == UISegmentedControlNoSegment) {
                     return;
                 }
-                
                 [properties setValue:[NSString stringWithFormat: @"%ld", (long)[segmented selectedSegmentIndex]] forKey:@"$element_position"];
                 [properties setValue:[segmented titleForSegmentAtIndex:[segmented selectedSegmentIndex]] forKey:@"$element_content"];
                 
@@ -255,9 +254,9 @@
                     UIButton *button = (UIButton *)from;
                     [properties setValue:@"UIBarButtonItem" forKey:@"$element_type"];
                     if (button != nil) {
-                        NSString *currentTitle = [button currentTitle];
+                        NSString *currentTitle = button.sa_elementContent;
                         if (currentTitle != nil) {
-                            [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                            [properties setValue:currentTitle forKey:@"$element_content"];
                         } else {
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
                             UIImage *image = button.currentImage;
@@ -276,8 +275,9 @@
                     UIButton *button = (UIButton *)from;
                     [properties setValue:@"UIButton" forKey:@"$element_type"];
                     if (button != nil) {
-                        if ([button currentTitle] != nil) {
-                            [properties setValue:[button currentTitle] forKey:@"$element_content"];
+                        NSString *currentTitle = button.sa_elementContent;
+                        if (currentTitle != nil) {
+                            [properties setValue:currentTitle forKey:@"$element_content"];
                         } else {
                             if (button.subviews.count > 0) {
                                 NSString *elementContent = [[NSString alloc] init];
