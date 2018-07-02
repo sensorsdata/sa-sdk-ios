@@ -154,9 +154,9 @@ void sa_uiTabBarDidSelectRowAtIndexPath(id self, SEL _cmd, id tabBar, UITabBarIt
 }
 
 - (void)sa_uiTabBarSetDelegate:(id<UITabBarDelegate>)delegate {
-    [self sa_uiTabBarSetDelegate:delegate];
-    
     @try {
+        [self sa_uiTabBarSetDelegate:delegate];
+
         Class class = [delegate class];
         //        static dispatch_once_t onceToken;
         //        dispatch_once(&onceToken, ^{

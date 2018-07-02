@@ -9,7 +9,6 @@
 //
 
 #import "SAGzipUtility.h"
-#import "NSData+SABase64.h"
 #import "SAAbstractDesignerMessage.h"
 #import "SALogger.h"
 
@@ -71,7 +70,7 @@
         NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
 
         // 3. Base64 Encode
-        NSString *b64String = [zippedData sa_base64EncodedString];
+        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
 
         [jsonObject setValue:b64String forKey:@"gzip_payload"];
     } else {

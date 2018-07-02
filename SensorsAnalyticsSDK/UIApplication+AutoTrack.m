@@ -47,15 +47,15 @@
 
     @try {
         /*
-         caojiangPreVerify:forEvent: & caojiangEventAction:forEvent: 是我们可视化埋点中的点击事件
-         这个地方如果不过滤掉，会导致 swizzle 多次，从而会触发多次 $AppClick 事件
-         caojiang 是我们 CTO 名字，我们相信这个前缀应该是唯一的
-         如果这个前缀还会重复，请您告诉我，我把我们架构师的名字也加上
-         */
-        if (![@"caojiangPreVerify:forEvent:" isEqualToString:NSStringFromSelector(action)] &&
-            ![@"caojiangEventAction:forEvent:" isEqualToString:NSStringFromSelector(action)]) {
+//         caojiangPreVerify:forEvent: & caojiangEventAction:forEvent: 是我们可视化埋点中的点击事件
+//         这个地方如果不过滤掉，会导致 swizzle 多次，从而会触发多次 $AppClick 事件
+//         caojiang 是我们 CTO 名字，我们相信这个前缀应该是唯一的
+//         如果这个前缀还会重复，请您告诉我，我把我们架构师的名字也加上
+//         */
+//        if (![@"caojiangPreVerify:forEvent:" isEqualToString:NSStringFromSelector(action)] &&
+//            ![@"caojiangEventAction:forEvent:" isEqualToString:NSStringFromSelector(action)]) {
             [self sa_track:action to:to from:from forEvent:event];
-        }
+//        }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

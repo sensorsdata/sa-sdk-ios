@@ -25,7 +25,7 @@
 			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>SAc6021000</string>
+				<string>sa98391da9</string>
 			</array>
 		</dict>
 	</array>
@@ -40,10 +40,10 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
-    <key>NSLocationAlwaysUsageDescription</key>
-    <string></string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>如果不允许我们将不能分享你的位置，无法使用附近的人等功能</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string></string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>如果不允许我们将不能分享你的位置，无法使用附近的人等功能</string>
 	<key>UILaunchStoryboardName</key>
 	<string>Main</string>
 	<key>UIMainStoryboardFile</key>

@@ -195,16 +195,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 @property (atomic, readonly, copy) NSString *loginId;
 
-/**
- * @property
- *
- * @abstract
- * 当App进入活跃状态时，是否从SensrosAnalytics获取新的可视化埋点配置
- *
- * @discussion
- * 默认值为 YES。
- */
-@property (atomic) BOOL checkForEventBindingsOnActive;
+
 
 /**
  * @proeprty
@@ -251,59 +242,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
 @property (atomic) UInt64 flushBulkSize;
-
-/**
- * @property
- *
- * @abstract
- * 可视化埋点中，UIWindow 对象。
- *
- * @discussion
- * 该方法应在 SDK 初始化完成后立即调用
- *
- * 默认值为App 的 UIWindow 对象是 UIApplication 的 windows 列表中的 firstObject，若用户调用 UIWindow 的 makeKeyAndVisible 等方法，
- * 改变了 windows 列表中各个对象的 windowLevel，会导致可视化埋点无法正常获取需要埋点的 UIWindow 对象。用户调用该借口，设置可视化埋点需要管理的
- * UIWindow 对象
- */
-@property (atomic) UIWindow *vtrackWindow;
-
 #pragma mark- init instance
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
- *
- * @discussion
- * 该方法会根据 <code>configureURL</code> 参数的 Url Path，自动计算可视化埋点配置系统的 Url。例如，若传入的 <code>configureURL</code> 为:
- *     http://sa_host:8007/api/vtrack/config/iOS.conf
- * 则会自动生成可视化埋点配置系统的 Url:
- *     ws://sa_host:8007/api/ws
- * 若用户私有环境中部署了 Sensors Analytics 系统，并修改了 Nginx 配置，则需要使用 SensorsAnalyticsSDK#sharedInstanceWithServerURL:andConfigureURL:andDebugMode 进行初始化。
- *
- * @param serverURL 收集事件的 URL
- * @param configureURL 获取配置信息的 URL
- * @param debugMode Sensors Analytics 的 Debug 模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                     andConfigureURL:(nullable NSString *)configureURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
-
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个<code>SensorsAnalyticsSDK</code>的单例
- *
- * @param serverURL 收集事件的URL
- * @param configureURL 获取配置信息的URL
- * @param vtrackServerURL 可视化埋点配置系统的URL
- * @param debugMode Sensors Analytics 的Debug模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                     andConfigureURL:(nullable NSString *)configureURL
-                                  andVTrackServerURL:(nullable NSString *)vtrackServerURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
 
 /**
  * @abstract
@@ -356,16 +295,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  */
 - (void)setServerUrl:(NSString *)serverUrl;
-
-/**
- * @abstract
- * 允许 App 连接可视化埋点管理界面
- *
- * @discussion
- * 调用这个方法，允许 App 连接可视化埋点管理界面并设置可视化埋点。建议用户只在 DEBUG 编译模式下，打开该选项。
- *
- */
-- (void)enableEditingVTrack;
 
 #pragma mark- about webView
 /**
@@ -624,13 +553,30 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
  * 间记录在事件属性 "event_duration" 中。
  *
+ * 时间单位为秒，若需要以其他时间单位统计时长
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event的名称
+ */
+- (void)trackTimerStart:(NSString *)event;
+
+/**
+ * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
  * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
  *
  * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
  *
  * @param event             event的名称
  */
-- (void)trackTimerBegin:(NSString *)event;
+- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
 /**
  * @abstract
@@ -654,7 +600,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param event             event的名称
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 

@@ -10,7 +10,6 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "NSData+SABase64.h"
 #import "SAHeatMapSnapshotMessage.h"
 #import "SAApplicationStateSerializer.h"
 #import "SAObjectIdentityProvider.h"
@@ -67,7 +66,8 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         __block NSDictionary *serializedObjects = nil;
 
         dispatch_sync(dispatch_get_main_queue(), ^{
-            screenshot = [serializer screenshotImageForWindow:[[SensorsAnalyticsSDK sharedInstance] vtrackWindow]];
+            
+            screenshot = [serializer screenshotImageForWindow:UIApplication.sharedApplication.keyWindow];
         });
         snapshotMessage.screenshot = screenshot;
 
@@ -77,7 +77,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
         }
         
         dispatch_sync(dispatch_get_main_queue(), ^{
-            serializedObjects = [serializer objectHierarchyForWindow:[[SensorsAnalyticsSDK sharedInstance] vtrackWindow]];
+            serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
         });
         [connection setSessionObject:serializedObjects forKey:@"snapshot_hierarchy"];
         snapshotMessage.serializedObjects = serializedObjects;
@@ -104,7 +104,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     if (screenshot) {
         NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 0.5);
         if (jpegSnapshotImageData) {
-            payloadObject = [jpegSnapshotImageData sa_base64EncodedString];
+            payloadObject = [jpegSnapshotImageData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             imageHash = [self getImageHash:jpegSnapshotImageData];
         }
     }
@@ -116,8 +116,7 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 
 - (UIImage *)screenshot {
     NSString *base64Image = [self payloadObjectForKey:@"screenshot"];
-    NSData *imageData = [NSData sa_dataFromBase64String:base64Image];
-    
+    NSData *imageData =[[base64Image dataUsingEncoding:NSUTF8StringEncoding] base64EncodedDataWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
     return imageData ? [UIImage imageWithData:imageData] : nil;
 }
 

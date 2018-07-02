@@ -15,7 +15,7 @@
 @implementation AppDelegate
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=wangzhuozhou&token=95c73ae661f85aa0"
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
@@ -23,9 +23,6 @@
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
 
-#ifdef DEBUG
-    //[[SensorsAnalyticsSDK sharedInstance] enableEditingVTrack];
-#endif
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];

@@ -9,7 +9,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAWebSocket.h"
 
 @protocol SAHeatMapMessage;
 

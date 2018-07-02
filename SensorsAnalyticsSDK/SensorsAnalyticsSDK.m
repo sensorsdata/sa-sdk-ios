@@ -17,11 +17,6 @@
 #import "JSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
-#import "NSData+SABase64.h"
-#import "SADesignerConnection.h"
-#import "SADesignerEventBindingMessage.h"
-#import "SADesignerSessionCollection.h"
-#import "SAEventBinding.h"
 #import "SALogger.h"
 #import "SAReachability.h"
 #import "SASwizzler.h"
@@ -41,7 +36,8 @@
 #import "SADeviceOrientationManager.h"
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
-#define VERSION @"1.10.5"
+#import "NSThread+SAHelpers.h"
+#define VERSION @"1.10.6"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -141,8 +137,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (atomic, strong) SensorsAnalyticsPeople *people;
 
 @property (atomic, copy) NSString *serverURL;
-@property (atomic, copy) NSString *configureURL;
-@property (atomic, copy) NSString *vtrackServerURL;
 
 @property (atomic, copy) NSString *distinctId;
 @property (atomic, copy) NSString *originalId;
@@ -158,13 +152,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
-@property (nonatomic, strong) id abtestDesignerConnection;
-@property (atomic, strong) NSSet *eventBindings;
-
-@property (assign, nonatomic) BOOL safariRequestInProgress;
-
 @property (nonatomic, strong) NSTimer *timer;
-@property (nonatomic, strong) NSTimer *vtrackConnectorTimer;
 
 //用户设置的不被AutoTrack的Controllers
 @property (nonatomic, strong) NSMutableArray *ignoredViewControllers;
@@ -187,16 +175,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
-
-// 用于 SafariViewController
-@property (strong, nonatomic) UIWindow *secondWindow;
-
-- (instancetype)initWithServerURL:(NSString *)serverURL
-                  andConfigureURL:(NSString *)configureURL
-               andVTrackServerURL:(NSString *)vtrackServerURL
-                    andLaunchOptions:(NSDictionary *)launchOptions
-                     andDebugMode:(SensorsAnalyticsDebugMode)debugMode;
-
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -204,7 +182,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     UInt64 _flushBulkSize;
     UInt64 _flushInterval;
     UInt64 _maxCacheSize;
-    UIWindow *_vtrackWindow;
     NSDateFormatter *_dateFormatter;
     BOOL _autoTrack;                    // 自动采集事件
     BOOL _appRelaunched;                // App 从后台恢复
@@ -226,38 +203,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 #pragma mark - Initialization
-
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                     andConfigureURL:(NSString *)configureURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
-                                            andConfigureURL:configureURL
-                                         andVTrackServerURL:nil
-                                               andDebugMode:debugMode];
-}
-
-
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                     andConfigureURL:(NSString *)configureURL
-                                  andVTrackServerURL:(NSString *)vtrackServerURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        sharedInstance = [[super alloc] initWithServerURL:serverURL
-                                          andConfigureURL:configureURL
-                                       andVTrackServerURL:vtrackServerURL
-                                            andLaunchOptions:nil
-                                             andDebugMode:debugMode];
-    });
-    return sharedInstance;
-}
-
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
-                                            andConfigureURL:nil
-                                         andVTrackServerURL:nil
-                                               andDebugMode:debugMode];
+            andLaunchOptions:nil andDebugMode:debugMode];
 }
 
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
@@ -266,8 +215,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         sharedInstance = [[super alloc] initWithServerURL:serverURL
-                                          andConfigureURL:nil
-                                       andVTrackServerURL:nil
                                          andLaunchOptions:launchOptions
                                              andDebugMode:debugMode];
     });
@@ -434,8 +381,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (instancetype)initWithServerURL:(NSString *)serverURL
-                  andConfigureURL:(NSString *)configureURL
-               andVTrackServerURL:(NSString *)vtrackServerURL
                     andLaunchOptions:(NSDictionary *)launchOptions
                      andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
@@ -452,17 +397,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 });
             }
 
-            // 将 Configure URI Path 末尾补齐 iOS.conf
-            NSURL *url = [NSURL URLWithString:configureURL];
-            if ([[url lastPathComponent] isEqualToString:@"config"]) {
-                url = [url URLByAppendingPathComponent:@"iOS.conf"];
-            }
-            configureURL = [url absoluteString];
-
             self.people = [[SensorsAnalyticsPeople alloc] initWithSDK:self];
 
-            self.configureURL = configureURL;
-            self.vtrackServerURL = vtrackServerURL;
+    
             _debugMode = debugMode;
             [self setServerUrl:serverURL];
             [self enableLog];
@@ -470,7 +407,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _flushInterval = 15 * 1000;
             _flushBulkSize = 100;
             _maxCacheSize = 10000;
-            _vtrackWindow = nil;
             _autoTrack = NO;
             _heatMap = NO;
             _appRelaunched = NO;
@@ -498,17 +434,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _dateFormatter = [[NSDateFormatter alloc] init];
             [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
 
-            self.checkForEventBindingsOnActive = YES;
             self.flushBeforeEnterBackground = YES;
-
-            self.safariRequestInProgress = NO;
 
             self.messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
 
-            // 取上一次进程退出时保存的distinctId、loginId、superProperties和eventBindings
+            // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
 
             if (self.firstDay == nil) {
@@ -531,26 +464,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
             _userAgent = [self.class getUserAgent];
-
-#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-            if (configureURL != nil) {
-                [self executeEventBindings:self.eventBindings];
-            }
-#endif
-            // XXX: App Active 的时候会获取配置，此处不需要获取
-            //        [self checkForConfigure];
+            
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
-
             NSString *logMessage = nil;
-            if (configureURL != nil) {
-                logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', configure url '%@', debugMode: '%@'",
-                              self, serverURL, configureURL, [self debugModeToString:debugMode]];
-            } else {
-                logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
+            logMessage = [NSString stringWithFormat:@"%@ initialized the instance of Sensors Analytics SDK with server url '%@', debugMode: '%@'",
                               self, serverURL, [self debugModeToString:debugMode]];
-            }
-
             SALog(@"%@", logMessage);
             
             //打开debug模式，弹出提示
@@ -727,21 +646,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else if (buttonIndex == 0) {
         _debugAlertViewHasShownNumber -= 1;
     }
-}
-
-- (void)enableEditingVTrack {
-#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-    if (_configureURL != nil) {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            // 5 秒
-            self.vtrackConnectorTimer = [NSTimer scheduledTimerWithTimeInterval:10
-                                                                         target:self
-                                                                       selector:@selector(connectToVTrackDesigner)
-                                                                       userInfo:nil
-                                                                        repeats:YES];
-        });
-    }
-#endif
 }
 
 - (BOOL)isFirstDay {
@@ -1311,7 +1215,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 2. 使用gzip进行压缩
             zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
             // 3. base64
-            b64String = [zippedData sa_base64EncodedString];
+            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
             int hashCode = [b64String sensorsdata_hashCode];
             b64String = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
                                                                                   (CFStringRef)b64String,
@@ -1541,30 +1445,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)enqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
     NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"properties"]];
-    
-    NSString *from_vtrack = [properties objectForKey:@"$from_vtrack"];
-    if (from_vtrack != nil && [from_vtrack length] > 0) {
-        // 来自可视化埋点的事件
-        BOOL binding_depolyed = [[properties objectForKey:@"$binding_depolyed"] boolValue];
-        if (!binding_depolyed) {
-            // 未部署的事件，不发送正式的track
-            return;
-        }
-        
-        NSString *binding_trigger_id = [[properties objectForKey:@"$binding_trigger_id"] stringValue];
-        
-        NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"lib"]];
-        
-        [libProperties setValue:@"vtrack" forKey:@"$lib_method"];
-        [libProperties setValue:binding_trigger_id forKey:@"$lib_detail"];
-        
-        [properties removeObjectsForKeys:@[@"$binding_depolyed", @"$binding_path", @"$binding_trigger_id"]];
-        
-        [event setObject:properties forKey:@"properties"];
-        [event setObject:libProperties forKey:@"lib"];
-    }
-    
     [self.messageQueue addObejct:event withType:@"Post"];
 }
 
@@ -1854,6 +1734,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
 }
 
+- (void)trackTimerStart:(NSString *)event {
+    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitSeconds];
+}
+
 - (void)trackTimerBegin:(NSString *)event {
     [self trackTimer:event];
 }
@@ -2104,7 +1988,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         // NSString 检查长度，但忽略部分属性
-        if ([properties[k] isKindOfClass:[NSString class]] && ![k isEqualToString:@"$binding_path"]) {
+        if ([properties[k] isKindOfClass:[NSString class]]) {
             NSUInteger objLength = [((NSString *)properties[k]) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
             NSUInteger valueMaxLength = PROPERTY_LENGTH_LIMITATION;
             if ([k isEqualToString:@"app_crashed_reason"]) {
@@ -2240,11 +2124,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self unarchiveDistinctId];
     [self unarchiveLoginId];
     [self unarchiveSuperProperties];
-#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-    if (_configureURL != nil) {
-        [self unarchiveEventBindings];
-    }
-#endif
     [self unarchiveFirstDay];
 }
 
@@ -2292,15 +2171,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     } else {
         _superProperties = [archivedSuperProperties copy];
     }
-}
-
-- (void)unarchiveEventBindings {
-    NSSet *eventBindings = (NSSet *)[self unarchiveFromFile:[self filePathForData:@"event_bindings"]];
-    SADebug(@"%@ unarchive event bindings %@", self, eventBindings);
-    if (eventBindings == nil || ![eventBindings isKindOfClass:[NSSet class]]) {
-        eventBindings = [NSSet set];
-    }
-    self.eventBindings = eventBindings;
 }
 
 - (void)archiveDistinctId {
@@ -2358,20 +2228,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@ unable to archive super properties", self);
     }
     SADebug(@"%@ archive super properties data", self);
-}
-
-- (void)archiveEventBindings {
-    NSString *filePath = [self filePathForData:@"event_bindings"];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.eventBindings copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive tracking events data", self);
-    }
-    SADebug(@"%@ archive tracking events data, %@", self, [self.eventBindings copy]);
 }
 
 #pragma mark - Network control
@@ -2474,18 +2330,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (UIWindow *)vtrackWindow {
-    @synchronized(self) {
-        return _vtrackWindow;
-    }
-}
-
-- (void)setVtrackWindow:(UIWindow *)vtrackWindow {
-    @synchronized(self) {
-        _vtrackWindow = vtrackWindow;
-    }
-}
-
 - (NSString *)getLastScreenUrl {
     return _referrerScreenUrl;
 }
@@ -2503,8 +2347,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
-    __block BOOL verify = enableVerify;
-    dispatch_async(dispatch_get_main_queue(), ^{
+    [NSThread sa_safelyRunOnMainThreadSync:^{
+        BOOL verify = enableVerify;
         @try {
             if (self->_serverURL == nil || self->_serverURL.length == 0) {
                 verify = NO;
@@ -2526,7 +2370,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
         }
-    });
+    }
+     ];
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -2719,9 +2564,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
     }
     
-    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
-        return;
-    }
+//    if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen]) {
+//        return;
+//    }
     
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     [properties setValue:NSStringFromClass(klass) forKey:SCREEN_NAME_PROPERTY];
@@ -3191,9 +3036,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self.timer invalidate];
         }
         self.timer = nil;
-        if (self.vtrackConnectorTimer.isValid) {
-            [self.vtrackConnectorTimer invalidate];
-        }
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
         //停止采集设备方向信息
@@ -3264,14 +3106,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
     }
     
-#ifndef SENSORS_ANALYTICS_DISABLE_VTRACK
-    if (_configureURL != nil) {
-        if (self.checkForEventBindingsOnActive) {
-            [self checkForConfigure];
-        }
-    }
-#endif
-
     [self startFlushTimer];
 }
 
@@ -3340,12 +3174,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             [self _flush:YES];
         });
     }
-    
-    if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
-        && ((SADesignerConnection *)self.abtestDesignerConnection).connected) {
-        ((SADesignerConnection *)self.abtestDesignerConnection).sessionEnded = YES;
-        [((SADesignerConnection *)self.abtestDesignerConnection) close];
-    }
 }
 
 -(void)applicationWillTerminateNotification:(NSNotification *)notification {
@@ -3354,221 +3182,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     });
 }
 
-#pragma mark - SensorsData VTrack Analytics
-
-- (void)checkForConfigure {
-    SADebug(@"%@ starting configure check", self);
-    
-    if (self.configureURL == nil || self.configureURL.length < 1) {
-        return;
-    }
-    
-    void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-        if (error) {
-            SAError(@"%@ configure check http error: %@", self, error);
-            return;
-        }
-        
-        NSError *parseError;
-        NSDictionary *object = [NSJSONSerialization JSONObjectWithData:data options:0 error:&parseError];
-        if (parseError) {
-            SAError(@"%@ configure check json error: %@, data: %@", self, parseError, [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]);
-            return;
-        }
-        
-        // 可视化埋点配置
-        NSDictionary *rawEventBindings = object[@"event_bindings"];
-        if (rawEventBindings && [rawEventBindings isKindOfClass:[NSDictionary class]]) {
-            NSArray *eventBindings = rawEventBindings[@"events"];
-            if (eventBindings && [eventBindings isKindOfClass:[NSArray class]]) {
-                // Finished bindings are those which should no longer be run.
-                [self.eventBindings makeObjectsPerformSelector:NSSelectorFromString(@"stop")];
-                
-                NSMutableSet *parsedEventBindings = [NSMutableSet set];
-                for (id obj in eventBindings) {
-                    SAEventBinding *binding = [SAEventBinding bindingWithJSONObject:obj];
-                    if (binding) {
-                        if ([NSThread isMainThread]) {
-                            [binding execute];
-                        } else {
-                            dispatch_sync(dispatch_get_main_queue(), ^{
-                                [binding execute];
-                            });
-                        }
-                        [parsedEventBindings addObject:binding];
-                    }
-                }
-                
-                SADebug(@"%@ found %lu tracking events: %@", self, (unsigned long)[parsedEventBindings count], parsedEventBindings);
-                
-                self.eventBindings = parsedEventBindings;
-                [self archiveEventBindings];
-            }
-        }
-        
-        // 可视化埋点服务地址
-        if (_vtrackServerURL == nil) {
-            NSString *vtrackServerUrl = object[@"vtrack_server_url"];
-            
-            // XXX: 为了兼容历史版本，有三种方式设置可视化埋点管理界面服务地址，优先级从高到低：
-            //  1. 从 SDK 构造函数传入
-            //  2. 从 SDK 配置分发的结果中获取（1.6+）
-            //  3. 从 SDK 配置分发的 Url 中自动生成（兼容旧版本）
-            
-            if (vtrackServerUrl && [vtrackServerUrl length] > 0) {
-                _vtrackServerURL = vtrackServerUrl;
-            } else {
-                // 根据参数 <code>configureURL</code> 自动生成 <code>vtrackServerURL</code>
-                NSURL *url = [NSURL URLWithString:_configureURL];
-                
-                // 将 URI Path (/api/vtrack/config/iOS.conf) 替换成 VTrack WebSocket 的 '/api/ws'
-                UInt64 pathComponentSize = [url pathComponents].count;
-                for (UInt64 i = 2; i < pathComponentSize; ++i) {
-                    url = [url URLByDeletingLastPathComponent];
-                }
-                url = [url URLByAppendingPathComponent:@"ws"];
-                
-                // 将 URL Scheme 替换成 'ws:'
-                NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-                components.scheme = @"ws";
-                
-                _vtrackServerURL = [components.URL absoluteString];
-            }
-        }
-        
-        SADebug(@"%@ initialized the VTrack with server url: %@", self, _vtrackServerURL);
-    };
-    
-    NSURL *URL = [NSURL URLWithString:self.configureURL];
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-    [request setHTTPMethod:@"GET"];
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-    NSURLSession *session = [NSURLSession sharedSession];
-    NSURLSessionDataTask *task = [session dataTaskWithRequest:request completionHandler:block];
-    
-    [task resume];
-#else
-    [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-     ^(NSURLResponse *response, NSData* data, NSError *error) {
-         return block(data, response, error);
-     }];
-#endif
-}
-
-- (void)connectToVTrackDesigner {
-    if (self.vtrackServerURL == nil || self.vtrackServerURL.length < 1) {
-        return;
-    }
-    
-    if ([self.abtestDesignerConnection isKindOfClass:[SADesignerConnection class]]
-            && ((SADesignerConnection *)self.abtestDesignerConnection).connected) {
-        SADebug(@"VTrack connection already exists");
-    } else {
-        static UInt64 oldInterval;
-
-        __weak SensorsAnalyticsSDK *weakSelf = self;
-        
-        void (^connectCallback)(void) = ^{
-            __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-            oldInterval = strongSelf.flushInterval;
-            strongSelf.flushInterval = 1000;
-            [UIApplication sharedApplication].idleTimerDisabled = YES;
-            if (strongSelf) {
-                NSMutableSet *eventBindings = [strongSelf.eventBindings mutableCopy];
-                
-                SADesignerConnection *connection = strongSelf.abtestDesignerConnection;
-                
-                SAEventBindingCollection *bindingCollection = [[SAEventBindingCollection alloc] initWithEvents:eventBindings];
-                [connection setSessionObject:bindingCollection forKey:@"event_bindings"];
-                
-                void (^block)(id, SEL, NSString*, id) = ^(id obj, SEL sel, NSString *type, NSDictionary *e) {
-                    if (![type isEqualToString:@"track"]) {
-                        return;
-                    }
-                    
-                    NSMutableDictionary *event = [[NSMutableDictionary alloc] initWithDictionary:e];
-                    NSMutableDictionary *properties = [[NSMutableDictionary alloc] initWithDictionary:[event objectForKey:@"properties"]];
-                    
-                    NSString *from_vtrack = [properties objectForKey:@"$from_vtrack"];
-                    if (from_vtrack == nil || [from_vtrack length] < 1) {
-                        return;
-                    }
-                    
-                    // 来自可视化埋点的事件
-                    BOOL binding_depolyed = [[properties objectForKey:@"$binding_depolyed"] boolValue];
-                    NSInteger binding_trigger_id = [[properties objectForKey:@"$binding_trigger_id"] integerValue];
-                    NSString *binding_path = [properties objectForKey:@"$binding_path"];
-                    
-                    [properties removeObjectsForKeys:@[@"$binding_depolyed", @"$binding_trigger_id", @"$binding_path"]];
-                    [event setObject:properties forKey:@"properties"];
-                    
-                    NSDictionary *payload = [[NSDictionary alloc] initWithObjectsAndKeys:
-                                             binding_depolyed ? @YES : @NO, @"depolyed",
-                                             @(binding_trigger_id), @"trigger_id",
-                                             binding_path, @"path",
-                                             event, @"event", nil];
-                    
-                    SADesignerTrackMessage *message = [SADesignerTrackMessage messageWithPayload:payload];
-                    [connection sendMessage:message];
-                };
-                
-                [SASwizzler swizzleSelector:@selector(enqueueWithType:andEvent:)
-                                    onClass:[SensorsAnalyticsSDK class]
-                                  withBlock:block
-                                      named:@"track_properties"];
-            }
-        };
-        
-        void (^disconnectCallback)(void) = ^{
-            __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-            strongSelf.flushInterval = oldInterval;
-            [UIApplication sharedApplication].idleTimerDisabled = NO;
-            if (strongSelf) {
-                SADesignerConnection *connection = strongSelf.abtestDesignerConnection;
-                id bindingCollection = [connection sessionObjectForKey:@"event_bindings"];
-                if (bindingCollection && [bindingCollection conformsToProtocol:@protocol(SADesignerSessionCollection)]) {
-                    [bindingCollection cleanup];
-                }
-                
-                [strongSelf executeEventBindings:strongSelf.eventBindings];
-                
-                [SASwizzler unswizzleSelector:@selector(enqueueWithType:andEvent:)
-                                      onClass:[SensorsAnalyticsSDK class]
-                                        named:@"track_properties"];
-            }
-        };
-        
-        NSURL *designerURL = [NSURL URLWithString:self.vtrackServerURL];
-        self.abtestDesignerConnection = [[SADesignerConnection alloc] initWithURL:designerURL
-                                                                       keepTrying:YES
-                                                                  connectCallback:connectCallback
-                                                               disconnectCallback:disconnectCallback];
-        
-    }
-    
-    if (self.vtrackConnectorTimer) {
-        [self.vtrackConnectorTimer invalidate];
-    }
-    self.vtrackConnectorTimer = nil;
-}
-
-- (void)executeEventBindings:(NSSet*) eventBindings {
-    if (eventBindings) {
-        for (id binding in eventBindings) {
-            if ([binding isKindOfClass:[SAEventBinding class]]) {
-                if ([NSThread isMainThread]) {
-                    [binding execute];
-                } else {
-                    dispatch_sync(dispatch_get_main_queue(), ^{
-                        [binding execute];
-                    });
-                }
-            }
-        }
-        SADebug(@"%@ execute event bindings %@", self, eventBindings);
-    }
-}
+#pragma mark - SensorsData  Analytics
 
 - (void)set:(NSDictionary *)profileDict {
     [[self people] set:profileDict];

@@ -9,12 +9,8 @@
 //
 
 #import "SAHeatMapConnection.h"
-#import "SADesignerDeviceInfoMessage.h"
-#import "SADesignerDisconnectMessage.h"
-#import "SADesignerEventBindingMessage.h"
 #import "SAHeatMapMessage.h"
 #import "SAHeatMapSnapshotMessage.h"
-#import "SADesignerSessionCollection.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
 
@@ -114,7 +110,7 @@
     id <SAHeatMapMessage> designerMessage = nil;
 
     NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
-//    SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
+   // SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
     
     NSError *error = nil;
     id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
@@ -142,7 +138,7 @@
     }
 }
 
-#pragma mark - SAWebSocketDelegate Methods
+#pragma mark -  Methods
 
 - (void)startHeatMapTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
     _featureCode = featureCode;
@@ -186,7 +182,7 @@
         }
         
         if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
-            UIWindow *mainWindow = [SensorsAnalyticsSDK sharedInstance].vtrackWindow;
+            UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
             if (mainWindow == nil) {
                 mainWindow = [[UIApplication sharedApplication] delegate].window;
             }
