@@ -195,8 +195,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 @property (atomic, readonly, copy) NSString *loginId;
 
-
-
 /**
  * @proeprty
  *
@@ -529,6 +527,24 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 设置 Cookie
+ *
+ * @param cookie NSString cookie
+ * @param encode BOOL 是否 encode
+ */
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
+
+/**
+ * @abstract
+ * 返回已设置的 Cookie
+ *
+ * @param decode BOOL 是否 decode
+ * @return NSString cookie
+ */
+- (NSString *)getCookieWithDecode:(BOOL)decode;
+
+/**
+ * @abstract
  * 初始化事件的计时器。
  *
  * @discussion
@@ -794,6 +810,26 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
+ * 用来设置事件的动态公共属性
+ *
+ * @discussion
+ * 当track的Properties，superProperties和SDK自动生成的automaticProperties有相同的key时，遵循如下的优先级：
+ *    track.properties > dynamicSuperProperties > superProperties > automaticProperties
+ *
+ * 例如，track.properties 是 @{@"a":1, @"b": "bbb"}，返回的 eventCommonProperty 是 @{@"b": 123, @"c": @"asd"}，
+ * superProperties 是  @{@"a":1, @"b": "bbb",@"c":@"ccc"}，automaticProperties是 @{@"a":1, @"b": "bbb",@"d":@"ddd"},
+ * 则merge后的结果是 @{"a":1, @"b": "bbb", @"c": @"asd",@"d":@"ddd"}
+ * 返回的 NSDictionary 需满足以下要求
+ * 重要：1,key 必须是NSString
+ *          2,key 的名称必须符合要求
+ *          3,value 的类型必须是 NSString, NSNumber, NSSet, NSDate
+ *          4,value 类型为 NSSet 时，NSSet 中的所有元素必须为 NSString
+ * @param dynamicSuperProperties block 用来返回事件的动态公共属性
+ */
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+
+/**
+ * @abstract
  * 从superProperty中删除某个property
  *
  * @param property 待删除的property的名称
@@ -830,6 +866,15 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 主动调用flush接口，则不论flushInterval和网络类型的限制条件是否满足，都尝试向服务器上传一次数据
  */
 - (void)flush;
+
+/**
+ * @abstract
+ * 删除本地缓存的全部事件
+ *
+ * @discussion
+ * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
+ */
+- (void)deleteAll;
 #pragma mark- heatMap
 - (BOOL)handleHeatMapUrl:(NSURL *)url;
 

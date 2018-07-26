@@ -13,8 +13,10 @@
 @implementation UIViewController (AutoTrack)
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
-        UIViewController *viewController = (UIViewController *)self;
-        [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
+            UIViewController *viewController = (UIViewController *)self;
+            [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+        }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

@@ -69,7 +69,7 @@ static dispatch_queue_t __logQueue__ ;
        line:(NSUInteger)line {
     @try{
         NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@",[self descriptionForLevel:level],function,(unsigned long)line,[@"" UTF8String],message];
-        if (__enableLog__) {
+        if ([SALogger isLoggerEnabled]) {
             NSLog(@"%@",logMessage);
         }
     } @catch(NSException *e){

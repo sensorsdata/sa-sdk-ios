@@ -17,6 +17,18 @@
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
+    [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
+    [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
+        NSMutableSet *mutArr = [NSMutableSet set];
+        for (int i=0; i<100; i++) {
+            [mutArr addObject:[NSString stringWithFormat:@"%i",i]];
+        }
+        return @{@"__timstamp__":@((long long)(NSDate.date.timeIntervalSince1970*1000)),
+                 @"__APPState__":@(UIApplication.sharedApplication.applicationState),
+                 @"$device_id":UIDevice.currentDevice.identifierForVendor.UUIDString,
+                 @"count_100":mutArr,
+                 };
+    }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
@@ -77,7 +89,5 @@
 - (void)applicationWillTerminate:(UIApplication *)application {
     // Called when the application is about to terminate. Save data if appropriate. See also applicationDidEnterBackground:.
 }
-
-
 
 @end

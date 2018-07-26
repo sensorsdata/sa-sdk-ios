@@ -8,6 +8,15 @@
 
 #import "TestCollectionViewController.h"
 
+@interface CustomCollectionViewCell : UICollectionViewCell
+
+@end
+@implementation CustomCollectionViewCell
+
+
+
+@end
+
 @interface TestCollectionViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
 @property(nonatomic,strong)NSMutableArray * dataArray;
 @property(nonatomic,strong)UICollectionView *collectionView;
@@ -24,7 +33,7 @@
     self.collectionView.backgroundColor = [UIColor clearColor];
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
-    [self.collectionView registerClass:[UICollectionViewCell class] forCellWithReuseIdentifier:@"identifier"];
+    [self.collectionView registerClass:[CustomCollectionViewCell class] forCellWithReuseIdentifier:@"identifier"];
     [self.view addSubview:self.collectionView];
     
     // Do any additional setup after loading the view.
@@ -46,7 +55,7 @@
 
 - (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"identifier" forIndexPath:indexPath];
+    CustomCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"identifier" forIndexPath:indexPath];
     
     for ( UIView *view in cell.contentView.subviews) {
         [view removeFromSuperview];

@@ -132,6 +132,20 @@
     return [NSArray arrayWithArray:contentArray];
 }
 
+- (void) deleteAll {
+    NSString* query = @"DELETE FROM dataCache";
+    char* errMsg;
+    @try {
+        if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
+            SAError(@"Failed to delete record msg=%s", errMsg);
+        }
+    } @catch (NSException *exception) {
+        SAError(@"Failed to delete record exception=%@",exception);
+    }
+
+    _messageCount = [self sqliteCount];
+}
+
 - (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     NSUInteger removeSize = MIN(recordSize, _messageCount);
     NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];

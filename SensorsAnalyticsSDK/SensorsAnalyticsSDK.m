@@ -37,7 +37,9 @@
 #import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
 #import "NSThread+SAHelpers.h"
-#define VERSION @"1.10.6"
+#import "SACommonUtility.h"
+
+#define VERSION @"1.10.7"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -57,6 +59,8 @@ static NSString* const SCREEN_NAME_PROPERTY = @"$screen_name";
 static NSString* const SCREEN_URL_PROPERTY = @"$url";
 // App 浏览页面 Referrer Url
 static NSString* const SCREEN_REFERRER_URL_PROPERTY = @"$referrer";
+//中国运营商 mcc 标识
+static NSString* const CARRIER_CHINA_MCC = @"460";
 
 @implementation SensorsAnalyticsDebugException
 
@@ -175,6 +179,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
 @property (nonatomic, assign) NSUInteger pullSDKConfigurationRetryMaxCount;
+
+@property (nonatomic,copy) NSDictionary<NSString *,id> *(^dynamicSuperProperties)(void);
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -200,6 +207,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     NSString *_osVersion;
     NSString *_userAgent;
     NSString *_originServerUrl;
+    NSString *_cookie;
 }
 
 #pragma mark - Initialization
@@ -597,10 +605,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
-            if (_debugAlertViewHasShownNumber >= 3) {
+            if (self->_debugAlertViewHasShownNumber >= 3) {
                 return;
             }
-            _debugAlertViewHasShownNumber += 1;
+            self->_debugAlertViewHasShownNumber += 1;
             NSString *alertTitle = @"SensorsData 重要提示";
             if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
                 UIAlertController *connectAlert = [UIAlertController
@@ -611,12 +619,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
                 [connectAlert addAction:[UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
                     alertWindow.hidden = YES;
-                    _debugAlertViewHasShownNumber -= 1;
+                    self->_debugAlertViewHasShownNumber -= 1;
                 }]];
                 if (showNoMore) {
                     [connectAlert addAction:[UIAlertAction actionWithTitle:@"不再显示" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
                         alertWindow.hidden = YES;
-                        _showDebugAlertView = NO;
+                        self->_showDebugAlertView = NO;
                     }]];
                 }
 
@@ -1223,7 +1231,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                                                                   CFSTR("!*'();:@&=+$,/?%#[]"),
                                                                                   kCFStringEncodingUTF8));
         
-            postBody = [NSString stringWithFormat:@"gzip=1&data_list=%@&crc=%d", b64String, hashCode];
+            postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
         } @catch (NSException *exception) {
             SAError(@"%@ flushByPost format data error: %@", self, exception);
             return YES;
@@ -1239,6 +1247,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
         }
         
+        //Cookie
+        [request setValue:[[SensorsAnalyticsSDK sharedInstance] getCookieWithDecode:NO] forHTTPHeaderField:@"Cookie"];
+
         dispatch_semaphore_t flushSem = dispatch_semaphore_create(0);
         __block BOOL flushSucc = YES;
         
@@ -1319,6 +1330,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self _flush:NO];
     });
+}
+
+- (void)deleteAll {
+    [self.messageQueue deleteAll];
 }
 
 - (BOOL)handleHeatMapUrl:(NSURL *)url {
@@ -1527,15 +1542,27 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [libProperties setValue:lib_detail forKey:@"$lib_detail"];
     }
 
+    //获取用户自定义的动态公共属性
+    NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+    if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
+        SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.",dynamicSuperPropertiesDict);
+        dynamicSuperPropertiesDict = nil;
+    } else {
+        if ([self assertPropertyTypes:dynamicSuperPropertiesDict withEventType:@"register_super_properties"] == NO) {
+            dynamicSuperPropertiesDict = nil;
+        }
+    }
+
     dispatch_async(self.serialQueue, ^{
         NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
         NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *p = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
-            // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties和propertieDict
+            // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
             [p addEntriesFromDictionary:_automaticProperties];
             [p addEntriesFromDictionary:_superProperties];
+            [p addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
             //update lib $app_version from super properties
             id app_version = [_superProperties objectForKey:@"$app_version"];
@@ -1706,6 +1733,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [e setObject:token forKey:@"token"];
         }
         
+        //修正 $device_id，防止用户修改
+        NSDictionary *infoProperties = [e objectForKey:@"properties"];
+        if (infoProperties && [infoProperties.allKeys containsObject:@"$device_id"]) {
+            NSDictionary *autoProperties = self.automaticProperties;
+            if (autoProperties && [autoProperties.allKeys containsObject:@"$device_id"]) {
+                NSMutableDictionary *correctInfoProperties = [NSMutableDictionary dictionaryWithDictionary:infoProperties];
+                correctInfoProperties[@"$device_id"] = autoProperties[@"$device_id"];
+                [e setObject:correctInfoProperties forKey:@"properties"];
+            }
+        }
+
         SALog(@"\n【track event】:\n%@", e);
         
         [self enqueueWithType:type andEvent:[e copy]];
@@ -1728,6 +1766,26 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)track:(NSString *)event {
     [self track:event withProperties:nil withType:@"track"];
+}
+
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
+    if (encode) {
+        _cookie = (id)CFBridgingRelease(CFURLCreateStringByAddingPercentEscapes(kCFAllocatorDefault,
+                                                                                (CFStringRef)cookie,
+                                                                                NULL,
+                                                                                CFSTR("!*'();:@&=+$,/?%#[]"),
+                                                                                kCFStringEncodingUTF8));
+    } else {
+        _cookie = cookie;
+    }
+}
+
+- (NSString *)getCookieWithDecode:(BOOL)decode {
+    if (decode) {
+        return (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)_cookie, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    } else {
+        return _cookie;
+    }
 }
 
 - (void)trackTimer:(NSString *)event {
@@ -1927,6 +1985,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)assertPropertyTypes:(NSDictionary *)properties withEventType:(NSString *)eventType {
+    NSMutableDictionary *newProperties = nil;
     for (id __unused k in properties) {
         // key 必须是NSString
         if (![k isKindOfClass: [NSString class]]) {
@@ -1977,12 +2036,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 }
                 NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
                 if (objLength > PROPERTY_LENGTH_LIMITATION) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)object];
-                    SAError(@"%@", errMsg);
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                    //截取再拼接 $ 末尾，替换原数据
+                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:PROPERTY_LENGTH_LIMITATION]];
+                    [newObject appendString:@"$"];
+                    if (!newProperties) {
+                        newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                     }
-                    return NO;
+                    NSMutableSet *newSetObject = [NSMutableSet setWithSet:properties[k]];
+                    [newSetObject removeObject:object];
+                    [newSetObject addObject:newObject];
+                    [newProperties setObject:newSetObject forKey:k];
                 }
             }
         }
@@ -1995,12 +2058,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 valueMaxLength = PROPERTY_LENGTH_LIMITATION * 2;
             }
             if (objLength > valueMaxLength) {
-                NSString * errMsg = [NSString stringWithFormat:@"%@ The value in NSString is too long: %@", self, (NSString *)properties[k]];
-                SAError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+                //截取再拼接 $ 末尾，替换原数据
+                NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:properties[k] byteLength:valueMaxLength]];
+                [newObject appendString:@"$"];
+                if (!newProperties) {
+                    newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
                 }
-                return NO;
+                [newProperties setObject:newObject forKey:k];
             }
         }
         
@@ -2028,6 +2092,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     }
+    //截取之后，重新设置 properties
+    if (newProperties) {
+        properties = [NSDictionary dictionaryWithDictionary:newProperties];
+    }
     return YES;
 }
 
@@ -2042,29 +2110,58 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:@"$app_version"];
     if (carrier != nil) {
         NSString *networkCode = [carrier mobileNetworkCode];
-        if (networkCode != nil) {
-            NSString *carrierName = nil;
-            //中国移动
-            if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                carrierName= @"中国移动";
+        NSString *countryCode = [carrier mobileCountryCode];
+        
+        NSString *carrierName = nil;
+        //中国运营商
+        if (countryCode && [countryCode isEqualToString:CARRIER_CHINA_MCC]) {
+            if (networkCode) {
+                
+                //中国移动
+                if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
+                    carrierName= @"中国移动";
+                }
+                //中国联通
+                if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
+                    carrierName= @"中国联通";
+                }
+                //中国电信
+                if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
+                    carrierName= @"中国电信";
+                }
+                //中国卫通
+                if ([networkCode isEqualToString:@"04"]) {
+                    carrierName= @"中国卫通";
+                }
+                //中国铁通
+                if ([networkCode isEqualToString:@"20"]) {
+                    carrierName= @"中国铁通";
+                }
             }
-            //中国联通
-            if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                carrierName= @"中国联通";
-            }
-            //中国电信
-            if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                carrierName= @"中国电信";
-            }
-            if (carrierName != nil) {
-                [p setValue:carrierName forKey:@"$carrier"];
-            } else {
-                if (carrier.carrierName) {
-                    [p setValue:carrier.carrierName forKey:@"$carrier"];
+        } else { //国外运营商解析
+            //加载当前 bundle
+            NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+            //文件路径
+            NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
+            NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
+            if (jsonData) {
+                NSDictionary *dicAllMcc =  [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableLeaves error:nil];
+                if (dicAllMcc) {
+                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@",countryCode,networkCode];
+                    carrierName = dicAllMcc[mccMncKey];
                 }
             }
         }
+        
+        if (carrierName != nil) {
+            [p setValue:carrierName forKey:@"$carrier"];
+        } else {
+            if (carrier.carrierName) {
+                [p setValue:carrier.carrierName forKey:@"$carrier"];
+            }
+        }
     }
+    
     BOOL isReal;
     [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
     [p addEntriesFromDictionary:@{
@@ -2078,6 +2175,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   @"$screen_width": @((NSInteger)size.width),
                                       }];
     return [p copy];
+}
+
+-(void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties {
+     dispatch_async(self.serialQueue, ^{
+         self.dynamicSuperProperties = dynamicSuperProperties;
+     });
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
