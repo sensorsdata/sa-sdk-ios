@@ -39,7 +39,7 @@
 #import "NSThread+SAHelpers.h"
 #import "SACommonUtility.h"
 
-#define VERSION @"1.10.8"
+#define VERSION @"1.10.9"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -285,21 +285,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 +(NSString *)getUserAgent {
-    //1, 尝试从 SAUserAgent 缓存读取，
-    __block  NSString *currentUA = [[NSUserDefaults standardUserDefaults] objectForKey:@"SAUserAgent"];
+    //在此之前调用过 addWebViewUserAgentSensorsDataFlag ，可以直接从 _userAgent 获取 ua
+    __block  NSString *currentUA = self.sharedInstance->_userAgent;
     if (currentUA  == nil)  {
-        //2,从 webview 执行 JS 获取 UA
         if ([NSThread isMainThread]) {
             UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
             currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-            [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-            [[NSUserDefaults standardUserDefaults] synchronize];
+            self.sharedInstance->_userAgent = currentUA;
         } else {
             dispatch_sync(dispatch_get_main_queue(), ^{
                 UIWebView* webView = [[UIWebView alloc] initWithFrame:CGRectZero];
                 currentUA = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-                [[NSUserDefaults standardUserDefaults] setObject:currentUA forKey:@"SAUserAgent"];
-                [[NSUserDefaults standardUserDefaults] synchronize];
+                self.sharedInstance->_userAgent = currentUA;
             });
         }
     }
@@ -469,9 +466,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             self.serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
 
             [self setUpListeners];
-
-            // 渠道追踪请求，需要从 UserAgent 中解析 OS 信息用于模糊匹配
-            _userAgent = [self.class getUserAgent];
             
             // XXX: App Active 的时候会启动计时器，此处不需要启动
             //        [self startFlushTimer];
@@ -630,7 +624,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
                 alertWindow.rootViewController = [[UIViewController alloc] init];
                 alertWindow.windowLevel = UIWindowLevelAlert + 1;
-                [alertWindow makeKeyAndVisible];
+                alertWindow.hidden = NO;
                 [alertWindow.rootViewController presentViewController:connectAlert animated:YES completion:nil];
             } else {
                 UIAlertView *connectAlert = nil;
@@ -782,17 +776,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 
             NSString *type = [eventDict valueForKey:@"type"];
-            NSString *bestId;
-            if ([self loginId] != nil) {
-                bestId = [self loginId];
-            } else{
-                bestId = [self distinctId];
-            }
-
-            if (bestId == nil) {
-                [self resetAnonymousId];
-                bestId = [self anonymousId];
-            }
+            NSString *bestId = self.getBestId;
 
             [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
 
@@ -821,8 +805,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
             NSMutableDictionary *propertiesDict = [eventDict objectForKey:@"properties"];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]){
+                // track / track_signup 类型的请求，还是要加上各种公共property
+                // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
                 [propertiesDict addEntriesFromDictionary:_superProperties];
+                NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
+                [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
                 NSString *networkType = [SensorsAnalyticsSDK getNetWorkStates];
@@ -1640,17 +1628,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         NSMutableDictionary *e;
-        NSString *bestId;
-        if ([self loginId] != nil) {
-            bestId = [self loginId];
-        } else{
-            bestId = [self distinctId];
-        }
-
-        if (bestId == nil) {
-            [self resetAnonymousId];
-            bestId = [self anonymousId];
-        }
+        NSString *bestId = self.getBestId;
 
         if ([type isEqualToString:@"track_signup"]) {
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
@@ -1758,6 +1736,21 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
     });
+}
+
+-(NSString *)getBestId{
+    NSString *bestId;
+    if ([self loginId] != nil) {
+        bestId = [self loginId];
+    } else{
+        bestId = [self distinctId];
+    }
+
+    if (bestId == nil) {
+        [self resetAnonymousId];
+        bestId = [self anonymousId];
+    }
+    return bestId;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
@@ -1885,8 +1878,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@YES forKey:@"$ios_install_disable_callback"];
         }
 
-        if (_userAgent) {
-            [properties setValue:_userAgent forKey:@"$user_agent"];
+        NSString *userAgent = [propertyDict objectForKey:@"$user_agent"];
+        if (userAgent ==nil || userAgent.length == 0) {
+            userAgent = self.class.getUserAgent;
+        }
+        if (userAgent) {
+            [properties setValue:userAgent forKey:@"$user_agent"];
         }
 
         if (propertyDict != nil) {
@@ -2013,8 +2010,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![properties[k] isKindOfClass:[NSNumber class]] &&
            ![properties[k] isKindOfClass:[NSNull class]] &&
            ![properties[k] isKindOfClass:[NSSet class]] &&
+           ![properties[k] isKindOfClass:[NSArray class]] &&
            ![properties[k] isKindOfClass:[NSDate class]]) {
-            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
+            NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [properties[k] class], properties[k]];
             SAError(@"%@", errMsg);
             if (_debugMode != SensorsAnalyticsDebugOff) {
                 [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2022,13 +2020,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return NO;
         }
         
-        // NSSet 类型的属性中，每个元素必须是 NSString 类型
-        if ([properties[k] isKindOfClass:[NSSet class]]) {
-            NSEnumerator *enumerator = [((NSSet *)properties[k]) objectEnumerator];
+        // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
+        if ([properties[k] isKindOfClass:[NSSet class]] || [properties[k] isKindOfClass:[NSArray class]]) {
+            NSEnumerator *enumerator = [(properties[k]) objectEnumerator];
             id object;
             while (object = [enumerator nextObject]) {
                 if (![object isKindOfClass:[NSString class]]) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet must be NSString. got: %@ %@", self, [object class], object];
+                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [object class], object];
                     SAError(@"%@", errMsg);
                     if (_debugMode != SensorsAnalyticsDebugOff) {
                         [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2081,10 +2079,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
         
-        // profileAppend的属性必须是个NSSet
+        // profileAppend的属性必须是个NSSet、NSArray
         if ([eventType isEqualToString:@"profile_append"]) {
-            if (![properties[k] isKindOfClass:[NSSet class]]) {
-                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet. got %@ %@", self, [properties[k] class], properties[k]];
+            if (![properties[k] isKindOfClass:[NSSet class]] && ![properties[k] isKindOfClass:[NSArray class]]) {
+                NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [properties[k] class], properties[k]];
                 SAError(@"%@", errMsg);
                 if (_debugMode != SensorsAnalyticsDebugOff) {
                     [self showDebugModeWarning:errMsg withNoMoreButton:YES];
@@ -2451,6 +2449,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
+    [self addWebViewUserAgentSensorsDataFlag:enableVerify userAgent:nil];
+}
+
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent{
     [NSThread sa_safelyRunOnMainThreadSync:^{
         BOOL verify = enableVerify;
         @try {
@@ -2458,8 +2460,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 verify = NO;
             }
             SAServerUrl *ss = [[SAServerUrl alloc]initWithUrl:self->_serverURL];
-            UIWebView *tempWebView = [[UIWebView alloc] initWithFrame:CGRectZero];
-            NSString *oldAgent = [tempWebView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
+            NSString *oldAgent = nil;
+            if (userAgent && userAgent.length) {
+                oldAgent = userAgent;
+            } else {
+                oldAgent = self.class.getUserAgent;
+            }
             NSString *newAgent = oldAgent;
             if ([oldAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
                 if (verify) {
@@ -2468,8 +2474,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     newAgent = [oldAgent stringByAppendingString:@" /sa-sdk-ios"];
                 }
             }
+            //使 newAgent 生效，并设置 _userAgent
             NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:newAgent, @"UserAgent", nil];
             [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+            self->_userAgent = newAgent;
             [[NSUserDefaults standardUserDefaults] synchronize];
         } @catch (NSException *exception) {
             SADebug(@"%@: %@", self, exception);
@@ -2477,6 +2485,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
      ];
 }
+
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return _debugMode;
@@ -3316,8 +3325,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] increment:profileDict];
 }
 
-- (void)append:(NSString *)profile by:(NSSet *)content {
-    [[self people] append:profile by:content];
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
+    if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+        [[self people] append:profile by:content];
+    }
 }
 
 - (void)deleteUser {
@@ -3348,16 +3359,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     NSString *retStr = nil;
     @try {
         if (urlString && [urlString isKindOfClass:NSString.class] && urlString.length){
-            NSURLComponents *componets = [NSURLComponents componentsWithString:urlString];
+            NSURL *url = [NSURL URLWithString:urlString];
+            url = [url URLByDeletingLastPathComponent];
+            NSURLComponents *componets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
             if (componets == nil) {
                 SALog(@"URLString is malformed, nil is returned.");
                 return nil;
             }
             componets.query = nil;
-            componets.path = @"/config/iOS.conf";
-            if (!self.remoteConfig.v) {
-                componets.query = nil;
-            } else {
+            componets.path = [componets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
+            if (self.remoteConfig.v && self.remoteConfig.v.length) {
                 componets.query = [NSString stringWithFormat:@"v=%@",self.remoteConfig.v];
             }
             retStr = componets.URL.absoluteString;
@@ -3605,9 +3616,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-- (void)append:(NSString *)profile by:(NSSet *)content {
+- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
-        [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+        if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+            [_sdk track:nil withProperties:@{profile: content} withType:@"profile_append"];
+        }
     }
 }
 

@@ -19,29 +19,28 @@
                                         andDebugMode:SensorsAnalyticsDebugAndTrack];
     [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
-        NSMutableSet *mutArr = [NSMutableSet set];
-        for (int i=0; i<100; i++) {
-            [mutArr addObject:[NSString stringWithFormat:@"%i",i]];
+        __block UIApplicationState appState;
+        if (NSThread.isMainThread) {
+            appState = UIApplication.sharedApplication.applicationState;
+        }else {
+            dispatch_sync(dispatch_get_main_queue(), ^{
+                appState = UIApplication.sharedApplication.applicationState;
+            });
         }
-        return @{@"__timstamp__":@((long long)(NSDate.date.timeIntervalSince1970*1000)),
-                 @"__APPState__":@(UIApplication.sharedApplication.applicationState),
-                 @"$device_id":UIDevice.currentDevice.identifierForVendor.UUIDString,
-                 @"count_100":mutArr,
-                 };
+        return @{@"__APPState__":@(appState)};
     }];
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
      SensorsAnalyticsEventTypeAppEnd |
      SensorsAnalyticsEventTypeAppViewScreen |
      SensorsAnalyticsEventTypeAppClick];
-
     [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
     [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
+    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
     [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
-    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
     return YES;
