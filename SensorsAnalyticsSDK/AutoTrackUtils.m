@@ -36,7 +36,6 @@
         [viewVarArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", varE]];
     }
     if ([viewVarArray count] == 0) {
-        long count = 0;
         NSArray<__kindof UIView *> *subviews;
         NSMutableArray<__kindof UIView *> *sameTypeViews = [[NSMutableArray alloc] init];
         id nextResponder = [view nextResponder];
@@ -55,7 +54,6 @@
                     }
                 }
             }
-            count = (unsigned long)subviews.count;
         }
         if (sameTypeViews.count > 1) {
             NSString * className = nil;

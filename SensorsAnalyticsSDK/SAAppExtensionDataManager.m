@@ -37,7 +37,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 
 - (void)setGroupIdentifierArray:(NSArray *)groupIdentifierArray {
     dispatch_block_t block = ^(){
-        _groupIdentifierArray = groupIdentifierArray;
+        self->_groupIdentifierArray = groupIdentifierArray;
     };
     if (dispatch_get_specific(SAAppExtensionQueueTag)) {
         block();
@@ -50,7 +50,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
     @try {
         __block NSArray *groupArray = nil;
         dispatch_block_t block = ^(){
-            groupArray = _groupIdentifierArray;
+            groupArray = self->_groupIdentifierArray;
         };
         if (dispatch_get_specific(SAAppExtensionQueueTag)) {
             block();

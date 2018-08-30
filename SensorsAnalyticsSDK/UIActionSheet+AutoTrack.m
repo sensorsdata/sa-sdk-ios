@@ -125,7 +125,7 @@ void sa_actionSheetClickedButtonAtIndex(id self, SEL _cmd, id actionSheet, NSInt
                                 }
                             }
                             if (elementContent != nil && [elementContent length] > 0) {
-                                elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
+                                [elementContent deleteCharactersInRange:NSMakeRange(elementContent.length -1, 1)];
                                 [properties setValue:elementContent forKey:@"$title"];
                             }
                         }

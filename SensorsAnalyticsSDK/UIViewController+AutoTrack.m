@@ -15,7 +15,11 @@
     @try {
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
             UIViewController *viewController = (UIViewController *)self;
-            [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+            if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
+                [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
+                [viewController.parentViewController isKindOfClass:[UINavigationController class]] ) {
+                [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+            }
         }
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
