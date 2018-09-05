@@ -20,6 +20,6 @@
 @property(nonatomic,copy) void(^updateLocationBlock)(CLLocation *location,NSError *error);
 -(void)startUpdatingLocation;
 -(void)stopUpdatingLocation;
-// comment for git to push
+
 @end
 #endif
