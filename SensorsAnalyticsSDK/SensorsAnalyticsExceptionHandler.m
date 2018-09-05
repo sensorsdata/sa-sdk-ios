@@ -11,6 +11,7 @@
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#import <mach-o/dyld.h>
 
 static NSString * const UncaughtExceptionHandlerSignalExceptionName = @"UncaughtExceptionHandlerSignalExceptionName";
 static NSString * const UncaughtExceptionHandlerSignalKey = @"UncaughtExceptionHandlerSignalKey";
@@ -132,14 +133,30 @@ void SAHandleException(NSException *exception) {
     }
 }
 
+/**
+ *  MarginStrategyTrade
+ *  @return the slide of this binary image
+ */
++ (long) marginStrategyTrade_getImageSlide {
+    long slide = -1;
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        if (_dyld_get_image_header(i)->filetype == MH_EXECUTE) {
+            slide = _dyld_get_image_vmaddr_slide(i);
+            break;
+        }
+    }
+    return slide;
+}
+
 - (void) sa_handleUncaughtException:(NSException *)exception {
     // Archive the values for each SensorsAnalytics instance
     @try {
         for (SensorsAnalyticsSDK *instance in self.sensorsAnalyticsSDKInstances) {
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+            long slide_address = [SensorsAnalyticsExceptionHandler marginStrategyTrade_getImageSlide];
             @try {
                 if ([exception callStackSymbols]) {
-                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address,[exception callStackSymbols]] forKey:@"app_crashed_reason"];
                 } else {
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
                 }
