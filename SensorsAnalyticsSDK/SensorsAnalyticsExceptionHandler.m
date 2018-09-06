@@ -12,6 +12,10 @@
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
 
+#if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
+#import <mach-o/dyld.h>
+#endif
+
 static NSString * const UncaughtExceptionHandlerSignalExceptionName = @"UncaughtExceptionHandlerSignalExceptionName";
 static NSString * const UncaughtExceptionHandlerSignalKey = @"UncaughtExceptionHandlerSignalKey";
 
@@ -139,7 +143,14 @@ void SAHandleException(NSException *exception) {
             NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
             @try {
                 if ([exception callStackSymbols]) {
+#if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
+                    long slide_address = [SensorsAnalyticsExceptionHandler sa_computeImageSlide];
+                    [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nSlide_Address:%lx\nException Stack:%@", [exception reason], slide_address,[exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                    
+#else
                     [properties setValue:[NSString stringWithFormat:@"Exception Reason:%@\nException Stack:%@", [exception reason], [exception callStackSymbols]] forKey:@"app_crashed_reason"];
+                    
+#endif
                 } else {
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
                 }
@@ -167,6 +178,22 @@ void SAHandleException(NSException *exception) {
     signal(SIGBUS, SIG_DFL);
     signal(SIGPIPE, SIG_DFL);
 }
+
+#if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
+/** 增加 crash slideAdress 采集支持
+ *  @return the slide of this binary image
+ */
++ (long) sa_computeImageSlide {
+    long slide = -1;
+    for (uint32_t i = 0; i < _dyld_image_count(); i++) {
+        if (_dyld_get_image_header(i)->filetype == MH_EXECUTE) {
+            slide = _dyld_get_image_vmaddr_slide(i);
+            break;
+        }
+    }
+    return slide;
+}
+#endif
 
 @end
 
