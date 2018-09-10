@@ -192,6 +192,8 @@
 		A3E388A21D509BA100F6B9FC /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = A3E3889E1D509B7100F6B9FC /* SAReachability.m */; };
 		A3EEDCE91C4E084200D1362F /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = A3EEDCE81C4E084200D1362F /* DemoController.m */; };
 		A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */; };
+		BAE1FC87214684AE00DAEF1C /* UIViewController+AddAttributes.m in Sources */ = {isa = PBXBuildFile; fileRef = BAE1FC85214684AE00DAEF1C /* UIViewController+AddAttributes.m */; };
+		BAE1FC88214684AE00DAEF1C /* UIViewController+AddAttributes.h in Headers */ = {isa = PBXBuildFile; fileRef = BAE1FC86214684AE00DAEF1C /* UIViewController+AddAttributes.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -392,6 +394,8 @@
 		A3EEDCE71C4E081F00D1362F /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
 		A3EEDCE81C4E084200D1362F /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
 		A3F32BCF1C57296700C3B98D /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
+		BAE1FC85214684AE00DAEF1C /* UIViewController+AddAttributes.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AddAttributes.m"; sourceTree = "<group>"; };
+		BAE1FC86214684AE00DAEF1C /* UIViewController+AddAttributes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AddAttributes.h"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -569,6 +573,8 @@
 				A3746EB91C3190E7008A50A3 /* SATypeDescription.m */,
 				A3746EBA1C3190E7008A50A3 /* UIView+SAHelpers.h */,
 				A3746EBB1C3190E7008A50A3 /* UIView+SAHelpers.m */,
+				BAE1FC86214684AE00DAEF1C /* UIViewController+AddAttributes.h */,
+				BAE1FC85214684AE00DAEF1C /* UIViewController+AddAttributes.m */,
 				A3A85C141C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h */,
 				A3A85C151C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.m */,
 				A3997A231C3AC1DE005A9374 /* SAObjectSelector.h */,
@@ -706,6 +712,7 @@
 				A3746EC41C3190E7008A50A3 /* UIView+SAHelpers.h in Headers */,
 				0027C8431FA201CE002EA41B /* SAHeatMapConnection.h in Headers */,
 				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
+				BAE1FC88214684AE00DAEF1C /* UIViewController+AddAttributes.h in Headers */,
 				A399F50D1C3C281D00B44340 /* SAValueTransformers.h in Headers */,
 				4D2AF15C1B4BAE77007716F8 /* JSONUtil.h in Headers */,
 				A3746EAE1C318B65008A50A3 /* SAObjectSerializerConfig.h in Headers */,
@@ -977,6 +984,7 @@
 				A190A8C620CE58F6002C4202 /* UIView+AutoTrack.m in Sources */,
 				00EA97C21EEF7418005E524F /* UITableView+AutoTrack.m in Sources */,
 				0027C8441FA201CE002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
+				BAE1FC87214684AE00DAEF1C /* UIViewController+AddAttributes.m in Sources */,
 				0027C8461FA201CE002EA41B /* SAAbstractHeatMapMessage.m in Sources */,
 				00EA990E1EEF9D1A005E524F /* UICollectionView+AutoTrack.m in Sources */,
 				A3746EB11C318B65008A50A3 /* SAObjectSerializerContext.m in Sources */,

@@ -93,9 +93,9 @@ void sa_alertViewClickedButtonAtIndex(id self, SEL _cmd, id alertView, NSInteger
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
             
-            NSString *controllerTitle = viewController.navigationItem.title;
+            NSString *controllerTitle = viewController.sa_title;
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:@"$title"];
             } else {
                 @try {
                     UIView *titleView = viewController.navigationItem.titleView;

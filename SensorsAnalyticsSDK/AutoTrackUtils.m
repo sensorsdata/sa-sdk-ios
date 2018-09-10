@@ -292,9 +292,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
+            NSString *controllerTitle = viewController.sa_title;
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
             NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
             if (elementContent != nil && [elementContent length] > 0) {
@@ -457,9 +457,9 @@
             NSString *screenName = NSStringFromClass([viewController class]);
             [properties setValue:screenName forKey:@"$screen_name"];
 
-            NSString *controllerTitle = viewController.navigationItem.title;
+            NSString *controllerTitle = viewController.sa_title;
             if (controllerTitle != nil) {
-                [properties setValue:viewController.navigationItem.title forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:@"$title"];
             }
 
             NSString *elementContent = [[SensorsAnalyticsSDK sharedInstance] getUIViewControllerTitle:viewController];
