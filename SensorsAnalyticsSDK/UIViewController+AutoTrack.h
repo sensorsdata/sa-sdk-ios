@@ -3,7 +3,7 @@
 //  HookTest
 //
 //  Created by 王灼洲 on 2017/10/18.
-//  Copyright © 2017年 wanda. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

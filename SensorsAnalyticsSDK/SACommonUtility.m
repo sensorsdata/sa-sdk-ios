@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 储强盛 on 2018/7/26.
-//  Copyright © 2018年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "SACommonUtility.h"

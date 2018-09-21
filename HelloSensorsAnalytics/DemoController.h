@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by ZouYuhan on 1/19/16.
-//  Copyright © 2016 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #ifndef DemoController_h

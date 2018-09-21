@@ -3,9 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
-//  Copyright (c) 2016年 SensorsData. All rights reserved.
-//
-/// Copyright (c) 2014 Mixpanel. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "SAGzipUtility.h"

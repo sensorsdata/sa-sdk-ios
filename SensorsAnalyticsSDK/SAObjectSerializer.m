@@ -3,9 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/18/16.
-//  Copyright (c) 2016年 SensorsData. All rights reserved.
-//
-/// Copyright (c) 2014 Mixpanel. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import <objc/runtime.h>

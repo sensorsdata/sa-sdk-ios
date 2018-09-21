@@ -3,13 +3,15 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/4/27.
-//  Copyright © 2017年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "AutoTrackViewController.h"
 #import "AutoTrackUtils.h"
 @interface AutoTrackViewController ()
-
+{
+    __strong UIGestureRecognizer *_labelTapGestureRecognizer;
+}
 @end
 
 @implementation AutoTrackViewController
@@ -22,7 +24,7 @@
     UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
     
     [_myLabel addGestureRecognizer:labelTapGestureRecognizer];
-    
+    _labelTapGestureRecognizer = labelTapGestureRecognizer;
     UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
     _imageView.userInteractionEnabled = YES;
     [_imageView addGestureRecognizer:imageViewTapGestureRecognizer];
@@ -67,5 +69,9 @@
     NSLog(@"%@",content);
 }
 - (IBAction)segmentOnClick:(id)sender {
+}
+
+-(void)dealloc {
+    _labelTapGestureRecognizer = nil;
 }
 @end

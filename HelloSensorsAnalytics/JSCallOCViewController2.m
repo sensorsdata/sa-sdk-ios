@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 16/9/6.
-//  Copyright © 2016年 SensorsData. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
 #import "JSCallOCViewController2.h"
@@ -51,7 +51,7 @@
         decisionHandler(WKNavigationActionPolicyCancel);
         return;
     }
-    
+
     decisionHandler(WKNavigationActionPolicyAllow);
 }
 
