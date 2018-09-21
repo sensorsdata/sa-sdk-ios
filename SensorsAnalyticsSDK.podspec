@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.10.13"
+  s.version      = "1.10.14"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -112,9 +112,9 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_CRASH_SLIDEADDRESS=1'}
   end
 
-  s.subspec 'DISABLE_AUTOTRACK_DEVIVEID' do |f|
+  s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVIVEID=1'}
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
   
 end

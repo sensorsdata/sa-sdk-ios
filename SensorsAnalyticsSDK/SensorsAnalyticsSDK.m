@@ -40,7 +40,7 @@
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-#define VERSION @"1.10.13"
+#define VERSION @"1.10.14"
 #define PROPERTY_LENGTH_LIMITATION 8191
 
 // 自动追踪相关事件及属性
@@ -2126,7 +2126,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     BOOL isReal;
     
-#if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVIVEID
+#if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
     [p setValue:[[self class] getUniqueHardwareId:&isReal] forKey:@"$device_id"];
 #endif
     [p addEntriesFromDictionary:@{
