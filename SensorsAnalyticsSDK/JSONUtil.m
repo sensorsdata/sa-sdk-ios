@@ -60,9 +60,17 @@
     }
     //防止 float 精度丢失
     if ([obj isKindOfClass:[NSNumber class]]) {
-        NSDecimalNumber *number = [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
-        return number;
+        @try {
+            if ([obj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
+                return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
+            } else {
+                return obj;
+            }
+        } @catch (NSException *exception) {
+            return obj;
+        }
     }
+    
     // recurse on containers
     if ([obj isKindOfClass:[NSArray class]]) {
         NSMutableArray *a = [NSMutableArray array];

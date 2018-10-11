@@ -112,13 +112,7 @@
 		A190A8F620CFCC0A002C4202 /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 00DC9CD61D7E9CFA00C7DF6C /* WebKit.framework */; };
 		A190A8F720CFD206002C4202 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A190A8E420CFCAFF002C4202 /* Foundation.framework */; };
 		A1A5A1A81FAC640800D06C7F /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */; };
-		A1C18E8A211C4236000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A1C18E86211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h */; };
-		A1C18E8B211C4236000A1194 /* SADelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = A1C18E87211C4235000A1194 /* SADelegateProxy.h */; };
-		A1C18E8C211C4236000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C18E88211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m */; };
-		A1C18E8D211C4236000A1194 /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C18E89211C4236000A1194 /* SADelegateProxy.m */; };
 		A1C18E8F211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A1C18E8E211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h */; };
-		A1C18E90211C5CAE000A1194 /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C18E89211C4236000A1194 /* SADelegateProxy.m */; };
-		A1C18E91211C5CAE000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = A1C18E88211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m */; };
 		A1D1C5691FB445BC006685C1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C5681FB445BC006685C1 /* AppDelegate.swift */; };
 		A1D1C56B1FB445BC006685C1 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1D1C56A1FB445BC006685C1 /* ViewController.swift */; };
 		A1D1C56E1FB445BC006685C1 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = A1D1C56C1FB445BC006685C1 /* Main.storyboard */; };
@@ -324,10 +318,6 @@
 		A190A8F420CFCBE1002C4202 /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		A1A5A1A61FAC640800D06C7F /* TestCollectionViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = TestCollectionViewController.h; sourceTree = "<group>"; };
 		A1A5A1A71FAC640800D06C7F /* TestCollectionViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
-		A1C18E86211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SensorsAnalyticsDelegateProxy.h"; sourceTree = "<group>"; };
-		A1C18E87211C4235000A1194 /* SADelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADelegateProxy.h; sourceTree = "<group>"; };
-		A1C18E88211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SensorsAnalyticsDelegateProxy.m"; sourceTree = "<group>"; };
-		A1C18E89211C4236000A1194 /* SADelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADelegateProxy.m; sourceTree = "<group>"; };
 		A1C18E8E211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Private.h"; sourceTree = "<group>"; };
 		A1D1C5661FB445BC006685C1 /* SensorsDataSwiftDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwiftDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1D1C5681FB445BC006685C1 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -495,10 +485,6 @@
 			isa = PBXGroup;
 			children = (
 				4D6FF98921086B8900241224 /* Resources */,
-				A1C18E87211C4235000A1194 /* SADelegateProxy.h */,
-				A1C18E89211C4236000A1194 /* SADelegateProxy.m */,
-				A1C18E86211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h */,
-				A1C18E88211C4235000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m */,
 				A161A05220B540E400A3CA14 /* SALocationManager.h */,
 				A161A05320B540E400A3CA14 /* SALocationManager.m */,
 				A161A04A20B3E2DC00A3CA14 /* SADeviceOrientationManager.h */,
@@ -672,7 +658,6 @@
 				A190A8C520CE58F6002C4202 /* UIView+AutoTrack.h in Headers */,
 				4DBA6FA31B4B9B9C004F0ADB /* MessageQueueBySqlite.h in Headers */,
 				A15CBCA4208ED5D50014DE74 /* SASDKRemoteConfig.h in Headers */,
-				A1C18E8B211C4236000A1194 /* SADelegateProxy.h in Headers */,
 				A3A85C161C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h in Headers */,
 				007BE5A820E1F1D2006CB1ED /* NSThread+SAHelpers.h in Headers */,
 				A3746EC41C3190E7008A50A3 /* UIView+SAHelpers.h in Headers */,
@@ -692,7 +677,6 @@
 				0038C5D11FCFA13E00C1BBC1 /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				A1C18E8F211C42DD000A1194 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				A3997A291C3AC342005A9374 /* SASwizzler.h in Headers */,
-				A1C18E8A211C4236000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.h in Headers */,
 				A3746E821C3115EB008A50A3 /* SADesignerMessage.h in Headers */,
 				4D23EFB42109643400DBDB9F /* SACommonUtility.h in Headers */,
 			);
@@ -879,8 +863,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				A1C18E90211C5CAE000A1194 /* SADelegateProxy.m in Sources */,
-				A1C18E91211C5CAE000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m in Sources */,
 				007BE5AA20E1F3D9006CB1ED /* NSThread+SAHelpers.m in Sources */,
 				A190A8C720CE5E83002C4202 /* UIView+AutoTrack.m in Sources */,
 				A161A05620B540F400A3CA14 /* SALocationManager.m in Sources */,
@@ -942,7 +924,6 @@
 				4DBA6FA41B4B9B9C004F0ADB /* MessageQueueBySqlite.m in Sources */,
 				A3997A2A1C3AC342005A9374 /* SASwizzler.m in Sources */,
 				A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */,
-				A1C18E8C211C4236000A1194 /* NSObject+SensorsAnalyticsDelegateProxy.m in Sources */,
 				A190A8C620CE58F6002C4202 /* UIView+AutoTrack.m in Sources */,
 				0027C8441FA201CE002EA41B /* SAHeatMapSnapshotMessage.m in Sources */,
 				0027C8461FA201CE002EA41B /* SAAbstractHeatMapMessage.m in Sources */,
@@ -952,7 +933,6 @@
 				A3F32BD01C57296700C3B98D /* SAValueTransformers.m in Sources */,
 				A3746E9D1C313E15008A50A3 /* SAApplicationStateSerializer.m in Sources */,
 				A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */,
-				A1C18E8D211C4236000A1194 /* SADelegateProxy.m in Sources */,
 				A3746EBF1C3190E7008A50A3 /* SAEnumDescription.m in Sources */,
 				002DB94E1EB1647F00A9632C /* SASwizzle.m in Sources */,
 				A3746E7F1C3115EB008A50A3 /* SAAbstractDesignerMessage.m in Sources */,

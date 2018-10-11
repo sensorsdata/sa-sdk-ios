@@ -30,10 +30,6 @@ static const int32_t UncaughtExceptionMaximum = 10;
 
 @end
 
-@interface SensorsAnalyticsSDK()
-@property (nonatomic, strong) dispatch_queue_t serialQueue;
-@end
-
 @implementation SensorsAnalyticsExceptionHandler
 
 + (instancetype)sharedHandler {
@@ -161,9 +157,6 @@ void SAHandleException(NSException *exception) {
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [instance track:@"$AppEnd"];
             }
-            dispatch_sync(instance.serialQueue, ^{
-
-            });
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {

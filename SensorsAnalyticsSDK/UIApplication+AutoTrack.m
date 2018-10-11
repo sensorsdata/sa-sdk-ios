@@ -143,7 +143,7 @@
                 [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
             }
             
-            UIViewController *viewController = [view viewController];
+            UIViewController *viewController = [view sensorsAnalyticsViewController];
             
             if (viewController == nil || [viewController isKindOfClass:UINavigationController.class]) {
                 viewController = [[SensorsAnalyticsSDK sharedInstance] currentViewController];

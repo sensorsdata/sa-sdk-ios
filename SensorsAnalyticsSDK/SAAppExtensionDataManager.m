@@ -11,7 +11,6 @@
 void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
 
 @interface SAAppExtensionDataManager() {
-    dispatch_queue_t _appExtensionQueue;
 }
 @property(nonatomic,strong) dispatch_queue_t appExtensionQueue;
 @end
