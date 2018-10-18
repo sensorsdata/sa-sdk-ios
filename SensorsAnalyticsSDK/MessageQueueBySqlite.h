@@ -68,7 +68,7 @@
  *
  *  @return 当前记录的数量
  */
-- (NSUInteger) count;
+- (NSInteger) count;
 
 /**
  *  @abstract

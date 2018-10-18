@@ -18,7 +18,7 @@
 @implementation MessageQueueBySqlite {
     sqlite3 *_database;
     JSONUtil *_jsonUtil;
-    NSUInteger _messageCount;
+    NSInteger _messageCount;
     CFMutableDictionaryRef _dbStmtCache;
 }
 
@@ -52,11 +52,11 @@
             SAError(@"Create dataCache Failure %s",errorMsg);
             return nil;
         }
-        _messageCount = [self sqliteCount];
-        
         CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
         CFDictionaryValueCallBacks valueCallbacks = {0};
         _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
+        
+        _messageCount = [self sqliteCount];
         
         SADebug(@"SQLites is opened. current count is %ul", _messageCount);
     } else {
@@ -105,8 +105,6 @@
     }
 }
 
-
-
 - (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
@@ -118,7 +116,12 @@
     if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                NSData *jsonData = [[NSString stringWithUTF8String:(char*)sqlite3_column_text(stmt, 0)] dataUsingEncoding:NSUTF8StringEncoding];
+                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                if (!jsonChar) {
+                    SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
+                    return nil;
+                }
+                NSData *jsonData = [[NSString stringWithUTF8String:jsonChar] dataUsingEncoding:NSUTF8StringEncoding];
                 NSError *err;
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
@@ -132,8 +135,7 @@
                 SAError(@"Found NON UTF8 String, ignore");
             }
         }
-    }
-    else {
+    } else {
         SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
     }
@@ -171,13 +173,13 @@
     return YES;
 }
 
-- (NSUInteger) count {
+- (NSInteger) count {
     return _messageCount;
 }
 
 - (NSInteger) sqliteCount {
     NSString* query = @"select count(*) from dataCache";
-    NSInteger count = -1;
+    NSInteger count = 0;
     sqlite3_stmt* statement = [self dbCacheStmt:query];
     if(statement) {
         while (sqlite3_step(statement) == SQLITE_ROW) {
