@@ -92,3 +92,20 @@
 }
 
 @end
+
+@implementation TestCollectionViewController_A
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    [super collectionView:collectionView didSelectItemAtIndexPath:indexPath];
+}
+
+
+@end
+@implementation TestCollectionViewController_B
+
+//-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
+//{
+//    
+//}
+@end

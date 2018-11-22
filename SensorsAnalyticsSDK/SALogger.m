@@ -5,6 +5,12 @@
 //  Created by 向作为 on 2018/3/28.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+
 #import <Foundation/Foundation.h>
 #import "SALogger.h"
 static BOOL __enableLog__ ;
@@ -24,7 +30,7 @@ static dispatch_queue_t __logQueue__ ;
 }
 
 + (void)enableLog:(BOOL)enableLog {
-    dispatch_sync(__logQueue__, ^{
+    dispatch_barrier_async(__logQueue__, ^{
         __enableLog__ = enableLog;
     });
 }

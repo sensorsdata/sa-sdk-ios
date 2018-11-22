@@ -82,7 +82,7 @@
         case 0:{
             NSLog(@"测试track");
             //[self testTrack];
-            TestTableViewController *vc =  [[TestTableViewController alloc]init ];
+            TestTableViewController *vc =  [[TestTableViewController alloc] init];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
         }
@@ -90,14 +90,18 @@
         case 1l: {
             NSLog(@"测试track_signup");
             [self testTrackSignup];
-            TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc] init];
+            TestCollectionViewController_A *collectionVC = [[TestCollectionViewController_A alloc] init];
             [self.navigationController pushViewController:collectionVC animated:YES];
         }
             break;
-        case 2l:
+        case 2l:{
             NSLog(@"测试track_installation");
             [self testTrackInstallation];
+            TestCollectionViewController_B *vc =  [[TestCollectionViewController_B alloc] init];
+            //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
+            [self.navigationController pushViewController:vc  animated:YES];
             break;
+        }
         case 3l:
             NSLog(@"测试profile_set");
             [self testProfileSet];

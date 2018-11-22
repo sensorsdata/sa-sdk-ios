@@ -61,5 +61,6 @@
   "SFAppAutoFillPasswordViewController",
   "PUUIMomentsGridViewController",
   "SFPasswordRemoteViewController",
-  "UIWebRotatingAlertController"
+  "UIWebRotatingAlertController",
+  "UIEditUserWordController"
   ]

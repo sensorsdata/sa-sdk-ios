@@ -6,6 +6,11 @@
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+
 #import "SASDKRemoteConfig.h"
 
 BOOL isAutoTrackModeValid(NSInteger autoTrackMode){
@@ -25,15 +30,15 @@ BOOL isAutoTrackModeValid(NSInteger autoTrackMode){
 }
 -(instancetype)initWithDict:(NSDictionary *)dict{
     if (self = [super init]) {
-        self.autoTrackMode = kSAAutoTrackModeDefault;
-        self.v = [dict valueForKey:@"v"];
-        self.disableSDK = [[dict valueForKeyPath:@"configs.disableSDK"] boolValue];
-        self.disableDebugMode = [[dict valueForKeyPath:@"configs.disableDebugMode"] boolValue];
+        _autoTrackMode = kSAAutoTrackModeDefault;
+        _v = [dict valueForKey:@"v"];
+        _disableSDK = [[dict valueForKeyPath:@"configs.disableSDK"] boolValue];
+        _disableDebugMode = [[dict valueForKeyPath:@"configs.disableDebugMode"] boolValue];
         NSNumber *autoTrackMode = [dict valueForKeyPath:@"configs.autoTrackMode"];
         if (autoTrackMode != nil) {
             NSInteger iMode = autoTrackMode.integerValue;
             if (isAutoTrackModeValid(iMode)) {
-                self.autoTrackMode = iMode;
+                _autoTrackMode = iMode;
             }
         }
     }

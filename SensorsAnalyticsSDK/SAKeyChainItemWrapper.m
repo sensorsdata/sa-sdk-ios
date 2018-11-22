@@ -6,6 +6,12 @@
 //  Created by 向作为 on 2018/3/26.
 //  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
 //
+
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+
 #import "SALogger.h"
 #import "SAKeyChainItemWrapper.h"
 NSString * const kSAService = @"com.sensorsdata.analytics.udid";
@@ -24,6 +30,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
     return sucess ? udid : nil;
 }
 
+#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
 + (BOOL)hasTrackInstallation {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAAppInstallationAccount service:kSAService];
     NSString *value =  [result objectForKey:(__bridge id)kSecValueData];
@@ -47,6 +54,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
     BOOL sucess = [self saveOrUpdatePassword:str account:kSAAppInstallationWithDisableCallbackAccount service:kSAService];
     return sucess;
 }
+#endif
 
 + (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service {
     return [self saveOrUpdatePassword:password account:account service:service accessGroup:nil];
