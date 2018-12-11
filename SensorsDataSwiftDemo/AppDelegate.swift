@@ -19,18 +19,18 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         //MARK:初始化sdk
         SensorsAnalyticsSDK.sharedInstance(withServerURL: "http://zhaohaiying.cloud.sensorsdata.cn:8006/sa?project=default&token=9d8f18c23084485f", andDebugMode: SensorsAnalyticsDebugMode.andTrack)
       //MARK:自动埋点开启
-        SensorsAnalyticsSDK.sharedInstance().enableAutoTrack(
+        SensorsAnalyticsSDK.sharedInstance()?.enableAutoTrack(
               [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
         )
-        SensorsAnalyticsSDK.sharedInstance().setMaxCacheSize(10000)
-        SensorsAnalyticsSDK.sharedInstance().setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
-        SensorsAnalyticsSDK.sharedInstance().enableHeatMap()
-        SensorsAnalyticsSDK.sharedInstance().addWebViewUserAgentSensorsDataFlag()
+        SensorsAnalyticsSDK.sharedInstance()?.setMaxCacheSize(10000)
+        SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
+        SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
+        SensorsAnalyticsSDK.sharedInstance()?.addWebViewUserAgentSensorsDataFlag()
       
         
         let dict :Dictionary  = ["key":"value","key1":"value1"]
-        SensorsAnalyticsSDK.sharedInstance().track("testEvent" ,withProperties: dict )
-        SensorsAnalyticsSDK.sharedInstance().enableTrackScreenOrientation(true)
+        SensorsAnalyticsSDK.sharedInstance()?.track("testEvent" ,withProperties: dict )
+        SensorsAnalyticsSDK.sharedInstance()?.enableTrackScreenOrientation(true)
         
         
         self.window = UIWindow()

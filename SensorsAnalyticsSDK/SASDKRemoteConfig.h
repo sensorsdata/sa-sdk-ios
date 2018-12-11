@@ -11,8 +11,6 @@ static NSInteger kSAAutoTrackModeDefault = -1;//-1，表示不修改现有的 au
 static NSInteger kSAAutoTrackModeDisabledAll = 0;
 static NSInteger kSAAutoTrackModeEnabledAll = 15;
 
-BOOL isAutoTrackModeValid(NSInteger autoTrackMode);
-
 @interface SASDKRemoteConfig : NSObject
 @property(nonatomic,copy)NSString *v;
 @property(nonatomic,assign)BOOL disableSDK;

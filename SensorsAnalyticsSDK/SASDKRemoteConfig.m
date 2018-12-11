@@ -13,7 +13,7 @@
 
 #import "SASDKRemoteConfig.h"
 
-BOOL isAutoTrackModeValid(NSInteger autoTrackMode){
+static BOOL isAutoTrackModeValid(NSInteger autoTrackMode){
     BOOL valid = NO;
     if (autoTrackMode >= kSAAutoTrackModeDefault && autoTrackMode <= kSAAutoTrackModeEnabledAll) {
         valid = YES;

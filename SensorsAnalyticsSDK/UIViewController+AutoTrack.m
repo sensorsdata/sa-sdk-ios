@@ -16,7 +16,7 @@
 #import "SALogger.h"
 #import "SASwizzler.h"
 #import "AutoTrackUtils.h"
-
+#import "SensorsAnalyticsSDK+Private.h"
 @implementation UIViewController (AutoTrack)
 - (void)sa_autotrack_viewWillAppear:(BOOL)animated {
     @try {
@@ -26,7 +26,7 @@
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ) {
-                [[SensorsAnalyticsSDK sharedInstance] trackViewScreen: viewController];
+                [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:viewController];
             }
         }
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW

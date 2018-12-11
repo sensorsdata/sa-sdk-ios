@@ -182,7 +182,7 @@
             alertMessage = @"正在连接 APP 点击分析，建议在 WiFi 环境下使用";
         }
         
-        if ([[[UIDevice currentDevice] systemVersion] floatValue] >= 8.0) {
+        if (@available(iOS 8.0,*)) {
             UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
             if (mainWindow == nil) {
                 mainWindow = [[UIApplication sharedApplication] delegate].window;

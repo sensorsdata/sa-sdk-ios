@@ -87,6 +87,7 @@
 		A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */ = {isa = PBXBuildFile; fileRef = A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */; };
 		A14938C8207B8730006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
 		A14938C9207B8746006EF04A /* SAKeyChainItemWrapper.m in Sources */ = {isa = PBXBuildFile; fileRef = A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */; };
+		A14EF2B921B90E8200892492 /* SensorsAnalyticsSDK+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = A14EF2B821B90E8200892492 /* SensorsAnalyticsSDK+Private.h */; };
 		A15CBCA4208ED5D50014DE74 /* SASDKRemoteConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = A15CBCA2208ED5D50014DE74 /* SASDKRemoteConfig.h */; };
 		A15CBCA5208ED5D50014DE74 /* SASDKRemoteConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CBCA3208ED5D50014DE74 /* SASDKRemoteConfig.m */; };
 		A15CBCA6208ED9D80014DE74 /* SASDKRemoteConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A15CBCA3208ED5D50014DE74 /* SASDKRemoteConfig.m */; };
@@ -298,6 +299,7 @@
 		A1280DFC217F2E0C00C5F3C2 /* NSObject+SensorsAnalyticsDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SensorsAnalyticsDelegate.h"; sourceTree = "<group>"; };
 		A14938C5207B8730006EF04A /* SAKeyChainItemWrapper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAKeyChainItemWrapper.h; sourceTree = "<group>"; };
 		A14938C6207B8730006EF04A /* SAKeyChainItemWrapper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapper.m; sourceTree = "<group>"; };
+		A14EF2B821B90E8200892492 /* SensorsAnalyticsSDK+Private.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Private.h"; sourceTree = "<group>"; };
 		A15CBCA2208ED5D50014DE74 /* SASDKRemoteConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASDKRemoteConfig.h; sourceTree = "<group>"; };
 		A15CBCA3208ED5D50014DE74 /* SASDKRemoteConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASDKRemoteConfig.m; sourceTree = "<group>"; };
 		A161A04A20B3E2DC00A3CA14 /* SADeviceOrientationManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADeviceOrientationManager.h; sourceTree = "<group>"; };
@@ -564,6 +566,7 @@
 				4D14F17C1B4A7A32006AD786 /* SALogger.h */,
 				A1753DD62074AEC400425771 /* SALogger.m */,
 				4D5CA77A1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.h */,
+				A14EF2B821B90E8200892492 /* SensorsAnalyticsSDK+Private.h */,
 				4D5CA77C1B43E92D00D7ACB7 /* SensorsAnalyticsSDK.m */,
 				4D23EFB22109643400DBDB9F /* SACommonUtility.h */,
 				4D23EFB32109643400DBDB9F /* SACommonUtility.m */,
@@ -675,6 +678,7 @@
 				A3A85C161C3BB1B800DCA1A4 /* NSInvocation+SAHelpers.h in Headers */,
 				007BE5A820E1F1D2006CB1ED /* NSThread+SAHelpers.h in Headers */,
 				A3746EC41C3190E7008A50A3 /* UIView+SAHelpers.h in Headers */,
+				A14EF2B921B90E8200892492 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				0027C8431FA201CE002EA41B /* SAHeatMapConnection.h in Headers */,
 				A14938C7207B8730006EF04A /* SAKeyChainItemWrapper.h in Headers */,
 				A399F50D1C3C281D00B44340 /* SAValueTransformers.h in Headers */,
@@ -806,7 +810,7 @@
 					};
 					A1D1C5651FB445BC006685C1 = {
 						CreatedOnToolsVersion = 9.1;
-						DevelopmentTeam = VBGTEN3BX8;
+						DevelopmentTeam = 75FYWDWHL5;
 						LastSwiftMigration = 0910;
 						ProvisioningStyle = Automatic;
 					};
@@ -1317,7 +1321,7 @@
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
 				DEBUG_INFORMATION_FORMAT = dwarf;
-				DEVELOPMENT_TEAM = VBGTEN3BX8;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = SensorsDataSwiftDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
@@ -1353,7 +1357,7 @@
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = VBGTEN3BX8;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
 				GCC_C_LANGUAGE_STANDARD = gnu11;
 				INFOPLIST_FILE = SensorsDataSwiftDemo/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;

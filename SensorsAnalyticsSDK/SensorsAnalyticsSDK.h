@@ -218,7 +218,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
  *   2) 本地缓存日志数目是否达到 flushBulkSize
- * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
+ * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
 @property (atomic) UInt64 flushInterval;
@@ -776,6 +776,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param viewController 当前的 UIViewController
  */
 - (void)trackViewScreen:(UIViewController *)viewController;
+- (void)trackViewScreen:(UIViewController *)viewController properties:(nullable NSDictionary<NSString *,id> *)properties;
 
 /**
  * @abstract
