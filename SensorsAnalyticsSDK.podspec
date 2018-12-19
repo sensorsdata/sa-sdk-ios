@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.10.19"
+  s.version      = "1.10.20"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -102,14 +102,24 @@ Pod::Spec.new do |s|
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
   end
 
-  s.subspec 'ENABLE_AUTOTRACT_DIDSELECTROW' do |f|
+  s.subspec 'ENABLE_AUTOTRACK_DIDSELECTROW' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
-        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW=1'}
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW=1'}
   end
   
   s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
         f.dependency 'SensorsAnalyticsSDK/core'
         f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
+  end
+
+  s.subspec 'ENABLE_CHILD_VIEWSCREEN' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
+  end
+
+  s.subspec 'ENABLE_AUTOTRACK_APPSTARTPASSIVELY' do |f|
+        f.dependency 'SensorsAnalyticsSDK/core'
+        f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_APPSTARTPASSIVELY=1'}
   end
 
 end

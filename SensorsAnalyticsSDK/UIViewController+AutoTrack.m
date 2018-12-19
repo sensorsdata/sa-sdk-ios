@@ -22,14 +22,20 @@
     @try {
         
         if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
-                [viewController.parentViewController isKindOfClass:[UINavigationController class]] ) {
-                [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:viewController];
+                [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
+                [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
+                [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
+                [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen: viewController];
             }
+#else
+            [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:self];
+#endif
         }
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACT_DIDSELECTROW
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
         if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW

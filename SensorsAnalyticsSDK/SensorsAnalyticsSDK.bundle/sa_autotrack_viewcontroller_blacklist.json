@@ -62,5 +62,7 @@
   "PUUIMomentsGridViewController",
   "SFPasswordRemoteViewController",
   "UIWebRotatingAlertController",
-  "UIEditUserWordController"
+  "UIEditUserWordController",
+  "UISplitViewController",
+  "UITabBarController"
   ]
