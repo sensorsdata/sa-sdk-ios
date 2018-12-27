@@ -1,3 +1,11 @@
+<p>
+<a href="http://cocoadocs.org/docsets/SensorsAnalyticsSDK"><img src="https://img.shields.io/cocoapods/v/SensorsAnalyticsSDK.svg?style=flat"></a>
+</p>
+<p>
+<a href="http://cocoapods.org/pods/SensorsAnalyticsSDK"><img src="https://img.shields.io/cocoapods/at/SensorsAnalyticsSDK.svg?label=Apps%20Using%20SensorsAnalyticsSDK&colorB=28B9FE"></a>
+<a href="http://cocoapods.org/pods/SensorsAnalyticsSDK"><img src="https://img.shields.io/cocoapods/dt/SensorsAnalyticsSDK.svg?label=Total%20Downloads&colorB=28B9FE"></a>
+</p>
+
 # Sensors Analytics
 
 This is the official iOS SDK for Sensors Analytics.
