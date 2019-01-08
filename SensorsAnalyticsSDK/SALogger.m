@@ -30,7 +30,7 @@ static dispatch_queue_t __logQueue__ ;
 }
 
 + (void)enableLog:(BOOL)enableLog {
-    dispatch_barrier_async(__logQueue__, ^{
+    dispatch_async(__logQueue__, ^{
         __enableLog__ = enableLog;
     });
 }

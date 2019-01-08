@@ -11,7 +11,7 @@
 
 @interface SACommonUtility : NSObject
 
-///按字节截取指定长度字符，包括汉字
-+ (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )len;
+///按字节截取指定长度字符，包括汉字和表情
++ (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length;
 
 @end
