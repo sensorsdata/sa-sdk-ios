@@ -11,7 +11,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import <WebKit/Webkit.h>
+#import <WebKit/WebKit.h>
 @interface SensorsAnalyticsSDK(Private)
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 @end
