@@ -27,19 +27,10 @@
 
 - (BOOL)check:(SAServerUrl *)serverUrl {
     @try {
-//        if (_token != nil &&
-//            ![_token isEqualToString:@""]
-//            && serverUrl.token != nil &&
-//            ![serverUrl.token isEqualToString:@""]) {
-//            if ([_token isEqualToString:serverUrl.token]) {
-//                return YES;
-//            }
-//        } else {
-            if ([_host isEqualToString:serverUrl.host] &&
-                [_project isEqualToString:serverUrl.project]) {
-                return YES;
-            }
-//        }
+        if ([_host isEqualToString:serverUrl.host] &&
+            [_project isEqualToString:serverUrl.project]) {
+            return YES;
+        }
     } @catch(NSException *exception) {
         SAError(@"%@: %@", self, exception);
     }
@@ -51,19 +42,15 @@
         _url = url;
         if (url != nil) {
             @try {
-                NSURL *u = [NSURL URLWithString:url];
-                _host = [u host];
-                NSString *query = [u query];
-                if (query != nil) {
-                    NSArray *subArray = [query componentsSeparatedByString:@"&"];
+                NSURLComponents *urlComponents = [NSURLComponents componentsWithString:url];
+                if (urlComponents) {
+                    _host = urlComponents.host;
                     NSMutableDictionary *tempDic = [[NSMutableDictionary alloc] init];
-                    if (subArray) {
-                        for (int j = 0 ; j < subArray.count; j++) {
-                            //在通过=拆分键和值
-                            NSArray *dicArray = [subArray[j] componentsSeparatedByString:@"="];
-                            //给字典加入元素
-                            [tempDic setObject:dicArray[1] forKey:dicArray[0]];
-                        }
+                    for (NSURLQueryItem *item in urlComponents.queryItems) {
+                        [tempDic setValue:item.value forKey:item.name];
+                    }
+
+                    if (tempDic.count) {
                         _project = [tempDic objectForKey:@"project"];
                         _token = [tempDic objectForKey:@"token"];
                     }

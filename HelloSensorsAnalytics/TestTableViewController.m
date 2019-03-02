@@ -50,7 +50,7 @@
     self.tableView_1.sensorsAnalyticsViewID = @"tableView2";
     [self.tableView_1 registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
     [self.view addSubview:self.tableView_1];
-    self.view.backgroundColor = [UIColor whiteColor ];
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (void)didReceiveMemoryWarning {

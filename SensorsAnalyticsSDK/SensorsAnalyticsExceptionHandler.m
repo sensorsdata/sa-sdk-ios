@@ -16,6 +16,7 @@
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#import "SensorsAnalyticsSDK+Private.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
 #import <mach-o/dyld.h>
@@ -90,8 +91,9 @@ static const int32_t UncaughtExceptionMaximum = 10;
 
 - (void)addSensorsAnalyticsInstance:(SensorsAnalyticsSDK *)instance {
     NSParameterAssert(instance != nil);
-    
-    [self.sensorsAnalyticsSDKInstances addObject:instance];
+    if (![self.sensorsAnalyticsSDKInstances containsObject:instance]) {
+        [self.sensorsAnalyticsSDKInstances addObject:instance];
+    }
 }
 
 static void SASignalHandler(int crashSignal, struct __siginfo *info, void *context) {
@@ -162,9 +164,9 @@ static void SAHandleException(NSException *exception) {
             } @catch(NSException *exception) {
                 SAError(@"%@ error: %@", self, exception);
             }
-            [instance track:@"AppCrashed" withProperties:properties];
+            [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
-                [instance track:@"$AppEnd"];
+                [instance track:@"$AppEnd" withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             
             dispatch_sync(instance.serialQueue, ^{

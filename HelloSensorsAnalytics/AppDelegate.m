@@ -9,15 +9,20 @@
 #import "AppDelegate.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
+
+static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
+
 @interface AppDelegate ()
 
 @end
 @implementation AppDelegate
 
+
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"
-                                        andDebugMode:SensorsAnalyticsDebugAndTrack];
-    [[SensorsAnalyticsSDK sharedInstance]registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
+    
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:Sa_Default_ServerUrl andLaunchOptions:launchOptions];
+
+    [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
         if (NSThread.isMainThread) {
@@ -46,7 +51,7 @@
 }
 
 - (BOOL)application:(UIApplication *)app openURL:(NSURL *)url options:(NSDictionary<UIApplicationOpenURLOptionsKey,id> *)options {
-    if ([[SensorsAnalyticsSDK sharedInstance] handleHeatMapUrl:url]) {
+    if ([[SensorsAnalyticsSDK sharedInstance] handleSchemeUrl:url]) {
         return YES;
     }
     return NO;

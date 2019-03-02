@@ -16,6 +16,8 @@
 
 + (NSString *)contentFromView:(UIView *)rootView;
 
++ (NSString *)titleFromViewController:(UIViewController *)viewController;
+
 + (void)sa_addViewPathProperties:(NSMutableDictionary *)properties withObject:(UIView *)view withViewController:(UIViewController *)viewController;
 
 @end

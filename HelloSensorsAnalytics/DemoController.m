@@ -17,6 +17,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    self.view.backgroundColor = [UIColor whiteColor];
     self.tableView.sensorsAnalyticsDelegate = self;
 }
 
@@ -37,7 +38,7 @@
 }
 
 - (void)testTrack {
-    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:nil];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"testNSNull":NSNull.null}];
 }
 
 - (void)testTrackSignup {
@@ -81,7 +82,7 @@
     switch (row) {
         case 0:{
             NSLog(@"测试track");
-            //[self testTrack];
+            [self testTrack];
             TestTableViewController *vc =  [[TestTableViewController alloc] init];
             //TestCollectionViewController *collectionVC = [[TestCollectionViewController alloc]init];
             [self.navigationController pushViewController:vc  animated:YES];
