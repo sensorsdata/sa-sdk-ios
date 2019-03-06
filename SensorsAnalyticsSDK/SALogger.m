@@ -52,8 +52,8 @@ static dispatch_queue_t __logQueue__ ;
      format:(NSString *)format, ... {
     
     //iOS 10.x 有可能触发 [[NSString alloc] initWithFormat:format arguments:args]  crash ，不在启用 Log
-    NSInteger systemName = UIDevice.currentDevice.systemName.integerValue;
-    if (systemName == 10) {
+    NSInteger systemVersion = UIDevice.currentDevice.systemVersion.integerValue;
+    if (systemVersion == 10) {
         return;
     }
     @try{

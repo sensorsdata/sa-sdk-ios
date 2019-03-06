@@ -49,7 +49,7 @@
 #import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-#define VERSION @"1.10.22"
+#define VERSION @"1.10.23"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -888,7 +888,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [eventDict setValue:@([[self class] getCurrentTime]) forKey:@"time"];
 
             if([type isEqualToString:@"track_signup"]){
-                [eventDict setValue:self.originalId forKey:@"original_id"];
+                NSString *realOriginalId = self.originalId ?: self.distinctId;
+                [eventDict setValue:realOriginalId forKey:@"original_id"];
             } else {
                 [eventDict setValue:bestId forKey:@"distinct_id"];
             }
@@ -2909,8 +2910,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        [properties addEntriesFromDictionary:[autoTrackerController getTrackProperties]];
         _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
+        [properties addEntriesFromDictionary:_lastScreenTrackProperties];
     }
 
 #ifdef SENSORS_ANALYTICS_AUTOTRACK_APPVIEWSCREEN_URL
