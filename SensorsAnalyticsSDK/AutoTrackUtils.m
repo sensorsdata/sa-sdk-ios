@@ -16,6 +16,7 @@
 #import "SALogger.h"
 #import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
+#import "SAConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 @implementation AutoTrackUtils
@@ -162,83 +163,75 @@
 }
 
 + (NSString *)contentFromView:(UIView *)rootView {
+    
     @try {
-        NSMutableString *elementContent = [NSMutableString string];
-        for (UIView *subView in [rootView subviews]) {
-            if (subView) {
-                if (subView.sensorsAnalyticsIgnoreView) {
-                    continue;
-                }
-
-                if (subView.isHidden) {
-                    continue;
-                }
-
-                if ([subView isKindOfClass:[UIButton class]]) {
-                    UIButton *button = (UIButton *)subView;
-                    NSString *currentTitle = button.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-                } else if ([subView isKindOfClass:[UILabel class]]) {
-                    UILabel *label = (UILabel *)subView;
-                    NSString *currentTitle = label.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-                } else if ([subView isKindOfClass:[UITextView class]]) {
-                    UITextView *textView = (UITextView *)subView;
-                    NSString *currentTitle = textView.sa_elementContent;
-                    if (currentTitle != nil && currentTitle.length) {
-                        [elementContent appendString:currentTitle];
-                        [elementContent appendString:@"-"];
-                    }
-
-                } else if ([subView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
-                    #pragma clang diagnostic push
-                    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    if ([subView respondsToSelector:NSSelectorFromString(@"text")]) {
-                        NSString *title = [subView performSelector:NSSelectorFromString(@"text")];
-                        if (title != nil && ![@"" isEqualToString:title]) {
-                            [elementContent appendString:title];
-                            [elementContent appendString:@"-"];
-                        }
-                    }
-                    #pragma clang diagnostic pop
-                } else if ([subView isKindOfClass:NSClassFromString(@"YYLabel")]) {//RTLabel:https://github.com/ibireme/YYKit
-                    #pragma clang diagnostic push
-                    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                    if ([subView respondsToSelector:NSSelectorFromString(@"text")]) {
-                        NSString *title = [subView performSelector:NSSelectorFromString(@"text")];
-                        if (title != nil && ![@"" isEqualToString:title]) {
-                            [elementContent appendString:title];
-                            [elementContent appendString:@"-"];
-                        }
-                    }
-                    #pragma clang diagnostic pop
-                }
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-                else if ([subView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
-                            [subView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
-                            subView.subviews.count > 0){
-                    NSString *temp = [self contentFromView:subView];
-                    if (temp != nil && ![@"" isEqualToString:temp]) {
-                        [elementContent appendString:temp];
-                    }
-                }
-#else
-                else {
-                    NSString *temp = [self contentFromView:subView];
-                    if (temp != nil && ![@"" isEqualToString:temp]) {
-                        [elementContent appendString:temp];
-                    }
-                }
-#endif
-            }
+        
+        if (rootView.isHidden || rootView.sensorsAnalyticsIgnoreView) {
+            return nil;
         }
-        return elementContent;
+        
+        NSMutableString *elementContent = [NSMutableString string];
+        
+        NSString *currentTitle = rootView.sa_elementContent;
+        if (currentTitle.length > 0) {
+            [elementContent appendString:currentTitle];
+            
+        } else if ([rootView isKindOfClass:NSClassFromString(@"RTLabel")]) {//RTLabel:https://github.com/honcheng/RTLabel
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
+                NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
+                if (title.length > 0) {
+                    [elementContent appendString:title];
+                }
+            }
+#pragma clang diagnostic pop
+        } else if ([rootView isKindOfClass:NSClassFromString(@"YYLabel")]) {//RTLabel:https://github.com/ibireme/YYKit
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+            if ([rootView respondsToSelector:NSSelectorFromString(@"text")]) {
+                NSString *title = [rootView performSelector:NSSelectorFromString(@"text")];
+                if (title.length > 0) {
+                    [elementContent appendString:title];
+                }
+            }
+#pragma clang diagnostic pop
+        }
+#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
+        else if ([rootView isKindOfClass:[NSClassFromString(@"UITableViewCellContentView") class]] ||
+                 [rootView isKindOfClass:[NSClassFromString(@"UICollectionViewCellContentView") class]] ||
+                 rootView.subviews.count > 0) {
+            
+            NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+            
+            for (UIView *subView in rootView.subviews) {
+                NSString *temp = [self contentFromView:subView];
+                if (temp.length > 0) {
+                    [elementContentArray addObject:temp];
+                }
+            }
+            if (elementContentArray.count > 0) {
+                [elementContent appendString:[elementContentArray componentsJoinedByString:@"-"]];
+            };
+        }
+#else
+        else {
+            NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+            
+            for (UIView *subview in rootView.subviews) {
+                NSString *temp = [self contentFromView:subview];
+                if (temp.length > 0) {
+                    [elementContentArray addObject:temp];
+                }
+            }
+            if (elementContentArray.count > 0) {
+                [elementContent appendString:[elementContentArray componentsJoinedByString:@"-"]];
+            }
+            
+        }
+#endif
+        
+        return [elementContent copy];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
         return nil;
@@ -255,12 +248,10 @@
     
     // 再获取 controller.navigationItem.titleView, 并且优先级比较高
     UIView *titleView = viewController.navigationItem.titleView;
+
     NSString *elementContent = nil;
     if (titleView) {
         elementContent = [AutoTrackUtils contentFromView:titleView];
-        if (elementContent.length > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-        }
     }
     
     if (elementContent.length > 0) {
@@ -301,11 +292,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UICollectionView" forKey:@"$element_type"];
+        [properties setValue:@"UICollectionView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [view sensorsAnalyticsViewController];
@@ -321,16 +312,16 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UICollectionViewCell *cell = [collectionView cellForItemAtIndexPath:indexPath];
@@ -395,14 +386,12 @@
                     viewPath = [viewPath stringByAppendingString:@"/"];
                 }
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
         
-        NSString *elementContent = [[NSString alloc] init];
-        elementContent = [self contentFromView:cell];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-            [properties setValue:elementContent forKey:@"$element_content"];
+        NSString *elementContent = [self contentFromView:cell];
+        if (elementContent.length > 0) {
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -421,7 +410,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -458,11 +447,11 @@
 
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
 
-        [properties setValue:@"UITableView" forKey:@"$element_type"];
+        [properties setValue:@"UITableView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
 
         UIViewController *viewController = [tableView sensorsAnalyticsViewController];
@@ -478,16 +467,16 @@
 
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
 
             NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
 
         if (indexPath) {
-            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:@"$element_position"];
+            [properties setValue:[NSString stringWithFormat: @"%ld:%ld", (unsigned long)indexPath.section,(unsigned long)indexPath.row] forKey:SA_EVENT_PROPERTY_ELEMENT_POSITION];
         }
 
         UITableViewCell *cell = [tableView cellForRowAtIndexPath:indexPath];
@@ -554,13 +543,12 @@
             if (range.length) {
                 [viewPath deleteCharactersInRange:range];
             }
-            [properties setValue:viewPath forKey:@"$element_selector"];
+            [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
         }
 
         elementContent = [self contentFromView:cell];
-        if (elementContent != nil && [elementContent length] > 0) {
-            elementContent = [elementContent substringWithRange:NSMakeRange(0,[elementContent length] - 1)];
-            [properties setValue:elementContent forKey:@"$element_content"];
+        if (elementContent.length > 0) {
+            [properties setValue:elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
         }
 
         //View Properties
@@ -579,7 +567,7 @@
             SAError(@"%@ error: %@", self, exception);
         }
 
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
@@ -611,7 +599,7 @@
                 viewPath = [viewPath stringByAppendingString:@"/"];
             }
         }
-        [properties setValue:viewPath forKey:@"$element_selector"];
+        [properties setValue:viewPath forKey:SA_EVENT_PROPERTY_ELEMENT_SELECTOR];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

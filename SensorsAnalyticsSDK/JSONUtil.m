@@ -59,34 +59,35 @@
  *  @return 处理后的对象Object
  */
 - (id)JSONSerializableObjectForObject:(id)obj {
+    id newObj = [obj copy];
     // valid json types
-    if ([obj isKindOfClass:[NSString class]]) {
-        return obj;
+    if ([newObj isKindOfClass:[NSString class]]) {
+        return newObj;
     }
     //防止 float 精度丢失
-    if ([obj isKindOfClass:[NSNumber class]]) {
+    if ([newObj isKindOfClass:[NSNumber class]]) {
         @try {
-            if ([obj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
+            if ([newObj stringValue] && [[obj stringValue] rangeOfString:@"."].location != NSNotFound) {
                 return [NSDecimalNumber decimalNumberWithDecimal:((NSNumber *)obj).decimalValue];
             } else {
-                return obj;
+                return newObj;
             }
         } @catch (NSException *exception) {
-            return obj;
+            return newObj;
         }
     }
     
     // recurse on containers
-    if ([obj isKindOfClass:[NSArray class]]) {
+    if ([newObj isKindOfClass:[NSArray class]]) {
         NSMutableArray *a = [NSMutableArray array];
-        for (id i in obj) {
+        for (id i in newObj) {
             [a addObject:[self JSONSerializableObjectForObject:i]];
         }
         return [NSArray arrayWithArray:a];
     }
-    if ([obj isKindOfClass:[NSDictionary class]]) {
+    if ([newObj isKindOfClass:[NSDictionary class]]) {
         NSMutableDictionary *d = [NSMutableDictionary dictionary];
-        for (id key in obj) {
+        for (id key in newObj) {
             NSString *stringKey;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
@@ -99,20 +100,20 @@
         }
         return [NSDictionary dictionaryWithDictionary:d];
     }
-    if ([obj isKindOfClass:[NSSet class]]) {
+    if ([newObj isKindOfClass:[NSSet class]]) {
         NSMutableArray *a = [NSMutableArray array];
-        for (id i in obj) {
+        for (id i in newObj) {
             [a addObject:[self JSONSerializableObjectForObject:i]];
         }
         return [NSArray arrayWithArray:a];
     }
     // some common cases
-    if ([obj isKindOfClass:[NSDate class]]) {
-        return [_dateFormatter stringFromDate:obj];
+    if ([newObj isKindOfClass:[NSDate class]]) {
+        return [_dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
-    NSString *s = [obj description];
-    SAError(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [obj class], s);
+    NSString *s = [newObj description];
+    SAError(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
     return s;
 }
 

@@ -17,7 +17,7 @@
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-
+#import "SAConstants.h"
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
 @implementation MessageQueueBySqlite {
@@ -131,11 +131,11 @@
                 NSMutableDictionary *eventDict = [NSJSONSerialization JSONObjectWithData:jsonData
                                                                                  options:NSJSONReadingMutableContainers
                                                                                    error:&err];
-                if (!err) {
+                if (!err && eventDict) {
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
-                    [eventDict setValue:@(time) forKey:@"_flush_time"];
+                    [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
+                    [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
                 }
-                [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
             } @catch (NSException *exception) {
                 SAError(@"Found NON UTF8 String, ignore");
             }

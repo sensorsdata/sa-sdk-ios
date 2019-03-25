@@ -18,6 +18,7 @@
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
+#import "SAConstants.h"
 
 @implementation UIGestureRecognizer (AutoTrack)
 
@@ -75,39 +76,36 @@
             
             //获取 Controller 名称($screen_name)
             NSString *screenName = NSStringFromClass([viewController class]);
-            [properties setValue:screenName forKey:@"$screen_name"];
+            [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
             
             NSString *controllerTitle = [AutoTrackUtils titleFromViewController:viewController];
             if (controllerTitle) {
-                [properties setValue:controllerTitle forKey:@"$title"];
+                [properties setValue:controllerTitle forKey:SA_EVENT_PROPERTY_TITLE];
             }
         }
         
         //ViewID
         if (view.sensorsAnalyticsViewID != nil) {
-            [properties setValue:view.sensorsAnalyticsViewID forKey:@"$element_id"];
+            [properties setValue:view.sensorsAnalyticsViewID forKey:SA_EVENT_PROPERTY_ELEMENT_ID];
         }
         
         if ([view isKindOfClass:[UILabel class]]) {
-            [properties setValue:@"UILabel" forKey:@"$element_type"];
+            [properties setValue:@"UILabel" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
             UILabel *label = (UILabel*)view;
             NSString *sa_elementContent = label.sa_elementContent;
             if (sa_elementContent && sa_elementContent.length > 0) {
-                [properties setValue:sa_elementContent forKey:@"$element_content"];
+                [properties setValue:sa_elementContent forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
             [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
         } else if ([view isKindOfClass:[UIImageView class]]) {
-            [properties setValue:@"UIImageView" forKey:@"$element_type"];
+            [properties setValue:@"UIImageView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
             UIImageView *imageView = (UIImageView *)view;
             [AutoTrackUtils sa_addViewPathProperties:properties withObject:view withViewController:viewController];
-            if (imageView) {
-                if (imageView.image) {
-                    NSString *imageName = imageView.image.sensorsAnalyticsImageName;
-                    if (imageName != nil) {
-                        [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:@"$element_content"];
-                    }
-                }
+
+            NSString *imageName = imageView.image.sensorsAnalyticsImageName;
+            if (imageName.length > 0) {
+                [properties setValue:[NSString stringWithFormat:@"$%@", imageName] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
             }
 #endif
         }else {
@@ -120,7 +118,7 @@
             [properties addEntriesFromDictionary:propDict];
         }
         
-        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppClick" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }

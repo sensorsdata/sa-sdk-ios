@@ -10,7 +10,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppExtensionDataManager.h"
 
-static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
+static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
 @interface AppDelegate ()
 
@@ -19,8 +19,9 @@ static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:Sa_Default_ServerUrl andLaunchOptions:launchOptions];
+ 
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
+    [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
 
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
@@ -79,7 +80,7 @@ static NSString* Sa_Default_ServerUrl = @"http://sdk-test.cloud.sensorsdata.cn:8
 //   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
 //    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
 //    for (NSDictionary *dict in eventArray  ) {
-//        [[SensorsAnalyticsSDK sharedInstance]track:dict[@"event"] withProperties:dict[@"properties"]];
+//        [[SensorsAnalyticsSDK sharedInstance]track:dict[SA_EVENT_NAME] withProperties:dict[SA_EVENT_PROPERTIES]];
 //    }
     // Restart any tasks that were paused (or not yet started) while the application was inactive. If the application was previously in the background, optionally refresh the user interface.
     //[[SAAppExtensionDataManager sharedInstance]deleteEventsWithGroupIdentifier:@"dd"];

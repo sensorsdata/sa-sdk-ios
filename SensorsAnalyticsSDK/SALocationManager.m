@@ -64,7 +64,7 @@
 
 -(void)stopUpdatingLocation{
     @try {
-        if (_isUpdatingLocation == YES) {
+        if (_isUpdatingLocation) {
             [self.locationManager stopUpdatingLocation];
             _isUpdatingLocation = NO;
         }

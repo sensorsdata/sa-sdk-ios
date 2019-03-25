@@ -16,6 +16,7 @@
 #import "SALogger.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
+#import "SAConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)
