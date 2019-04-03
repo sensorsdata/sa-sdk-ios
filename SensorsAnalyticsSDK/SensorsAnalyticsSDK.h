@@ -169,7 +169,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  @param serverUrl 数据接收地址
  @return 配置对象
  */
-- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary<NSString *, id> *)launchOptions NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable NSDictionary *)launchOptions NS_DESIGNATED_INITIALIZER;
 
 /**
  禁用 init 初始化
