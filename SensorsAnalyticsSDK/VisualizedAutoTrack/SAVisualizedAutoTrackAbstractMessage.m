@@ -1,9 +1,21 @@
 //
-//  SAAbstractHeatMapMessage.m
+//  SAVisualizedAutoTrackAbstractMessage.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Created by 向作为 on 2018/9/4.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -12,17 +24,17 @@
 
 
 #import "SAGzipUtility.h"
-#import "SAAbstractHeatMapMessage.h"
+#import "SAVisualizedAutoTrackAbstractMessage.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 
-@interface SAAbstractHeatMapMessage ()
+@interface SAVisualizedAutoTrackAbstractMessage ()
 
 @property (nonatomic, copy, readwrite) NSString *type;
 
 @end
 
-@implementation SAAbstractHeatMapMessage {
+@implementation SAVisualizedAutoTrackAbstractMessage {
     NSMutableDictionary *_payload;
 }
 
@@ -57,7 +69,7 @@
     return [_payload copy];
 }
 
-- (NSData *)JSONData:(BOOL)useGzip withFeatuerCode:(NSString *)featureCode {
+- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)featureCode {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     [jsonObject setObject:_type forKey:@"type"];
     [jsonObject setObject:@"iOS" forKey:@"os"];
@@ -77,7 +89,7 @@
         
         // 1. 序列化 Payload
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:&error];
-        NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         // 2. 使用 GZip 进行压缩
         NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
@@ -99,7 +111,7 @@
     return jsonData;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAHeatMapConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection {
     return nil;
 }
 

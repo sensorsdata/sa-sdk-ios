@@ -3,7 +3,19 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -54,7 +66,7 @@
         if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
         } else {
-            SAError(@"Create dataCache Failure %s",errorMsg);
+            SAError(@"Create dataCache Failure %s", errorMsg);
             return nil;
         }
         CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
@@ -121,7 +133,7 @@
     if(stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                char* jsonChar = (char*)sqlite3_column_text(stmt, 0);
+                char* jsonChar = (char *)sqlite3_column_text(stmt, 0);
                 if (!jsonChar) {
                     SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
                     return nil;
@@ -155,7 +167,7 @@
             SAError(@"Failed to delete record msg=%s", errMsg);
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
     }
 
     _messageCount = [self sqliteCount];
@@ -171,7 +183,7 @@
             return NO;
         }
     } @catch (NSException *exception) {
-        SAError(@"Failed to delete record exception=%@",exception);
+        SAError(@"Failed to delete record exception=%@", exception);
         return NO;
     }
     _messageCount = [self sqliteCount];

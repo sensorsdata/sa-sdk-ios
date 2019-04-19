@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.10.26"
+  s.version      = "1.11.0"
   s.summary      = "The offical iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -12,7 +12,7 @@ Pod::Spec.new do |s|
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
-        c.source_files = "SensorsAnalyticsSDK", "SensorsAnalyticsSDK/*.{h,m}"
+        c.source_files  = "SensorsAnalyticsSDK/VisualizedAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","SensorsAnalyticsSDK/HeatMap/*.{h,m}"
         c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h"
         c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end

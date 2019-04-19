@@ -1,8 +1,20 @@
-//  SASwizzler.h
+//  SAGzipUtility.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -19,7 +31,7 @@
 /*******************************************************************************
  See header for documentation.
  */
-+(NSData*) gzipData: (NSData*)pUncompressedData
++ (NSData*)gzipData:(NSData *)pUncompressedData
 {
     /*
      Special thanks to Robbie Hanson of Deusty Designs for sharing sample code
@@ -57,7 +69,7 @@
         zlibStreamStruct.zfree     = Z_NULL; // that when we call deflateInit2 they will be
         zlibStreamStruct.opaque    = Z_NULL; // updated to use default allocation functions.
         zlibStreamStruct.total_out = 0; // Total number of output bytes produced so far
-        zlibStreamStruct.next_in   = (Bytef*)[pUncompressedData bytes]; // Pointer to input bytes
+        zlibStreamStruct.next_in   = (Bytef *)[pUncompressedData bytes]; // Pointer to input bytes
         zlibStreamStruct.avail_in  = (uInt)[pUncompressedData length]; // Number of input bytes left to process
         
         /* Initialize the zlib deflation (i.e. compression) internals with deflateInit2().

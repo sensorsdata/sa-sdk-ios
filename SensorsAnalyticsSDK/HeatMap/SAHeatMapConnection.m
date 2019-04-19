@@ -3,7 +3,19 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #import "SAHeatMapConnection.h"
@@ -74,7 +86,7 @@
         }
         NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip withFeatuerCode:_featureCode] encoding:NSUTF8StringEncoding];
         void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse*)response;
+            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
             
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if ([urlResponse statusCode] == 200) {
@@ -125,22 +137,11 @@
     return designerMessage;
 }
 
-#pragma mark - UIAlertViewDelegate Methods
-
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    if (buttonIndex == 0) {
-        SADebug(@"Canceled to open HeatMap ...");
-        [self close];
-    } else {
-        SADebug(@"Confirmed to open HeatMap ...");
-    }
-}
-
 #pragma mark -  Methods
 
 - (void)startHeatMapTimer:(id)message withFeatureCode:(NSString *)featureCode withUrl:(NSString *)postUrl {
     _featureCode = featureCode;
-    _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL,(__bridge CFStringRef)postUrl, CFSTR(""),CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    _postUrl =  (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postUrl, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
 
     if (timer) {
@@ -164,64 +165,17 @@
     }
 }
 
-- (void)showOpenHeatMapDialog:(NSString *)featureCode withUrl:(NSString *)postUrl isWifi:(BOOL)isWifi {
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)postUrl {
     
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
     //文件路径
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_headmap_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSString *jsonString = [[NSString alloc]initWithData:jsonData encoding:NSUTF8StringEncoding];
-    
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
-    if (!_connected) {
-        _connected = YES;
-        
-        NSString *alertTitle = @"提示";
-        NSString *alertMessage = @"正在连接 APP 点击分析";
-        if (!isWifi) {
-            alertMessage = @"正在连接 APP 点击分析，建议在 WiFi 环境下使用";
-        }
-        
-        if (@available(iOS 8.0,*)) {
-            UIWindow *mainWindow = UIApplication.sharedApplication.keyWindow;
-            if (mainWindow == nil) {
-                mainWindow = [[UIApplication sharedApplication] delegate].window;
-            }
-            if (mainWindow == nil) {
-                return;
-            }
-            
-            UIAlertController *connectAlert = [UIAlertController
-                                               alertControllerWithTitle:alertTitle
-                                               message:alertMessage
-                                               preferredStyle:UIAlertControllerStyleAlert];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Canceled to open HeatMap ...");
-                
-                [self close];
-            }]];
-            
-            [connectAlert addAction:[UIAlertAction actionWithTitle:@"继续" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
-                SADebug(@"Confirmed to open HeatMap ...");
-                
-                self->_connected = YES;
-                [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-            }]];
-            
-            UIViewController *viewController = mainWindow.rootViewController;
-            while (viewController.presentedViewController) {
-                viewController = viewController.presentedViewController;
-            }
-            [viewController presentViewController:connectAlert animated:YES completion:nil];
-        } else {
-            _connected = YES;
-            
-            [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
-
-            UIAlertView *connectAlert = [[UIAlertView alloc] initWithTitle:alertTitle message:alertMessage delegate:self cancelButtonTitle:@"取消" otherButtonTitles:@"继续", nil];
-            [connectAlert show];
-        }
+    if (!self->_connected) {
+        self->_connected = YES;
+        [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
     } else {
         [self startHeatMapTimer:jsonString withFeatureCode:featureCode withUrl:postUrl];
     }

@@ -3,7 +3,19 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/3/28.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -56,13 +68,13 @@ static dispatch_queue_t __logQueue__ ;
     if (systemVersion == 10) {
         return;
     }
-    @try{
+    @try {
         va_list args;
         va_start(args, format);
         NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
         [self.sharedInstance log:asynchronous message:message level:level file:file function:function line:line];
         va_end(args);
-    } @catch(NSException *e){
+    } @catch(NSException *e) {
        
     }
 }
@@ -73,17 +85,17 @@ static dispatch_queue_t __logQueue__ ;
        file:(const char *)file
    function:(const char *)function
        line:(NSUInteger)line {
-    @try{
-        NSString *logMessage = [[NSString alloc]initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@",[self descriptionForLevel:level],function,(unsigned long)line,[@"" UTF8String],message];
+    @try {
+        NSString *logMessage = [[NSString alloc] initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@", [self descriptionForLevel:level], function, (unsigned long)line, [@"" UTF8String], message];
         if ([SALogger isLoggerEnabled]) {
             NSLog(@"%@",logMessage);
         }
-    } @catch(NSException *e){
+    } @catch(NSException *e) {
        
     }
 }
 
--(NSString *)descriptionForLevel:(SALoggerLevel)level {
+- (NSString *)descriptionForLevel:(SALoggerLevel)level {
     NSString *desc = nil;
     switch (level) {
         case SALoggerLevelInfo:

@@ -2,7 +2,20 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/1.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
+//
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
@@ -23,37 +36,32 @@ NS_ASSUME_NONNULL_BEGIN
 
 //UITableView
 @optional
--(NSDictionary *) sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+- (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
 
 //UICollectionView
 @optional
--(NSDictionary *) sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
+- (NSDictionary *)sensorsAnalytics_collectionView:(UICollectionView *)collectionView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath;
 
-//@optional
-//-(NSDictionary *) sensorsAnalytics_alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex;
-//
-//@optional
-//-(NSDictionary *) sensorsAnalytics_actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;
 @end
 
 @interface UIImage (SensorsAnalytics)
-@property (nonatomic,copy) NSString* sensorsAnalyticsImageName;
+@property (nonatomic, copy) NSString* sensorsAnalyticsImageName;
 @end
 
 @interface UIView (SensorsAnalytics)
 - (nullable UIViewController *)sensorsAnalyticsViewController;
 
 //viewID
-@property (copy,nonatomic) NSString* sensorsAnalyticsViewID;
+@property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
 
 //AutoTrack 时，是否忽略该 View
-@property (nonatomic,assign) BOOL sensorsAnalyticsIgnoreView;
+@property (nonatomic, assign) BOOL sensorsAnalyticsIgnoreView;
 
 //AutoTrack 发生在 SendAction 之前还是之后，默认是 SendAction 之前
-@property (nonatomic,assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
+@property (nonatomic, assign) BOOL sensorsAnalyticsAutoTrackAfterSendAction;
 
 //AutoTrack 时，View 的扩展属性
-@property (strong,nonatomic) NSDictionary* sensorsAnalyticsViewProperties;
+@property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
 
 @property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
 @end
@@ -146,14 +154,14 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 @protocol SAAutoTracker
 
 @required
--(NSDictionary *)getTrackProperties;
+- (NSDictionary *)getTrackProperties;
 
 @end
 
 @protocol SAScreenAutoTracker<SAAutoTracker>
 
 @required
--(NSString *) getScreenUrl;
+- (NSString *)getScreenUrl;
 
 @end
 
@@ -184,7 +192,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 /**
  请求配置地址，默认从 ServerUrl 解析
  */
-@property(nonatomic, copy) NSString *remoteConfigURL;
+@property (nonatomic, copy) NSString *remoteConfigURL;
 @end
 
 
@@ -271,43 +279,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 @property (atomic) UInt64 flushBulkSize;
 #pragma mark- init instance
-
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
- * @param serverURL 收集事件的 URL
- * @param debugMode Sensors Analytics 的 Debug 模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
-
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
- * @param serverURL 收集事件的 URL
- * @param launchOptions launchOptions
- * @param debugMode Sensors Analytics 的 Debug 模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
- * 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
- * @param serverURL 收集事件的 URL
- * @param launchOptions launchOptions
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                       andLaunchOptions:(NSDictionary * _Nullable)launchOptions  __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
 
 /**
  * @abstract
@@ -440,21 +411,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @property
  *
  * @abstract
- * 打开 SDK 自动追踪,默认只追踪 App 启动 / 关闭、进入页面
- *
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
-
-/**
- * @property
- *
- * @abstract
- * 打开 SDK 自动追踪,默认只追踪 App 启动 / 关闭、进入页面、元素点击
- *
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
  * @discussion
  * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
  *   https://sensorsdata.cn/manual/ios_sdk.html
@@ -506,7 +463,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return YES:被忽略; NO:没有被忽略
  */
-- (BOOL)isViewControllerIgnored:(UIViewController*)viewController;
+- (BOOL)isViewControllerIgnored:(UIViewController *)viewController;
 
 /**
  * @abstract
@@ -516,15 +473,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @return YES:被忽略; NO:没有被忽略
  */
-- (BOOL)isViewControllerStringIgnored:(NSString*)viewController;
-
-/**
- * @abstract
- * 过滤掉 AutoTrack 的某个事件类型
- *
- * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
- */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewController;
 
 /**
  * @abstract
@@ -628,23 +577,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
 
 /**
  * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event 的名称
- */
-- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
-
-/**
- * @abstract
  * 初始化事件的计时器，允许用户指定计时单位。
  *
  * @discussion
@@ -654,18 +586,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
-
-/**
- * @abstract
- * 初始化事件的计时器，允许用户指定计时单位。
- *
- * @discussion
- * 请参考 trackTimer
- *
- * @param event             event 的名称
- * @param timeUnit          计时单位，毫秒/秒/分钟/小时
- */
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
@@ -678,29 +598,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 清除所有事件计时器
  */
 - (void)clearTrackTimer;
-
-/**
- * @abstract
- * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名 ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册 ID
- * @param propertyDict     event 的属性
- */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 login:")));
-
-/**
- * @abstract
- * 不带私有属性的 trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名 ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册 ID
- */
-- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考 login:")));
 
 /**
  * @abstract
@@ -807,14 +704,6 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
 
-
-/**
- 设置调试模式
- 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
- @param debugMode 调试模式
- */
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
-
 - (SensorsAnalyticsDebugMode)debugMode;
 
 /**
@@ -902,7 +791,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          4,value 类型为 NSSet、NSArray 时，NSSet、NSArray 中的所有元素必须为 NSString
  * @param dynamicSuperProperties block 用来返回事件的动态公共属性
  */
-- (void)registerDynamicSuperProperties:(NSDictionary<NSString *,id> *(^)(void)) dynamicSuperProperties;
+- (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties;
 
 /**
  * @abstract
@@ -951,8 +840,75 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 一旦调用该接口，将会删除本地缓存的全部事件，请慎用！
  */
 - (void)deleteAll;
-#pragma mark- heatMap
-- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
+
+
+
+/**
+ * 判断是否为符合要求的 openURL
+
+ * @param url 打开的 URL
+ * @return YES/NO
+ */
+- (BOOL)canHandleURL:(NSURL *)url;
+
+#pragma mark - VisualizedAutoTrack
+/**
+ * 开启 可视化全埋点 分析，默认不开启，
+ * $AppClick 事件将会采集控件的 viewPath。
+ */
+- (void)enableVisualizedAutoTrack;
+
+/**
+ 是否开启 可视化全埋点 分析，默认不
+
+ @return YES/NO
+ */
+- (BOOL)isVisualizedAutoTrackEnabled;
+
+/**
+ 指定哪些页面开启 可视化全埋点 分析，
+ 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath。
+
+ @param controllers 指定的页面的类名数组
+ */
+- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
+
+/**
+ 当前页面是否开启 可视化全埋点 分析。
+
+ @param viewController 当前页面 viewController
+ @return YES/NO
+ */
+- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
+
+#pragma mark HeatMap
+/**
+ 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap;
+
+/**
+ 是否开启点击图
+
+ @return YES/NO 是否开启了点击图
+ */
+- (BOOL)isHeatMapEnabled;
+
+/**
+ 指定哪些页面开启 HeatMap，如果指定了页面
+ 只有这些页面的 $AppClick 事件会采集控件的 viwPath
+
+ @param controllers 需要开启点击图的 ViewController 的类名
+ */
+- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers;
+
+/**
+ 当前页面是否开启 点击图 分析。
+
+ @param viewController 当前页面 viewController
+ @return 当前 viewController 是否支持点击图分析
+ */
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 
 /**
  * @abstract
@@ -962,22 +918,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  */
 - (BOOL)handleSchemeUrl:(NSURL *)url;
 
-/**
- * @abstract
- * 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap;
-
-- (BOOL)isHeatMapEnabled;
-
-/**
- * @abstract
- * 指定哪些页面开启 HeatMap，如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath
- */
-- (void)addHeatMapViewControllers:(NSArray *)controllers;
-
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
-#pragma mark- profile
+#pragma mark - profile
 /**
  * @abstract
  * 直接设置用户的一个或者几个 Profiles
@@ -1070,7 +1011,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @discussion
  * profileDict 中，key 是 NSString ，value 是 NSNumber
- * 其它与 -(void)increment:by: 相同
+ * 其它与 - (void)increment:by: 相同
  *
  * @param profileDict 多个
  */
@@ -1140,7 +1081,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *          清除后 AppInstall 可以再次触发，造成 AppInstall 事件统计不准确。
  *
  */
--(void)clearKeychainData;
+- (void)clearKeychainData;
 
 @end
 
@@ -1236,7 +1177,7 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  *
  * @discussion
  * profileDict 中，key是 NSString，value 是 NSNumber
- * 其它与 -(void)increment:by: 相同
+ * 其它与 - (void)increment:by: 相同
  *
  * @param profileDict 多个
  */
@@ -1260,6 +1201,141 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
  * 删除当前这个用户的所有记录
  */
 - (void)deleteUser;
+
+@end
+
+#pragma mark - Deprecated
+@interface SensorsAnalyticsSDK (Deprecated)
+
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ * @param serverURL 收集事件的 URL
+ * @param debugMode Sensors Analytics 的 Debug 模式
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ * @param serverURL 收集事件的 URL
+ * @param launchOptions launchOptions
+ * @param debugMode Sensors Analytics 的 Debug 模式
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
+ * 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ * @param serverURL 收集事件的 URL
+ * @param launchOptions launchOptions
+ *
+ * @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
+                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions  __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+
+/**
+ 设置调试模式
+ 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
+ @param debugMode 调试模式
+ */
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
+
+/**
+ * @property
+ *
+ * @abstract
+ * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
+ *
+ * @discussion
+ * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ *   https://sensorsdata.cn/manual/ios_sdk.html
+ * 该功能默认关闭
+ */
+- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 过滤掉 AutoTrack 的某个事件类型
+ *
+ * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
+ */
+- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ * @param propertyDict     event的属性
+ */
+- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
+
+/**
+ * @abstract
+ * 不带私有属性的trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param newDistinctId     用户完成注册后生成的注册ID
+ */
+- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
+
+/**
+ * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event的名称
+ */
+- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
+
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
+
+
+#pragma mark- heatMap
+/**
+ * @abstract
+ * 神策 SDK 会处理 点击图，可视化全埋点url
+ * @discussion
+ *  目前处理 heatmap，visualized
+ * @param url
+ * @return YES/NO
+ */
+- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
 
 @end
 

@@ -1,8 +1,20 @@
-//  SASwizzler.h
+//  NSInvocation+SAHelpers.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//
+//  Licensed under the Apache License, Version 2.0 (the "License");
+//  you may not use this file except in compliance with the License.
+//  You may obtain a copy of the License at
+//
+//      http://www.apache.org/licenses/LICENSE-2.0
+//
+//  Unless required by applicable law or agreed to in writing, software
+//  distributed under the License is distributed on an "AS IS" BASIS,
+//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+//  See the License for the specific language governing permissions and
+//  limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -152,9 +164,9 @@ static void *SAAllocBufferForObjCType(const char *objCType)
             case _C_INT:      returnValue = @(*((int *)buffer));                    break;
             case _C_UINT:     returnValue = @(*((unsigned int *)buffer));           break;
             case _C_LNG:      returnValue = @(*((long *)buffer));                   break;
-            case _C_ULNG:     returnValue = @(*((unsigned long*)buffer));           break;
+            case _C_ULNG:     returnValue = @(*((unsigned long *)buffer));           break;
             case _C_LNG_LNG:  returnValue = @(*((long long *)buffer));              break;
-            case _C_ULNG_LNG: returnValue = @(*((unsigned long long*)buffer));      break;
+            case _C_ULNG_LNG: returnValue = @(*((unsigned long long *)buffer));      break;
             case _C_FLT:      returnValue = @(*((float *)buffer));                  break;
             case _C_DBL:      returnValue = @(*((double *)buffer));                 break;
             case _C_BOOL:     returnValue = @(*((_Bool *)buffer));                  break;

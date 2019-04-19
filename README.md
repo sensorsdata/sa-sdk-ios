@@ -11,9 +11,14 @@ This is the official iOS SDK for Sensors Analytics.
 ```
   3. Run `pod install` in the Xcode project directory and restart XCode.
 
+## 新书推荐
+神策数据出品的[《Android 全埋点解决方案》](https://item.jd.com/12574672.html)发售啦！！!
+
+[![《Android 全埋点解决方案》](screenshots/android_autotrack_book.png)](https://item.jd.com/12574672.html)
+
 ## To learn more
 
-See our [full manual](http://www.sensorsdata.cn/manual/ios_sdk.html) 
+See our [full manual](http://www.sensorsdata.cn/manual/ios_sdk.html)
 
 或者加入 QQ 讨论群：<br>
 ![ QQ 讨论群](screenshots/qrCode.jpeg)
