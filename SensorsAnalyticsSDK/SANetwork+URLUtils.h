@@ -1,9 +1,9 @@
 //
-//  SAHeatMapMessage.h
+//  SANetwork+URLUtils.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Created by 张敏超 on 2019/4/18.
+///  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,19 +18,16 @@
 //  limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SANetwork.h"
 
-@class SAHeatMapConnection;
+@interface SANetwork (URLUtils)
 
-@protocol SAHeatMapMessage <NSObject>
++ (NSString *)hostWithURL:(NSURL *)url;
++ (NSString *)hostWithURLString:(NSString *)URLString;
 
-@property (nonatomic, copy, readonly) NSString *type;
++ (NSDictionary<NSString *, NSString *> *)queryItemsWithURL:(NSURL *)url;
++ (NSDictionary<NSString *, NSString *> *)queryItemsWithURLString:(NSString *)URLString;
 
-- (void)setPayloadObject:(id)object forKey:(NSString *)key;
-- (id)payloadObjectForKey:(NSString *)key;
-
-- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
-
-- (NSOperation *)responseCommandWithConnection:(SAHeatMapConnection *)connection;
++ (NSString *)urlQueryStringWithParams:(NSDictionary <NSString *, NSString *> *)params;
 
 @end

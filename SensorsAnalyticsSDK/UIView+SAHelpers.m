@@ -81,18 +81,20 @@
 // sa_targetActions
 - (NSArray *)sa_targetActions {
     NSMutableArray *targetActions = [NSMutableArray array];
-    if ([self isKindOfClass:[UIControl class]]) {
-        for (id target in [(UIControl *)(self) allTargets]) {
-            UIControlEvents allEvents = UIControlEventAllTouchEvents | UIControlEventAllEditingEvents;
-            for (NSUInteger e = 0; (allEvents >> e) > 0; e++) {
-                UIControlEvents event = allEvents & (0x01 << e);
-                if(event) {
-                    NSArray *actions = [(UIControl *)(self) actionsForTarget:target forControlEvent:event];
-                    NSArray *ignoreActions = @[@"caojiangPreVerify:forEvent:", @"caojiangExecute:forEvent:"];
-                    for (NSString *action in actions) {
-                        if ([ignoreActions indexOfObject:action] == NSNotFound) {
-                            [targetActions addObject:[NSString stringWithFormat:@"%lu/%@", (unsigned long)event, action]];
-                        }
+    if (![self isKindOfClass:[UIControl class]]) {
+        return [targetActions copy];
+    }
+    
+    for (id target in [(UIControl *)(self) allTargets]) {
+        UIControlEvents allEvents = UIControlEventAllTouchEvents | UIControlEventAllEditingEvents;
+        for (NSUInteger e = 0; (allEvents >> e) > 0; e++) {
+            UIControlEvents event = allEvents & (0x01 << e);
+            if(event) {
+                NSArray *actions = [(UIControl *)(self) actionsForTarget:target forControlEvent:event];
+                NSArray *ignoreActions = @[@"caojiangPreVerify:forEvent:", @"caojiangExecute:forEvent:"];
+                for (NSString *action in actions) {
+                    if ([ignoreActions indexOfObject:action] == NSNotFound) {
+                        [targetActions addObject:[NSString stringWithFormat:@"%lu/%@", (unsigned long)event, action]];
                     }
                 }
             }
@@ -114,24 +116,25 @@
 #pragma clang diagnostic pop
 
 - (NSString *)sa_controllerVariable {
+    if (![self isKindOfClass:[UIControl class]]) {
+        return nil;
+    }
     NSString *result = nil;
-    if ([self isKindOfClass:[UIControl class]]) {
-        UIResponder *responder = [self nextResponder];
-        while (responder && ![responder isKindOfClass:[UIViewController class]]) {
-            responder = [responder nextResponder];
-        }
-        if (responder) {
-            uint count;
-            Ivar *ivars = class_copyIvarList([responder class], &count);
-            for (uint i = 0; i < count; i++) {
-                Ivar ivar = ivars[i];
-                if (ivar_getTypeEncoding(ivar)[0] == '@' && object_getIvar(responder, ivar) == self) {
-                    result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
-                    break;
-                }
+    UIResponder *responder = [self nextResponder];
+    while (responder && ![responder isKindOfClass:[UIViewController class]]) {
+        responder = [responder nextResponder];
+    }
+    if (responder) {
+        uint count;
+        Ivar *ivars = class_copyIvarList([responder class], &count);
+        for (uint i = 0; i < count; i++) {
+            Ivar ivar = ivars[i];
+            if (ivar_getTypeEncoding(ivar)[0] == '@' && object_getIvar(responder, ivar) == self) {
+                result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+                break;
             }
-            free(ivars);
         }
+        free(ivars);
     }
     return result;
 }
@@ -146,34 +149,33 @@
  (2 bits per component).
  */
 - (NSString *)sa_imageFingerprint {
-    NSString *result = nil;
     UIImage *originalImage = nil;
     if ([self isKindOfClass:[UIButton class]]) {
         originalImage = [((UIButton *)self) imageForState:UIControlStateNormal];
     } else if ([NSStringFromClass([self class]) isEqual:@"UITabBarButton"] && [self.subviews count] > 0 && [self.subviews[0] respondsToSelector:NSSelectorFromString(@"image")]) {
         originalImage = (UIImage *)[self.subviews[0] performSelector:@selector(image)];
     }
-    
-    if (originalImage) {
-        CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
-        uint32_t data32[64];
-        uint8_t data4[32];
-        CGContextRef context = CGBitmapContextCreate(data32, 8, 8, 8, 8*4, space, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Little);
-        CGContextSetAllowsAntialiasing(context, NO);
-        CGContextClearRect(context, CGRectMake(0, 0, 8, 8));
-        CGContextSetInterpolationQuality (context, kCGInterpolationNone);
-        CGContextDrawImage(context, CGRectMake(0, 0, 8, 8), [originalImage CGImage]);
-        CGColorSpaceRelease(space);
-        CGContextRelease(context);
-        for(int i = 0; i < 32; i++) {
-            int j = 2*i;
-            int k = 2*i + 1;
-            data4[i] = (((data32[j] & 0x80000000) >> 24) | ((data32[j] & 0x800000) >> 17) | ((data32[j] & 0x8000) >> 10) | ((data32[j] & 0x80) >> 3) |
-                        ((data32[k] & 0x80000000) >> 28) | ((data32[k] & 0x800000) >> 21) | ((data32[k] & 0x8000) >> 14) | ((data32[k] & 0x80) >> 7));
-        }
-        result = [[NSData dataWithBytes:data4 length:32] base64EncodedStringWithOptions:0];
+    if (!originalImage) {
+        return nil;
     }
-    return result;
+    
+    CGColorSpaceRef space = CGColorSpaceCreateDeviceRGB();
+    uint32_t data32[64];
+    uint8_t data4[32];
+    CGContextRef context = CGBitmapContextCreate(data32, 8, 8, 8, 8*4, space, kCGImageAlphaPremultipliedLast | kCGBitmapByteOrder32Little);
+    CGContextSetAllowsAntialiasing(context, NO);
+    CGContextClearRect(context, CGRectMake(0, 0, 8, 8));
+    CGContextSetInterpolationQuality(context, kCGInterpolationNone);
+    CGContextDrawImage(context, CGRectMake(0,0,8,8), [originalImage CGImage]);
+    CGColorSpaceRelease(space);
+    CGContextRelease(context);
+    for(int i = 0; i < 32; i++) {
+        int j = 2*i;
+        int k = 2*i + 1;
+        data4[i] = (((data32[j] & 0x80000000) >> 24) | ((data32[j] & 0x800000) >> 17) | ((data32[j] & 0x8000) >> 10) | ((data32[j] & 0x80) >> 3) |
+                    ((data32[k] & 0x80000000) >> 28) | ((data32[k] & 0x800000) >> 21) | ((data32[k] & 0x8000) >> 14) | ((data32[k] & 0x80) >> 7));
+    }
+    return [[NSData dataWithBytes:data4 length:32] base64EncodedStringWithOptions:0];
 }
 
 - (NSString *)sa_text {

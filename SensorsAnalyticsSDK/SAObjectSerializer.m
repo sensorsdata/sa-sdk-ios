@@ -271,14 +271,12 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                     result = [valueForKey sortedArrayUsingComparator:^NSComparisonResult(UIView *obj1, UIView *obj2) {
                         if (obj2.frame.origin.y > obj1.frame.origin.y) {
                             return NSOrderedDescending;
-                        } else {
-                            if (obj2.frame.origin.x > obj1.frame.origin.x) {
-                                return NSOrderedDescending;
-                            } else {
-                                return NSOrderedAscending;
-                            }
                         }
-                        return NSOrderedSame;
+                        if (obj2.frame.origin.x > obj1.frame.origin.x) {
+                            return NSOrderedDescending;
+                        } else {
+                            return NSOrderedAscending;
+                        }
                     }];
                     valueForKey = [result copy];
                     //valueForKey =  [[valueForKey reverseObjectEnumerator] allObjects];

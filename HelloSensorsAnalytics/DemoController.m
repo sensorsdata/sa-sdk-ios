@@ -51,7 +51,7 @@
 }
 
 - (void)testTrack {
-    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"testNSNull":NSNull.null}];
+    [[SensorsAnalyticsSDK sharedInstance] track:@"testTrack" withProperties:@{@"testName":@"testTrack 测试"}];
 }
 
 - (void)testTrackSignup {

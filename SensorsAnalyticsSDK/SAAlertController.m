@@ -88,34 +88,36 @@
 }
 
 - (void)showAlertController {
-    UIAlertControllerStyle style = self.preferredStyle == SAAlertControllerStyleAlert ? UIAlertControllerStyleAlert : UIAlertControllerStyleActionSheet;
-    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:self.alertTitle message:self.alertMessage preferredStyle:style];
-    
-    for (SAAlertAction *action in self.actions) {
-        UIAlertActionStyle style = UIAlertActionStyleDefault;
-        switch (action.style) {
-            case SAAlertActionStyleCancel:
-                style = UIAlertActionStyleCancel;
-                break;
-            case SAAlertActionStyleDestructive:
-                style = UIAlertActionStyleDestructive;
-                break;
-            default:
-                style = UIAlertActionStyleDefault;
-                break;
-        }
-        UIAlertAction *alertAction = [UIAlertAction actionWithTitle:action.title style:style handler:^(UIAlertAction *alertAction) {
-            if (action.handler) {
-                action.handler(action);
+    if (@available(iOS 8.0, *)) {
+        UIAlertControllerStyle style = self.preferredStyle == SAAlertControllerStyleAlert ? UIAlertControllerStyleAlert : UIAlertControllerStyleActionSheet;
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:self.alertTitle message:self.alertMessage preferredStyle:style];
+
+        for (SAAlertAction *action in self.actions) {
+            UIAlertActionStyle style = UIAlertActionStyleDefault;
+            switch (action.style) {
+                case SAAlertActionStyleCancel:
+                    style = UIAlertActionStyleCancel;
+                    break;
+                case SAAlertActionStyleDestructive:
+                    style = UIAlertActionStyleDestructive;
+                    break;
+                default:
+                    style = UIAlertActionStyleDefault;
+                    break;
             }
-            self.alertWindow.hidden = YES;
-            self.alertWindow = nil;
-        }];
-        [alertController addAction:alertAction];
+            UIAlertAction *alertAction = [UIAlertAction actionWithTitle:action.title style:style handler:^(UIAlertAction *alertAction) {
+                if (action.handler) {
+                    action.handler(action);
+                }
+                self.alertWindow.hidden = YES;
+                self.alertWindow = nil;
+            }];
+            [alertController addAction:alertAction];
+        }
+        [self.actions removeAllObjects];
+
+        [self presentViewController:alertController animated:YES completion:nil];
     }
-    [self.actions removeAllObjects];
-    
-    [self presentViewController:alertController animated:YES completion:nil];
 }
 
 - (void)showAlertView {

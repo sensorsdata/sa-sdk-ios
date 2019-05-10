@@ -18,10 +18,9 @@
 //  limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
+#if !__has_feature(objc_arc)
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
-
 
 #import <sqlite3.h>
 
@@ -29,7 +28,8 @@
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SAConstants.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
 @implementation MessageQueueBySqlite {
@@ -39,16 +39,16 @@
     CFMutableDictionaryRef _dbStmtCache;
 }
 
-- (void) closeDatabase {
+- (void)closeDatabase {
     if (_dbStmtCache) CFRelease(_dbStmtCache);
     _dbStmtCache = NULL;
-    
+
     sqlite3_close(_database);
     sqlite3_shutdown();
     SADebug(@"%@ close database", self);
 }
 
-- (void) dealloc {
+- (void)dealloc {
     [self closeDatabase];
 }
 
@@ -59,27 +59,27 @@
         SAError(@"failed to initialize SQLite.");
         return nil;
     }
-    if (sqlite3_open_v2([filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK ) {
+    if (sqlite3_open_v2([filePath UTF8String], &_database, SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE, NULL) == SQLITE_OK) {
         // 创建一个缓存表
         NSString *_sql = @"create table if not exists dataCache (id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT, content TEXT)";
         char *errorMsg;
-        if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg)==SQLITE_OK) {
+        if (sqlite3_exec(_database, [_sql UTF8String], NULL, NULL, &errorMsg) == SQLITE_OK) {
             SADebug(@"Create dataCache Success.");
         } else {
             SAError(@"Create dataCache Failure %s", errorMsg);
             return nil;
         }
         CFDictionaryKeyCallBacks keyCallbacks = kCFCopyStringDictionaryKeyCallBacks;
-        CFDictionaryValueCallBacks valueCallbacks = {0};
+        CFDictionaryValueCallBacks valueCallbacks = { 0 };
         _dbStmtCache = CFDictionaryCreateMutable(CFAllocatorGetDefault(), 0, &keyCallbacks, &valueCallbacks);
-        
+
         _messageCount = [self sqliteCount];
-        
+
         SADebug(@"SQLites is opened. current count is %ul", _messageCount);
     } else {
         if (_dbStmtCache) CFRelease(_dbStmtCache);
         _dbStmtCache = NULL;
-        
+
         SAError(@"failed to open SQLite db.");
         return nil;
     }
@@ -87,7 +87,7 @@
 }
 
 - (void)addObejct:(id)obj withType:(NSString *)type {
-    UInt64 maxCacheSize = [[SensorsAnalyticsSDK sharedInstance] getMaxCacheSize];
+    UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_messageCount >= maxCacheSize) {
         SAError(@"touch MAX_MESSAGE_SIZE:%d, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecords:100 withType:@"Post"];
@@ -98,23 +98,25 @@
             return;
         }
     }
-    NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
-    NSString* query = @"INSERT INTO dataCache(type, content) values(?, ?)";
+    NSData *jsonData = [_jsonUtil JSONSerializeObject:obj];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+
+    NSString *query = @"INSERT INTO dataCache(type, content) values(?, ?)";
     sqlite3_stmt *insertStatement = [self dbCacheStmt:query];
     int rc;
-    if (insertStatement) {
+    if (insertStatement && jsonString.length > 0) {
         sqlite3_bind_text(insertStatement, 1, [type UTF8String], -1, SQLITE_TRANSIENT);
         @try {
-            sqlite3_bind_text(insertStatement, 2, [[[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding] UTF8String], -1, SQLITE_TRANSIENT);
+            sqlite3_bind_text(insertStatement, 2, [jsonString UTF8String], -1, SQLITE_TRANSIENT);
         } @catch (NSException *exception) {
             SAError(@"Found NON UTF8 String, ignore");
             return;
         }
         rc = sqlite3_step(insertStatement);
-        if(rc != SQLITE_DONE) {
+        if (rc != SQLITE_DONE) {
             SAError(@"insert into dataCache fail, rc is %d", rc);
         } else {
-            _messageCount ++;
+            _messageCount++;
             SADebug(@"insert into dataCache success, current count is %lu", _messageCount);
         }
     } else {
@@ -122,18 +124,18 @@
     }
 }
 
-- (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
+- (NSArray *)getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     if (_messageCount == 0) {
         return @[];
     }
-    NSMutableArray* contentArray = [[NSMutableArray alloc] init];
-    NSString* query = [NSString stringWithFormat:@"SELECT content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
-    
-    sqlite3_stmt* stmt = [self dbCacheStmt:query];
-    if(stmt) {
+    NSMutableArray *contentArray = [[NSMutableArray alloc] init];
+    NSString *query = [NSString stringWithFormat:@"SELECT id,content FROM dataCache ORDER BY id ASC LIMIT %lu", (unsigned long)recordSize];
+
+    sqlite3_stmt *stmt = [self dbCacheStmt:query];
+    if (stmt) {
         while (sqlite3_step(stmt) == SQLITE_ROW) {
             @try {
-                char* jsonChar = (char *)sqlite3_column_text(stmt, 0);
+                char *jsonChar = (char *)sqlite3_column_text(stmt, 1);
                 if (!jsonChar) {
                     SAError(@"Failed to query column_text, error:%s", sqlite3_errmsg(_database));
                     return nil;
@@ -147,6 +149,10 @@
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
                     [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
                     [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
+                } else {
+                    char *idChar = (char *)sqlite3_column_text(stmt, 0);
+                    NSInteger index = [[NSString stringWithUTF8String:idChar] integerValue];
+                    [self deleteRecordWithId:index];
                 }
             } @catch (NSException *exception) {
                 SAError(@"Found NON UTF8 String, ignore");
@@ -159,9 +165,23 @@
     return [NSArray arrayWithArray:contentArray];
 }
 
-- (void) deleteAll {
-    NSString* query = @"DELETE FROM dataCache";
-    char* errMsg;
+///删除某条数据
+- (BOOL)deleteRecordWithId:(NSInteger)index {
+    NSString *queryDelete = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id = %ld", (long)index];
+
+    char *errDeleteMsg;
+    if (sqlite3_exec(_database, [queryDelete UTF8String], NULL, NULL, &errDeleteMsg) == SQLITE_OK) {
+        _messageCount--;
+        return YES;
+    } else {
+        SAError(@"Failed to delete record msg=%s", errDeleteMsg);
+        return NO;
+    }
+}
+
+- (void)deleteAll {
+    NSString *query = @"DELETE FROM dataCache";
+    char *errMsg;
     @try {
         if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
             SAError(@"Failed to delete record msg=%s", errMsg);
@@ -173,10 +193,10 @@
     _messageCount = [self sqliteCount];
 }
 
-- (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
+- (BOOL)removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type {
     NSUInteger removeSize = MIN(recordSize, _messageCount);
-    NSString* query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];
-    char* errMsg;
+    NSString *query = [NSString stringWithFormat:@"DELETE FROM dataCache WHERE id IN (SELECT id FROM dataCache ORDER BY id ASC LIMIT %lu);", (unsigned long)removeSize];
+    char *errMsg;
     @try {
         if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
             SAError(@"Failed to delete record msg=%s", errMsg);
@@ -190,30 +210,28 @@
     return YES;
 }
 
-- (NSInteger) count {
+- (NSInteger)count {
     return _messageCount;
 }
 
-- (NSInteger) sqliteCount {
-    NSString* query = @"select count(*) from dataCache";
+- (NSInteger)sqliteCount {
+    NSString *query = @"select count(*) from dataCache";
     NSInteger count = 0;
-    sqlite3_stmt* statement = [self dbCacheStmt:query];
-    if(statement) {
-        while (sqlite3_step(statement) == SQLITE_ROW) {
+    sqlite3_stmt *statement = [self dbCacheStmt:query];
+    if (statement) {
+        while (sqlite3_step(statement) == SQLITE_ROW)
             count = sqlite3_column_int(statement, 0);
-        }
-    }
-    else {
+    } else {
         SAError(@"Failed to prepare statement");
     }
     return count;
 }
 
-- (BOOL) vacuum {
+- (BOOL)vacuum {
 #ifdef SENSORS_ANALYTICS_ENABLE_VACUUM
     @try {
-        NSString* query = @"VACUUM";
-        char* errMsg;
+        NSString *query = @"VACUUM";
+        char *errMsg;
         if (sqlite3_exec(_database, [query UTF8String], NULL, NULL, &errMsg) != SQLITE_OK) {
             SAError(@"Failed to delete record msg=%s", errMsg);
             return NO;
@@ -227,8 +245,7 @@
 #endif
 }
 
-
-- (sqlite3_stmt *) dbCacheStmt:(NSString *)sql {
+- (sqlite3_stmt *)dbCacheStmt:(NSString *)sql {
     if (sql.length == 0 || !_dbStmtCache) return NULL;
     sqlite3_stmt *stmt = (sqlite3_stmt *)CFDictionaryGetValue(_dbStmtCache, (__bridge const void *)(sql));
     if (!stmt) {
@@ -243,6 +260,5 @@
     }
     return stmt;
 }
-
 
 @end

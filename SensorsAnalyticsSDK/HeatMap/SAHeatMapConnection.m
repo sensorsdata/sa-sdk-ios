@@ -22,7 +22,7 @@
 #import "SAHeatMapMessage.h"
 #import "SAHeatMapSnapshotMessage.h"
 #import "SALogger.h"
-#import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAHeatMapConnection ()
 
@@ -84,12 +84,15 @@
         if (_featureCode == nil || _postUrl == nil) {
             return;
         }
-        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip withFeatuerCode:_featureCode] encoding:NSUTF8StringEncoding];
-        void (^block)(NSData*, NSURLResponse*, NSError*) = ^(NSData *data, NSURLResponse *response, NSError *error) {
-            NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
-            
+        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip featuerCode:_featureCode] encoding:NSUTF8StringEncoding];
+        NSURL *URL = [NSURL URLWithString:_postUrl];
+        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
+        [request setHTTPMethod:@"POST"];
+        [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
+        [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+        NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-            if ([urlResponse statusCode] == 200) {
+            if (response.statusCode == 200) {
                 NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
                 int delay = [[dict objectForKey:@"delay"] intValue];
@@ -97,17 +100,8 @@
                     [self close];
                 }
             }
-        };
-        
-        NSURL *URL = [NSURL URLWithString:_postUrl];
-        NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
-        [request setHTTPMethod:@"POST"];
-        [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
-        [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:
-         ^(NSURLResponse *response, NSData* data, NSError *error) {
-             return block(data, response, error);
-         }];
+        }];
+        [task resume];
 
     } else {
         SADebug(@"Not sending message as we are not connected: %@", [message debugDescription]);

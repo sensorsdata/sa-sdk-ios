@@ -69,7 +69,7 @@
     return [_payload copy];
 }
 
-- (NSData *)JSONData:(BOOL)useGzip withFeatuerCode:(NSString *)featureCode {
+- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)featureCode {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     [jsonObject setObject:_type forKey:@"type"];
     [jsonObject setObject:@"iOS" forKey:@"os"];

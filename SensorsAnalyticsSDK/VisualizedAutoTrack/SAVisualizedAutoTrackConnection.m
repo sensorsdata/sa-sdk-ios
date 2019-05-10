@@ -27,7 +27,7 @@
 #import "SAVisualizedAutoTrackMessage.h"
 #import "SAVisualizedAutoTrackSnapshotMessage.h"
 #import "SALogger.h"
-#import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAVisualizedAutoTrackConnection ()
 
@@ -94,19 +94,18 @@
         [request setHTTPMethod:@"POST"];
         [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
         [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        [NSURLConnection sendAsynchronousRequest:request queue:[NSOperationQueue mainQueue] completionHandler:^(NSURLResponse *response, NSData* data, NSError *error) {
-             NSHTTPURLResponse *urlResponse = (NSHTTPURLResponse *)response;
-             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
-             if ([urlResponse statusCode] == 200) {
-                 NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
-                 NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                 int delay = [[dict objectForKey:@"delay"] intValue];
-                 if (delay < 0) {
-                     [self close];
-                 }
-             }
-         }];
-
+        NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+            NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+            if (response.statusCode == 200) {
+                NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
+                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                int delay = [[dict objectForKey:@"delay"] intValue];
+                if (delay < 0) {
+                    [self close];
+                }
+            }
+        }];
+        [task resume];
     } else {
         SADebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
     }

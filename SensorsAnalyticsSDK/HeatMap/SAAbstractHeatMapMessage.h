@@ -35,6 +35,6 @@
 - (id)payloadObjectForKey:(NSString *)key;
 - (NSDictionary *)payload;
 
-- (NSData *)JSONData:(BOOL)useGzip withFeatuerCode:(NSString *)fetureCode;
+- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
 
 @end

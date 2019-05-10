@@ -19,6 +19,8 @@
 //
 
 #import "SAConstants.h"
+#import "SAConstants+Private.h"
+
 
 #pragma mark - event
 NSString * const SA_EVENT_TIME = @"time";
@@ -108,6 +110,9 @@ NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
 
 #pragma mark - NSUserDefaults
 NSString * const SA_SDK_TRACK_CONFIG = @"SASDKConfig";
+///保存请求远程配置的随机时间 @{@"randomTime":@double,@“startDeviceTime”:@double}
+NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTime";
+
 NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";

@@ -18,7 +18,8 @@
 //  limitations under the License.
 //
 
-#import "SAAppExtensionDataManager.h"
+#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+
 #import "ShareViewController.h"
 
 @interface ShareViewController ()

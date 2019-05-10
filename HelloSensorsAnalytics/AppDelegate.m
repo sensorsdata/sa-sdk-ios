@@ -34,8 +34,13 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
  
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
+    options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
+    options.enableTrackAppCrash = YES;
+//    options.flushInterval = 10 * 1000;
+//    options.flushBulkSize = 100;
+    options.maxCacheSize = 20000;
     [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
-
+    
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
@@ -48,23 +53,18 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
         }
         return @{@"__APPState__":@(appState)};
     }];
+    
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
-    [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppStart |
-     SensorsAnalyticsEventTypeAppEnd |
-     SensorsAnalyticsEventTypeAppClick|SensorsAnalyticsEventTypeAppViewScreen];
-    [[SensorsAnalyticsSDK sharedInstance] setMaxCacheSize:20000];
-    
-//    [[SensorsAnalyticsSDK sharedInstance] enableVisualizedAutoTrack];
-//    [[SensorsAnalyticsSDK sharedInstance] addVisualizedAutoTrackViewControllers:@[@"DemoController"]];
-//    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
-//    [[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:@[@"DemoController"]];
-    
+
+    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
-    [[SensorsAnalyticsSDK sharedInstance] trackAppCrash];
+    //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
+
     [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
+    
     return YES;
 }
 

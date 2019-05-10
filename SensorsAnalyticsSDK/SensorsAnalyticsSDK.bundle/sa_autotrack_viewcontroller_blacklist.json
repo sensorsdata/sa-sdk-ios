@@ -33,6 +33,7 @@
   "_UIActivityViewControllerContentController",
   "_UIRemoteInputViewController",
   "_UIUserDefaultsActivityNavigationController",
+  "_SFAppPasswordSavingViewController",
   "UISnapshotModalViewController",
   "WKActionSheet",
   "DDSafariViewController",

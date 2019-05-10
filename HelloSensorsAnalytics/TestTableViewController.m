@@ -40,7 +40,6 @@
     if (self.clickHeader) {
         self.clickHeader(self.tablView, self.section);
     }
-    NSLog(@"section: %@",[self performSelector:@selector(sa_section)]);
 }
 //-(NSString *)title {
 //    return @"title";

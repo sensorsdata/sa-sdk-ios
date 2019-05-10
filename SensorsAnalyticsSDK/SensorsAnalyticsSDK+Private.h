@@ -23,6 +23,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import "SANetwork.h"
 
 
 /**
@@ -37,6 +38,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 };
 
 @interface SensorsAnalyticsSDK(Private)
+
+#pragma mark - method
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /**
@@ -61,6 +64,31 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  @param trackType trackType track 类型
  */
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType;
+
+- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
+
+
+#pragma mark - property
+@property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
+
+@property (nonatomic, strong, readonly) SANetwork *network;
+
+@end
+
+
+
+/**
+ SAConfigOptions 实现
+ 私有 property
+ */
+@interface SAConfigOptions()
+
+/// 数据接收地址 serverURL
+@property(nonatomic, copy) NSString *serverURL;
+
+/// App 启动的 launchOptions
+@property(nonatomic, copy) NSDictionary *launchOptions;
+
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */
