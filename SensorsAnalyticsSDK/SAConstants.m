@@ -34,6 +34,12 @@ NSString * const SA_EVENT_LIB = @"lib";
 NSString * const SA_EVENT_PROJECT = @"project";
 NSString * const SA_EVENT_TOKEN = @"token";
 
+#pragma mark - Item
+NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
+NSString * const SA_EVENT_ITEM_ID = @"item_id";
+NSString * const SA_EVENT_ITEM_SET = @"item_set";
+NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
+
 #pragma mark - event name
 // App 启动或激活
 NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
@@ -98,7 +104,6 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
 
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
-
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";

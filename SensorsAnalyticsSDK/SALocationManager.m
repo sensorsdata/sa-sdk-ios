@@ -62,7 +62,7 @@
             SALog(@"设备尚未打开定位服务");
             return;
         }
-        if ([self.locationManager respondsToSelector:@selector(requestWhenInUseAuthorization)]) {
+        if (@available(iOS 8.0, *)) {
             [self.locationManager requestWhenInUseAuthorization];
         }
         if (_isUpdatingLocation == NO) {

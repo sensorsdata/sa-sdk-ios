@@ -23,7 +23,6 @@
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
-#import "SAAppExtensionDataManager.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -740,17 +739,36 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)deleteAll;
 
+#pragma mark Item 操作
 
+/**
+ 设置 item
+
+ @param itemType item 类型
+ @param itemId item Id
+ @param propertyDict item 相关属性
+ */
+- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict;
+
+/**
+ 删除 item
+
+ @param itemType item 类型
+ @param itemId item Id
+ */
+- (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId;
+
+
+#pragma mark - VisualizedAutoTrack
 
 /**
  * 判断是否为符合要求的 openURL
-
+ 
  * @param url 打开的 URL
  * @return YES/NO
  */
 - (BOOL)canHandleURL:(NSURL *)url;
 
-#pragma mark - VisualizedAutoTrack
 /**
  * 开启 可视化全埋点 分析，默认不开启，
  * $AppClick 事件将会采集控件的 viewPath。

@@ -239,7 +239,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
     NSString *jsonString = [self buildFlushJSONStringWithEvents:events];
     
-    __block BOOL flushSuccess;
+    __block BOOL flushSuccess = NO;
     dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {

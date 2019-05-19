@@ -1,0 +1,839 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 50;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		CB30C204228414420004061D /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D8228414420004061D /* TestViewController.m */; };
+		CB30C205228414420004061D /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController2.m */; };
+		CB30C206228414420004061D /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1DC228414420004061D /* test2.html */; };
+		CB30C207228414420004061D /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1DE228414420004061D /* TestCollectionViewController.m */; };
+		CB30C208228414420004061D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1DF228414420004061D /* ViewController.m */; };
+		CB30C209228414420004061D /* DemoController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E0228414420004061D /* DemoController.m */; };
+		CB30C20C228414420004061D /* TestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E5228414420004061D /* TestTableViewController.m */; };
+		CB30C20D228414420004061D /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E6228414420004061D /* AutoTrackViewController.m */; };
+		CB30C20E228414420004061D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E8228414420004061D /* main.m */; };
+		CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1EA228414420004061D /* JSCallOCViewController.m */; };
+		CB30C210228414420004061D /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1EB228414420004061D /* JSCallOC.html */; };
+		CB30C211228414420004061D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1EC228414420004061D /* Images.xcassets */; };
+		CB30C212228414420004061D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1EE228414420004061D /* AppDelegate.m */; };
+		CB30C213228414420004061D /* ic_test.png in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1EF228414420004061D /* ic_test.png */; };
+		CB30C219228414940004061D /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D5228414420004061D /* AppDelegate.swift */; };
+		CB30C21A228414940004061D /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1CE228414420004061D /* ViewController.swift */; };
+		CB30C2222284165A0004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
+		CB30C2332284173B0004061D /* SensorsDataExtention.appex in Embed App Extensions */ = {isa = PBXBuildFile; fileRef = CB30C2282284173B0004061D /* SensorsDataExtention.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		CB30C241228418000004061D /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C239228418000004061D /* MainInterface.storyboard */; };
+		CB30C242228418000004061D /* ShareViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C23B228418000004061D /* ShareViewController.m */; };
+		CB30C246228421C60004061D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E3228414420004061D /* Main.storyboard */; };
+		CB30C247228421C60004061D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E1228414420004061D /* LaunchScreen.xib */; };
+		CB30C249228421E80004061D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C248228421E80004061D /* Foundation.framework */; };
+		CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24A228421F60004061D /* QuartzCore.framework */; };
+		CB30C24D228422090004061D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24C228422090004061D /* CoreGraphics.framework */; };
+		CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24E228422190004061D /* CoreFoundation.framework */; };
+		CB30C251228422210004061D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C250228422210004061D /* CFNetwork.framework */; };
+		CB30C2532284222D0004061D /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2522284222D0004061D /* CoreMotion.framework */; };
+		CB30C2552284223B0004061D /* CoreLocation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2542284223B0004061D /* CoreLocation.framework */; };
+		CB30C2572284225E0004061D /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2562284225D0004061D /* Security.framework */; };
+		CB30C259228422650004061D /* CoreTelephony.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C258228422650004061D /* CoreTelephony.framework */; };
+		CB30C25B2284226D0004061D /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25A2284226D0004061D /* SystemConfiguration.framework */; };
+		CB30C25D228422730004061D /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25C228422730004061D /* UIKit.framework */; };
+		CB30C25F2284227C0004061D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25E2284227C0004061D /* libz.tbd */; };
+		CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C260228422830004061D /* libsqlite3.tbd */; };
+		CB30C269228422B40004061D /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C268228422B40004061D /* SafariServices.framework */; };
+		CB30C26A228423080004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
+		CB30C26B2284230F0004061D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25E2284227C0004061D /* libz.tbd */; };
+		CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */; };
+		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
+		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
+		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
+		CB6EBB5922857161003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		CB30C2312284173B0004061D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = CB30C0B02284115D0004061D /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = CB30C2272284173B0004061D;
+			remoteInfo = SensorsDataExtention;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		CB30C21F228415E40004061D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C2372284173B0004061D /* Embed App Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				CB30C2332284173B0004061D /* SensorsDataExtention.appex in Embed App Extensions */,
+			);
+			name = "Embed App Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C267228422A70004061D /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB30C18C2284140E0004061D /* SensorsDataSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB30C1CE228414420004061D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
+		CB30C1CF228414420004061D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		CB30C1D1228414420004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		CB30C1D3228414420004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CB30C1D5228414420004061D /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		CB30C1D6228414420004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB30C1D8228414420004061D /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
+		CB30C1D9228414420004061D /* JSCallOCViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController2.m; sourceTree = "<group>"; };
+		CB30C1DA228414420004061D /* AutoTrackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackViewController.h; sourceTree = "<group>"; };
+		CB30C1DB228414420004061D /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
+		CB30C1DC228414420004061D /* test2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test2.html; sourceTree = "<group>"; };
+		CB30C1DD228414420004061D /* JSCallOCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController.h; sourceTree = "<group>"; };
+		CB30C1DE228414420004061D /* TestCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
+		CB30C1DF228414420004061D /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		CB30C1E0228414420004061D /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
+		CB30C1E2228414420004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
+		CB30C1E4228414420004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
+		CB30C1E5228414420004061D /* TestTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestTableViewController.m; sourceTree = "<group>"; };
+		CB30C1E6228414420004061D /* AutoTrackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackViewController.m; sourceTree = "<group>"; };
+		CB30C1E7228414420004061D /* JSCallOCViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController2.h; sourceTree = "<group>"; };
+		CB30C1E8228414420004061D /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		CB30C1E9228414420004061D /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
+		CB30C1EA228414420004061D /* JSCallOCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController.m; sourceTree = "<group>"; };
+		CB30C1EB228414420004061D /* JSCallOC.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = JSCallOC.html; sourceTree = "<group>"; };
+		CB30C1EC228414420004061D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
+		CB30C1ED228414420004061D /* SensorsData.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SensorsData.entitlements; sourceTree = "<group>"; };
+		CB30C1EE228414420004061D /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
+		CB30C1EF228414420004061D /* ic_test.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = ic_test.png; sourceTree = "<group>"; };
+		CB30C1F0228414420004061D /* TestCollectionViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestCollectionViewController.h; sourceTree = "<group>"; };
+		CB30C1F1228414420004061D /* TestTableViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestTableViewController.h; sourceTree = "<group>"; };
+		CB30C1F2228414420004061D /* DemoController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DemoController.h; sourceTree = "<group>"; };
+		CB30C1F3228414420004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB30C1F4228414420004061D /* ViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
+		CB30C2212284165A0004061D /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
+		CB30C223228416640004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-hhqmjeoyzfdasagvypdnnkywlofx/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
+		CB30C2282284173B0004061D /* SensorsDataExtention.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SensorsDataExtention.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB30C23A228418000004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = MainInterface.storyboard; sourceTree = "<group>"; };
+		CB30C23B228418000004061D /* ShareViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ShareViewController.m; sourceTree = "<group>"; };
+		CB30C23C228418000004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		CB30C23D228418000004061D /* ShareViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ShareViewController.h; sourceTree = "<group>"; };
+		CB30C240228418000004061D /* SensorsDataExtention.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SensorsDataExtention.entitlements; sourceTree = "<group>"; };
+		CB30C248228421E80004061D /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		CB30C24A228421F60004061D /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		CB30C24C228422090004061D /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		CB30C24E228422190004061D /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
+		CB30C250228422210004061D /* CFNetwork.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CFNetwork.framework; path = System/Library/Frameworks/CFNetwork.framework; sourceTree = SDKROOT; };
+		CB30C2522284222D0004061D /* CoreMotion.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMotion.framework; path = System/Library/Frameworks/CoreMotion.framework; sourceTree = SDKROOT; };
+		CB30C2542284223B0004061D /* CoreLocation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreLocation.framework; path = System/Library/Frameworks/CoreLocation.framework; sourceTree = SDKROOT; };
+		CB30C2562284225D0004061D /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
+		CB30C258228422650004061D /* CoreTelephony.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreTelephony.framework; path = System/Library/Frameworks/CoreTelephony.framework; sourceTree = SDKROOT; };
+		CB30C25A2284226D0004061D /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		CB30C25C228422730004061D /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		CB30C25E2284227C0004061D /* libz.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libz.tbd; path = usr/lib/libz.tbd; sourceTree = SDKROOT; };
+		CB30C260228422830004061D /* libsqlite3.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.tbd; path = usr/lib/libsqlite3.tbd; sourceTree = SDKROOT; };
+		CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB30C268228422B40004061D /* SafariServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SafariServices.framework; path = System/Library/Frameworks/SafariServices.framework; sourceTree = SDKROOT; };
+		CB30C285228424430004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-hhqmjeoyzfdasagvypdnnkywlofx/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
+		CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		CB6EBB5622857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
+		CB6EBB5722857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
+		CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		CB30C159228413B20004061D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */,
+				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
+				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
+				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
+				CB30C25B2284226D0004061D /* SystemConfiguration.framework in Frameworks */,
+				CB30C259228422650004061D /* CoreTelephony.framework in Frameworks */,
+				CB30C2572284225E0004061D /* Security.framework in Frameworks */,
+				CB30C2552284223B0004061D /* CoreLocation.framework in Frameworks */,
+				CB30C2532284222D0004061D /* CoreMotion.framework in Frameworks */,
+				CB30C251228422210004061D /* CFNetwork.framework in Frameworks */,
+				CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */,
+				CB30C24D228422090004061D /* CoreGraphics.framework in Frameworks */,
+				CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */,
+				CB30C249228421E80004061D /* Foundation.framework in Frameworks */,
+				CB30C2222284165A0004061D /* WebKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C1892284140E0004061D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB6EBB5922857161003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */,
+				CB30C26B2284230F0004061D /* libz.tbd in Frameworks */,
+				CB30C26A228423080004061D /* WebKit.framework in Frameworks */,
+				CB30C269228422B40004061D /* SafariServices.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C2252284173B0004061D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		CB30C0AF2284115D0004061D = {
+			isa = PBXGroup;
+			children = (
+				CB30C1D7228414420004061D /* SensorsData */,
+				CB30C1CD228414420004061D /* SensorsDataSwift */,
+				CB30C2292284173B0004061D /* SensorsDataExtention */,
+				CB30C0B92284115D0004061D /* Products */,
+				CB30C2202284165A0004061D /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		CB30C0B92284115D0004061D /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C15C228413B20004061D /* SensorsData.app */,
+				CB30C18C2284140E0004061D /* SensorsDataSwift.app */,
+				CB30C2282284173B0004061D /* SensorsDataExtention.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		CB30C1CD228414420004061D /* SensorsDataSwift */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C1D5228414420004061D /* AppDelegate.swift */,
+				CB30C1CE228414420004061D /* ViewController.swift */,
+				CB30C1D2228414420004061D /* Main.storyboard */,
+				CB30C1CF228414420004061D /* Assets.xcassets */,
+				CB30C1D0228414420004061D /* LaunchScreen.storyboard */,
+				CB30C1D6228414420004061D /* Info.plist */,
+			);
+			path = SensorsDataSwift;
+			sourceTree = "<group>";
+		};
+		CB30C1D7228414420004061D /* SensorsData */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C1DB228414420004061D /* AppDelegate.h */,
+				CB30C1EE228414420004061D /* AppDelegate.m */,
+				CB30C1F4228414420004061D /* ViewController.h */,
+				CB30C1DF228414420004061D /* ViewController.m */,
+				CB30C1F2228414420004061D /* DemoController.h */,
+				CB30C1E0228414420004061D /* DemoController.m */,
+				CB30C1DD228414420004061D /* JSCallOCViewController.h */,
+				CB30C1EA228414420004061D /* JSCallOCViewController.m */,
+				CB30C1E7228414420004061D /* JSCallOCViewController2.h */,
+				CB30C1D9228414420004061D /* JSCallOCViewController2.m */,
+				CB30C1DA228414420004061D /* AutoTrackViewController.h */,
+				CB30C1E6228414420004061D /* AutoTrackViewController.m */,
+				CB30C1F0228414420004061D /* TestCollectionViewController.h */,
+				CB30C1DE228414420004061D /* TestCollectionViewController.m */,
+				CB30C1F1228414420004061D /* TestTableViewController.h */,
+				CB30C1E5228414420004061D /* TestTableViewController.m */,
+				CB30C1E9228414420004061D /* TestViewController.h */,
+				CB30C1D8228414420004061D /* TestViewController.m */,
+				CB30C1E3228414420004061D /* Main.storyboard */,
+				CB30C21B2284150E0004061D /* Supporting Files */,
+			);
+			path = SensorsData;
+			sourceTree = "<group>";
+		};
+		CB30C21B2284150E0004061D /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C1EC228414420004061D /* Images.xcassets */,
+				CB30C1E1228414420004061D /* LaunchScreen.xib */,
+				CB30C1ED228414420004061D /* SensorsData.entitlements */,
+				CB30C1DC228414420004061D /* test2.html */,
+				CB30C1EF228414420004061D /* ic_test.png */,
+				CB30C1EB228414420004061D /* JSCallOC.html */,
+				CB30C1F3228414420004061D /* Info.plist */,
+				CB30C1E8228414420004061D /* main.m */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		CB30C2202284165A0004061D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */,
+				CB6EBB5722857145003CFBA8 /* SensorsAnalyticsSDK.framework */,
+				CB6EBB5622857145003CFBA8 /* SensorsAnalyticsSDK.framework */,
+				CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */,
+				CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */,
+				CB30C285228424430004061D /* SensorsAnalyticsSDK.framework */,
+				CB30C268228422B40004061D /* SafariServices.framework */,
+				CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */,
+				CB30C260228422830004061D /* libsqlite3.tbd */,
+				CB30C25E2284227C0004061D /* libz.tbd */,
+				CB30C25C228422730004061D /* UIKit.framework */,
+				CB30C25A2284226D0004061D /* SystemConfiguration.framework */,
+				CB30C258228422650004061D /* CoreTelephony.framework */,
+				CB30C2562284225D0004061D /* Security.framework */,
+				CB30C2542284223B0004061D /* CoreLocation.framework */,
+				CB30C2522284222D0004061D /* CoreMotion.framework */,
+				CB30C250228422210004061D /* CFNetwork.framework */,
+				CB30C24E228422190004061D /* CoreFoundation.framework */,
+				CB30C24C228422090004061D /* CoreGraphics.framework */,
+				CB30C24A228421F60004061D /* QuartzCore.framework */,
+				CB30C248228421E80004061D /* Foundation.framework */,
+				CB30C223228416640004061D /* SensorsAnalyticsSDK.framework */,
+				CB30C2212284165A0004061D /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		CB30C2292284173B0004061D /* SensorsDataExtention */ = {
+			isa = PBXGroup;
+			children = (
+				CB30C240228418000004061D /* SensorsDataExtention.entitlements */,
+				CB30C23D228418000004061D /* ShareViewController.h */,
+				CB30C23B228418000004061D /* ShareViewController.m */,
+				CB30C239228418000004061D /* MainInterface.storyboard */,
+				CB30C23C228418000004061D /* Info.plist */,
+			);
+			path = SensorsDataExtention;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		CB30C15B228413B20004061D /* SensorsData */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB30C16F228413B30004061D /* Build configuration list for PBXNativeTarget "SensorsData" */;
+			buildPhases = (
+				CB30C158228413B20004061D /* Sources */,
+				CB30C159228413B20004061D /* Frameworks */,
+				CB30C15A228413B20004061D /* Resources */,
+				CB30C21F228415E40004061D /* Embed Frameworks */,
+				CB30C2372284173B0004061D /* Embed App Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				CB30C2322284173B0004061D /* PBXTargetDependency */,
+			);
+			name = SensorsData;
+			productName = HelloSensorsAnalytics;
+			productReference = CB30C15C228413B20004061D /* SensorsData.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CB30C18B2284140E0004061D /* SensorsDataSwift */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB30C19B2284140F0004061D /* Build configuration list for PBXNativeTarget "SensorsDataSwift" */;
+			buildPhases = (
+				CB30C1882284140E0004061D /* Sources */,
+				CB30C1892284140E0004061D /* Frameworks */,
+				CB30C18A2284140E0004061D /* Resources */,
+				CB30C267228422A70004061D /* Embed Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SensorsDataSwift;
+			productName = SensorsDataSwiftDemo;
+			productReference = CB30C18C2284140E0004061D /* SensorsDataSwift.app */;
+			productType = "com.apple.product-type.application";
+		};
+		CB30C2272284173B0004061D /* SensorsDataExtention */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = CB30C2342284173B0004061D /* Build configuration list for PBXNativeTarget "SensorsDataExtention" */;
+			buildPhases = (
+				CB30C2242284173B0004061D /* Sources */,
+				CB30C2252284173B0004061D /* Frameworks */,
+				CB30C2262284173B0004061D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SensorsDataExtention;
+			productName = SensorsDataExtention;
+			productReference = CB30C2282284173B0004061D /* SensorsDataExtention.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		CB30C0B02284115D0004061D /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1020;
+				LastUpgradeCheck = 1020;
+				ORGANIZATIONNAME = SensorsData;
+				TargetAttributes = {
+					CB30C15B228413B20004061D = {
+						CreatedOnToolsVersion = 10.2.1;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+					CB30C18B2284140E0004061D = {
+						CreatedOnToolsVersion = 10.2.1;
+					};
+					CB30C2272284173B0004061D = {
+						CreatedOnToolsVersion = 10.2.1;
+						SystemCapabilities = {
+							com.apple.ApplicationGroups.iOS = {
+								enabled = 1;
+							};
+						};
+					};
+				};
+			};
+			buildConfigurationList = CB30C0B32284115D0004061D /* Build configuration list for PBXProject "Example" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+				global,
+			);
+			mainGroup = CB30C0AF2284115D0004061D;
+			productRefGroup = CB30C0B92284115D0004061D /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				CB30C15B228413B20004061D /* SensorsData */,
+				CB30C18B2284140E0004061D /* SensorsDataSwift */,
+				CB30C2272284173B0004061D /* SensorsDataExtention */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		CB30C15A228413B20004061D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C246228421C60004061D /* Main.storyboard in Resources */,
+				CB30C247228421C60004061D /* LaunchScreen.xib in Resources */,
+				CB30C211228414420004061D /* Images.xcassets in Resources */,
+				CB30C213228414420004061D /* ic_test.png in Resources */,
+				CB30C210228414420004061D /* JSCallOC.html in Resources */,
+				CB30C206228414420004061D /* test2.html in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C18A2284140E0004061D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */,
+				CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C2262284173B0004061D /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C241228418000004061D /* MainInterface.storyboard in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		CB30C158228413B20004061D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C20E228414420004061D /* main.m in Sources */,
+				CB30C20D228414420004061D /* AutoTrackViewController.m in Sources */,
+				CB30C208228414420004061D /* ViewController.m in Sources */,
+				CB30C205228414420004061D /* JSCallOCViewController2.m in Sources */,
+				CB30C209228414420004061D /* DemoController.m in Sources */,
+				CB30C20C228414420004061D /* TestTableViewController.m in Sources */,
+				CB30C207228414420004061D /* TestCollectionViewController.m in Sources */,
+				CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */,
+				CB30C212228414420004061D /* AppDelegate.m in Sources */,
+				CB30C204228414420004061D /* TestViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C1882284140E0004061D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C219228414940004061D /* AppDelegate.swift in Sources */,
+				CB30C21A228414940004061D /* ViewController.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		CB30C2242284173B0004061D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CB30C242228418000004061D /* ShareViewController.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		CB30C2322284173B0004061D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = CB30C2272284173B0004061D /* SensorsDataExtention */;
+			targetProxy = CB30C2312284173B0004061D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		CB30C1D0228414420004061D /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C1D1228414420004061D /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		CB30C1D2228414420004061D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C1D3228414420004061D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		CB30C1E1228414420004061D /* LaunchScreen.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C1E2228414420004061D /* Base */,
+			);
+			name = LaunchScreen.xib;
+			sourceTree = "<group>";
+		};
+		CB30C1E3228414420004061D /* Main.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C1E4228414420004061D /* Base */,
+			);
+			name = Main.storyboard;
+			sourceTree = "<group>";
+		};
+		CB30C239228418000004061D /* MainInterface.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				CB30C23A228418000004061D /* Base */,
+			);
+			name = MainInterface.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		CB30C0CC2284115F0004061D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+			};
+			name = Debug;
+		};
+		CB30C0CD2284115F0004061D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		CB30C170228413B30004061D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = SensorsData/SensorsData.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = "$(SRCROOT)/SensorsData/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsData;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CB30C171228413B30004061D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
+				CODE_SIGN_ENTITLEMENTS = SensorsData/SensorsData.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = "$(SRCROOT)/SensorsData/Info.plist";
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsData;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CB30C19C2284140F0004061D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = SensorsDataSwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsDataSwift;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CB30C19D2284140F0004061D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = SensorsDataSwift/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsDataSwift;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 4.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		CB30C2352284173B0004061D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SensorsDataExtention/SensorsDataExtention.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = SensorsDataExtention/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsData.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		CB30C2362284173B0004061D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SensorsDataExtention/SensorsDataExtention.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = 75FYWDWHL5;
+				INFOPLIST_FILE = SensorsDataExtention/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsData.share;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		CB30C0B32284115D0004061D /* Build configuration list for PBXProject "Example" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB30C0CC2284115F0004061D /* Debug */,
+				CB30C0CD2284115F0004061D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB30C16F228413B30004061D /* Build configuration list for PBXNativeTarget "SensorsData" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB30C170228413B30004061D /* Debug */,
+				CB30C171228413B30004061D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB30C19B2284140F0004061D /* Build configuration list for PBXNativeTarget "SensorsDataSwift" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB30C19C2284140F0004061D /* Debug */,
+				CB30C19D2284140F0004061D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		CB30C2342284173B0004061D /* Build configuration list for PBXNativeTarget "SensorsDataExtention" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				CB30C2352284173B0004061D /* Debug */,
+				CB30C2362284173B0004061D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = CB30C0B02284115D0004061D /* Project object */;
+}

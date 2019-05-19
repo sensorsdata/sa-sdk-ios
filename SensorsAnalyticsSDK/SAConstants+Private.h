@@ -34,6 +34,12 @@ extern NSString * const SA_EVENT_LIB;
 extern NSString * const SA_EVENT_PROJECT;
 extern NSString * const SA_EVENT_TOKEN;
 
+#pragma mark - Item
+extern NSString * const SA_EVENT_ITEM_TYPE;
+extern NSString * const SA_EVENT_ITEM_ID;
+extern NSString * const SA_EVENT_ITEM_SET;
+extern NSString * const SA_EVENT_ITEM_DELETE;
+
 #pragma mark--evnet nanme
 
 // App 启动或激活
