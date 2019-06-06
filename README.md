@@ -41,14 +41,14 @@ SensorsAnalyticsSDK supports multiple methods for installing the library in a pr
 ## 新书推荐
 神策数据出品的[《Android 全埋点解决方案》](https://u.jd.com/2JFaeG)发售啦！！!
 
-[![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/raw/master/screenshots/android_autotrack_book.png)](https://u.jd.com/2JFaeG)
+[![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/blob/master/docs/android_autotrack_book.jpg)](https://u.jd.com/2JFaeG)
 
 ## To learn more
 
 See our [full manual](http://www.sensorsdata.cn/manual/ios_sdk.html)
 
 或者加入 QQ 讨论群：<br>
-![ QQ 讨论群](https://github.com/sensorsdata/sa-sdk-android/raw/master/screenshots/qrCode.jpeg)
+![ QQ 讨论群](https://github.com/sensorsdata/sa-sdk-android/blob/master/docs/qrCode.jpeg)
 
 ## 感谢
 [mixpanel-iphone](https://github.com/mixpanel/mixpanel-iphone) 
