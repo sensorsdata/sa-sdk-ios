@@ -19,15 +19,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 
-@interface AutoTrackViewController : UIViewController<SAUIViewAutoTrackDelegate>
-- (IBAction)onButton1Click:(id)sender;
-@property (weak, nonatomic) IBOutlet UIButton *myButton1;
-@property (weak, nonatomic) IBOutlet UILabel *myLabel;
-@property (weak, nonatomic) IBOutlet UISwitch *myUISwitch;
-- (IBAction)segmentOnClick:(id)sender;
-@property (weak, nonatomic) IBOutlet UIImageView *imageView;
-@property (weak, nonatomic) IBOutlet UISegmentedControl *segmentedControl;
+@interface AutoTrackViewController : UIViewController
+
 
 @end

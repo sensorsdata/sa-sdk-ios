@@ -42,10 +42,6 @@
     return @"WoShiYiGeURL";
 }
 
-- (NSDictionary*)sa_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
-    return @{@"test": @"test"};
-}
-
 - (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex {
     
 }
@@ -88,6 +84,10 @@
 
 - (void)testCodeless {
     
+}
+
+- (NSDictionary *)sensorsAnalytics_tableView:(UITableView *)tableView autoTrackPropertiesAtIndexPath:(NSIndexPath *)indexPath {
+    return @{@"sensorsDelegatePath":[NSString stringWithFormat:@"tableView:%ld-%ld",(long)indexPath.section,(long)indexPath.row]};
 }
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {

@@ -1,57 +1,51 @@
-# Sensors Analytics
+![logo](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/logo.png)
+<br><br>
+[![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/blob/master/LICENSE)
+[![GitHub release](https://img.shields.io/github/tag/sensorsdata/sa-sdk-ios.svg?label=release)](https://github.com/sensorsdata/sa-sdk-ios/releases)
+[![GitHub release date](https://img.shields.io/github/release-date/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/releases)
+[![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)
+[![CocoaPods Compatible](https://img.shields.io/cocoapods/v/SensorsAnalyticsSDK.svg)](https://img.shields.io/cocoapods/v/SensorsAnalyticsSDK.svg)
+[![Platform](https://img.shields.io/cocoapods/p/SensorsAnalyticsSDK.svg?style=flat)](http://cocoadocs.org/docsets/SensorsAnalyticsSDK)
 
-This is the official iOS SDK for Sensors Analytics.
+## 神策简介
 
-## Installation
-
-SensorsAnalyticsSDK supports multiple methods for installing the library in a project.
-
-### Installation with CocoaPods
-
-
-1. Install [CocosPod](http://cocoapods.org/)
-
-2. Create a file named `Podfile` in your Xcode project and add the following line:
-
-   ```ruby
-   pod 'SensorsAnalyticsSDK'
-   ```
-
-3. Run `pod install` in the Xcode project directory and restart XCode.
+[**神策数据**](https://www.sensorsdata.cn/)
+（Sensors Data），隶属于神策网络科技（北京）有限公司，是一家专业的大数据分析服务公司，大数据分析行业开拓者，为客户提供深度用户行为分析平台、以及专业的咨询服务和行业解决方案，致力于帮助客户实现数据驱动。神策数据立足大数据及用户行为分析的技术与实践前沿，业务现已覆盖以互联网、金融、零售快消、高科技、制造等为代表的十多个主要行业、并可支持企业多个职能部门。公司总部在北京，并在上海、深圳、合肥、武汉等地拥有本地化的服务团队，覆盖东区及南区市场；公司拥有专业的服务团队，为客户提供一对一的客户服务。公司在大数据领域积累的核心关键技术，包括在海量数据采集、存储、清洗、分析挖掘、可视化、智能应用、安全与隐私保护等领域。 [**More**](https://www.sensorsdata.cn/about/aboutus.html)
 
 
+## SDK 简介
 
-### Installation with Carthage
+SensorsAnalytics SDK 是国内第一家，也是目前唯一的开源商用版用户行为采集 SDK，目前支持代码埋点、全埋点、App 点击图、可视化全埋点等。其采集全面而灵活、性能良好，并一直优化更新。目前有 600 多家付费客户，1500+ 的 App 集成了 SensorsAnalytics SDK，使用它作为 App 数据采集利器，帮助其精准运营和支撑业务发展，其稳定和功能，经过了客户选择和时间的验证。
 
-1. You can install Carthage with [Homebrew](http://brew.sh/) using the following command:
+## 集成文档
 
-   ```shell
-   $ brew update
-   $ brew install carthage
-   ```
+请参考神策官网 [iOS SDK 集成文档](http://www.sensorsdata.cn/manual/ios_sdk.html)。
 
-2. Add in `github "sensorsdata/sa-sdk-ios"`  for your Cartfile.
 
-3. Run `carthage update --platform ios` and add the `SensorsAnalyticsSDK.framework` to your project.
+## 贡献
 
-4. `import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>`
+我们欢迎并非常感谢您的贡献。有关提交代码和贡献工作流的详细信息，可参考 [CONTRIBUTING.md](CONTRIBUTING.md)。
 
-   
+## 规划
+
+可参考 [ROADMAP](ROADMAP.md).
+
+## 讨论
+
+可加入神策官方 SDK QQ 讨论群：<br><br>
+![ QQ 讨论群](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/qrCode.jpeg)
 
 ## 新书推荐
-神策数据出品的[《Android 全埋点解决方案》](https://u.jd.com/2JFaeG)发售啦！！!
 
-[![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/blob/master/docs/android_autotrack_book.jpg)](https://u.jd.com/2JFaeG)
+| 《数据驱动：从方法到实践》 | 《Android 全埋点解决方案》 |
+| ------ | ------ |
+| [![《数据驱动：从方法到实践》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/data_driven_book.jpg)](https://u.jd.com/dWkE2x) | [![《Android 全埋点解决方案》](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/android_autotrack_book.jpg)](https://u.jd.com/2JFaeG) |
 
-## To learn more
-
-See our [full manual](http://www.sensorsdata.cn/manual/ios_sdk.html)
-
-或者加入 QQ 讨论群：<br>
-![ QQ 讨论群](https://github.com/sensorsdata/sa-sdk-android/blob/master/docs/qrCode.jpeg)
 
 ## 感谢
-[mixpanel-iphone](https://github.com/mixpanel/mixpanel-iphone) 
+- [mixpanel-iphone](https://github.com/mixpanel/mixpanel-iphone) 
+- [TiDB](https://github.com/pingcap/tidb) 
+- [Knight-ZXW](https://github.com/Knight-ZXW)
 
 ## License
 
@@ -69,4 +63,4 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 
-**禁止一切基于神策数据开源 SDK 的所有商业活动！**
+**同时，我们禁止一切基于神策数据开源 SDK 的商业活动！**

@@ -111,6 +111,8 @@ extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE;
 
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
+extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
+extern long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
@@ -126,3 +128,9 @@ extern NSString * const SA_REQUEST_REMOTECONFIG_TIME;
 extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
+
+
+#pragma mark - safe sync
+void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block);
+
+void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);

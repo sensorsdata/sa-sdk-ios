@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SAUIViewAutoTrackDelegate
+@protocol SAUIViewAutoTrackDelegate <NSObject>
 
 //UITableView
 @optional
@@ -52,7 +52,7 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIView (SensorsAnalytics)
-- (nullable UIViewController *)sensorsAnalyticsViewController;
+- (nullable UIViewController *)sensorsAnalyticsViewController __attribute__((deprecated("已过时")));
 
 /// viewID
 @property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
@@ -66,7 +66,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// AutoTrack 时，View 的扩展属性
 @property (nonatomic, strong) NSDictionary* sensorsAnalyticsViewProperties;
 
-@property (nonatomic, weak, nullable) id sensorsAnalyticsDelegate;
+@property (nonatomic, weak, nullable) id<SAUIViewAutoTrackDelegate> sensorsAnalyticsDelegate;
 @end
 
 
@@ -78,14 +78,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 属性的约束请参考 track:withProperties:
  */
-@protocol SAAutoTracker
+@protocol SAAutoTracker <NSObject>
 
 @required
 - (NSDictionary *)getTrackProperties;
 
 @end
 
-@protocol SAScreenAutoTracker<SAAutoTracker>
+@protocol SAScreenAutoTracker <SAAutoTracker>
 
 @required
 - (NSString *)getScreenUrl;
@@ -371,16 +371,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewController UIViewController
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewController;
-
-/**
- * @abstract
  * 设置是否显示 debugInfoView，对于 iOS，是 UIAlertView／UIAlertController
  *
  * @discussion
@@ -406,106 +396,68 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)identify:(NSString *)anonymousId;
 
-#pragma mark - track event
+#pragma mark - trackTimer
 /**
- * @abstract
- * 调用 track 接口，追踪一个带有属性的 event
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * @param event             event的名称
- * @param propertyDict     event的属性
- */
-- (void)track:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 调用 track 接口，追踪一个无私有属性的 event
- *
- * @param event event 的名称
- */
-- (void)track:(NSString *)event;
-
-/**
- * @abstract
- * 设置 Cookie
- *
- * @param cookie NSString cookie
- * @param encode BOOL 是否 encode
- */
-- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
-
-/**
- * @abstract
- * 返回已设置的 Cookie
- *
- * @param decode BOOL 是否 decode
- * @return NSString cookie
- */
-- (NSString *)getCookieWithDecode:(BOOL)decode;
-
-/**
- * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event 的名称
- */
-- (void)trackTimer:(NSString *)event;
-
-/**
- * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 时间单位为秒，若需要以其他时间单位统计时长
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event 的名称
+ 开始事件计时
+ 
+ @discussion
+ 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ 送事件；随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ 间记录在事件属性 "event_duration" 中，时间单位为秒。
+ 
+ @param event 事件名称
  */
 - (void)trackTimerStart:(NSString *)event;
 
 /**
- * @abstract
- * 初始化事件的计时器，允许用户指定计时单位。
- *
- * @discussion
- * 请参考 trackTimer
- *
- * @param event             event 的名称
- * @param timeUnit          计时单位，毫秒/秒/分钟/小时
- */
-- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit;
+ 结束事件计时
 
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+ 
+ @param event 事件名称
+ @param propertyDict 自定义属性
+ */
 - (void)trackTimerEnd:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
+/**
+ 结束事件计时
+ 
+ @discussion
+ 多次调用 trackTimerEnd: 时，以首次调用为准
+ 
+ @param event 事件名称
+ */
 - (void)trackTimerEnd:(NSString *)event;
 
-- (UIViewController *_Nullable)currentViewController;
+/**
+ 暂停事件计时
+
+ @discussion
+ 多次调用 trackTimerPause: 时，以首次调用为准。
+ 
+ @param event 事件名
+ */
+- (void)trackTimerPause:(NSString *)event;
 
 /**
- * @abstract
- * 清除所有事件计时器
+ 恢复事件计时
+
+ @discussion
+ 多次调用 trackTimerResume: 时，以首次调用为准。
+ 
+ @param event 事件名
+ */
+- (void)trackTimerResume:(NSString *)event;
+
+/**
+ 清除所有事件计时器
  */
 - (void)clearTrackTimer;
 
+- (UIViewController *_Nullable)currentViewController;
+
+#pragma mark trackInstallation
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
@@ -552,6 +504,48 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event             event 的名称
  */
 - (void)trackInstallation:(NSString *)event;
+
+#pragma mark track event
+/**
+ * @abstract
+ * 调用 track 接口，追踪一个带有属性的 event
+ *
+ * @discussion
+ * propertyDict 是一个 Map。
+ * 其中的 key 是 Property 的名称，必须是 NSString
+ * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
+ * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
+ *
+ * @param event             event的名称
+ * @param propertyDict     event的属性
+ */
+- (void)track:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
+
+/**
+ * @abstract
+ * 调用 track 接口，追踪一个无私有属性的 event
+ *
+ * @param event event 的名称
+ */
+- (void)track:(NSString *)event;
+
+/**
+ * @abstract
+ * 设置 Cookie
+ *
+ * @param cookie NSString cookie
+ * @param encode BOOL 是否 encode
+ */
+- (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode;
+
+/**
+ * @abstract
+ * 返回已设置的 Cookie
+ *
+ * @param decode BOOL 是否 decode
+ * @return NSString cookie
+ */
+- (NSString *)getCookieWithDecode:(BOOL)decode;
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo;
 
@@ -1180,7 +1174,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
 
 /**
  * @abstract
@@ -1189,6 +1183,16 @@ NS_ASSUME_NONNULL_BEGIN
  * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
  */
 - (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+
+/**
+ * @abstract
+ * 判断某个 ViewController 是否被忽略
+ *
+ * @param viewControllerClassName UIViewController 类名
+ *
+ * @return YES:被忽略; NO:没有被忽略
+ */
+- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName __attribute__((deprecated("已过时，请参考 -(BOOL)isViewControllerIgnored:(UIViewController *)viewController")));
 
 /**
  * @abstract
@@ -1242,7 +1246,34 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
+/**
+ * @abstract
+ * 初始化事件的计时器。
+ *
+ * @discussion
+ * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
+ * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
+ * 间记录在事件属性 "event_duration" 中。
+ *
+ * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
+ *
+ * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
+ *
+ * @param event             event 的名称
+ */
+- (void)trackTimer:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
+/**
+ * @abstract
+ * 初始化事件的计时器，允许用户指定计时单位。
+ *
+ * @discussion
+ * 请参考 trackTimer
+ *
+ * @param event             event 的名称
+ * @param timeUnit          计时单位，毫秒/秒/分钟/小时
+ */
+- (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 #pragma mark- heatMap
 /**
  * @abstract

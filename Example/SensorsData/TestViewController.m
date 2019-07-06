@@ -29,6 +29,10 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    self.title = @"Test";
+    
+    self.view.backgroundColor = [UIColor whiteColor];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -45,6 +49,10 @@
     // Pass the selected object to the new view controller.
 }
 */
+
+- (IBAction)onControlClick:(id)sender {
+    NSLog(@"****:onControlClick");
+}
 
 - (IBAction)onButtonClick:(id)sender {
     NSLog(@"****:onButtonClick");

@@ -19,11 +19,18 @@
 //
 
 #import "AutoTrackViewController.h"
+#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import "TestViewController.h"
 
-@interface AutoTrackViewController ()
-{
-    __strong UIGestureRecognizer *_labelTapGestureRecognizer;
-}
+@interface AutoTrackViewController ()<SAUIViewAutoTrackDelegate>
+
+@property (weak, nonatomic) IBOutlet UIButton *myButton1;
+@property (weak, nonatomic) IBOutlet UILabel *myLabel;
+@property (weak, nonatomic) IBOutlet UITextField *textField;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (weak, nonatomic) IBOutlet UISwitch *myUISwitch;
+@property (weak, nonatomic) IBOutlet UIImageView *imageView;
+@property (weak, nonatomic) IBOutlet UISegmentedControl *segmentedControl;
 @end
 
 @implementation AutoTrackViewController
@@ -31,36 +38,42 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    _myLabel.userInteractionEnabled = YES;
-    UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
-    
-    [_myLabel addGestureRecognizer:labelTapGestureRecognizer];
-    _labelTapGestureRecognizer = labelTapGestureRecognizer;
-    UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
-    _imageView.userInteractionEnabled = YES;
-    [_imageView addGestureRecognizer:imageViewTapGestureRecognizer];
-    
-    [_myUISwitch addTarget:self action:@selector(picSwitchClick:) forControlEvents:UIControlEventTouchUpInside];
-    
-    _myButton1.sensorsAnalyticsDelegate = self;
-    [_myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"button1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}] forState:UIControlStateNormal];
-     [_myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"label1" attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:13],NSForegroundColorAttributeName:[UIColor redColor]}]];
-    UIStepper *stepper = [[UIStepper alloc]initWithFrame:CGRectMake(0, 600, 200, 40)];
-    [stepper addTarget:self action:@selector(stepperOnClick:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:stepper];
-    
-    UISlider *slider = [[UISlider alloc]initWithFrame:CGRectMake(220, 600, 100, 40)];
-    [slider addTarget:self action:@selector(stepperOnClick:) forControlEvents:UIControlEventValueChanged];
-    [self.view addSubview:slider];
 
-    [_segmentedControl insertSegmentWithTitle:@"3" atIndex:2 animated:YES];
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"下一页" style:UIBarButtonItemStyleDone target:self action:@selector(nextAction)];
+    self.navigationItem.rightBarButtonItem = rightItem;
+    
+    self.myLabel.userInteractionEnabled = YES;
+    UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
+    [self.myLabel addGestureRecognizer:labelTapGestureRecognizer];
+
+    UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
+    self.imageView.userInteractionEnabled = YES;
+    [self.imageView addGestureRecognizer:imageViewTapGestureRecognizer];
+
+    [self.myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"attributedTitle - button1" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }] forState:UIControlStateNormal];
+
+    [self.myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"attributedText" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }]];
+//    self.myLabel.text = @"text----";
 
 }
--(void)stepperOnClick:(UIStepper*)sender {
+-(IBAction)stepperOnClick:(UIStepper*)sender {
     NSLog(@"step on:%f",sender.value);
 }
--(void)picSwitchClick:(UISwitch *)sender {
+
+-(IBAction)sliderAction:(UISlider*)sender {
+    NSLog(@"slider on:%f",sender.value);
+}
+
+-(IBAction)picSwitchClick:(UISwitch *)sender {
+    NSLog(@"switch on:%d",sender.on);
+}
+
+- (IBAction)onButton1Click:(UIButton *)sender {
+
+}
+
+- (IBAction)segmentOnClick:(UISegmentedControl *)sender {
+
 }
 
 -(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
@@ -74,29 +87,29 @@
 
 }
 
+- (void)nextAction {
+    TestViewController *nextVC = [[TestViewController alloc] init];
+    [self.navigationController pushViewController:nextVC animated:YES];
+}
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event {
+    [super touchesBegan:touches withEvent:event];
+    [self.view endEditing:YES];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
 
 /*
-#pragma mark - Navigation
+ #pragma mark - Navigation
 
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
-- (IBAction)onButton1Click:(id)sender {
-
-}
-- (IBAction)segmentOnClick:(id)sender {
-
-}
-
--(void)dealloc {
-    _labelTapGestureRecognizer = nil;
-}
 @end

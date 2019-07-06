@@ -18,6 +18,10 @@
 //  limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import "SAConstants.h"
 #import "SAConstants+Private.h"
 
@@ -104,6 +108,9 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
 
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
+NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
+//神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
+long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
@@ -121,3 +128,16 @@ NSString * const SA_REQUEST_REMOTECONFIG_TIME = @"SARequestRemoteConfigRandomTim
 NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
+
+
+void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
+    sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);
+}
+
+void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block) {
+    if ((dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)) == dispatch_queue_get_label(queue)) {
+        block();
+    } else {
+        dispatch_sync(queue, block);
+    }
+}

@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
+		4DCD115A22927F6E0091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
+		4DCD115C22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		4DCD115D22927F790091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
+		4DCD115E22927F790091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CB30C204228414420004061D /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D8228414420004061D /* TestViewController.m */; };
 		CB30C205228414420004061D /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController2.m */; };
 		CB30C206228414420004061D /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1DC228414420004061D /* test2.html */; };
@@ -45,11 +51,9 @@
 		CB30C269228422B40004061D /* SafariServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C268228422B40004061D /* SafariServices.framework */; };
 		CB30C26A228423080004061D /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2212284165A0004061D /* WebKit.framework */; };
 		CB30C26B2284230F0004061D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25E2284227C0004061D /* libz.tbd */; };
-		CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C32D2284402F0004061D /* SensorsAnalyticsSDK.framework */; };
 		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
 		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
 		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
-		CB6EBB5922857161003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -69,6 +73,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				4DCD115A22927F6E0091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */,
+				4DCD115C22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -90,6 +96,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				4DCD115E22927F790091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -168,7 +175,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB30C32E2284402F0004061D /* SensorsAnalyticsSDK.framework in Frameworks */,
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
 				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
@@ -178,10 +184,12 @@
 				CB30C2552284223B0004061D /* CoreLocation.framework in Frameworks */,
 				CB30C2532284222D0004061D /* CoreMotion.framework in Frameworks */,
 				CB30C251228422210004061D /* CFNetwork.framework in Frameworks */,
+				4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */,
 				CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */,
 				CB30C24D228422090004061D /* CoreGraphics.framework in Frameworks */,
 				CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */,
 				CB30C249228421E80004061D /* Foundation.framework in Frameworks */,
+				4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */,
 				CB30C2222284165A0004061D /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -190,7 +198,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB6EBB5922857161003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */,
+				4DCD115D22927F790091D129 /* SensorsAnalyticsSDK.framework in Frameworks */,
 				CB30C26B2284230F0004061D /* libz.tbd in Frameworks */,
 				CB30C26A228423080004061D /* WebKit.framework in Frameworks */,
 				CB30C269228422B40004061D /* SafariServices.framework in Frameworks */,

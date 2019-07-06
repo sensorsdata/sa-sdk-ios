@@ -19,6 +19,7 @@
 //
 
 #import "TestCollectionViewController.h"
+#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 
 @interface CustomCollectionViewCell : UICollectionViewCell
 
@@ -29,7 +30,7 @@
 
 @end
 
-@interface TestCollectionViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>
+@interface TestCollectionViewController ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout,SAUIViewAutoTrackDelegate>
 @property(nonatomic,strong)NSMutableArray * dataArray;
 @property(nonatomic,strong)UICollectionView *collectionView;
 @end
@@ -48,6 +49,8 @@
     [self.collectionView registerClass:[CustomCollectionViewCell class] forCellWithReuseIdentifier:@"identifier"];
     [self.view addSubview:self.collectionView];
     
+    
+    self.collectionView.sensorsAnalyticsDelegate = self;
     // Do any additional setup after loading the view.
 }
 
@@ -56,17 +59,15 @@
     // Dispose of any resources that can be recreated.
 }
 
--(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
-{
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section {
     return self.dataArray.count;
 }
--(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
-{
+
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView {
     return 3;
 }
 
-- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (__kindof UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath {
     CustomCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"identifier" forIndexPath:indexPath];
     
     for ( UIView *view in cell.contentView.subviews) {
@@ -88,18 +89,14 @@
     return cell;
 }
 
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
-    
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
 }
 
-- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
-{
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     return CGSizeMake(60, 60);
 }
 
--(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
-{
+-(UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout insetForSectionAtIndex:(NSInteger)section {
     return UIEdgeInsetsMake(0, 0, 0, 0);
 }
 
@@ -107,8 +104,7 @@
 
 @implementation TestCollectionViewController_A
 
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
-{
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
     [super collectionView:collectionView didSelectItemAtIndexPath:indexPath];
 }
 

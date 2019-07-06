@@ -70,25 +70,186 @@
 }
 
 #pragma mark - event
+//测试 itemSet 接口，是否成功
 - (void)testItemSet {
-    NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-    [[SensorsAnalyticsSDK sharedInstance] itemSetWithType:@"itemSet0517" itemId:@"itemId0517" properties:@{@"itemSet":@"acsdfgvzscd"}];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
     
-    sleep(1);
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    dispatch_async(queue, ^{
+        
+        NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+        [[SensorsAnalyticsSDK sharedInstance] itemSetWithType:@"itemSet0517" itemId:@"itemId0517" properties:@{@"itemSet":@"acsdfgvzscd"}];
+        
+        sleep(1);
+        
+        NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+        BOOL insertSucceed = newCount == lastCount + 1;
+        XCTAssertTrue(insertSucceed);
+        
+        [expectation fulfill];
+    });
     
-    NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-    BOOL insertSucceed = lastCount == newCount - 1;
-    XCTAssertTrue(insertSucceed);
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
 }
 
+//测试 itemDelete 接口，是否成功
 - (void)testItemDelete {
-    NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-    [[SensorsAnalyticsSDK sharedInstance] itemDeleteWithType:@"itemSet0517" itemId:@"itemId0517"];
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
     
-    sleep(1);
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    dispatch_async(queue, ^{
+        NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+        [[SensorsAnalyticsSDK sharedInstance] itemDeleteWithType:@"itemSet0517" itemId:@"itemId0517"];
+        
+        sleep(1);
+        
+        NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+        BOOL insertSucceed = newCount == lastCount + 1;
+        XCTAssertTrue(insertSucceed);
+        
+        [expectation fulfill];
+    });
     
-    NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-    BOOL insertSucceed = lastCount == newCount - 1;
-    XCTAssertTrue(insertSucceed);
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
 }
+
+#pragma mark - trackTimer
+///测试是否开启事件计时
+- (void)testShouldTrackTimerStart {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+    
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    dispatch_async(queue, ^{
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+            if ([eventName isEqualToString:@"timerEvent"]) {
+                
+                NSDictionary *callBackProperties = properties;
+                BOOL isContainsDuration = [callBackProperties.allKeys containsObject:@"event_duration"];
+                XCTAssertTrue(isContainsDuration);
+                
+                [expectation fulfill];
+            }
+            return YES;
+        }];
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+        sleep(1);
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+    });
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+         XCTAssertNil(error);
+    }];
+}
+
+/// 测试事件计时暂停
+- (void)testTrackTimerPause {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+    
+    __block float event_duration = 2.0;
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    dispatch_async(queue, ^{
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+            if ([eventName isEqualToString:@"timerEvent"]) {
+                event_duration = [properties[@"event_duration"] floatValue];
+                
+                //如果计时器成功被暂停，则事件时长 event_duration = 1 秒（不考虑多线程和其他操作延时）
+                // 如果计时器暂停失败，则事件时长 event_duration = 2 秒（不考虑多线程和其他操作延时）
+                XCTAssertLessThanOrEqual(event_duration, 1.1);
+                
+                [expectation fulfill];
+            }
+            return YES;
+        }];
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+        
+        sleep(1);
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
+        sleep(1);
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+    });
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
+/// 测试事件计时暂停后恢复
+- (void)testTrackTimerResume {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+    
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    dispatch_async(queue, ^{
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+            if ([eventName isEqualToString:@"timerEvent"]) {
+                float event_duration = [properties[@"event_duration"] floatValue];
+                
+                //判断是否恢复成功，如果恢复事件计时失败，事件时长 event_duration 只保留暂停前的计时：1 秒（不考虑多线程和其他操作延时）
+                //如果恢复计时器成功，事件时长 event_duration = 2（不考虑多线程和其他操作延时）；
+                XCTAssertGreaterThanOrEqual(event_duration, 1.1);
+                
+                [expectation fulfill];
+            }
+            return YES;
+        }];
+        
+        //开始计时
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+        
+        sleep(1);
+        //暂停
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
+        sleep(1);
+        
+        //恢复
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:@"timerEvent"];
+        sleep(1);
+        
+        //事件计时结束
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
+    });
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
+//测试动态开启 SensorsAnalyticsEventTypeAppEnd，event_duration 是否从启动开始计算
+- (void)testCheckAppEndEventDuration {
+    XCTestExpectation *expect = [self expectationWithDescription:@"异步超时timeout!"];
+    
+    double durationSecond = 1.0;
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(durationSecond * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        [[SensorsAnalyticsSDK sharedInstance] enableAutoTrack:SensorsAnalyticsEventTypeAppEnd];
+#pragma clang diagnostic pop
+        
+        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL(NSString * _Nonnull eventName, NSMutableDictionary<NSString *,id> * _Nonnull properties) {
+            
+            if ([eventName isEqualToString:@"$AppEnd"]) {
+                double duration = [properties[@"event_duration"] doubleValue];
+                
+                XCTAssertGreaterThan(duration, durationSecond);
+                [expect fulfill];
+            }
+            return YES;
+        }];
+        [[SensorsAnalyticsSDK sharedInstance] track:@"$AppEnd"];
+    });
+    
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
 @end

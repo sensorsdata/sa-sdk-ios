@@ -78,11 +78,11 @@
 - (void)visitObject:(NSObject *)object withContext:(SAObjectSerializerContext *)context {
     NSParameterAssert(object != nil);
     NSParameterAssert(context != nil);
-
+    
     [context addVisitedObject:object];
-
+    
     NSMutableDictionary *propertyValues = [[NSMutableDictionary alloc] init];
-
+    
     SAClassDescription *classDescription = [self classDescriptionForObject:object];
     if (classDescription) {
         for (SAPropertyDescription *propertyDescription in [classDescription propertyDescriptions]) {
@@ -92,7 +92,7 @@
             }
         }
     }
-
+    
     NSMutableArray *delegateMethods = [NSMutableArray array];
     id delegate;
     SEL delegateSelector = NSSelectorFromString(@"delegate");
@@ -106,17 +106,15 @@
             }
         }
     }
-
-    NSDictionary *serializedObject = @{
-        @"id": [_objectIdentityProvider identifierForObject:object],
-        @"class": [self classHierarchyArrayForObject:object],
-        @"properties": propertyValues,
-        @"delegate": @{
-                @"class": delegate ? NSStringFromClass([delegate class]) : @"",
-                @"selectors": delegateMethods
-            }
-    };
-
+    
+    NSDictionary *serializedObject = @{@"id": [_objectIdentityProvider identifierForObject:object],
+                                       @"class": [self classHierarchyArrayForObject:object],
+                                       @"properties": propertyValues,
+                                       @"delegate": @{
+                                               // BlockKit 等库使用 NSProxy 作 delegate 转发可能重写了 - (Class)class。
+                                               @"class": delegate ? [NSString stringWithFormat:@"%@",[delegate class]] : @"",
+                                               @"selectors": delegateMethods}};
+    
     [context addSerializedObject:serializedObject];
 }
 

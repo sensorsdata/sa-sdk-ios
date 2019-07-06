@@ -19,25 +19,52 @@
 //
 
 #import <UIKit/UIKit.h>
-#import <Foundation/Foundation.h>
+#import "SAAutoTrackProperty.h"
 
-@protocol SAUIViewAutoTrack
-@optional
-- (NSString *)sa_elementContent;
-@end;
+#pragma mark - UIView
 
-@interface UIView (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
+@interface UIView (AutoTrack) <SAAutoTrackViewProperty, SAAutoTrackViewPathProperty>
 @end
 
-@interface UIButton (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
+@interface UILabel (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UILabel (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
+@interface UIImageView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITextView (AutoTrack) <SAUIViewAutoTrack>
-- (NSString *)sa_elementContent;
+@interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UITabBar (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UITableViewHeaderFooterView (AutoTrack) <SAAutoTrackViewPathProperty>
+@end
+
+#pragma mark - UIControl
+
+@interface UIButton (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UISwitch (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UIStepper (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+@interface UISegmentedControl (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+#pragma mark - UITabBarItem
+@interface UITabBarItem (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
+#pragma mark - Cell
+@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@end
+
+@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty>
 @end

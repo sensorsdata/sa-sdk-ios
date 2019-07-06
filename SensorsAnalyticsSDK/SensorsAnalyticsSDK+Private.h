@@ -68,6 +68,15 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 - (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
 
 
+/**
+ 根据 viewController 判断，是否采集事件
+
+ @param controller 事件采集时的控制器
+ @param type 事件类型
+ @return 是否采集
+ */
+- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
+
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 
