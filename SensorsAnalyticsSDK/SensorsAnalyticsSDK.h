@@ -401,9 +401,9 @@ NS_ASSUME_NONNULL_BEGIN
  开始事件计时
  
  @discussion
- 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- 送事件；随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- 间记录在事件属性 "event_duration" 中，时间单位为秒。
+ 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimerStart:"Event" 记录事件开始时间，该方法并不会真正发送事件；
+ 随后在事件结束时，调用 trackTimerEnd:"Event" withProperties:properties，
+ SDK 会追踪 "Event" 事件，并自动将事件持续时间记录在事件属性 "event_duration" 中，时间单位为秒。
  
  @param event 事件名称
  */

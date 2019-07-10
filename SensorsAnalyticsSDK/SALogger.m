@@ -62,6 +62,9 @@ static dispatch_queue_t __logQueue__ ;
    function:(const char *)function
        line:(NSUInteger)line
      format:(NSString *)format, ... {
+    if (![SALogger isLoggerEnabled]) {
+        return;
+    }
     
     //iOS 10.x 有可能触发 [[NSString alloc] initWithFormat:format arguments:args]  crash ，不在启用 Log
     NSInteger systemVersion = UIDevice.currentDevice.systemVersion.integerValue;
@@ -87,9 +90,7 @@ static dispatch_queue_t __logQueue__ ;
        line:(NSUInteger)line {
     @try {
         NSString *logMessage = [[NSString alloc] initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@", [self descriptionForLevel:level], function, (unsigned long)line, [@"" UTF8String], message];
-        if ([SALogger isLoggerEnabled]) {
-            NSLog(@"%@",logMessage);
-        }
+        NSLog(@"%@",logMessage);
     } @catch(NSException *e) {
        
     }

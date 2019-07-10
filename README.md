@@ -1,6 +1,8 @@
 ![logo](https://github.com/sensorsdata/sa-sdk-android/raw/master/docs/logo.png)
 <br><br>
 [![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/blob/master/LICENSE)
+[![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/sensorsdata/sa-sdk-ios.svg)](http://isitmaintained.com/project/sensorsdata/sa-sdk-ios "Average time to resolve an issue")
+[![Percentage of issues still open](http://isitmaintained.com/badge/open/sensorsdata/sa-sdk-ios.svg)](http://isitmaintained.com/project/sensorsdata/sa-sdk-ios "Percentage of issues still open")
 [![GitHub release](https://img.shields.io/github/tag/sensorsdata/sa-sdk-ios.svg?label=release)](https://github.com/sensorsdata/sa-sdk-ios/releases)
 [![GitHub release date](https://img.shields.io/github/release-date/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/releases)
 [![Carthage Compatible](https://img.shields.io/badge/Carthage-compatible-4BC51D.svg?style=flat)](https://github.com/Carthage/Carthage)

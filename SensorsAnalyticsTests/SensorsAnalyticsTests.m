@@ -151,30 +151,23 @@
 - (void)testTrackTimerPause {
     XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
     
-    __block float event_duration = 2.0;
     dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
-    dispatch_async(queue, ^{
-        
-        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
-            if ([eventName isEqualToString:@"timerEvent"]) {
-                event_duration = [properties[@"event_duration"] floatValue];
-                
-                //如果计时器成功被暂停，则事件时长 event_duration = 1 秒（不考虑多线程和其他操作延时）
-                // 如果计时器暂停失败，则事件时长 event_duration = 2 秒（不考虑多线程和其他操作延时）
-                XCTAssertLessThanOrEqual(event_duration, 1.1);
-                
-                [expectation fulfill];
-            }
-            return YES;
-        }];
-        [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
-        
-        sleep(1);
+
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.5 * NSEC_PER_SEC)), queue, ^{
         [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
-        sleep(1);
-        
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3 * NSEC_PER_SEC)), queue, ^{
         [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
     });
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            XCTAssertEqualWithAccuracy([properties[@"event_duration"] floatValue], 1.5, 0.1);
+
+            [expectation fulfill];
+        }
+        return NO;
+    }];
     
     [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
         XCTAssertNil(error);
@@ -184,39 +177,27 @@
 /// 测试事件计时暂停后恢复
 - (void)testTrackTimerResume {
     XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
-    
+
     dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
-    dispatch_async(queue, ^{
-        
-        [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
-            if ([eventName isEqualToString:@"timerEvent"]) {
-                float event_duration = [properties[@"event_duration"] floatValue];
-                
-                //判断是否恢复成功，如果恢复事件计时失败，事件时长 event_duration 只保留暂停前的计时：1 秒（不考虑多线程和其他操作延时）
-                //如果恢复计时器成功，事件时长 event_duration = 2（不考虑多线程和其他操作延时）；
-                XCTAssertGreaterThanOrEqual(event_duration, 1.1);
-                
-                [expectation fulfill];
-            }
-            return YES;
-        }];
-        
-        //开始计时
-        [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
-        
-        sleep(1);
-        //暂停
+
+    [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"timerEvent"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), queue, ^{
         [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:@"timerEvent"];
-        sleep(1);
-        
-        //恢复
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(3.5 * NSEC_PER_SEC)), queue, ^{
         [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:@"timerEvent"];
-        sleep(1);
-        
-        //事件计时结束
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5.0 * NSEC_PER_SEC)), queue, ^{
         [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:@"timerEvent"];
     });
-    
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            XCTAssertEqualWithAccuracy([properties[@"event_duration"] floatValue], 2.5, 0.1);
+        }
+        [expectation fulfill];
+        return NO;
+    }];
+
     [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
         XCTAssertNil(error);
     }];
