@@ -133,4 +133,6 @@ extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 #pragma mark - safe sync
 void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block);
 
+BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
+
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);

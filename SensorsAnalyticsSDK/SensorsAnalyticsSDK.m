@@ -65,7 +65,7 @@
 #import "SAAuxiliaryToolManager.h"
 
 
-#define VERSION @"1.11.6"
+#define VERSION @"1.11.7"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -75,6 +75,8 @@ static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://tr
 static NSString* const CARRIER_CHINA_MCC = @"460";
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
+
+static dispatch_once_t sdkInitializeOnceToken;
 
 @implementation SensorsAnalyticsDebugException
 
@@ -224,8 +226,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - Initialization
 + (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+    dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
@@ -253,7 +255,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     @try {
-        
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
@@ -3486,8 +3487,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                     andLaunchOptions:(NSDictionary *)launchOptions
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+    dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
@@ -3497,8 +3498,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
+    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
+    dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[self alloc] initWithServerURL:serverURL
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];

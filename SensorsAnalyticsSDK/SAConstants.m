@@ -134,6 +134,10 @@ void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t bloc
     sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);
 }
 
+BOOL sensorsdata_is_same_queue(dispatch_queue_t queue) {
+    return strcmp(dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL), dispatch_queue_get_label(queue)) == 0;
+}
+
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block) {
     if ((dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL)) == dispatch_queue_get_label(queue)) {
         block();
