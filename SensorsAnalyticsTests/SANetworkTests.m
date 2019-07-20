@@ -56,6 +56,20 @@
     XCTAssertTrue(isEqual);
 }
 
+/**
+ 版本：1.11.0（已删除）
+
+ 该版本中当获取 project 为空时，返回了 nil，会影响打通时新的 UserAgent 拼接问题
+ v1.11.8 修复该问题，默认 project 返回 default
+*/
+- (void)testFixNullProjectWithH5UserAgentError {
+    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?token=95c73ae661f85aa0"];
+    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
+    NSString *appendingAgent = [NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?%@ ", network.host, network.project];
+    NSString *agentExpectation = [NSString stringWithFormat: @" /sa-sdk-ios/sensors-verify/%@?default ", network.host];
+    XCTAssertTrue([appendingAgent isEqualToString:agentExpectation]);
+}
+
 #pragma mark - URL Method
 - (void)testGetHostWithURL {
     NSString *host = [SANetwork hostWithURL:_url];
@@ -114,6 +128,35 @@
     XCTAssertTrue([self.network.serverURL.lastPathComponent isEqualToString:@"debug"]);
 }
 
+- (void)testGetServerURLHost {
+    XCTAssertTrue([self.network.host isEqualToString:@"sdk-test.datasink.sensorsdata.cn"]);
+}
+
+- (void)testGetServerURLDefaultHost {
+    NSURL *url = [NSURL URLWithString:@""];
+    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
+    XCTAssertTrue([network.host isEqualToString:@""]);
+}
+
+- (void)testGetServerURLProject {
+    XCTAssertTrue([self.network.project isEqualToString:@"zhangminchao"]);
+}
+
+- (void)testGetServerURLDefaultProject {
+    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa?token=95c73ae661f85aa0"];
+    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
+    XCTAssertTrue([network.project isEqualToString:@"default"]);
+}
+
+- (void)testGetServerURLToken {
+    XCTAssertTrue([self.network.token isEqualToString:@"95c73ae661f85aa0"]);
+}
+
+- (void)testGetServerURLDefaultToken {
+    NSURL *url = [NSURL URLWithString:@"https://sdk-test.datasink.sensorsdata.cn/sa"];
+    SANetwork *network = [[SANetwork alloc] initWithServerURL:url];
+    XCTAssertTrue([network.token isEqualToString:@""]);
+}
 
 #pragma mark - Certificate
 // 测试项目中有两个证书。ca.der.cer DER 格式的证书；ca.cer1 为 CER 格式的过期原始证书，若修改后缀为 cer，会崩溃；ca.outdate.cer 为过期证书

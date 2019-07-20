@@ -51,12 +51,46 @@
     self.sensorsAnalytics = nil;
 }
 
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
+#pragma mark - fix bug
+/**
+ 不支持多线程初始化，由 v1.11.5 修改支持 $AppStart 事件公共属性引入，v1.11.7 新增子线程初始化
+ 
+ 在使用异步线程初始化 SDK 时，会导致 application:didFinishLaunchingWithOptions: 方法运行结束后才初始化 SDK
+ 由于 SDK 中，通过监听 UIApplicationDidFinishLaunchingNotification 触发 $AppStart 事件
+ */
+- (void)testMultiThreadInitializedSDK {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
+        SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
+        // 捕获 NSInternalInconsistencyException 异常，是由 NSAssert 抛出的异常
+        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK sharedInstanceWithConfig:options], NSException, NSInternalInconsistencyException, @"");
+
+        [expectation fulfill];
+    });
+
+    [self waitForExpectationsWithTimeout:2 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
 }
 
-#pragma mark - fix bug
+/**
+ 多次调用初始化方法会生成多个实例，不是一个单例对象，v1.11.7 修复
+ */
+- (void)testMultipleCallOldInitializeMethod {
+    NSUInteger hash = self.sensorsAnalytics.hash;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andDebugMode:SensorsAnalyticsDebugOff];
+    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
+
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andLaunchOptions:nil];
+    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
+
+    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andLaunchOptions:nil andDebugMode:SensorsAnalyticsDebugOff];
+    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
+#pragma clang diagnostic pop
+}
+
 // 调用 Profile 相关的方法时，事件名称为 nil，不调用 callback
 - (void)testProfileEventWithoutCallback {
     __block BOOL isTrackEventCallbackExecuted = NO;

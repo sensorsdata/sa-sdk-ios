@@ -400,15 +400,15 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 @implementation SANetwork (ServerURL)
 
 - (NSString *)host {
-    return [SANetwork hostWithURL:self.serverURL];
+    return [SANetwork hostWithURL:self.serverURL] ?: @"";
 }
 
 - (NSString *)project {
-    return [SANetwork queryItemsWithURL:self.serverURL][@"project"];
+    return [SANetwork queryItemsWithURL:self.serverURL][@"project"] ?: @"default";
 }
 
 - (NSString *)token {
-    return [SANetwork queryItemsWithURL:self.serverURL][@"token"];
+    return [SANetwork queryItemsWithURL:self.serverURL][@"token"] ?: @"";
 }
 
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString {
@@ -416,7 +416,8 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         return NO;
     }
     BOOL isEqualHost = [self.host isEqualToString:[SANetwork hostWithURLString:URLString]];
-    BOOL isEqualProject = [self.project isEqualToString:[SANetwork queryItemsWithURLString:URLString][@"project"]];
+    NSString *project = [SANetwork queryItemsWithURLString:URLString][@"project"] ?: @"default";
+    BOOL isEqualProject = [self.project isEqualToString:project];
     return isEqualHost && isEqualProject;
 }
 
