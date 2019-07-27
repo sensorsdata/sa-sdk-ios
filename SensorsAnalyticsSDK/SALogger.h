@@ -44,7 +44,11 @@ typedef NS_ENUM(NSUInteger, SALoggerLevel) {
 };
 
 @interface SALogger : NSObject
+#ifdef UIKIT_DEFINE_AS_PROPERTIES
 @property (class , readonly, strong) SALogger *sharedInstance;
+#else
++ (SALogger *)sharedInstance;
+#endif
 + (BOOL)isLoggerEnabled;
 + (void)enableLog:(BOOL)enableLog;
 + (void)log:(BOOL)asynchronous

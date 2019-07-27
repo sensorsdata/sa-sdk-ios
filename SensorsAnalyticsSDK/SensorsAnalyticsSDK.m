@@ -65,7 +65,7 @@
 #import "SAAuxiliaryToolManager.h"
 
 
-#define VERSION @"1.11.8"
+#define VERSION @"1.11.9"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -422,7 +422,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([self isViewControllerIgnored:controller]) {
         return NO;
     }
-    // 对于 UITabBar 的点击事件，不使用页面浏览的忽略事件
+    // UITabBarController 默认包含在黑名单，单独判断，防止 UITabBar 点击事件被忽略
     if (type == SensorsAnalyticsEventTypeAppClick && [controller isKindOfClass:[UITabBarController class]]) {
         return YES;
     }
@@ -721,10 +721,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
                 //去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
+                [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
                 // 每次 track 时手机网络状态
@@ -773,6 +773,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             [eventDict setValue:timeStamp forKey:SA_EVENT_TIME];
+
+            //JS SDK Data add _hybird_h5 flag
+            [eventDict setValue:@(YES) forKey:SA_EVENT_HYBIRD_H5];
+
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
                 return;
@@ -1108,7 +1112,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)_flush:(BOOL) vacuumAfterFlushing {
-    if (!self.network.serverURL) {
+    if (![self.network isValidServerURL]) {
         return;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
@@ -1656,14 +1660,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if ([SALogger isLoggerEnabled]) {
-            @try {
-                NSString *logString = [[NSString alloc] initWithData:[NSJSONSerialization dataWithJSONObject:eventDic options:NSJSONWritingPrettyPrinted error:nil] encoding:NSUTF8StringEncoding];
-                SALog(@"\n【track event】:\n%@", logString);
-            } @catch (NSException *exception) {
-                SAError(@"%@: %@", self, exception);
-            }
-        }
+        SALog(@"\n【track event】:\n%@", eventDic);
 
         [self enqueueWithType:type andEvent:eventDic];
 
@@ -2130,9 +2127,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
     
+#ifdef __IPHONE_12_0
     if (@available(iOS 12.1, *)) {
         carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
     }
+#endif
     if(!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
@@ -2454,9 +2453,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (!netinfo) {
                 netinfo = [[CTTelephonyNetworkInfo alloc] init];
             }
+#ifdef __IPHONE_12_0
             if (@available(iOS 12.1, *)) {
                 currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
             }
+#endif
             //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
             if (!currentRadioAccessTechnology) {
                 currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
@@ -2578,7 +2579,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_block_t mainThreadBlock = ^(){
         BOOL verify = enableVerify;
         @try {
-            if (!self.network.serverURL) {
+            if (![self.network isValidServerURL]) {
                 verify = NO;
             }
             NSString *oldAgent = nil;

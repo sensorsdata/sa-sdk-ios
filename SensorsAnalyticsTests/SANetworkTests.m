@@ -219,6 +219,9 @@
     
     NSURLSessionTask *task = [self.network debugModeCallbackWithDistinctId:@"1234567890qwe" params:@{@"key": @"value"}];
     NSURL *url = task.currentRequest.URL;
+    // 验证 url 中必须带有之前的参数，v1.11.0~v1.11.8 版本中有问题，参数拼接有问题
+    // 影响范围为 Debug Mode 的回调，不影响正常功能使用
+    XCTAssertTrue([url.absoluteString rangeOfString:@"project=zhangminchao&token=95c73ae661f85aa0"].location != NSNotFound);
     XCTAssertTrue([url.absoluteString rangeOfString:@"key=value"].location != NSNotFound);
     XCTAssertTrue([url.absoluteString rangeOfString:self.network.serverURL.host].location != NSNotFound);
     

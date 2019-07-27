@@ -32,10 +32,14 @@
 @implementation UIView (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
+    if (self.isHidden || self.sensorsAnalyticsIgnoreView) {
+        return YES;
+    }
+    
     BOOL isAutoTrackEnabled = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled];
     BOOL isAutoTrackEventTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
     BOOL isViewTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[self class]];
-    return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored || self.sensorsAnalyticsIgnoreView;
+    return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
 }
 
 - (NSString *)sensorsdata_elementType {
@@ -43,10 +47,6 @@
 }
 
 - (NSString *)sensorsdata_elementContent {
-    if (self.isHidden || self.sensorsAnalyticsIgnoreView) {
-        return nil;
-    }
-
     NSMutableString *elementContent = [NSMutableString string];
 
     if ([self isKindOfClass:NSClassFromString(@"RTLabel")]) {   // RTLabel:https://github.com/honcheng/RTLabel
@@ -72,6 +72,10 @@
     } else {
         NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
         for (UIView *subview in self.subviews) {
+            // 忽略隐藏控件
+            if (subview.isHidden || subview.sensorsAnalyticsIgnoreView) {
+                continue;
+            }
             NSString *temp = subview.sensorsdata_elementContent;
             if (temp.length > 0) {
                 [elementContentArray addObject:temp];

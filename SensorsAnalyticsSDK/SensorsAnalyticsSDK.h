@@ -282,7 +282,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @param loginId 当前用户的 loginId
  */
 - (void)login:(NSString *)loginId;
-- (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties ;
+
+/**
+ 登录，设置当前用户的 loginId
+
+ 触发 $SignUp 事件。
+ ⚠️属性为事件属性，非用户属性
+
+ @param loginId 当前用户的登录 id
+ @param properties $SignUp 事件的事件属性
+ */
+- (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties;
 
 /**
  * @abstract

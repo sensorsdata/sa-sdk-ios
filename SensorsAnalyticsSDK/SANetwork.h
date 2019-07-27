@@ -104,6 +104,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 @property (nonatomic, copy, readonly, nullable) NSString *token;
 
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString;
+- (BOOL)isValidServerURL;
 
 @end
 

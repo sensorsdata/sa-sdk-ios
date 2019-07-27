@@ -143,7 +143,7 @@
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
 
     viewController = viewController ? : object.sensorsdata_viewController;
-    if (viewController.sensorsdata_isIgnored) {
+    if (!isCodeTrack && viewController.sensorsdata_isIgnored) {
         return nil;
     }
 

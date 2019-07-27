@@ -25,6 +25,35 @@
 
 #import <Foundation/Foundation.h>
 #import "SALogger.h"
+
+#pragma mark -
+@interface NSString (Unicode)
+@property (nonatomic, copy, readonly) NSString *sensorsdata_unicodeString;
+@end
+
+@implementation NSString (Unicode)
+
+- (NSString *)sensorsdata_unicodeString {
+    if ([self rangeOfString:@"\[uU][A-Fa-f0-9]{4}" options:NSRegularExpressionSearch].location == NSNotFound) {
+        return self;
+    }
+    NSMutableString *mutableString = [NSMutableString stringWithString:self];
+    [mutableString replaceOccurrencesOfString:@"\\u" withString:@"\\U" options:0 range:NSMakeRange(0, self.length)];
+    [mutableString replaceOccurrencesOfString:@"\"" withString:@"\\\"" options:0 range:NSMakeRange(0, self.length)];
+    [mutableString insertString:@"\"" atIndex:0];
+    [mutableString appendString:@"\""];
+    NSData *data = [mutableString dataUsingEncoding:NSUTF8StringEncoding];
+    
+    NSError *error = nil;
+    NSPropertyListFormat format = NSPropertyListOpenStepFormat;
+    NSString *formatString = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:&format error:&error];
+    return error ? self : [formatString stringByReplacingOccurrencesOfString:@"\\r\\n" withString:@"\n"];
+}
+
+@end
+
+
+#pragma mark - SALogger
 static BOOL __enableLog__ ;
 static dispatch_queue_t __logQueue__ ;
 @implementation SALogger
@@ -89,8 +118,8 @@ static dispatch_queue_t __logQueue__ ;
    function:(const char *)function
        line:(NSUInteger)line {
     @try {
-        NSString *logMessage = [[NSString alloc] initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@", [self descriptionForLevel:level], function, (unsigned long)line, [@"" UTF8String], message];
-        NSLog(@"%@",logMessage);
+        NSString *logMessage = [[NSString alloc] initWithFormat:@"[SALog][%@]  %s [line %lu]    %s %@", [self descriptionForLevel:level], function, (unsigned long)line, [@"" UTF8String], message.sensorsdata_unicodeString];
+        NSLog(@"%@", logMessage);
     } @catch(NSException *e) {
        
     }

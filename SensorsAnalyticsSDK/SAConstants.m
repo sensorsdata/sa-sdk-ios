@@ -37,6 +37,7 @@ NSString * const SA_EVENT_TYPE = @"type";
 NSString * const SA_EVENT_LIB = @"lib";
 NSString * const SA_EVENT_PROJECT = @"project";
 NSString * const SA_EVENT_TOKEN = @"token";
+NSString * const SA_EVENT_HYBIRD_H5 = @"_hybird_h5";
 
 #pragma mark - Item
 NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
