@@ -774,8 +774,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             [eventDict setValue:timeStamp forKey:SA_EVENT_TIME];
 
-            //JS SDK Data add _hybird_h5 flag
-            [eventDict setValue:@(YES) forKey:SA_EVENT_HYBIRD_H5];
+            //JS SDK Data add _hybrid_h5 flag
+            [eventDict setValue:@(YES) forKey:SA_EVENT_HYBRID_H5];
 
             NSDictionary *enqueueEvent = [self willEnqueueWithType:type andEvent:eventDict];
             if (!enqueueEvent) {
