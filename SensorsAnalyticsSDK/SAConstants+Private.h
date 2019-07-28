@@ -33,7 +33,7 @@ extern NSString * const SA_EVENT_TYPE;
 extern NSString * const SA_EVENT_LIB;
 extern NSString * const SA_EVENT_PROJECT;
 extern NSString * const SA_EVENT_TOKEN;
-extern NSString * const SA_EVENT_HYBIRD_H5;
+extern NSString * const SA_EVENT_HYBRID_H5;
 
 #pragma mark - Item
 extern NSString * const SA_EVENT_ITEM_TYPE;
