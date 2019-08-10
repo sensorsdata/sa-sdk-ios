@@ -32,7 +32,7 @@
 #import <UIKit/UIDevice.h>
 #import <UIKit/UIScreen.h>
 
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
@@ -65,7 +65,7 @@
 #import "SAAuxiliaryToolManager.h"
 
 
-#define VERSION @"1.11.10"
+#define VERSION @"1.11.11"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -840,7 +840,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     @try {
         SADebug(@"showUpWebView");
-        JSONUtil *_jsonUtil = [[JSONUtil alloc] init];
+        SAJSONUtil *_jsonUtil = [[SAJSONUtil alloc] init];
         NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
         NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
         if (bridgeCallbackInfo) {
@@ -2028,38 +2028,62 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
-        if ([propertyValue isKindOfClass:[NSSet class]] || [propertyValue isKindOfClass:[NSArray class]]) {
-            NSEnumerator *enumerator = [propertyValue objectEnumerator];
-            id object;
-            while (object = [enumerator nextObject]) {
-                if (![object isKindOfClass:[NSString class]]) {
-                    NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [object class], object];
-                    SAError(@"%@", errMsg);
-                    if (_debugMode != SensorsAnalyticsDebugOff) {
-                        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                    }
-                    return NO;
+        BOOL isDebugMode = _debugMode != SensorsAnalyticsDebugOff;
+        NSString *(^verifyString)(NSString *, NSMutableDictionary **, id *) = ^NSString *(NSString *string, NSMutableDictionary **dic, id *objects) {
+            // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
+            if (![string isKindOfClass:[NSString class]]) {
+                NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [string class], string];
+                SAError(@"%@", errMsg);
+                if (isDebugMode) {
+                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
                 }
-                NSUInteger objLength = [((NSString *)object) lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-                if (objLength > SA_PROPERTY_LENGTH_LIMITATION) {
-                    //截取再拼接 $ 末尾，替换原数据
-                    NSMutableString *newObject = [NSMutableString stringWithString:[SACommonUtility subByteString:(NSString *)object byteLength:SA_PROPERTY_LENGTH_LIMITATION - 1]];
-                    [newObject appendString:@"$"];
-                    if (!newProperties) {
-                        newProperties = [NSMutableDictionary dictionaryWithDictionary:properties];
-                    }
+                return nil;
+            }
+            NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
+            if (length > SA_PROPERTY_LENGTH_LIMITATION) {
+                //截取再拼接 $ 末尾，替换原数据
+                NSMutableString *newString = [NSMutableString stringWithString:[SACommonUtility subByteString:string byteLength:SA_PROPERTY_LENGTH_LIMITATION - 1]];
+                [newString appendString:@"$"];
+                if (*dic == nil) {
+                    *dic = [NSMutableDictionary dictionaryWithDictionary:properties];
+                }
 
-                    NSMutableSet *newSetObject = nil;
-                    if ([propertyValue isKindOfClass:[NSArray class]]) {
-                        newSetObject = [NSMutableSet setWithArray:propertyValue];
-                    } else {
-                        newSetObject = [NSMutableSet setWithSet:propertyValue];
-                    }
-                    [newSetObject removeObject:object];
-                    [newSetObject addObject:newObject];
-                    [newProperties setObject:newSetObject forKey:k];
+                if (*objects == nil) {
+                    *objects = [propertyValue mutableCopy];
                 }
+                return newString;
+            }
+            return string;
+        };
+        if ([propertyValue isKindOfClass:[NSSet class]]) {
+            id object;
+            NSMutableSet *newSetObject = nil;
+            NSEnumerator *enumerator = [propertyValue objectEnumerator];
+            while (object = [enumerator nextObject]) {
+                NSString *string = verifyString(object, &newProperties, &newSetObject);
+                if (string == nil) {
+                    return NO;
+                } else if (string != object) {
+                    [newSetObject removeObject:object];
+                    [newSetObject addObject:string];
+                }
+            }
+            if (newSetObject) {
+                [newProperties setObject:newSetObject forKey:k];
+            }
+        } else if ([propertyValue isKindOfClass:[NSArray class]]) {
+            NSMutableArray *newArray = nil;
+            for (NSInteger index = 0; index < [propertyValue count]; index++) {
+                id object = [propertyValue objectAtIndex:index];
+                NSString *string = verifyString(object, &newProperties, &newArray);
+                if (string == nil) {
+                    return NO;
+                } else if (string != object) {
+                    [newArray replaceObjectAtIndex:index withObject:string];
+                }
+            }
+            if (newArray) {
+                [newProperties setObject:newArray forKey:k];
             }
         }
 
@@ -2906,7 +2930,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     });
 #endif
     
-    //React Natove
+    //React Native
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
     if (NSClassFromString(@"RCTUIManager")) {
         //        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];

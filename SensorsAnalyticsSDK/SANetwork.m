@@ -29,7 +29,7 @@
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
 #import "SALogger.h"
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
@@ -199,7 +199,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     [request setHTTPMethod:@"POST"];
     
     NSDictionary *callData = @{@"distinct_id": distinctId};
-    JSONUtil *jsonUtil = [[JSONUtil alloc] init];
+    SAJSONUtil *jsonUtil = [[SAJSONUtil alloc] init];
     NSData *jsonData = [jsonUtil JSONSerializeObject:callData];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
@@ -262,15 +262,18 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSString *messageDesc = nil;
         if (statusCode >= 200 && statusCode < 300) {
             messageDesc = @"\n【valid message】\n";
-            flushSuccess = YES;
         } else {
             messageDesc = @"\n【invalid message】\n";
             if (statusCode >= 300 && self.debugMode != SensorsAnalyticsDebugOff) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ flush failure with response '%@'.", self, urlResponseContent];
                 [[SensorsAnalyticsSDK sharedInstance] showDebugModeWarning:errMsg withNoMoreButton:YES];
-                flushSuccess = YES;
             }
         }
+        // 1、开启 debug 模式，都删除；
+        // 2、debugOff 模式下，只有 5xx & 404 & 403 不删，其余均删；
+        BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
+        flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
+
         SAError(@"==========================================================================");
         @try {
             NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];

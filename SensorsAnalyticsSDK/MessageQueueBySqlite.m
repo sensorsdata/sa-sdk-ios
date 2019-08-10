@@ -24,7 +24,7 @@
 
 #import <sqlite3.h>
 
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 #import "MessageQueueBySqlite.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
@@ -34,7 +34,7 @@
 
 @implementation MessageQueueBySqlite {
     sqlite3 *_database;
-    JSONUtil *_jsonUtil;
+    SAJSONUtil *_jsonUtil;
     NSInteger _messageCount;
     CFMutableDictionaryRef _dbStmtCache;
 }
@@ -54,7 +54,7 @@
 
 - (id)initWithFilePath:(NSString *)filePath {
     self = [super init];
-    _jsonUtil = [[JSONUtil alloc] init];
+    _jsonUtil = [[SAJSONUtil alloc] init];
     if (sqlite3_initialize() != SQLITE_OK) {
         SAError(@"failed to initialize SQLite.");
         return nil;

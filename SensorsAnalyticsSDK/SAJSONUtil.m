@@ -1,5 +1,5 @@
 //
-//  JSONUtil.m
+//  SAJSONUtil.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
@@ -23,14 +23,14 @@
 #endif
 
 
-#import "JSONUtil.h"
+#import "SAJSONUtil.h"
 #import "SALogger.h"
 
-@implementation JSONUtil {
+@implementation SAJSONUtil {
     NSDateFormatter *_dateFormatter;
 }
 
-- (id)init {
+- (instancetype)init {
     self = [super init];
     _dateFormatter = [[NSDateFormatter alloc] init];
     [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];

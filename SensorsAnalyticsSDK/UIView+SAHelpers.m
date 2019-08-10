@@ -24,20 +24,17 @@
 #import <objc/runtime.h>
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
+#import "SensorsAnalyticsSDK.h"
 #import "UIView+SAHelpers.h"
 #import "SALogger.h"
 
 // NB If you add any more fingerprint methods, increment this.
-#define MP_FINGERPRINT_VERSION 1
+#define SA_FINGERPRINT_VERSION 1
 
 @implementation UIView (SAHelpers)
 
-- (int)mp_fingerprintVersion {
-    return MP_FINGERPRINT_VERSION;
-}
-
 - (int)jjf_fingerprintVersion {
-    return [self mp_fingerprintVersion];
+    return SA_FINGERPRINT_VERSION;
 }
 
 - (UIImage *)sa_snapshotImage {
@@ -102,18 +99,6 @@
     }
     return [targetActions copy];
 }
-
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wundeclared-selector"
-// Set by a userDefinedRuntimeAttr in the SATagNibs.rb script
-- (void)setSensorsAnalyticsViewId:(id)object {
-    objc_setAssociatedObject(self, @selector(sensorsAnalyticsViewId), [object copy], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (NSString *)sa_viewId {
-    return objc_getAssociatedObject(self, @selector(mixpanelViewId));
-}
-#pragma clang diagnostic pop
 
 - (NSString *)sa_controllerVariable {
     if (![self isKindOfClass:[UIControl class]]) {
@@ -212,31 +197,18 @@ static NSString* sa_encryptHelper(id input) {
 }
 
 #pragma mark - Aliases for compatibility
-- (NSString *)mp_varA {
-    return sa_encryptHelper([self sa_viewId]);
-}
-
 - (NSString *)jjf_varA {
-    return [self mp_varA];
+    return sa_encryptHelper(self.sensorsAnalyticsViewID);
 }
-
-- (NSString *)mp_varB {
+- (NSString *)jjf_varB {
     return sa_encryptHelper([self sa_controllerVariable]);
 }
 
-- (NSString *)jjf_varB {
-    return [self mp_varB];
-}
-
-- (NSString *)mp_varC {
+- (NSString *)jjf_varC {
     return sa_encryptHelper([self sa_imageFingerprint]);
 }
 
-- (NSString *)jjf_varC {
-    return [self mp_varC];
-}
-
-- (NSArray *)mp_varSetD {
+- (NSArray *)jjf_varSetD {
     NSArray *targetActions = [self sa_targetActions];
     NSMutableArray *encryptedActions = [NSMutableArray array];
     for (NSUInteger i = 0 ; i < [targetActions count]; i++) {
@@ -245,16 +217,8 @@ static NSString* sa_encryptHelper(id input) {
     return encryptedActions;
 }
 
-- (NSArray *)jjf_varSetD {
-    return [self mp_varSetD];
-}
-
-- (NSString *)mp_varE {
-    return sa_encryptHelper([self sa_text]);
-}
-
 - (NSString *)jjf_varE {
-    return [self mp_varE];
+    return sa_encryptHelper([self sa_text]);
 }
 
 @end

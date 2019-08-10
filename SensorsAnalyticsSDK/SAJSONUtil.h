@@ -1,5 +1,5 @@
 //
-//  JSONUtil.h
+//  SAJSONUtil.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-@interface JSONUtil : NSObject
+@interface SAJSONUtil : NSObject
 
 /**
  *  @abstract
@@ -37,6 +37,6 @@
  *
  *  @return 初始化后的对象
  */
-- (id) init;
+- (instancetype)init;
 
 @end
