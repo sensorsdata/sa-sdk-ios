@@ -96,3 +96,9 @@
 }
 
 @end
+
+
+@implementation SASecretKey
+
+@end
+

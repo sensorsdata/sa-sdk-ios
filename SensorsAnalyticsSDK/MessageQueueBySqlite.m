@@ -30,6 +30,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+
 #define MAX_MESSAGE_SIZE 10000   // 最多缓存10000条
 
 @implementation MessageQueueBySqlite {
@@ -98,7 +99,13 @@
             return;
         }
     }
-    NSData *jsonData = [_jsonUtil JSONSerializeObject:obj];
+
+    //支持加密
+#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+    obj = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:obj] ?: obj;
+#endif
+
+    NSData* jsonData = [_jsonUtil JSONSerializeObject:obj];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
     NSString *query = @"INSERT INTO dataCache(type, content) values(?, ?)";
@@ -146,10 +153,32 @@
                                                                                  options:NSJSONReadingMutableContainers
                                                                                    error:&err];
                 if (!err && eventDict) {
+#ifdef SENSORS_ANALYTICS_ENABLE_ENCRYPTION
+                    if (![eventDict.allKeys containsObject:@"ekey"]) { //缓存数据未加密，再加密
+                        NSDictionary *encryptDic = [[SensorsAnalyticsSDK sharedInstance].encryptBuilder encryptionJSONObject:eventDict];
+                        if (encryptDic) {
+                            eventDict = [encryptDic mutableCopy];
+                        }
+                    }
+                    //加密数据上传时间 flush_time
+                    UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
+                    [eventDict setValue:@(time) forKey:@"flush_time"];
+#else
+
+                    if ([eventDict.allKeys containsObject:@"ekey"]) { //非加密模式，缓存数据已加密，丢弃
+                        char* idChar = (char*)sqlite3_column_text(stmt, 0);
+                        NSInteger idIndex = [[NSString stringWithUTF8String:idChar] integerValue];
+                        [self deleteRecordWithId:idIndex];
+                        continue;
+                    }
+
+                    //非加密
                     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
                     [eventDict setValue:@(time) forKey:SA_EVENT_FLUSH_TIME];
+#endif
+
                     [contentArray addObject:[[NSString alloc] initWithData:[_jsonUtil JSONSerializeObject:eventDict] encoding:NSUTF8StringEncoding]];
-                } else {
+                } else { //删除内容为空的数据
                     char *idChar = (char *)sqlite3_column_text(stmt, 0);
                     NSInteger index = [[NSString stringWithUTF8String:idChar] integerValue];
                     [self deleteRecordWithId:index];
@@ -162,6 +191,7 @@
         SAError(@"Failed to prepare statement, error:%s", sqlite3_errmsg(_database));
         return nil;
     }
+
     return [NSArray arrayWithArray:contentArray];
 }
 

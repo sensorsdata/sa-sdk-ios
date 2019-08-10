@@ -23,29 +23,11 @@
 		<dict>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>sa8a9ab067</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLName</key>
-			<string>chenchen</string>
+			<string>cqs</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>sa3f6d7cb5</string>
-			</array>
-		</dict>
-		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-			<key>CFBundleURLName</key>
-			<string>cctest</string>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>safda6b8ac</string>
+				<string>sac799f6b9</string>
 			</array>
 		</dict>
 	</array>

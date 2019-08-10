@@ -1004,6 +1004,17 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)clearKeychainData;
 
+
+#pragma mark - SecretKey
+/**
+ 加载秘钥
+ @param secretKey 秘钥数据
+ */
+- (void)loadSecretKey:(SASecretKey *)secretKey;
+
+/// 保存秘钥
+@property (nonatomic, copy) void (^saveSecretKeyCompletion)(SASecretKey * _Nullable secretKey);
+
 @end
 
 /**

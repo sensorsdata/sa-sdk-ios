@@ -53,7 +53,7 @@
  *
  *  @return 获取的记录所在的数组
  */
-- (NSArray *) getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type ;
+- (NSArray *)getFirstRecords:(NSUInteger)recordSize withType:(NSString *)type;
 
 
 /**
@@ -64,7 +64,7 @@
  *
  *  @return 删除是否成功
  */
-- (BOOL) removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type ;
+- (BOOL)removeFirstRecords:(NSUInteger)recordSize withType:(NSString *)type;
 
 /**
  *  @abstract
@@ -89,6 +89,5 @@
  *  @return 是否成功
  */
 - (BOOL) vacuum;
-
 
 @end

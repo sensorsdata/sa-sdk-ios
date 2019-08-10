@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
-  s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.11.11"
-  s.summary      = "The official iOS SDK of Sensors Analytics."
+  s.name         = "SensorsAnalyticsSDK-pre"
+  s.version      = "1.11.11-pre"
+  s.summary      = "The official iOS SDK Pre of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
@@ -124,6 +124,12 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_CHILD_VIEWSCREEN' do |f|
     f.dependency 'SensorsAnalyticsSDK/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
+  end
+
+  # 开启 SDK 加密
+  s.subspec 'ENABLE_ENCRYPTION' do |f|
+    f.dependency 'SensorsAnalyticsSDK/core'
+    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_ENCRYPTION=1'}
   end
 
 end
