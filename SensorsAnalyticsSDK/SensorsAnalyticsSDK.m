@@ -63,9 +63,9 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
+#import "SAWeakPropertyContainer.h"
 
-
-#define VERSION @"1.11.11-pre"
+#define VERSION @"1.11.12-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -93,6 +93,7 @@ static dispatch_once_t sdkInitializeOnceToken;
 @end
 
 @implementation UIView (SensorsAnalytics)
+
 - (UIViewController *)sensorsAnalyticsViewController {
     return self.sensorsdata_viewController;
 }
@@ -134,11 +135,13 @@ static dispatch_once_t sdkInitializeOnceToken;
 }
 
 - (id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    return objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
+    SAWeakPropertyContainer *container = objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
+    return container.weakProperty;
 }
 
 - (void)setSensorsAnalyticsDelegate:(id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", sensorsAnalyticsDelegate, OBJC_ASSOCIATION_ASSIGN);
+    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsAnalyticsDelegate];
+    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 @end
 
@@ -226,12 +229,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @synthesize remoteConfig = _remoteConfig;
 
 #pragma mark - Initialization
-+ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
     });
-    return sharedInstance;
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
@@ -344,7 +346,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
-            if (_configOptions.enableTrackAppCrash) {
+            if (_configOptions.enableTrackAppCrash || (_configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd)) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
@@ -754,8 +756,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-            NSInteger customTimeInt = [propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] integerValue];
-            
+            NSNumber *timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
                 [eventDict setValue:project forKey:SA_EVENT_PROJECT];
@@ -764,11 +766,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
-            if (customTimeInt > 0) { //包含 $time
+            if (timeNumber) { //包含 $time
+                NSInteger customTimeInt = [timeNumber integerValue];
                 if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
                     timeStamp = @(customTimeInt);
                 } else {
-                    SALog(@"H5 $time error %ld，Please check the value", customTimeInt);
+                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -1003,6 +1006,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.configOptions.autoTrackEventType = eventType;
         
         [self _enableAutoTrack];
+
+        if (self.configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppEnd) {
+            [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
+        }
     }
 }
 
@@ -1073,7 +1080,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isViewTypeIgnored:(Class)aClass {
-    return [_ignoredViewTypeList containsObject:aClass];
+    for (Class obj in _ignoredViewTypeList) {
+        if ([aClass isSubclassOfClass:obj]) {
+            return YES;
+        }
+    }
+    return NO;
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
@@ -1547,13 +1559,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     project = (NSString *)obj;
                 } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
                     token = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME] && [obj isKindOfClass:NSDate.class]) {
-                    NSDate *customTime = (NSDate *)obj;
-                    NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                    if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                        timeStamp = @(customTimeInt);
+                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
+                    if ([obj isKindOfClass:NSDate.class]) {
+                        NSDate *customTime = (NSDate *)obj;
+                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                            timeStamp = @(customTimeInt);
+                        } else {
+                            SAError(@"$time error %ld，Please check the value", customTimeInt);
+                        }
                     } else {
-                        SALog(@"$time error %ld，Please check the value", customTimeInt);
+                        SAError(@"$time '%@' invalid，Please check the value", obj);
                     }
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
@@ -2526,24 +2542,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return network;
 }
 
-- (UInt64)flushInterval {
-    @synchronized(self) {
-        return self.configOptions.flushInterval;
-    }
-}
-
-- (void)setFlushInterval:(UInt64)interval {
-    @synchronized(self) {
-        if (interval < 5 * 1000) {
-            interval = 5 * 1000;
-        }
-        self.configOptions.flushInterval = (NSInteger)interval;
-    }
-    [self flush];
-    [self stopFlushTimer];
-    [self startFlushTimer];
-}
-
 - (void)startFlushTimer {
     if (self.remoteConfig.disableSDK || (self.timer && [self.timer isValid])) {
         return;
@@ -2569,20 +2567,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         self.timer = nil;
     });
-}
-
-- (UInt64)flushBulkSize {
-    @synchronized(self) {
-        return self.configOptions.flushBulkSize;
-    }
-}
-
-- (void)setFlushBulkSize:(UInt64)bulkSize {
-    @synchronized(self) {
-        //加上最小值保护，50
-        NSInteger newBulkSize = (NSInteger)bulkSize;
-        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
-    }
 }
 
 - (NSString *)getLastScreenUrl {
@@ -3169,19 +3153,27 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [[self people] set:profileDict];
 }
 
-- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId {
-    if ([pushKey isKindOfClass:NSString.class] && pushKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
-        NSString * distinctId = self.distinctId;
-        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@_%@", distinctId, pushKey];
+- (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId {
+    if ([pushTypeKey isKindOfClass:NSString.class] && pushTypeKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
+        NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
         NSString * valueOfPushId = [NSUserDefaults.standardUserDefaults valueForKey:keyOfPushId];
-        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@", distinctId, pushId];
+        NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@", self.distinctId, pushId];
         if (![valueOfPushId isEqualToString:newValueOfPushId]) {
-            [self set:@{pushKey:pushId}];
+            [self set:@{pushTypeKey:pushId}];
             [NSUserDefaults.standardUserDefaults setValue:newValueOfPushId forKey:keyOfPushId];
         }
     }
 }
 
+- (void)profileUnsetPushKey:(NSString *)pushTypeKey {
+    NSAssert(([pushTypeKey isKindOfClass:[NSString class]] && pushTypeKey.length), @"pushTypeKey should be a non-empty string object!!!❌❌❌");
+    NSString *localKey = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
+    NSString *localValue = [NSUserDefaults.standardUserDefaults valueForKey:localKey];
+    if ([localValue hasPrefix:self.distinctId]) {
+        [self unset:pushTypeKey];
+        [NSUserDefaults.standardUserDefaults removeObjectForKey:localKey];
+    }
+}
 
 - (void)setOnce:(NSDictionary *)profileDict {
     [[self people] setOnce:profileDict];
@@ -3548,6 +3540,11 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
 
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
+    [self startWithConfigOptions:configOptions];
+    return sharedInstance;
+}
+
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
                                         andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
@@ -3575,6 +3572,38 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                             andDebugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
+}
+
+- (UInt64)flushInterval {
+    @synchronized(self) {
+        return self.configOptions.flushInterval;
+    }
+}
+
+- (void)setFlushInterval:(UInt64)interval {
+    @synchronized(self) {
+        if (interval < 5 * 1000) {
+            interval = 5 * 1000;
+        }
+        self.configOptions.flushInterval = (NSInteger)interval;
+    }
+    [self flush];
+    [self stopFlushTimer];
+    [self startFlushTimer];
+}
+
+- (UInt64)flushBulkSize {
+    @synchronized(self) {
+        return self.configOptions.flushBulkSize;
+    }
+}
+
+- (void)setFlushBulkSize:(UInt64)bulkSize {
+    @synchronized(self) {
+        //加上最小值保护，50
+        NSInteger newBulkSize = (NSInteger)bulkSize;
+        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+    }
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {

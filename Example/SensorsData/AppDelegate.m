@@ -38,7 +38,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 //    options.flushInterval = 10 * 1000;
 //    options.flushBulkSize = 100;
     options.maxCacheSize = 20000;
-    [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
+    [SensorsAnalyticsSDK startWithConfigOptions:options];
     
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{

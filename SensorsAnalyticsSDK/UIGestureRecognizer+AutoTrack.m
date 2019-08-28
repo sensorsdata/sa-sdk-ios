@@ -37,6 +37,11 @@
 
 - (void)trackGestureRecognizerAppClick:(UIGestureRecognizer *)gesture {
     @try {
+        // 手势处于 Ended 状态
+        if (gesture.state != UIGestureRecognizerStateEnded) {
+            return;
+        }
+        
         UIView *view = gesture.view;
         // 暂定只采集 UILabel 和 UIImageView
         BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class];
