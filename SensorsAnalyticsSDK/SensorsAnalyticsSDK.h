@@ -149,50 +149,19 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
-/**
- * @property
- *
- * @abstract
- * 两次数据发送的最小时间间隔，单位毫秒
- *
- * @discussion
- * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
- * 都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 是否 WIFI/3G/4G 网络
- * 2. 是否满足以下数据发送条件之一:
- *   1) 与上次发送的时间间隔是否大于 flushInterval
- *   2) 本地缓存日志数目是否达到 flushBulkSize
- * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
- * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
- */
-@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
-
-/**
- * @property
- *
- * @abstract
- * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
- *
- * @discussion
- * 默认值为 100，在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 是否 WIFI/3G/4G 网络
- * 2. 是否满足以下数据发送条件之一:
- *   1) 与上次发送的时间间隔是否大于 flushInterval
- *   2) 本地缓存日志数目是否达到 flushBulkSize
- * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
- * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
- */
-@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
 #pragma mark- init instance
-
 /**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
+ 通过配置参数，配置神策 SDK
+
+ 此方法调用必须符合以下条件：
+     1、必须在应用启动时调用，即在 application:didFinishLaunchingWithOptions: 中调用，
+     2、必须在主线线程中调用
+     3、必须在 SDK 其他方法调用之前调用
+ 如果不符合上述条件，存在丢失 $AppStart 事件及应用首页的 $AppViewScreen 事件风险
+
  @param configOptions 参数配置
- @return 返回的单例
  */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions;
++ (void)startWithConfigOptions:(nonnull SAConfigOptions *)configOptions NS_SWIFT_NAME(start(configOptions:));
 
 /**
  * @abstract
@@ -862,10 +831,21 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 设置用户的 pushId 比如 @{@"jgId":pushId}，并触发 profileSet 设置对应的用户属性。
  * 当 disctinct_id 或者 pushId 没有发生改变的时,不会触发 profileSet。
- * @param pushKey  pushId 的 key
+ * @param pushTypeKey  pushId 的 key
  * @param pushId  pushId 的值
  */
-- (void)profilePushKey:(NSString *)pushKey pushId:(NSString *)pushId;
+- (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId;
+
+/**
+ * @abstract
+ * 删除用户设置的 pushId
+ *
+ * *@discussion
+ * 删除用户设置的 pushId 比如 @{@"jgId":pushId}，并触发 profileUnset 删除对应的用户属性。
+ * 当 disctinct_id 未找到本地缓存记录时, 不会触发 profileUnset。
+ * @param pushTypeKey  pushId 的 key
+ */
+- (void)profileUnsetPushKey:(NSString *)pushTypeKey;
 
 /**
  * @abstract
@@ -1128,6 +1108,49 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - Deprecated
 @interface SensorsAnalyticsSDK (Deprecated)
 
+/**
+ * @property
+ *
+ * @abstract
+ * 两次数据发送的最小时间间隔，单位毫秒
+ *
+ * @discussion
+ * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
+ * 都会检查如下条件，以判断是否向服务器上传数据:
+ * 1. 是否 WIFI/3G/4G 网络
+ * 2. 是否满足以下数据发送条件之一:
+ *   1) 与上次发送的时间间隔是否大于 flushInterval
+ *   2) 本地缓存日志数目是否达到 flushBulkSize
+ * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
+ * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
+ */
+@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
+
+/**
+ * @property
+ *
+ * @abstract
+ * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
+ *
+ * @discussion
+ * 默认值为 100，在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
+ * 1. 是否 WIFI/3G/4G 网络
+ * 2. 是否满足以下数据发送条件之一:
+ *   1) 与上次发送的时间间隔是否大于 flushInterval
+ *   2) 本地缓存日志数目是否达到 flushBulkSize
+ * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
+ * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
+ */
+@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
+
+/**
+ * @abstract
+ * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
+ *
+ @param configOptions 参数配置
+ @return 返回的单例
+ */
++ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions __attribute__((deprecated("已过时，请使用 + (void)startWithConfigOptions: 方法进行初始化")));
 
 /**
  * @abstract

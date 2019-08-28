@@ -141,7 +141,7 @@
             [self testFlush];
             break;
         case 9l:
-            NSLog(@"进入无埋点测试页面");
+            NSLog(@"进入全埋点测试页面");
             [self testCodeless];
             break;
         default:

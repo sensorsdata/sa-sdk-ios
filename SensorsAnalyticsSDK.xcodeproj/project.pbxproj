@@ -125,6 +125,8 @@
 		CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */; };
 		CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */; };
 		CBE4DF04228AA1CB00DDE07D /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */; };
+		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
+		FCBAF2A122FBCA3700D7CA38 /* SAWeakPropertyContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -262,6 +264,8 @@
 		CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
+		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
+		FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAWeakPropertyContainer.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -401,6 +405,8 @@
 				CB30BFF622840EBF0004061D /* SensorsAnalyticsSDK+Private.h */,
 				CB30BFD622840EBF0004061D /* UIView+SAHelpers.h */,
 				CB30C00722840EBF0004061D /* UIView+SAHelpers.m */,
+				FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */,
+				FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -546,6 +552,7 @@
 				CB30C08422840EC00004061D /* SAObjectSelector.h in Headers */,
 				CB30C09622840EC00004061D /* SAPropertyDescription.h in Headers */,
 				CB6EBBA222857BC0003CFBA8 /* SAAutoTrackProperty.h in Headers */,
+				FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */,
 				CB30C0A122840EC00004061D /* SAVisualizedAutoTrackMessage.h in Headers */,
 				CB30C06122840EC00004061D /* SAReachability.h in Headers */,
 				CB30C09D22840EC00004061D /* MessageQueueBySqlite.h in Headers */,
@@ -734,6 +741,7 @@
 				CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */,
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
 				CB30C07B22840EC00004061D /* SADeviceOrientationManager.m in Sources */,
+				FCBAF2A122FBCA3700D7CA38 /* SAWeakPropertyContainer.m in Sources */,
 				CB30C0A222840EC00004061D /* SAVisualizedAutoTrackConnection.m in Sources */,
 				CB30C07D22840EC00004061D /* SAConfigOptions.m in Sources */,
 				CB30C05722840EC00004061D /* SAJSONUtil.m in Sources */,

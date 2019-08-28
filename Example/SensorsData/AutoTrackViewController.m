@@ -41,10 +41,10 @@
 
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithTitle:@"下一页" style:UIBarButtonItemStyleDone target:self action:@selector(nextAction)];
     self.navigationItem.rightBarButtonItem = rightItem;
-    
+
     self.myLabel.userInteractionEnabled = YES;
-    UITapGestureRecognizer *labelTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(labelTouchUpInside:)];
-    [self.myLabel addGestureRecognizer:labelTapGestureRecognizer];
+    UILongPressGestureRecognizer *longGestureRecognizer = [[UILongPressGestureRecognizer alloc]initWithTarget:self action:@selector(longTouchUpInside:)];
+    [self.myLabel addGestureRecognizer:longGestureRecognizer];
 
     UITapGestureRecognizer *imageViewTapGestureRecognizer = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(imageViewTouchUpInside:)];
     self.imageView.userInteractionEnabled = YES;
@@ -52,8 +52,8 @@
 
     [self.myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"attributedTitle - button1" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }] forState:UIControlStateNormal];
 
-    [self.myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"attributedText" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }]];
-//    self.myLabel.text = @"text----";
+    [self.myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"attributedText-longGesture" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }]];
+    //    self.myLabel.text = @"text----";
 
 }
 -(IBAction)stepperOnClick:(UIStepper*)sender {
@@ -76,9 +76,9 @@
 
 }
 
--(void) labelTouchUpInside:(UITapGestureRecognizer *)recognizer{
+-(void) longTouchUpInside:(UILongPressGestureRecognizer *)recognizer{
     UILabel *label=(UILabel*)recognizer.view;
-    NSLog(@"%@被点击了",label.text);
+    NSLog(@"%@手势长按",label.text);
 
 }
 
