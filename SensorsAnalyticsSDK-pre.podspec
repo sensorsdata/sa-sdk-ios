@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK-pre"
-  s.version      = "1.11.12-pre"
+  s.version      = "1.11.13-pre"
   s.summary      = "The official iOS SDK Pre of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -130,6 +130,14 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_ENCRYPTION' do |f|
     f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_ENCRYPTION=1'}
+  end
+
+  # 禁用 UIWebView
+  s.subspec 'DISABLE_UIWEBVIEW' do |f|
+    # 需要使用 WKWebView，支持最低版本为 iOS 8
+    f.platform = :ios, "8.0"
+    f.dependency 'SensorsAnalyticsSDK-pre/core'
+    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
 end

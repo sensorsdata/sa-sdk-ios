@@ -57,4 +57,12 @@ typedef NS_ENUM(NSUInteger, SALoggerLevel) {
    function:(const char *)function
        line:(NSUInteger)line
      format:(NSString *)format, ... ;
+
+- (void)log:(BOOL)asynchronous
+    message:(NSString *)message
+      level:(NSInteger)level
+       file:(const char *)file
+   function:(const char *)function
+       line:(NSUInteger)line;
+
 @end

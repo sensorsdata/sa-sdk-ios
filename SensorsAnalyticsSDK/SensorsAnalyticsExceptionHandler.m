@@ -183,10 +183,9 @@ static void SAHandleException(NSException *exception) {
                     }
                 });
             }
-            
-            dispatch_sync(instance.serialQueue, ^{
-                
-            });
+
+            // 阻塞当前线程，完成 serialQueue 中数据相关的任务
+            sensorsdata_dispatch_safe_sync(instance.serialQueue, ^{});
         }
         SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {

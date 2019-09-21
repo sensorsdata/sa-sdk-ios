@@ -84,6 +84,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 @property(nonatomic, strong, readonly) SADataEncryptBuilder *encryptBuilder;
 
+@property (nonatomic, weak) UIViewController *previousTrackViewController;
+
 @end
 
 

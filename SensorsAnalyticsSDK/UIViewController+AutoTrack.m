@@ -60,8 +60,10 @@
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
-        
-        if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] == NO) {
+
+        SensorsAnalyticsSDK *instance = [SensorsAnalyticsSDK sharedInstance];
+
+        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousTrackViewController != self) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
             if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
@@ -69,14 +71,20 @@
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-                [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen: viewController];
+                [instance autoTrackViewScreen:viewController];
             }
 #else
-            [[SensorsAnalyticsSDK sharedInstance] autoTrackViewScreen:self];
+            [instance autoTrackViewScreen:self];
 #endif
         }
+
+        if (instance.previousTrackViewController != self && UIApplication.sharedApplication.keyWindow == self.view.window) {
+            // 全埋点中，忽略由于侧滑返回时多次触发的页面浏览事件
+            instance.previousTrackViewController = self;
+        }
+
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW
-        if ([SensorsAnalyticsSDK.sharedInstance isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
+        if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
             //UITableView
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW
             void (^tableViewBlock)(id, SEL, id, id) = ^(id view, SEL command, UITableView *tableView, NSIndexPath *indexPath) {
@@ -87,7 +95,7 @@
                 NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath];
                 [properties addEntriesFromDictionary:dic];
 
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [instance track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(tableView:didSelectRowAtIndexPath:) onClass:self.class withBlock:tableViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UITableView_AutoTrack"]];
@@ -104,7 +112,7 @@
                 NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:collectionView didSelectedAtIndexPath:indexPath];
                 [properties addEntriesFromDictionary:dic];
 
-                [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [instance track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(collectionView:didSelectItemAtIndexPath:)]) {
                 [SASwizzler swizzleSelector:@selector(collectionView:didSelectItemAtIndexPath:) onClass:self.class withBlock:collectionViewBlock named:[NSString stringWithFormat:@"%@_%@", NSStringFromClass(self.class), @"UICollectionView_AutoTrack"]];
