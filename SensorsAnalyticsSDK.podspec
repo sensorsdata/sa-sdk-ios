@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "1.11.12"
+  s.version      = "1.11.13"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -124,6 +124,14 @@ Pod::Spec.new do |s|
   s.subspec 'ENABLE_CHILD_VIEWSCREEN' do |f|
     f.dependency 'SensorsAnalyticsSDK/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
+  end
+
+  # 禁用 UIWebView
+  s.subspec 'DISABLE_UIWEBVIEW' do |f|
+    # 需要使用 WKWebView，支持最低版本为 iOS 8
+    f.platform = :ios, "8.0"
+    f.dependency 'SensorsAnalyticsSDK/core'
+    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
 end

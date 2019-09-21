@@ -536,7 +536,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param controllers   controller ‘字符串’数组
  */
-- (void)ignoreAutoTrackViewControllers:(NSArray *)controllers;
+- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 
 /**
  * @abstract

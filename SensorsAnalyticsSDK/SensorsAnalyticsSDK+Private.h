@@ -82,6 +82,8 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
 
 @property (nonatomic, strong, readonly) SANetwork *network;
 
+@property (nonatomic, weak) UIViewController *previousTrackViewController;
+
 @end
 
 
