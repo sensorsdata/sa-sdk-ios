@@ -73,7 +73,7 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 
-#define VERSION @"1.11.13-pre"
+#define VERSION @"1.11.14-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -208,6 +208,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
+@property(nonatomic, strong) dispatch_semaphore_t loadUASemaphore;
 #endif
 
 @property (nonatomic, copy) void(^reqConfigBlock)(BOOL success , NSDictionary *configDict);
@@ -441,14 +442,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
     __weak typeof(self) weakSelf = self;
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
-            return dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
-                while (self.wkWebView) { }
+            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.loadWKWebViewUserAgent.waitQueue"];
+            dispatch_queue_t waitQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            dispatch_async(waitQueue, ^{
+                dispatch_semaphore_wait(self.loadUASemaphore, DISPATCH_TIME_FOREVER);
                 completion(self.userAgent);
             });
+
         } else {
             self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUASemaphore = dispatch_semaphore_create(0);
             [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError * _Nullable error) {
                 NSString *userAgent = response;
                 if (error || !userAgent) {
@@ -459,6 +465,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     completion(userAgent);
                 }
                 weakSelf.wkWebView = nil;
+                dispatch_semaphore_signal(weakSelf.loadUASemaphore);
             }];
         }
     });
@@ -1049,6 +1056,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackAppCrash {
+    _configOptions.enableTrackAppCrash = YES;
     // Install uncaught exception handlers first
     [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
 }
@@ -1805,7 +1813,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     NSNumber *eventBegin = @([[self class] getSystemUpTime]);
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : [NSNumber numberWithInt:timeUnit],@"isPause":@(NO)};
+        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : @(timeUnit),@"isPause":@(NO)};
     });
 }
 
@@ -2231,25 +2239,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (NSDictionary *)collectAutomaticProperties {
-    NSMutableDictionary *p = [NSMutableDictionary dictionary];
-    UIDevice *device = [UIDevice currentDevice];
-    _deviceModel = [self deviceModel];
-    _osVersion = [device systemVersion];
-    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+
     CTTelephonyNetworkInfo *telephonyInfo = [[CTTelephonyNetworkInfo alloc] init];
     CTCarrier *carrier = nil;
-    
+
 #ifdef __IPHONE_12_0
     if (@available(iOS 12.1, *)) {
-        carrier = telephonyInfo.serviceSubscriberCellularProviders.allValues.lastObject;
+        // 排序
+        NSArray *carrierKeysArray = [telephonyInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+        carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+        if (!carrier.mobileNetworkCode) {
+            carrier = telephonyInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
+        }
     }
 #endif
-    if(!carrier) {
+    if (!carrier) {
         carrier = telephonyInfo.subscriberCellularProvider;
     }
-
-    // Use setValue semantics to avoid adding keys where value can be nil.
-    [p setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
     if (carrier != nil) {
         NSString *networkCode = [carrier mobileNetworkCode];
         NSString *countryCode = [carrier mobileCountryCode];
@@ -2280,7 +2287,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                     carrierName= @"中国铁通";
                 }
             }
-        } else { //国外运营商解析
+        } else if (countryCode && networkCode) { //国外运营商解析
             //加载当前 bundle
             NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
             //文件路径
@@ -2296,18 +2303,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         
         if (carrierName != nil) {
-            [p setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-        } else {
-            if (carrier.carrierName) {
-                [p setValue:carrier.carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
-            }
+            [properties setValue:carrierName forKey:SA_EVENT_COMMON_PROPERTY_CARRIER];
         }
     }
-    
+
+    // Use setValue semantics to avoid adding keys where value can be nil.
+    [properties setValue:[[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"] forKey:SA_EVENT_COMMON_PROPERTY_APP_VERSION];
+
 #if !SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID
-    [p setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
+    [properties setValue:[[self class] getUniqueHardwareId] forKey:SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
 #endif
-    [p addEntriesFromDictionary:@{
+
+    UIDevice *device = [UIDevice currentDevice];
+    _deviceModel = [self deviceModel];
+    _osVersion = [device systemVersion];
+    struct CGSize size = [UIScreen mainScreen].bounds.size;
+    [properties addEntriesFromDictionary:@{
                                   SA_EVENT_COMMON_PROPERTY_LIB: @"iOS",
                                   SA_EVENT_COMMON_PROPERTY_LIB_VERSION: [self libVersion],
                                   SA_EVENT_COMMON_PROPERTY_MANUFACTURER: @"Apple",
@@ -2317,7 +2328,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT: @((NSInteger)size.height),
                                   SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH: @((NSInteger)size.width),
                                       }];
-    return [p copy];
+    return [properties copy];
 }
 
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
