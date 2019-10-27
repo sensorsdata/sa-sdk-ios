@@ -21,6 +21,7 @@
 #import <XCTest/XCTest.h>
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SensorsAnalyticsSDK+Private.h"
 #import "MessageQueueBySqlite.h"
 
 @interface SensorsAnalyticsTests : XCTestCase
@@ -71,6 +72,21 @@
     [self waitForExpectationsWithTimeout:2 handler:^(NSError *error) {
         XCTAssertNil(error);
     }];
+}
+
+/**
+ trackAppCrash 接口在支持 configOptions 初始化开始过期
+ 但是该接口内未设置 enableTrackAppCrash 导致该接口不能正常开启崩溃采集
+
+ v1.11.14 修改 trackAppCrash 实现，增加 enableTrackAppCrash 设置
+*/
+- (void)testTrackAppCrashCanNotTrackCrash {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+    [self.sensorsAnalytics trackAppCrash];
+#pragma clang diagnostic pop
+
+    XCTAssertTrue(self.sensorsAnalytics.configOptions.enableTrackAppCrash);
 }
 
 /**
