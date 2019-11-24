@@ -245,10 +245,8 @@
 		CB30C03B22840EBF0004061D /* SAVisualizedAutoTrackConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedAutoTrackConnection.h; sourceTree = "<group>"; };
 		CB30C03D22840EBF0004061D /* SALogger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogger.h; sourceTree = "<group>"; };
 		CB30C03E22840EBF0004061D /* SAValueTransformers.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAValueTransformers.h; sourceTree = "<group>"; };
-		CB30C283228423D70004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C30F22843D3A0004061D /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsExtension.h; sourceTree = "<group>"; };
-		CB30C31222843D3A0004061D /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C32322843E380004061D /* SAAppExtensionDataManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAAppExtensionDataManager.m; path = SensorsAnalyticsSDK/SAAppExtensionDataManager.m; sourceTree = SOURCE_ROOT; };
 		CB30C32422843E380004061D /* SAAppExtensionDataManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAAppExtensionDataManager.h; path = SensorsAnalyticsSDK/SAAppExtensionDataManager.h; sourceTree = SOURCE_ROOT; };
 		CB30C32722843E730004061D /* SAApplicationStateSerializer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAApplicationStateSerializer.h; sourceTree = "<group>"; };
@@ -472,7 +470,6 @@
 		CB30C0AB22840F1B0004061D /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				CB30C283228423D70004061D /* Info.plist */,
 				CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */,
 			);
 			name = Resources;
@@ -499,7 +496,6 @@
 				CB30C32422843E380004061D /* SAAppExtensionDataManager.h */,
 				CB30C32322843E380004061D /* SAAppExtensionDataManager.m */,
 				CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */,
-				CB30C31222843D3A0004061D /* Info.plist */,
 			);
 			path = SensorsAnalyticsExtension;
 			sourceTree = "<group>";
@@ -968,7 +964,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				GCC_PREPROCESSOR_DEFINITIONS = "$(inherited)";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsSDK/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsSDK-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -994,7 +990,7 @@
 				DYLIB_COMPATIBILITY_VERSION = 1;
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsSDK/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsSDK-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1022,7 +1018,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsExtension/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsExtension-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1051,7 +1047,7 @@
 				DYLIB_CURRENT_VERSION = 1;
 				DYLIB_INSTALL_NAME_BASE = "@rpath";
 				HEADER_SEARCH_PATHS = "";
-				INFOPLIST_FILE = "$(SRCROOT)/SensorsAnalyticsExtension/Info.plist";
+				INFOPLIST_FILE = "$(SRCROOT)/SupportingFiles/SensorsAnalyticsExtension-Info.plist";
 				INSTALL_PATH = "$(LOCAL_LIBRARY_DIR)/Frameworks";
 				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = (

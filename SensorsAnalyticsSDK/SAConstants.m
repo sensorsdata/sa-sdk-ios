@@ -62,7 +62,7 @@ NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install_disable_callback";
-NSString * const SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT = @"$user_agent";
+NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
 // App 首次启动
@@ -80,6 +80,8 @@ NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION = @"$element_position";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR = @"$element_selector";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE = @"$element_type";
+NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
+NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 
 #pragma mark - common property
 NSString * const SA_EVENT_COMMON_PROPERTY_LIB = @"$lib";

@@ -94,7 +94,6 @@
                 }
                 NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:tableView didSelectedAtIndexPath:indexPath];
                 [properties addEntriesFromDictionary:dic];
-
                 [instance track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             };
             if ([self respondsToSelector:@selector(tableView:didSelectRowAtIndexPath:)]) {
