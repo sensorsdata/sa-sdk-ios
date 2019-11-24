@@ -59,7 +59,7 @@ extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
-extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_USER_AGENT;
+extern NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
@@ -78,6 +78,8 @@ extern NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
 extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
+extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
+extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
 
 #pragma mark--common property
 //常规参数

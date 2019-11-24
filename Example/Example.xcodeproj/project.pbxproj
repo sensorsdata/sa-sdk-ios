@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4DC0584E232F7C16008D5C7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC0584D232F7C16008D5C7E /* AdSupport.framework */; };
+		4D1FDAEC2366FEB700A8E7CD /* MainInterface.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C23A228418000004061D /* MainInterface.storyboard */; };
+		4D40ED1C23680E8F008741A6 /* JSCallWKWebViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */; };
 		4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
 		4DCD115A22927F6E0091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
@@ -104,6 +107,9 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		4DC0584D232F7C16008D5C7E /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
+		4D40ED1A23680E8F008741A6 /* JSCallWKWebViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = JSCallWKWebViewController.h; sourceTree = "<group>"; };
+		4D40ED1B23680E8F008741A6 /* JSCallWKWebViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = JSCallWKWebViewController.m; sourceTree = "<group>"; };
 		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C18C2284140E0004061D /* SensorsDataSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C1CE228414420004061D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -175,6 +181,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4DC0584E232F7C16008D5C7E /* AdSupport.framework in Frameworks */,
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
 				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
@@ -295,6 +302,7 @@
 		CB30C2202284165A0004061D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				4DC0584D232F7C16008D5C7E /* AdSupport.framework */,
 				CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */,
 				CB6EBB5722857145003CFBA8 /* SensorsAnalyticsSDK.framework */,
 				CB6EBB5622857145003CFBA8 /* SensorsAnalyticsSDK.framework */,
