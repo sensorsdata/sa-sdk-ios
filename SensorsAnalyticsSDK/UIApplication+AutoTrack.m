@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 17/3/22.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.

@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 张敏超 on 2019/3/9.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -224,8 +224,7 @@ static NSArray * SAPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
 #pragma mark -
 
 - (BOOL)evaluateServerTrust:(SecTrustRef)serverTrust
-                  forDomain:(NSString *)domain
-{
+                  forDomain:(NSString *)domain {
     if (domain && self.allowInvalidCertificates && self.validatesDomainName && (self.SSLPinningMode == SASSLPinningModeNone || [self.pinnedCertificates count] == 0)) {
         // https://developer.apple.com/library/mac/documentation/NetworkingInternet/Conceptual/NetworkingTopics/Articles/OverridingSSLChainValidationCorrectly.html
         //  According to the docs, you should only trust your provided certs for evaluation.

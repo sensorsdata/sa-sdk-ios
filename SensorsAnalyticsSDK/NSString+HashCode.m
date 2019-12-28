@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/7/6.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -33,7 +33,8 @@
         NSString *s = [self substringWithRange:NSMakeRange(i, 1)];
         char *unicode = (char *)[s cStringUsingEncoding:NSUnicodeStringEncoding];
         int charactorUnicode = 0;
-        size_t length = strlen(unicode);
+
+        size_t length = strnlen(unicode, 4);
         for (int n = 0; n < length; n ++) {
             charactorUnicode += (int)((unicode[n] & 0xff) << (n * sizeof(char) * 8));
         }

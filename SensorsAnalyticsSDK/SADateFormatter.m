@@ -1,9 +1,9 @@
 //
-// SAWeakPropertyContainer.m
+// SADateFormatter.m
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2019/8/8.
-// Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2019/12/23.
+// Copyright © 2019 SensorsData. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,20 +22,20 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAWeakPropertyContainer.h"
+#import "SADateFormatter.h"
 
-@interface SAWeakPropertyContainer ()
- 
-@property (nonatomic, weak) id weakProperty;
+@implementation SADateFormatter
 
-@end
-
-@implementation SAWeakPropertyContainer
-
-+ (instancetype)containerWithWeakProperty:(id)weakProperty {
-    SAWeakPropertyContainer *container = [[SAWeakPropertyContainer alloc]init];
-    container.weakProperty = weakProperty;
-    return container;
++ (NSDateFormatter *)dateFormatterFromString:(NSString *)string {
+    static NSDateFormatter *dateFormatter;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        dateFormatter = [[NSDateFormatter alloc] init];
+    });
+    if (dateFormatter) {
+        [dateFormatter setDateFormat:string];
+    }
+    return dateFormatter;
 }
 
 @end

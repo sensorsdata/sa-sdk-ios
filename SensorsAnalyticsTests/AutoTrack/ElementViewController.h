@@ -3,7 +3,7 @@
 //  TestSensors
 //
 //  Created by MC on 2019/5/6.
-//  Copyright © 2019 SensorsData. All rights reserved.
+//  Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 
 #import <UIKit/UIKit.h>

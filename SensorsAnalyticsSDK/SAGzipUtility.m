@@ -2,7 +2,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -31,8 +31,7 @@
 /*******************************************************************************
  See header for documentation.
  */
-+ (NSData*)gzipData:(NSData *)pUncompressedData
-{
++ (NSData*)gzipData:(NSData *)pUncompressedData {
     /*
      Special thanks to Robbie Hanson of Deusty Designs for sharing sample code
      showing how deflateInit2() can be used to make zlib generate a compressed
@@ -42,8 +41,7 @@
      
      */
     
-    if (!pUncompressedData || [pUncompressedData length] == 0)
-    {
+    if (!pUncompressedData || [pUncompressedData length] == 0) {
         SALog(@" Error: Can't compress an empty or null NSData object.");
         return nil;
     }
@@ -96,11 +94,9 @@
          produced by a filter (or predictor), or Z_HUFFMAN_ONLY to
          force Huffman encoding only (no string match) */
         int initError = deflateInit2(&zlibStreamStruct, Z_DEFAULT_COMPRESSION, Z_DEFLATED, (15+16), 8, Z_DEFAULT_STRATEGY);
-        if (initError != Z_OK)
-        {
+        if (initError != Z_OK) {
             NSString *errorMsg = nil;
-            switch (initError)
-            {
+            switch (initError) {
                 case Z_STREAM_ERROR:
                     errorMsg = @"Invalid parameter passed in to function.";
                     break;
@@ -150,8 +146,7 @@
         // Check for zlib error and convert code to usable error message if appropriate
         if (deflateStatus != Z_STREAM_END) {
             NSString *errorMsg = nil;
-            switch (deflateStatus)
-            {
+            switch (deflateStatus) {
                 case Z_ERRNO:
                     errorMsg = @"Error occured while reading file.";
                     break;

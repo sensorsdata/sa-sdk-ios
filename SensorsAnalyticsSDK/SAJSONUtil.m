@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -25,18 +25,9 @@
 
 #import "SAJSONUtil.h"
 #import "SALogger.h"
+#import "SADateFormatter.h"
 
-@implementation SAJSONUtil {
-    NSDateFormatter *_dateFormatter;
-}
-
-- (instancetype)init {
-    self = [super init];
-    _dateFormatter = [[NSDateFormatter alloc] init];
-    [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-    [_dateFormatter setTimeZone:[NSTimeZone timeZoneWithAbbreviation:@"UTC+8"]];
-    return self;
-}
+@implementation SAJSONUtil
 
 /**
  *  @abstract
@@ -50,6 +41,9 @@
     id coercedObj = [self JSONSerializableObjectForObject:obj];
     NSError *error = nil;
     NSData *data = nil;
+    if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
+        return data;
+    }
     @try {
         data = [NSJSONSerialization dataWithJSONObject:coercedObj options:0 error:&error];
     }
@@ -121,7 +115,8 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        return [_dateFormatter stringFromDate:newObj];
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+        return [dateFormatter stringFromDate:newObj];
     }
     // default to sending the object's description
     NSString *s = [newObj description];

@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/7.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -31,12 +31,5 @@
  *  @return 转化后得到的字符串
  */
 - (NSData *)JSONSerializeObject:(id)obj;
-
-/**
- *  初始化
- *
- *  @return 初始化后的对象
- */
-- (instancetype)init;
 
 @end

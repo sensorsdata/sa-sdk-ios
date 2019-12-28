@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/7.
-//  Copyright © 2015－2018 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015－2018 Sensors Data Co., Ltd. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

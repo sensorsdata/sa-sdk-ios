@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 储强盛 on 2019/3/4.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@
         _actions = [NSMutableArray arrayWithCapacity:4];
         
         if (NSClassFromString(@"UIAlertController")) {
-            UIWindow *alertWindow = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
+            UIWindow *alertWindow = [self currentAlertWindow];
             alertWindow.windowLevel = UIWindowLevelAlert + 1;
             alertWindow.rootViewController = self;
             alertWindow.hidden = NO;
@@ -206,6 +206,24 @@
     }];
     UIActionSheet *sheet = [[UIActionSheet alloc] initWithTitle:self.alertTitle delegate:self cancelButtonTitle:cancelButtonTitle destructiveButtonTitle:destructiveButtonTitle otherButtonTitles:otherButtonTitle1, otherButtonTitle2, otherButtonTitle3, otherButtonTitle4, nil];
     [sheet showInView:self.alertWindow];
+}
+
+- (UIWindow *)currentAlertWindow {
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
+    if (@available(iOS 13.0, *)) {
+        __block UIWindowScene *scene = nil;
+        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[UIWindowScene class]]) {
+                scene = (UIWindowScene *)obj;
+                *stop = YES;
+            }
+        }];
+        if (scene) {
+            return [[UIWindow alloc] initWithWindowScene:scene];
+        }
+    }
+#endif
+    return [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
 }
 
 #pragma mark - UIAlertViewDelegate
