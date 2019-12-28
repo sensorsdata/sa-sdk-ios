@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 王灼洲 on 2017/5/26.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -95,7 +95,9 @@ static const int32_t UncaughtExceptionMaximum = 10;
         struct sigaction prev_action;
         int err = sigaction(signals[i], &action, &prev_action);
         if (err == 0) {
-            memcpy(_prev_signal_handlers + signals[i], &prev_action, sizeof(prev_action));
+            char *address_action = (char *)&prev_action;
+            char *address_signal = (char *)(_prev_signal_handlers + signals[i]);
+            strlcpy(address_signal, address_action, sizeof(prev_action));
         } else {
             SALog(@"Errored while trying to set up sigaction for signal %d", signals[i]);
         }

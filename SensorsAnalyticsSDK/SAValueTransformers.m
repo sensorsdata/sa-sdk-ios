@@ -3,7 +3,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -127,8 +127,7 @@ static BOOL MPCATransform3DMakeWithDictionaryRepresentation(NSDictionary *dictio
     if (m11 && m12 && m13 && m14 &&
         m21 && m22 && m23 && m24 &&
         m31 && m32 && m33 && m34 &&
-        m41 && m42 && m43 && m44)
-    {
+        m41 && m42 && m43 && m44) {
         transform->m11 = (CGFloat)[m11 doubleValue];
         transform->m12 = (CGFloat)[m12 doubleValue];
         transform->m13 = (CGFloat)[m13 doubleValue];

@@ -2,7 +2,7 @@
 //  SensorsAnalyticsSDK
 //
 //  Created by 曹犟 on 15/7/1.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -72,8 +72,9 @@
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
+#import "SADateFormatter.h"
 
-#define VERSION @"1.11.15"
+#define VERSION @"1.11.16"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -226,7 +227,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @implementation SensorsAnalyticsSDK {
     SensorsAnalyticsDebugMode _debugMode;
-    NSDateFormatter *_dateFormatter;
     BOOL _appRelaunched;                // App 从后台恢复
     BOOL _showDebugAlertView;
     BOOL _shouldHeatMap;
@@ -282,9 +282,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
             dispatch_block_t mainThreadBlock = ^(){
-                UIApplicationState applicationState = UIApplication.sharedApplication.applicationState;
                 //判断被动启动
-                if (applicationState == UIApplicationStateBackground) {
+                if (UIApplication.sharedApplication.backgroundTimeRemaining != UIApplicationBackgroundFetchIntervalNever) {
                     self->_launchedPassively = YES;
                 }
             };
@@ -329,9 +328,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
-            _dateFormatter = [[NSDateFormatter alloc] init];
-            [_dateFormatter setDateFormat:@"yyyy-MM-dd HH:mm:ss.SSS"];
-            
              _trackTimer = [NSMutableDictionary dictionary];
             
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
@@ -339,7 +335,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
-            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^device_id$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
             
             NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
@@ -353,8 +349,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self unarchive];
             
             if (self.firstDay == nil) {
-                NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
                 self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
                 [self archiveFirstDay];
             }
@@ -471,7 +466,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isBlackListContainsViewController:(UIViewController *)viewController {
-    static NSSet *blacklistedClasses = nil;
+    static NSSet *publicClasses = nil;
+    static NSSet *privateClasses = nil;
     static dispatch_once_t onceToken;
 
     dispatch_once(&onceToken, ^{
@@ -480,23 +476,29 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         @try {
-            NSArray *blacklistedViewControllerClassNames = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
-            blacklistedClasses = [NSSet setWithArray:blacklistedViewControllerClassNames];
+            NSDictionary *ignoredClasses = [NSJSONSerialization JSONObjectWithData:jsonData  options:NSJSONReadingAllowFragments  error:nil];
+            publicClasses = [NSSet setWithArray:ignoredClasses[@"public"]];
+            privateClasses = [NSSet setWithArray:ignoredClasses[@"private"]];
         } @catch(NSException *exception) {  // json加载和解析可能失败
             SAError(@"%@ error: %@", self, exception);
         }
     });
-
-    __block BOOL isContains = NO;
-    [blacklistedClasses enumerateObjectsUsingBlock:^(id  _Nonnull obj, BOOL * _Nonnull stop) {
-        NSString *blackClassName = (NSString *)obj;
-        Class blackClass = NSClassFromString(blackClassName);
-        if (blackClass && [viewController isKindOfClass:blackClass]) {
-            isContains = YES;
-            *stop = YES;
+    
+    //check public ignored classes contains viewController or not
+    for (NSString *ignoreClass in publicClasses) {
+        if ([viewController isKindOfClass:NSClassFromString(ignoreClass)]) {
+            return YES;
         }
-    }];
-    return isContains;
+    }
+    
+    //check private ignored classes contains viewController or not
+    for (NSString *ignoreClass in privateClasses) {
+        if ([ignoreClass isEqualToString:NSStringFromClass([viewController class])]) {
+            return YES;
+        }
+    }
+    //neither public nor private ignore classes, then return NO
+    return NO;
 }
 
 - (NSDictionary *)getPresetProperties {
@@ -669,8 +671,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isFirstDay {
-    NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-    [dateFormatter setDateFormat:@"yyyy-MM-dd"];
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
     NSString *current = [dateFormatter stringFromDate:[NSDate date]];
 
     return [[self firstDay] isEqualToString:current];
@@ -1380,7 +1381,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 #pragma mark - track event
 
-- (BOOL) isValidName : (NSString *) name {
+- (BOOL)isValidName:(NSString *)name {
     @try {
         if (_deviceModel == nil) {
             _deviceModel = [self deviceModel];
@@ -1420,47 +1421,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return [e copy];
     }
     NSMutableDictionary *event = [e mutableCopy];
-    
-    NSDictionary<NSString *, id> *originProperties = event[@"properties"];
-    // can only modify "$device_id"
-    NSArray *modifyKeys = @[SA_EVENT_COMMON_PROPERTY_DEVICE_ID];
-    NSArray *returnKeys = @[SA_EVENT_PROPERTY_ELEMENT_ID,
-                            SA_EVENT_PROPERTY_SCREEN_NAME,
-                            SA_EVENT_PROPERTY_TITLE,
-                            SA_EVENT_PROPERTY_ELEMENT_POSITION,
-                            SA_EVENT_PROPERTY_ELEMENT_CONTENT,
-                            SA_EVENT_PROPERTY_ELEMENT_TYPE];
-    BOOL(^canModifyPropertyKeys)(NSString *key) = ^BOOL(NSString *key) {
-        return (![key hasPrefix:@"$"] || [modifyKeys containsObject:key]);
-    };
-    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 添加可修改的事件属性
-    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (canModifyPropertyKeys(key) || [returnKeys containsObject:key]) {
-            properties[key] = obj;
-        }
-    }];
-    BOOL isIncluded = self.trackEventCallback(event[@"event"], properties);
+    NSMutableDictionary<NSString *, id> *originProperties = event[@"properties"];
+    BOOL isIncluded = self.trackEventCallback(event[@"event"], originProperties);
     if (!isIncluded) {
         SALog(@"\n【track event】: %@ can not enter database.", event[@"event"]);
         return nil;
     }
     // 校验 properties
-    if (![self assertPropertyTypes:&properties withEventType:type]) {
+    if (![self assertPropertyTypes:&originProperties withEventType:type]) {
         SAError(@"%@ failed to track event.", self);
         return nil;
     }
-    // assert 可能修改 properties 的类型
-    properties = [properties mutableCopy];
-    // 添加不可修改的事件属性，得到修改之后的所有属性
-    [originProperties enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
-        if (!canModifyPropertyKeys(key)) {
-            properties[key] = obj;
-        }
-    }];
-    // 对 properties 重新赋值
-    event[@"properties"] = properties;
-
     return event;
 }
 
@@ -1616,7 +1587,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 } else {
                     if ([obj isKindOfClass:[NSDate class]]) {
                         // 序列化所有 NSDate 类型
-                        NSString *dateStr = [self->_dateFormatter stringFromDate:(NSDate *)obj];
+                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                        NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
                         [p setObject:dateStr forKey:key];
                     } else {
                         [p setObject:obj forKey:key];
@@ -2820,7 +2792,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self trackViewScreen:controller properties:nil];
 }
 
-- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties_ {
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
     if (!controller) {
         return;
     }
@@ -2829,16 +2801,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
+    NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
 
-    NSDictionary *dic = [SAAutoTrackUtils propertiesWithViewController:controller];
-    [properties addEntriesFromDictionary:dic];
+    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
+    [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
-        _lastScreenTrackProperties = [autoTrackerController getTrackProperties];
-        [properties addEntriesFromDictionary:_lastScreenTrackProperties];
+        NSDictionary *trackProperties = [autoTrackerController getTrackProperties];
+        [eventProperties addEntriesFromDictionary:trackProperties];
     }
+    _lastScreenTrackProperties = [eventProperties copy];
 
     NSString *currentScreenUrl;
     if ([controller conformsToProtocol:@protocol(SAScreenAutoTracker)] && [controller respondsToSelector:@selector(getScreenUrl)]) {
@@ -2846,15 +2819,22 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         currentScreenUrl = [screenAutoTrackerController getScreenUrl];
     }
     currentScreenUrl = [currentScreenUrl isKindOfClass:NSString.class] ? currentScreenUrl : NSStringFromClass(controller.class);
-    [properties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
+    [eventProperties setValue:currentScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_URL];
     @synchronized(_referrerScreenUrl) {
         if (_referrerScreenUrl) {
-            [properties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
+            [eventProperties setValue:_referrerScreenUrl forKey:SA_EVENT_PROPERTY_SCREEN_REFERRER_URL];
         }
         _referrerScreenUrl = currentScreenUrl;
     }
-    [properties addEntriesFromDictionary:properties_];
-    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+    
+    if (properties) {
+        [eventProperties addEntriesFromDictionary:properties];
+        NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
+        [tempProperties addEntriesFromDictionary:properties];
+        _lastScreenTrackProperties = [tempProperties copy];
+    }
+    
+    [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
 #ifdef SENSORS_ANALYTICS_REACT_NATIVE
@@ -3064,8 +3044,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SADebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = YES;
-    self.launchedPassively = NO;
+    if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
+        _appRelaunched = YES;
+        self.launchedPassively = NO;
+    }
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
