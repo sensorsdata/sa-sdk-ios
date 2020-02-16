@@ -73,8 +73,9 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
+#import "SATrackTimer.h"
 
-#define VERSION @"1.11.16"
+#define VERSION @"1.11.17"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -173,11 +174,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @property (atomic, strong) NSDictionary *automaticProperties;
 @property (atomic, strong) NSDictionary *superProperties;
-@property (nonatomic, strong) NSMutableDictionary *trackTimer;
+@property (nonatomic, strong) SATrackTimer *trackTimer;
 
-@property (nonatomic, strong) NSPredicate *regexTestName;
-
-@property (nonatomic, strong) NSPredicate *regexEventName;
+@property (nonatomic, strong) NSRegularExpression *propertiesRegex;
+@property (nonatomic, copy) NSSet *presetEventNames;
 
 @property (atomic, strong) MessageQueueBySqlite *messageQueue;
 
@@ -328,19 +328,24 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _visualizedAutoTrackViewControllers = [[NSMutableSet alloc] init];
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
-             _trackTimer = [NSMutableDictionary dictionary];
+             _trackTimer = [[SATrackTimer alloc] init];
             
             _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
             
-            NSString *namePattern = @"^((?!^distinct_id$|^original_id$|^time$|^event$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^device_id$|^user_id$|^date$|^datetime$)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-            _regexTestName = [NSPredicate predicateWithFormat:@"SELF MATCHES[c] %@", namePattern];
-            
-            NSString *eventPattern = @"^\\$((AppEnd)|(AppStart)|(AppViewScreen)|(AppClick)|(SignUp))|(^AppCrashed)$";
-            _regexEventName = [NSPredicate predicateWithFormat:@"SELF MATCHES %@", eventPattern];
-            
+            NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
+            _presetEventNames = [NSSet setWithObjects:
+                                      SA_EVENT_NAME_APP_START,
+                                      SA_EVENT_NAME_APP_START_PASSIVELY ,
+                                      SA_EVENT_NAME_APP_END,
+                                      SA_EVENT_NAME_APP_VIEW_SCREEN,
+                                      SA_EVENT_NAME_APP_CLICK,
+                                      SA_EVENT_NAME_APP_SIGN_UP,
+                                      SA_EVENT_NAME_APP_CRASHED, nil];
+
             if (!_launchedPassively) {
                 [self startFlushTimer];
             }
@@ -359,6 +364,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self startAppEndTimer];
             [self setUpListeners];
             
+            dispatch_async(dispatch_get_main_queue(), ^{
+                [self autoTrackAppStart];
+            });
+
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
@@ -796,7 +805,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
             NSString *token = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
-            NSNumber *timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+            id timeNumber = propertiesDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
 
             if (project) {
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
@@ -807,11 +816,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [eventDict setValue:token forKey:SA_EVENT_TOKEN];
             }
             if (timeNumber) { //包含 $time
-                NSInteger customTimeInt = [timeNumber integerValue];
-                if (customTimeInt  >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                    timeStamp = @(customTimeInt);
+                NSNumber *customTime = nil;
+                if ([timeNumber isKindOfClass:[NSDate class]]) {
+                    customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
+                } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
+                    customTime = timeNumber;
+                }
+                
+                if (!customTime) {
+                    SAError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
+                } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
+                    SAError(@"H5 $time error %@，Please check the value", timeNumber);
                 } else {
-                    SAError(@"H5 $time error '%@'，Please check the value", timeNumber);
+                    timeStamp = @([customTime unsignedLongLongValue]);
                 }
                 [propertiesDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
             }
@@ -1064,7 +1081,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
-
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -1383,25 +1399,16 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (BOOL)isValidName:(NSString *)name {
     @try {
-        if (_deviceModel == nil) {
-            _deviceModel = [self deviceModel];
-        }
-
-        if (_osVersion == nil) {
-            UIDevice *device = [UIDevice currentDevice];
-            _osVersion = [device systemVersion];
-        }
-
-        //据反馈，该函数在 iPhone 8、iPhone 8 Plus，并且系统版本号为 11.0 上可能会 crash，具体原因暂未查明
-        if ([_osVersion isEqualToString:@"11.0"]) {
-            if ([_deviceModel isEqualToString:@"iPhone10,1"] ||
-                [_deviceModel isEqualToString:@"iPhone10,4"] ||
-                [_deviceModel isEqualToString:@"iPhone10,2"] ||
-                [_deviceModel isEqualToString:@"iPhone10,5"]) {
-                    return YES;
+        // 保留字段通过字符串直接比较，效率更高
+        NSSet *reservedProperties = sensorsdata_reserved_properties();
+        for (NSString *reservedProperty in reservedProperties) {
+            if ([reservedProperty caseInsensitiveCompare:name] == NSOrderedSame) {
+                return NO;
             }
         }
-        return [self.regexTestName evaluateWithObject:name];
+        // 属性名通过正则表达式匹配，比使用谓词效率更高
+        NSRange range = NSMakeRange(0, name.length);
+        return ([self.propertiesRegex numberOfMatchesInString:name options:0 range:range] > 0);
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
         return NO;
@@ -1488,6 +1495,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSString *lib_detail = nil;
     if ([self isAutoTrackEnabled] && propertieDict) {
+        //不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
         if ([event isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
             if ([self isAutoTrackEventTypeIgnored: SensorsAnalyticsEventTypeAppClick] == NO) {
                 lib_detail = [NSString stringWithFormat:@"%@######", [propertieDict objectForKey:SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
@@ -1505,6 +1513,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     __block NSDictionary *dynamicSuperPropertiesDict = self.dynamicSuperProperties?self.dynamicSuperProperties():nil;
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
+        //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
+        NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+
         //获取用户自定义的动态公共属性
         if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
             SALog(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
@@ -1541,24 +1552,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [p setObject:@NO forKey:SA_EVENT_COMMON_PROPERTY_WIFI];
             }
 
-            NSDictionary *eventTimer = self.trackTimer[event];
-            if (eventTimer) {
-                [self.trackTimer removeObjectForKey:event];
-                NSNumber *eventBegin = [eventTimer valueForKey:@"eventBegin"];
-                NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
-                SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
-                BOOL isPause = [eventTimer[@"isPause"] boolValue];
-
-                float eventDuration = 0;
-                if (!isPause) {
-                    eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin.longValue timeUnit:timeUnit];
-                }
-
-                if (eventAccumulatedDuration) {
-                    eventDuration += eventAccumulatedDuration.floatValue;
-                }
-
-                p[@"event_duration"] = @([[NSString stringWithFormat:@"%.3f", eventDuration] floatValue]);
+            //根据 event 获取事件时长，如返回为 Nil 表示此事件没有相应事件时长，不设置 event_duration 属性
+            //为了保证事件时长准确性，当前开机时间需要在 serialQueue 队列外获取，再在此处传入方法内进行计算
+            NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:event currentSysUpTime:currentSystemUpTime];
+            if (eventDuration) {
+                p[@"event_duration"] = eventDuration;
             }
         }
 
@@ -1602,7 +1600,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         if ([type isEqualToString:@"track_signup"]) {
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                 event, SA_EVENT_NAME,
+                 eventName, SA_EVENT_NAME,
                  [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,
                  bestId, SA_EVENT_DISTINCT_ID,
                  self.originalId, @"original_id",
@@ -1654,7 +1652,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
 #endif
             e = [NSMutableDictionary dictionaryWithObjectsAndKeys:
-                 event, SA_EVENT_NAME,
+                 eventName, SA_EVENT_NAME,
                  [NSDictionary dictionaryWithDictionary:p], SA_EVENT_PROPERTIES,
                  bestId, SA_EVENT_DISTINCT_ID,
                  timeStamp, SA_EVENT_TIME,
@@ -1769,7 +1767,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
-        if ([self.regexEventName evaluateWithObject:event]) {
+        if ([_presetEventNames containsObject:event]) {
             SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
         
@@ -1787,24 +1785,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [_network cookieWithDecoded:decode];
 }
 
-- (void)trackTimerStart:(NSString *)event {
-    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitSeconds];
+- (BOOL)checkEventName:(NSString *)eventName {
+    if ([self isValidName:eventName]) {
+        return YES;
+    }
+    NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
+    SAError(@"%@", errMsg);
+    if (_debugMode != SensorsAnalyticsDebugOff) {
+        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
+    }
+    return NO;
 }
 
-- (void)trackTimerStart:(NSString *)event timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    if (![self isValidName:event]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
-        SAError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
-        return;
+- (nullable NSString *)trackTimerStart:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return nil;
     }
-    
-    NSNumber *eventBegin = @([[self class] getSystemUpTime]);
+    NSString *eventId = [_trackTimer generateEventIdByEventName:event];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer[event] = @{@"eventBegin" : eventBegin, @"eventAccumulatedDuration" : @(0.0), @"timeUnit" : @(timeUnit),@"isPause":@(NO)};
+        [self.trackTimer trackTimerStart:eventId currentSysUpTime:currentSysUpTime];
     });
+    return eventId;
 }
 
 - (void)trackTimerEnd:(NSString *)event {
@@ -1816,92 +1818,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackTimerPause:(NSString *)event {
-    if (![self isValidName:event]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
-        SAError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+    if (![self checkEventName:event]) {
         return;
     }
-
-    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
-        BOOL isPause = [eventTimer[@"isPause"] boolValue];
-
-        if (eventTimer && !isPause) {
-            UInt64 eventBegin = [eventTimer[@"eventBegin"] longValue];
-            SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
-
-            isPause = YES;
-            float eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin timeUnit:timeUnit];
-
-            eventTimer[@"eventBegin"] = @(eventBegin);
-            eventTimer[@"isPause"] = @(isPause);
-            if (eventDuration > 0) {
-                eventTimer[@"eventAccumulatedDuration"] = @([eventTimer[@"eventAccumulatedDuration"] floatValue] + eventDuration);
-            }
-
-            self.trackTimer[event] = [eventTimer copy];
-        }
+        [self.trackTimer trackTimerPause:event currentSysUpTime:currentSysUpTime];
     });
 }
 
 - (void)trackTimerResume:(NSString *)event {
-    if (![self isValidName:event]) {
-        NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", event];
-        SAError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+    if (![self checkEventName:event]) {
         return;
     }
-
-    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *eventTimer = [self.trackTimer[event] mutableCopy];
-        BOOL isPause = [eventTimer[@"isPause"] boolValue];
-
-        if (eventTimer && isPause) {
-            isPause = NO;
-            eventTimer[@"eventBegin"] = @(currentSystemUpTime);
-            eventTimer[@"isPause"] = @(isPause);
-
-            self.trackTimer[event] = [eventTimer copy];
-        }
+        [self.trackTimer trackTimerResume:event currentSysUpTime:currentSysUpTime];
     });
-}
-
-//计算事件时长
-- (float)eventTimerDurationWithCurrentTime:(UInt64)currentSystemUpTime eventStart:(UInt64)startTime timeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    if (startTime <= 0) {
-        return 0;
-    }
-
-    float eventDuration = currentSystemUpTime - startTime;
-    
-    if (eventDuration > 0 && eventDuration < 24 * 60 * 60 * 1000) {
-        switch (timeUnit) {
-            case SensorsAnalyticsTimeUnitHours:
-                eventDuration = eventDuration / 60.0;
-            case SensorsAnalyticsTimeUnitMinutes:
-                eventDuration = eventDuration / 60.0;
-            case SensorsAnalyticsTimeUnitSeconds:
-                eventDuration = eventDuration / 1000.0;
-            case SensorsAnalyticsTimeUnitMilliseconds:
-                break;
-        }
-    } else {
-        eventDuration = 0;
-    }
-    
-    return eventDuration;
 }
 
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
-        self.trackTimer = [NSMutableDictionary dictionary];
+        [self.trackTimer clearAllEventTimers];
     });
 }
 
@@ -2735,12 +2673,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)setUpListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidFinishLaunching:)
                                name:UIApplicationDidFinishLaunchingNotification
                              object:nil];
-    
+
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
                                name:UIApplicationWillEnterForegroundNotification
@@ -3098,21 +3036,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         isFirstStart = YES;
     }
     
-    // 遍历 trackTimer ,修改 eventBegin 为当前 currentSystemUpTime
-    NSNumber *currentSystemUpTime = @([[self class] getSystemUpTime]);
+    // 遍历 trackTimer
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        NSArray *keys = [self.trackTimer allKeys];
-        NSString *key = nil;
-        NSMutableDictionary *eventTimer = nil;
-        for (key in keys) {
-            eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
-            if (eventTimer) {
-                [eventTimer setValue:currentSystemUpTime forKey:@"eventBegin"];
-                self.trackTimer[key] = eventTimer;
-            }
-        }
+        [self.trackTimer resumeAllEventTimers:currentSysUpTime];
     });
-    
+
     if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
@@ -3122,10 +3051,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                                                  } withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
-    
+
     // 启动 AppEnd 事件计时器
     [self trackTimerStart:SA_EVENT_NAME_APP_END];
-    
+
     //track 被动启动的页面浏览
     if (self.launchedPassivelyControllers) {
         [self.launchedPassivelyControllers enumerateObjectsUsingBlock:^(UIViewController * _Nonnull controller, NSUInteger idx, BOOL * _Nonnull stop) {
@@ -3176,32 +3105,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }];
 
     // 遍历 trackTimer
-    // eventAccumulatedDuration = eventAccumulatedDuration + currentSystemUpTime - eventBegin
-    UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
-        NSArray *keys = [self.trackTimer allKeys];
-        NSString *key = nil;
-        NSMutableDictionary *eventTimer = nil;
-        for (key in keys) {
-            if (key != nil) {
-                if ([key isEqualToString:SA_EVENT_NAME_APP_END]) {
-                    continue;
-                }
-            }
-            eventTimer = [[NSMutableDictionary alloc] initWithDictionary:self.trackTimer[key]];
-            if (eventTimer && ![eventTimer[@"isPause"] boolValue]) {
-                UInt64 eventBegin = [[eventTimer valueForKey:@"eventBegin"] longValue];
-                NSNumber *eventAccumulatedDuration = [eventTimer objectForKey:@"eventAccumulatedDuration"];
-                SensorsAnalyticsTimeUnit timeUnit = [[eventTimer valueForKey:@"timeUnit"] intValue];
-                float eventDuration = [self eventTimerDurationWithCurrentTime:currentSystemUpTime eventStart:eventBegin timeUnit:timeUnit];
-                if (eventAccumulatedDuration) {
-                    eventDuration += [eventAccumulatedDuration floatValue];
-                }
-                [eventTimer setObject:@(eventDuration) forKey:@"eventAccumulatedDuration"];
-                [eventTimer setObject:@(currentSystemUpTime) forKey:@"eventBegin"];
-                self.trackTimer[key] = eventTimer;
-            }
-        }
+        [self.trackTimer pauseAllEventTimers:currentSysUpTime];
     });
 
     if ([self isAutoTrackEnabled]) {
@@ -3225,7 +3131,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         });
     }
 }
-
 - (void)applicationWillTerminateNotification:(NSNotification *)notification {
     SALog(@"applicationWillTerminateNotification");
     dispatch_sync(self.serialQueue, ^{
@@ -3681,15 +3586,21 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    [self trackTimerStart:event timeUnit:timeUnit];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
+    });
 }
 
 - (void)trackTimer:(NSString *)event {
-    [self trackTimerStart:event timeUnit:SensorsAnalyticsTimeUnitMilliseconds];
+    [self trackTimer:event withTimeUnit:SensorsAnalyticsTimeUnitMilliseconds];
 }
 
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    [self trackTimerStart:event timeUnit:timeUnit];
+    UInt64 currentSysUpTime = [self.class getSystemUpTime];
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
+    });
 }
 
 - (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {

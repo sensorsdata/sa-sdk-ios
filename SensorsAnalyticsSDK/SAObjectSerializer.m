@@ -169,6 +169,9 @@
     Ivar ivar = class_getInstanceVariable([object class], [propertyDescription.name UTF8String]);
     if (ivar) {
         const char *objCType = ivar_getTypeEncoding(ivar);
+        if (!objCType) {
+            return nil;
+        }
 
         ptrdiff_t ivarOffset = ivar_getOffset(ivar);
         const void *objectBaseAddress = (__bridge const void *)object;

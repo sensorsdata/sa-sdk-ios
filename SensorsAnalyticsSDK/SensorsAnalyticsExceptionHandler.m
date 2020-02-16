@@ -174,7 +174,7 @@ static void SAHandleException(NSException *exception) {
                 } else {
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], [NSThread callStackSymbols]] forKey:@"app_crashed_reason"];
                 }
-                [instance track:@"AppCrashed" withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+                [instance track:SA_EVENT_NAME_APP_CRASHED withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
             }
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 sensorsdata_dispatch_main_safe_sync(^{

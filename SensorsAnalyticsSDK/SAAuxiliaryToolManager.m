@@ -71,12 +71,15 @@
     }];
     
     [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        SADebug(@"Confirmed to open HeatMap ...");
         // start
         if ([self isHeatMapURL:URL]) {
+            SADebug(@"Confirmed to open HeatMap ...");
+            
             self.heatMapConnection = [[SAHeatMapConnection alloc] initWithURL:nil];
             [self.heatMapConnection startConnectionWithFeatureCode:featureCode url:postURL];
         } else if ([self isVisualizedAutoTrackURL:URL]) {
+            SADebug(@"Confirmed to open VisualizedAutoTrack ...");
+            
             self.visualizedAutoTrackConnection = [[SAVisualizedAutoTrackConnection alloc] initWithURL:nil];
             [self.visualizedAutoTrackConnection startConnectionWithFeatureCode:featureCode url:postURL];
         }

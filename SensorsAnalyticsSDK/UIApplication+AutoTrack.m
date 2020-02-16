@@ -109,7 +109,8 @@
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
-        [object isKindOfClass:[UITabBarItem class]]) {
+        [object isKindOfClass:[UITabBarItem class]] ||
+        [object isKindOfClass:[UIPageControl class]]) {
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
