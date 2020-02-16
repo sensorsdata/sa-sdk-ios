@@ -59,6 +59,8 @@ NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
 
 NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
 
+NSString * const SA_EVENT_NAME_APP_CRASHED = @"AppCrashed";
+
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install_disable_callback";
@@ -132,6 +134,9 @@ NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 
+NSSet* sensorsdata_reserved_properties() {
+    return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"device_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
+}
 
 void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
     sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);

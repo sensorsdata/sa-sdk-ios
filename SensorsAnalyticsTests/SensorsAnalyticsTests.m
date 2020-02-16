@@ -64,7 +64,7 @@
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
         SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
         // 捕获 NSInternalInconsistencyException 异常，是由 NSAssert 抛出的异常
-        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK sharedInstanceWithConfig:options], NSException, NSInternalInconsistencyException, @"");
+        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK startWithConfigOptions:options], NSException, NSInternalInconsistencyException, @"");
 
         [expectation fulfill];
     });
@@ -278,6 +278,47 @@
         [[SensorsAnalyticsSDK sharedInstance] track:@"$AppEnd"];
     });
     
+    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+        XCTAssertNil(error);
+    }];
+}
+
+- (void)testCrossTrackTimer {
+    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+    __block NSString *timer1;
+    __block NSString *timer2;
+    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+    timer1 = [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"testTimer"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), queue, ^{
+        timer2 = [[SensorsAnalyticsSDK sharedInstance] trackTimerStart:@"testTimer"];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(4 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:timer1];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(6 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerPause:timer2];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(8 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:timer1];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(10 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerResume:timer2];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(12 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:timer1];
+    });
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(14 * NSEC_PER_SEC)), queue, ^{
+        [[SensorsAnalyticsSDK sharedInstance] trackTimerEnd:timer2];
+    });
+ 
+    [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
+        if ([eventName isEqualToString:@"timerEvent"]) {
+            XCTAssertEqualWithAccuracy([properties[@"event_duration"] floatValue], 8, 0.1);
+        }
+        [expectation fulfill];
+        return NO;
+    }];
+
     [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
         XCTAssertNil(error);
     }];

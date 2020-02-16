@@ -130,6 +130,9 @@
 		CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */; };
 		CBE4DF03228AA1CB00DDE07D /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */; };
 		CBE4DF04228AA1CB00DDE07D /* UIViewController+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */; };
+		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
+		FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */; };
+		FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */; };
 		FC9AEE0623B0D67700B9990F /* SADateFormatter.h in Headers */ = {isa = PBXBuildFile; fileRef = FC9AEE0423B0D67700B9990F /* SADateFormatter.h */; };
 		FC9AEE0723B0D67700B9990F /* SADateFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = FC9AEE0523B0D67700B9990F /* SADateFormatter.m */; };
 		FCBAF2A022FBCA3700D7CA38 /* SAWeakPropertyContainer.h in Headers */ = {isa = PBXBuildFile; fileRef = FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */; };
@@ -275,6 +278,9 @@
 		CB6EBB9A22857BC0003CFBA8 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		CBE4DF01228AA1CA00DDE07D /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		CBE4DF02228AA1CB00DDE07D /* UIViewController+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+AutoTrack.m"; sourceTree = "<group>"; };
+		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
+		FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
+		FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
 		FC9AEE0423B0D67700B9990F /* SADateFormatter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADateFormatter.h; sourceTree = "<group>"; };
 		FC9AEE0523B0D67700B9990F /* SADateFormatter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADateFormatter.m; sourceTree = "<group>"; };
 		FCBAF29E22FBCA3700D7CA38 /* SAWeakPropertyContainer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAWeakPropertyContainer.h; sourceTree = "<group>"; };
@@ -443,6 +449,8 @@
 				FCBAF29F22FBCA3700D7CA38 /* SAWeakPropertyContainer.m */,
 				FC9AEE0423B0D67700B9990F /* SADateFormatter.h */,
 				FC9AEE0523B0D67700B9990F /* SADateFormatter.m */,
+				FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */,
+				FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */,
 			);
 			path = SensorsAnalyticsSDK;
 			sourceTree = "<group>";
@@ -514,6 +522,7 @@
 				4D6A188D22978F5B00F6B218 /* AutoTrack */,
 				CB6EBAEE22855222003CFBA8 /* Resources */,
 				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
+				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
 				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
 				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
@@ -558,6 +567,7 @@
 			files = (
 				656D61F122EC453100E0DA06 /* SAEncryptUtils.h in Headers */,
 				CB30C06E22840EC00004061D /* SensorsAnalyticsSDK.h in Headers */,
+				FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */,
 				CB30C05922840EC00004061D /* SAConfigOptions.h in Headers */,
 				CB30C07822840EC00004061D /* SASecurityPolicy.h in Headers */,
 				CB6EBBA522857BC0003CFBA8 /* SAAutoTrackUtils.h in Headers */,
@@ -781,6 +791,7 @@
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
 				CB30C07B22840EC00004061D /* SADeviceOrientationManager.m in Sources */,
 				FCBAF2A122FBCA3700D7CA38 /* SAWeakPropertyContainer.m in Sources */,
+				FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */,
 				CB30C0A222840EC00004061D /* SAVisualizedAutoTrackConnection.m in Sources */,
 				CB30C07D22840EC00004061D /* SAConfigOptions.m in Sources */,
 				CB30C05722840EC00004061D /* SAJSONUtil.m in Sources */,
@@ -833,6 +844,7 @@
 				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
 				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
 				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
+				FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

@@ -255,6 +255,14 @@
 
 @end
 
+@implementation UIPageControl (AutoTrack)
+
+- (NSString *)sensorsdata_elementContent {
+    return [NSString stringWithFormat:@"%ld", (long)self.currentPage];
+}
+
+@end
+
 @implementation UISlider (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {

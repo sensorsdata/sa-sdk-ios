@@ -56,6 +56,8 @@ extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
 
 extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
 
+extern NSString * const SA_EVENT_NAME_APP_CRASHED;
+
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
@@ -132,6 +134,8 @@ extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 
+#pragma mark - reserved property list
+NSSet* sensorsdata_reserved_properties(void);
 
 #pragma mark - safe sync
 void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block);
