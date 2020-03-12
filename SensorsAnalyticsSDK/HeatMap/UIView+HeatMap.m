@@ -1,8 +1,8 @@
-//  SUIView+SAHelpers.m
+//  SUIView+HeatMap.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+SAHelpers.h"
-#import "SALogger.h"
+#import "UIView+HeatMap.h"
+#import "UIView+AutoTrack.h"
 
 // NB If you add any more fingerprint methods, increment this.
 #define SA_FINGERPRINT_VERSION 1
 
-@implementation UIView (SAHelpers)
+@implementation UIView (HeatMap)
 
 - (int)jjf_fingerprintVersion {
     return SA_FINGERPRINT_VERSION;
@@ -61,7 +61,7 @@
 #else
     [self.layer renderInContext:UIGraphicsGetCurrentContext()];
 #endif
-
+    
     UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
     
@@ -100,6 +100,7 @@
     return [targetActions copy];
 }
 
+// 在 controller 上的成员变量
 - (NSString *)sa_controllerVariable {
     if (![self isKindOfClass:[UIControl class]]) {
         return nil;
@@ -114,12 +115,9 @@
         Ivar *ivars = class_copyIvarList([responder class], &count);
         for (uint i = 0; i < count; i++) {
             Ivar ivar = ivars[i];
-            const char *objCType = ivar_getTypeEncoding(ivar);
-            if (objCType) {
-                if (objCType[0] == '@' && object_getIvar(responder, ivar) == self) {
-                    result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
-                    break;
-                }
+            if (ivar_getTypeEncoding(ivar)[0] == '@' && object_getIvar(responder, ivar) == self) {
+                result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+                break;
             }
         }
         free(ivars);
@@ -183,7 +181,7 @@
     }
     return text;
 }
-        
+
 static NSString* sa_encryptHelper(id input) {
     NSString *SALT = @"dbba253e672cc94bee5da560040b47b1";
     NSMutableString *encryptedStuff = nil;
@@ -220,83 +218,43 @@ static NSString* sa_encryptHelper(id input) {
     return encryptedActions;
 }
 
+// 获取内容
 - (NSString *)jjf_varE {
     return sa_encryptHelper([self sa_text]);
+    
 }
 
 @end
-@implementation UITableViewCell (SAHelpers)
+
+
+
+@implementation UITableViewCell (HeatMap)
+
 - (NSString *)sa_indexPath {
-    UITableView *tableView = (UITableView *)[self superview];
-    if ([NSStringFromClass([tableView class]) isEqualToString:@"UITableViewWrapperView"]) {
-        tableView = (UITableView *)[tableView superview];
+    if (self.sensorsdata_IndexPath) {
+        return [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.row];
     }
-    if ([tableView isKindOfClass:UITableView.class]) {
-        NSIndexPath *indexPath = [tableView indexPathForCell:self];
-        NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.row];
-        return pathString;
+    return @"";
+}
+
+
+@end
+@implementation UICollectionViewCell (HeatMap)
+
+- (NSString *)sa_indexPath {
+    if (self.sensorsdata_IndexPath) {
+        return [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
     }
     return @"";
 }
 
 @end
-@implementation UICollectionViewCell (SAHelpers)
-- (NSString *)sa_indexPath {
-    UICollectionView *collectionView = (UICollectionView *)[self superview];
-    if([collectionView isKindOfClass:UICollectionView.class] == NO) return @"";
-    NSIndexPath *indexPath = [collectionView indexPathForCell:self];
-    NSString *pathString = [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)indexPath.section, (long)indexPath.item];
-    return pathString;
-}
 
-@end
 
-@implementation UISegmentedControl (SAHelpers)
-- (NSArray *)sa_subviewsFixed {
-    NSArray *segments = [self valueForKey:@"segments"];
-    return segments;
-}
-@end
 
-@implementation UITableViewHeaderFooterView (SAHelpers)
+@implementation UITableViewHeaderFooterView (HeatMap)
 - (NSString *)sa_section {
-    UITableView *tableView = (UITableView *)[self superview];
-    if ([NSStringFromClass([tableView class]) isEqualToString:@"UITableViewWrapperView"]) {
-        tableView = (UITableView *)[tableView superview];
-    }
-    if ([tableView isKindOfClass:UITableView.class]) {
-        NSInteger sectionCount = tableView.numberOfSections;
-        NSInteger sa_section = -1;
-        UITableViewHeaderFooterView *headerFooterView = nil;
-        BOOL isHeader = YES;
-        for (int i = 0; i<sectionCount; i++) {
-            headerFooterView = [tableView headerViewForSection:i];
-            if (headerFooterView == self) {
-                isHeader = YES;
-                sa_section = i;
-                break;
-            }
-            headerFooterView = [tableView footerViewForSection:i];
-            if (headerFooterView == self) {
-                sa_section = i;
-                isHeader = NO;
-                break;
-            }
-        }
-
-        if (sa_section == -1) {
-            return @"";
-        }
-
-        NSString *desc = nil;
-        if (isHeader) {
-            desc = @"SectionHeader";
-        } else {
-            desc = @"SectionFooter";
-        }
-        NSString *pathString = [[NSString alloc] initWithFormat:@"[%@][%ld]", desc, (long)sa_section];
-        return pathString;
-    }
-    return @"";
+    // 修改页面结构采集逻辑，使得和 $element_selector 采集相同
+    return self.sensorsdata_itemPath;
 }
 @end

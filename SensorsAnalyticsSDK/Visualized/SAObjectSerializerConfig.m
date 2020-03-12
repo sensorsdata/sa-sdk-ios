@@ -40,8 +40,9 @@
         for (NSDictionary *d in dictionary[@"classes"]) {
             NSString *superclassName = d[@"superclass"];
             SAClassDescription *superclassDescription = superclassName ? classDescriptions[superclassName] : nil;
-            SAClassDescription *classDescription = [[SAClassDescription alloc] initWithSuperclassDescription:superclassDescription
-                                                                                                  dictionary:d];
+            
+            // 构造一个类的描述信息
+            SAClassDescription *classDescription = [[SAClassDescription alloc] initWithSuperclassDescription:superclassDescription dictionary:d];
 
             classDescriptions[classDescription.name] = classDescription;
         }
@@ -51,7 +52,7 @@
             SAEnumDescription *enumDescription = [[SAEnumDescription alloc] initWithDictionary:d];
             enumDescriptions[enumDescription.name] = enumDescription;
         }
-
+ 
         _classes = [classDescriptions copy];
         _enums = [enumDescriptions copy];
     }

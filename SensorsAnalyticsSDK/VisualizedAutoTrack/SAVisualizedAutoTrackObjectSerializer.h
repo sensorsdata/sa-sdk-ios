@@ -1,5 +1,5 @@
 //
-//  SADesignerMessage.h
+//  SAObjectSerializer.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/18/16.
@@ -20,17 +20,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class SADesignerConnection;
+@class SAClassDescription;
+@class SAObjectSerializerConfig;
+@class SAObjectIdentityProvider;
 
-@protocol SADesignerMessage <NSObject>
+@interface SAVisualizedAutoTrackObjectSerializer : NSObject
 
-@property (nonatomic, copy, readonly) NSString *type;
+- (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
+               objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
-- (void)setPayloadObject:(id)object forKey:(NSString *)key;
-- (id)payloadObjectForKey:(NSString *)key;
-
-- (NSData *)JSONData:(BOOL)useGzip;
-
-- (NSOperation *)responseCommandWithConnection:(SADesignerConnection *)connection;
+- (NSDictionary *)serializedObjectsWithRootObject:(id)rootObject;
 
 @end

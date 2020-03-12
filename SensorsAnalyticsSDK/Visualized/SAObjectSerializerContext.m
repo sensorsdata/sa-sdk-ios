@@ -27,15 +27,16 @@
 
 @implementation SAObjectSerializerContext {
     NSMutableSet *_visitedObjects;
-    NSMutableSet *_unvisitedObjects;
+    NSMutableArray *_unvisitedObjects;
     NSMutableDictionary *_serializedObjects;
+    NSInteger _levelIndex; // 保存当前元素层级序号
 }
 
 - (instancetype)initWithRootObject:(id)object {
     self = [super init];
     if (self) {
         _visitedObjects = [NSMutableSet set];
-        _unvisitedObjects = [NSMutableSet setWithObject:object];
+        _unvisitedObjects = [NSMutableArray arrayWithObject:object];
         _serializedObjects = [[NSMutableDictionary alloc] init];
     }
 
@@ -47,35 +48,52 @@
 }
 
 - (void)enqueueUnvisitedObject:(NSObject *)object {
-    NSParameterAssert(object != nil);
+    if (object && ![_unvisitedObjects containsObject:object]) {
+        [_unvisitedObjects insertObject:object atIndex:0];
+    }
+}
 
-    [_unvisitedObjects addObject:object];
+- (void)enqueueUnvisitedObjects:(NSArray *)objects {
+    if (!objects) {
+        return;
+    }
+    NSMutableArray *newObjects = [NSMutableArray array];
+    for (NSObject *object in objects) {
+        if (![_unvisitedObjects containsObject:object]) {
+            [newObjects addObject:object];
+        }
+    }
+    [_unvisitedObjects insertObjects:newObjects atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newObjects.count)]];
 }
 
 - (NSObject *)dequeueUnvisitedObject {
-    NSObject *object = [_unvisitedObjects anyObject];
+    NSObject *object = [_unvisitedObjects firstObject];
     [_unvisitedObjects removeObject:object];
-
+    _levelIndex ++;
     return object;
 }
 
 - (void)addVisitedObject:(NSObject *)object {
-    NSParameterAssert(object != nil);
-
-    [_visitedObjects addObject:object];
+    if (object) {
+        [_visitedObjects addObject:object];
+    }
 }
 
 - (BOOL)isVisitedObject:(NSObject *)object {
-    return object && [_visitedObjects containsObject:object];
+    return [_visitedObjects containsObject:object];
 }
 
 - (void)addSerializedObject:(NSDictionary *)serializedObject {
-    NSParameterAssert(serializedObject[@"id"] != nil);
-    _serializedObjects[serializedObject[@"id"]] = serializedObject;
+    if (serializedObject[@"id"]) {
+        _serializedObjects[serializedObject[@"id"]] = serializedObject;
+    }
 }
 
 - (NSArray *)allSerializedObjects {
     return [_serializedObjects allValues];
 }
 
+- (NSInteger)currentLevelIndex {
+    return _levelIndex;
+}
 @end

@@ -26,20 +26,8 @@
 #import "SAClassDescription.h"
 #import "SAPropertyDescription.h"
 
-@implementation SADelegateInfo
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary {
-    if (self = [super init]) {
-        _selectorName = dictionary[@"selector"];
-    }
-    return self;
-}
-
-@end
-
 @implementation SAClassDescription {
     NSArray *_propertyDescriptions;
-    NSArray *_delegateInfos;
 }
 
 - (instancetype)initWithSuperclassDescription:(SAClassDescription *)superclassDescription
@@ -54,12 +42,6 @@
         }
 
         _propertyDescriptions = [propertyDescriptions copy];
-
-        NSMutableArray *delegateInfos = [NSMutableArray array];
-        for (NSDictionary *delegateInfoDictionary in dictionary[@"delegateImplements"]) {
-            [delegateInfos addObject:[[SADelegateInfo alloc] initWithDictionary:delegateInfoDictionary]];
-        }
-        _delegateInfos = [delegateInfos copy];
     }
 
     return self;

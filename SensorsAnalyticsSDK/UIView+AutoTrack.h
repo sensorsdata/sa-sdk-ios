@@ -35,8 +35,6 @@
 @interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITabBar (AutoTrack) <SAAutoTrackViewProperty>
-@end
 
 @interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
 @end
@@ -45,6 +43,9 @@
 @end
 
 #pragma mark - UIControl
+
+@interface UIControl (AutoTrack) <SAAutoTrackViewProperty>
+@end
 
 @interface UIButton (AutoTrack) <SAAutoTrackViewProperty>
 @end
@@ -58,16 +59,13 @@
 @interface UISegmentedControl (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
+
 @interface UIPageControl (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-#pragma mark - UITabBarItem
-@interface UITabBarItem (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
 #pragma mark - Cell
-@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty, SAAutoTrackViewPathProperty>
 @end
 
-@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty, SAAutoTrackViewPathProperty>
 @end

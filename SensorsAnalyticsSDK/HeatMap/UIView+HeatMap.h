@@ -1,9 +1,8 @@
-//
-//  SAHeatMapConnection.h
+//  UIView+HeatMap.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 雨晗 on 1/20/16
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -19,19 +18,34 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@protocol SAHeatMapMessage;
 
-@interface SAHeatMapConnection : NSObject
+@interface UIView (HeatMap)
 
-@property (nonatomic, readonly) BOOL connected;
-@property (nonatomic, assign) BOOL useGzip;
+- (UIImage *)sa_snapshotImage;
+- (UIImage *)sa_snapshotForBlur;
 
-- (instancetype)initWithURL:(NSURL *)url;
-- (void)setSessionObject:(id)object forKey:(NSString *)key;
-- (id)sessionObjectForKey:(NSString *)key;
-- (void)sendMessage:(id<SAHeatMapMessage>)message;
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr;
-- (void)close;
+- (NSString *)jjf_varA;
+- (NSString *)jjf_varB;
+- (NSString *)jjf_varC;
+- (NSArray *)jjf_varSetD;
+- (NSString *)jjf_varE;
 
 @end
+
+
+
+@interface UITableViewCell (HeatMap)
+- (NSString *)sa_indexPath;
+@end
+
+@interface UICollectionViewCell (HeatMap)
+- (NSString *)sa_indexPath;
+@end
+
+
+@interface UITableViewHeaderFooterView (HeatMap)
+- (NSString *)sa_section;
+@end
+

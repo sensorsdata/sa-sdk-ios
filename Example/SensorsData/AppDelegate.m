@@ -37,6 +37,8 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     options.enableTrackAppCrash = YES;
 //    options.flushInterval = 10 * 1000;
 //    options.flushBulkSize = 100;
+    options.enableHeatMap = YES;
+    options.enableVisualizedAutoTrack = YES;
     options.maxCacheSize = 20000;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
     
@@ -55,8 +57,6 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     
     [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
 
-//    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
-//    [[SensorsAnalyticsSDK sharedInstance] enableVisualizedAutoTrack];
     [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];

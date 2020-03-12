@@ -1,18 +1,18 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK-pre"
-  s.version      = "1.11.17-pre"
+  s.version      = "2.0.0-pre"
   s.summary      = "The official iOS SDK Pre of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
-  s.platform = :ios, "7.0"
+  s.platform = :ios, "8.0"
   s.default_subspec = 'core'
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreLocation', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'core' do |c|
-    c.source_files  = "SensorsAnalyticsSDK/VisualizedAutoTrack/*.{h,m}", "SensorsAnalyticsSDK/*.{h,m}","SensorsAnalyticsSDK/HeatMap/*.{h,m}"
+    c.source_files  =  "SensorsAnalyticsSDK/*.{h,m}", "SensorsAnalyticsSDK/Visualized/*.{h,m}", "SensorsAnalyticsSDK/HeatMap/*.{h,m}", "SensorsAnalyticsSDK/VisualizedAutoTrack/*.{h,m}"
     c.public_header_files = "SensorsAnalyticsSDK/SensorsAnalyticsSDK.h","SensorsAnalyticsSDK/SAAppExtensionDataManager.h","SensorsAnalyticsSDK/SASecurityPolicy.h","SensorsAnalyticsSDK/SAConfigOptions.h","SensorsAnalyticsSDK/SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
@@ -71,7 +71,7 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_REACT_NATIVE=1'}
   end
 
-  # 允许使用私有 API
+  # 允许使用私有 API，v2.0.0 已废弃，待删除
   s.subspec 'ENABLE_NO_PUBLIC_APIS' do |f|
     f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS=1'}
@@ -133,5 +133,11 @@ Pod::Spec.new do |s|
     f.dependency 'SensorsAnalyticsSDK-pre/core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
+
+  # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
+  s.subspec 'DISABLE_PRIVATE_APIS' do |f|
+    f.dependency 'SensorsAnalyticsSDK-pre/core'
+    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
+  end 
 
 end

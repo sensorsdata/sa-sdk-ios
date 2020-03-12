@@ -1,5 +1,5 @@
 //
-//  SAAbstractDesignerMessage.h
+//  SAApplicationStateSerializer.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/18/16.
@@ -18,23 +18,24 @@
 //  limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-#import "SADesignerMessage.h"
+@class SAObjectSerializerConfig;
+@class SAObjectIdentityProvider;
 
-@interface SAAbstractDesignerMessage : NSObject <SADesignerMessage>
+@interface SAApplicationStateSerializer : NSObject
 
-@property (nonatomic, copy, readonly) NSString *type;
+- (instancetype)initWithApplication:(UIApplication *)application
+                      configuration:(SAObjectSerializerConfig *)configuration
+             objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
-+ (instancetype)messageWithType:(NSString *)type payload:(NSDictionary *)payload;
 
-- (instancetype)initWithType:(NSString *)type;
-- (instancetype)initWithType:(NSString *)type payload:(NSDictionary *)payload;
+/// keyWindow 截图
+- (UIImage *)screenshotImageForKeyWindow;
 
-- (void)setPayloadObject:(id)object forKey:(NSString *)key;
-- (id)payloadObjectForKey:(NSString *)key;
-- (NSDictionary *)payload;
+/// 所有 window 截图合成
+- (void)screenshotImageForAllWindowWithCompletionHandler:(void(^)(UIImage *))completionHandler;
 
-- (NSData *)JSONData:(BOOL)useGzip;
+- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window;
 
 @end

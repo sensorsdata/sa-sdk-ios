@@ -20,6 +20,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <UIKit/UIApplication.h>
+
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
@@ -188,37 +189,6 @@ NS_ASSUME_NONNULL_BEGIN
  *
  */
 - (void)setServerUrl:(NSString *)serverUrl;
-
-#pragma mark- about webView
-/**
- * @abstract
- * 将 distinctId 传递给当前的 WebView
- *
- * @discussion
- * 混合开发时,将 distinctId 传递给当前的 WebView
- *
- * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
- *
- * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
- */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify;
-
-/**
- * @abstract
- * 将 distinctId 传递给当前的 WebView
- *
- * @discussion
- * 混合开发时,将 distinctId 传递给当前的 WebView
- *
- * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
- * @param request NSURLRequest
- * @param propertyDict NSDictionary 自定义扩展属性
- *
- * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
- */
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
 
 #pragma mark--cache and flush
 
@@ -542,10 +512,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSString *)getCookieWithDecode:(BOOL)decode;
 
-- (void)trackFromH5WithEvent:(NSString *)eventInfo;
-
-- (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
-
 /**
  * @abstract
  * 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
@@ -575,30 +541,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return LastScreenTrackProperties
  */
 - (NSDictionary *)getLastScreenTrackProperties;
-
-/**
- * @abstract
- * H5 数据打通的时候默认通过 ServerUrl 校验
- */
-- (void)addWebViewUserAgentSensorsDataFlag;
-
-/**
- * @abstract
- * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
- *
- * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
- */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
-
-/**
- * @abstract
- * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
- *
- * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
- * @param userAgent  userAgent = nil ,SDK 会从 webview 中读取 ua
- 
- */
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
@@ -759,12 +701,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)canHandleURL:(NSURL *)url;
 
 /**
- * 开启 可视化全埋点 分析，默认不开启，
- * $AppClick 事件将会采集控件的 viewPath。
- */
-- (void)enableVisualizedAutoTrack;
-
-/**
  是否开启 可视化全埋点 分析，默认不
 
  @return YES/NO
@@ -788,10 +724,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
 
 #pragma mark HeatMap
-/**
- 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap;
 
 /**
  是否开启点击图
@@ -1013,6 +945,72 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - JSCall
+@interface SensorsAnalyticsSDK (JSCall)
+
+#pragma mark about webView
+
+/**
+ * @abstract
+ * H5 数据打通的时候默认通过 ServerUrl 校验
+ */
+- (void)addWebViewUserAgentSensorsDataFlag;
+
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify;
+
+/**
+ * @abstract
+ * H5 数据打通的时候是否通过 ServerUrl 校验, 如果校验通过，H5 的事件数据走 App 上报否则走 JSSDK 上报
+ *
+ * @param enableVerify YES/NO   校验通过后可走 App，上报数据/直接走 App，上报数据
+ * @param userAgent  userAgent = nil ,SDK 会从 webview 中读取 ua
+
+ */
+- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent;
+/**
+ * @abstract
+ * 将 distinctId 传递给当前的 WebView
+ *
+ * @discussion
+ * 混合开发时,将 distinctId 传递给当前的 WebView
+ *
+ * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
+ *
+ * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
+ */
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request;
+
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify;
+
+/**
+ * @abstract
+ * 将 distinctId 传递给当前的 WebView
+ *
+ * @discussion
+ * 混合开发时,将 distinctId 传递给当前的 WebView
+ *
+ * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
+ * @param request NSURLRequest
+ * @param propertyDict NSDictionary 自定义扩展属性
+ *
+ * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
+ */
+- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(nullable NSDictionary *)propertyDict;
+
+#pragma mark trackFromH5
+
+- (void)trackFromH5WithEvent:(NSString *)eventInfo;
+
+- (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
+@end
+
+#pragma mark -
 /**
  * @class
  * SensorsAnalyticsPeople 类
@@ -1334,7 +1332,8 @@ NS_ASSUME_NONNULL_BEGIN
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
-#pragma mark- heatMap
+
+#pragma mark- HeatMap & VisualizedAutoTrack
 /**
  * @abstract
  * 神策 SDK 会处理 点击图，可视化全埋点url
@@ -1344,6 +1343,17 @@ NS_ASSUME_NONNULL_BEGIN
  * @return YES/NO
  */
 - (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
+
+/**
+ * 开启 可视化全埋点 分析，默认不开启，
+ * $AppClick 事件将会采集控件的 viewPath。
+ */
+- (void)enableVisualizedAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableVisualizedAutoTrack")));
+
+/**
+ 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
+ */
+- (void)enableHeatMap __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableHeatMap")));
 
 /**
  * @abstract

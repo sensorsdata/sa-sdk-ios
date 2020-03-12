@@ -96,10 +96,12 @@ static dispatch_queue_t __logQueue__ ;
     }
     
     //iOS 10.x 有可能触发 [[NSString alloc] initWithFormat:format arguments:args]  crash ，不在启用 Log
+#ifndef DEBUG
     NSInteger systemVersion = UIDevice.currentDevice.systemVersion.integerValue;
     if (systemVersion == 10) {
         return;
     }
+#endif
     @try {
         va_list args;
         va_start(args, format);

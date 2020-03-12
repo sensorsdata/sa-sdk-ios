@@ -25,7 +25,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+SAHelpers.h"
+#import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
 #import "SALogger.h"
 
@@ -84,16 +84,41 @@
 }
 
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    UIViewController *currentViewController = nil;
-    if (viewController.presentedViewController) {
+    __block UIViewController *currentViewController = nil;
+    if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
         viewController = [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
     }
 
     if ([viewController isKindOfClass:[UITabBarController class]]) {
         currentViewController = [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
     } else if ([viewController isKindOfClass:[UINavigationController class]]) {
-        // 根视图为UINavigationController
-        currentViewController = [self findCurrentViewControllerFromRootViewController:[(UINavigationController *)viewController visibleViewController] isRoot:NO];
+        // 根视图为 UINavigationController
+        UIViewController *topViewController = [(UINavigationController *)viewController topViewController];
+        currentViewController = [self findCurrentViewControllerFromRootViewController:topViewController isRoot:NO];
+    } else if (viewController.childViewControllers.count > 0) {
+        if (viewController.childViewControllers.count == 1 && isRoot) {
+            currentViewController = [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
+        } else {
+            //从最上层遍历（逆序），查找正在显示的 UITabBarController 或 UINavigationController 类型的
+            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+            // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
+            __block BOOL isContainController = NO;
+            [viewController.childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+                CGPoint point = [keyWindow convertPoint:CGPointMake(0, 0) toView:obj.view];
+                // 正在全屏显示
+                if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
+                    // 判断类型
+                    if ([obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class]) {
+                        currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
+                        *stop = YES;
+                        isContainController = YES;
+                    }
+                }
+            }];
+            if (!isContainController) {
+                currentViewController = viewController;
+            }
+        }
     } else if ([viewController respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -102,12 +127,37 @@
         if (tempViewController) {
             currentViewController = [self findCurrentViewControllerFromRootViewController:tempViewController isRoot:NO];
         }
-    } else if (viewController.childViewControllers.count == 1 && isRoot) {
-        currentViewController = [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
     } else {
         currentViewController = viewController;
     }
     return currentViewController;
+}
+
++ (BOOL)isAlertForResponder:(UIResponder *)responder {
+    do {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
+        BOOL isUIAlertView = [responder isKindOfClass:UIAlertView.class];
+        BOOL isUIActionSheet = [responder isKindOfClass:UIActionSheet.class];
+#pragma clang diagnostic pop
+
+        BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
+
+        if (isUIAlertController || isUIAlertView || isUIActionSheet) {
+            return YES;
+        }
+    } while ((responder = [responder nextResponder]));
+    return NO;
+}
+
+/// 是否为弹框点击
++ (BOOL)isAlertClickForView:(UIView *)view {
+ #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
+            return YES;
+        }
+#endif
+     return NO;
 }
 
 @end
@@ -153,19 +203,19 @@
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
-
+    
     viewController = viewController ? : object.sensorsdata_viewController;
     if (!isCodeTrack && viewController.sensorsdata_isIgnored) {
         return nil;
     }
-
+    
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
-
+    
     properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
     properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
     properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
-
+    
     UIView *view = (UIView *)object;
     //View Properties
     if ([object isKindOfClass:UIView.class]) {
@@ -173,11 +223,12 @@
     } else {
         return properties;
     }
-
+    
     NSString *viewPath = [self viewPathForView:view atViewController:viewController];
-    if (viewPath) {
-        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
-    }
+    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
+    
+    NSString *viewSimilarPath = [self viewSimilarPathForView:view atViewController:viewController shouldSimilarPath:YES];
+    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
 
     return properties;
 }
@@ -186,6 +237,15 @@
 
 #pragma mark -
 @implementation SAAutoTrackUtils (ViewPath)
+
++ (BOOL)isIgnoredVisualizedAutoTrackForViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
+    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
+    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
+    return !isEnableVisualizedAutoTrack;
+}
 
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
@@ -209,13 +269,32 @@
     return viewPaths;
 }
 
+//+ (NSArray<NSString *> *)viewPathsForCurrentViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
+//    NSMutableArray *viewPaths = [NSMutableArray array];
+//
+//    if ([viewController isKindOfClass:UINavigationController.class]) {
+//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
+//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
+//    } else if ([viewController isKindOfClass:UIAlertController.class]) {
+//        [viewPaths addObject:viewController.sensorsdata_itemPath];
+//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
+//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
+//    } else {
+//        [viewPaths addObject:viewController.sensorsdata_itemPath];
+//    }
+//    return viewPaths;
+//}
+
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
-    do {
-        [viewPathArray addObject:view.sensorsdata_itemPath];
+    do { // 遍历 view 层级 路径
+        if (view.sensorsdata_itemPath) {
+            [viewPathArray addObject:view.sensorsdata_itemPath];
+        }
     } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
 
     if ([view isKindOfClass:UIViewController.class] && [view conformsToProtocol:@protocol(SAAutoTrackViewPathProperty)]) {
+        // 遍历 controller 层 路径
         [viewPathArray addObjectsFromArray:[self viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)view]];
     }
     return viewPathArray;
@@ -228,21 +307,61 @@
     NSArray *viewPaths = [[[self viewPathsForView:view] reverseObjectEnumerator] allObjects];
     NSString *viewPath = [viewPaths componentsJoinedByString:@"/"];
 
-    NSRange range = [viewPath rangeOfString:@"UITableViewWrapperView/"];
-    if (range.location != NSNotFound) {
-        viewPath = [viewPath stringByReplacingCharactersInRange:range withString:@""];
+    return viewPath;
+}
+
+/// 获取模糊路径
++ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
+    if ([self isIgnoredVisualizedAutoTrackForViewController:viewController]) {
+        return nil;
     }
+
+    NSMutableArray *viewPathArray = [NSMutableArray array];
+    BOOL isContainSimilarPath = NO;
+
+    do {
+        if (isContainSimilarPath || !shouldSimilarPath) { // 防止 cell 嵌套，被拼上多个 [-]
+            if (view.sensorsdata_itemPath) {
+                [viewPathArray addObject:view.sensorsdata_itemPath];
+            }
+        } else {
+            NSString *currentSimilarPath = view.sensorsdata_similarPath;
+            if (currentSimilarPath) {
+                [viewPathArray addObject:currentSimilarPath];
+                if ([currentSimilarPath rangeOfString:@"[-]"].location != NSNotFound) {
+                    isContainSimilarPath = YES;
+                }
+            }
+        }
+    } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class]);
+
+    if ([view isKindOfClass:UIAlertController.class]) {
+        UIViewController<SAAutoTrackViewPathProperty> *viewController = (UIViewController<SAAutoTrackViewPathProperty> *)view;
+        [viewPathArray addObject:viewController.sensorsdata_itemPath];
+    }
+
+    NSString *viewPath = [[[viewPathArray reverseObjectEnumerator] allObjects] componentsJoinedByString:@"/"];
 
     return viewPath;
 }
 
-+ (NSString *)itemPathForResponder:(UIResponder *)responder {
++ (NSInteger)itemIndexForResponder:(UIResponder *)responder {
     NSString *classString = NSStringFromClass(responder.class);
-
     NSArray *subResponder = nil;
     if ([responder isKindOfClass:UIView.class]) {
         UIResponder *next = [responder nextResponder];
-        if ([next isKindOfClass:UIView.class]) {
+        if ([next isKindOfClass:UISegmentedControl.class]) {
+            // UISegmentedControl 点击之后，subviews 顺序会变化，需要根据坐标排序才能匹配正确
+            UISegmentedControl *segmentedControl = (UISegmentedControl *)next;
+            NSArray <UIView *> *subViews = segmentedControl.subviews;
+            subResponder = [subViews sortedArrayUsingComparator:^NSComparisonResult (UIView *obj1, UIView *obj2) {
+                if (obj1.frame.origin.x > obj2.frame.origin.x) {
+                    return NSOrderedDescending;
+                } else {
+                    return NSOrderedAscending;
+                }
+            }];
+        } else if ([next isKindOfClass:UIView.class]) {
             subResponder = [(UIView *)next subviews];
         }
     } else if ([responder isKindOfClass:UIViewController.class]) {
@@ -259,7 +378,7 @@
             index = count - 1;
         }
     }
-    return count <= 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
+    return index;
 }
 
 + (NSString *)viewIdentifierForView:(UIView *)view {
@@ -294,7 +413,7 @@
 @implementation SAAutoTrackUtils (IndexPath)
 
 + (NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath {
-    if (object.sensorsdata_isIgnored) {
+    if (![object respondsToSelector:@selector(sensorsdata_isIgnored)] || ([object respondsToSelector:@selector(sensorsdata_isIgnored)] && object.sensorsdata_isIgnored)) {
         return nil;
     }
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
@@ -340,10 +459,11 @@
     }
 
     NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
-    if (viewPath) {
-        properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@[%ld][%ld]", viewPath, NSStringFromClass(cell.class), (long)indexPath.section, (long)indexPath.row];
-    }
-
+    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@", viewPath, [cell sensorsdata_itemPathWithIndexPath:indexPath]];
+    
+    NSString *viewSimilarPath = [self viewSimilarPathForView:((UIView *)cell).superview atViewController:viewController shouldSimilarPath:NO];
+    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = [NSString stringWithFormat:@"%@/%@", viewSimilarPath, [cell sensorsdata_similarPathWithIndexPath:indexPath]];
+    
     return properties;
 }
 

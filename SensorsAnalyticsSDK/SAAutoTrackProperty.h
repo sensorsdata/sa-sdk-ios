@@ -34,7 +34,8 @@
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementType;
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementContent;
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementId;
-/// 只在 UISegmentedControl 中返回选中的 index，其他类型返回 nil
+
+/// 元素位置，UISegmentedControl 中返回选中的 index，
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPosition;
 
 /// 获取 view 所在的 viewController，或者当前的 viewController
@@ -45,11 +46,21 @@
 @protocol SAAutoTrackCellProperty <SAAutoTrackViewProperty>
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath;
 - (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath;
+
+- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath;
+/// 遍历查找 cell 所在的 indexPath
+@property (nonatomic, strong, readonly) NSIndexPath *sensorsdata_IndexPath;
 @end
 
 
 
 #pragma mark -
 @protocol SAAutoTrackViewPathProperty <NSObject>
+
+/// $AppClick 某个元素的相对路径
 @property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
+
+@optional
+/// 元素相似路径，可能包含 [-]
+@property (nonatomic, copy, readonly) NSString *sensorsdata_similarPath;
 @end

@@ -1,8 +1,8 @@
 //
-//  SAVisualizedAutoTrackMessage.h
+//  SAObjectSerializerContext.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 向作为 on 2018/9/4.
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,17 +20,22 @@
 
 #import <Foundation/Foundation.h>
 
-@class SAVisualizedAutoTrackConnection;
+@interface SAObjectSerializerContext : NSObject
 
-@protocol SAVisualizedAutoTrackMessage <NSObject>
+- (instancetype)initWithRootObject:(id)object;
 
-@property (nonatomic, copy, readonly) NSString *type;
+- (BOOL)hasUnvisitedObjects;
 
-- (void)setPayloadObject:(id)object forKey:(NSString *)key;
-- (id)payloadObjectForKey:(NSString *)key;
+- (void)enqueueUnvisitedObject:(NSObject *)object;
+- (void)enqueueUnvisitedObjects:(NSArray *)objects;
 
-- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
+- (NSObject *)dequeueUnvisitedObject;
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection;
+- (void)addVisitedObject:(NSObject *)object;
+- (BOOL)isVisitedObject:(NSObject *)object;
 
+- (void)addSerializedObject:(NSDictionary *)serializedObject;
+- (NSArray *)allSerializedObjects;
+
+- (NSInteger)currentLevelIndex;
 @end
