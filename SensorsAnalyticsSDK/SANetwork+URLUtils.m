@@ -84,4 +84,29 @@
     }
 }
 
++ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url {
+    if (!url) {
+        return nil;
+    }
+    NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
+    return [self decodeRueryItemsWithURLComponents:components];
+}
+
++ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURLComponents:(NSURLComponents *)components{
+
+    if (!components) {
+        return nil;
+    }
+    NSArray<NSURLQueryItem *> *queryItems = components.queryItems;
+    if (queryItems.count) {
+        NSMutableDictionary *queryItemsDic = [NSMutableDictionary dictionary];
+        for (NSURLQueryItem *item in queryItems) {
+            queryItemsDic[item.name] = item.value;
+        }
+        return queryItemsDic;
+    } else {
+        return nil;
+    }
+}
+
 @end

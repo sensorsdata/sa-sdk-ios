@@ -22,11 +22,9 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-
 #import "UIApplication+AutoTrack.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+SAHelpers.h"
 #import "UIView+AutoTrack.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -81,27 +79,16 @@
     return ret;
 }
 
-- (void)sa_track:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
-    // ViewType 被忽略
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-    if ([from isKindOfClass:NSClassFromString(@"UITabBarButton")]) {
-        return;
-    } else if ([from isKindOfClass:NSClassFromString(@"UINavigationButton")] && [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[UIBarButtonItem class]]) {
-        return;
-    } else
-#else
-    if ([to isKindOfClass:[UITabBar class]]) {
-        return;
-    } else
-#endif
-    if (![from conformsToProtocol:@protocol(SAAutoTrackViewProperty)] && ![to isKindOfClass:[UITabBarController class]]) {
+- (void)sa_track:(SEL)action to:(id)to from:(NSObject *)from forEvent:(UIEvent *)event {
+   // 过滤多余点击事件，因为当 from 为 UITabBarItem，event 为 nil， 采集下次类型为 button 的事件。
+    if ([to isKindOfClass:UITabBarController.class] && [from isKindOfClass:UITabBarItem.class]) {
         return;
     }
-
-    BOOL isTabBar = [from isKindOfClass:[UITabBarItem class]] && [to isKindOfClass:[UITabBarController class]];
-
+    if ([to isKindOfClass:UIViewController.class] && [from isKindOfClass:UIBarButtonItem.class]) {
+        return;
+    }
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
-    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:isTabBar ? (UITabBarController *)to : nil];
+    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController: nil];
     if (!properties) {
         return;
     }
@@ -109,22 +96,15 @@
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
-        [object isKindOfClass:[UITabBarItem class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
-#if (defined SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS)
-        if ([from isKindOfClass:NSClassFromString(@"UINavigationButton")]) {
-            properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = @"UIBarButtonItem";
-        }
-#endif
         [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         return;
     }
-
 }
 
 @end

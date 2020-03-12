@@ -43,7 +43,7 @@
  *
  *  @param obj 添加的对象
  */
-- (void)addObejct:(id)obj withType:(NSString *)type;
+- (void)addObject:(id)obj withType:(NSString *)type;
 
 /**
  *  @abstract

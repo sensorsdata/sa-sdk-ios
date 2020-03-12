@@ -43,8 +43,19 @@
         }
         
         UIView *view = gesture.view;
+        // iOS10 及以上 _UIAlertControllerInterfaceActionGroupView
+        // iOS 9 及以下 _UIAlertControllerView
+        if ([SAAutoTrackUtils isAlertForResponder:view]) {
+            UIView *touchView = [self searchGestureTouchView:gesture];
+            if (touchView) {
+                view = touchView;
+            }
+        }
+
+        // 是否点击弹框选项
+        BOOL isAlterType = [SAAutoTrackUtils isAlertClickForView:view];
         // 暂定只采集 UILabel 和 UIImageView
-        BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class];
+        BOOL isTrackClass = [view isKindOfClass:UILabel.class] || [view isKindOfClass:UIImageView.class] || isAlterType;
         BOOL isIgnored = ![view conformsToProtocol:@protocol(SAAutoTrackViewProperty)] || view.sensorsdata_isIgnored;
         if (!isTrackClass || isIgnored) {
             return;
@@ -56,6 +67,34 @@
     } @catch (NSException *exception) {
         SAError(@"%@ error: %@", self, exception);
     }
+}
+
+// 查找弹框手势选择所在的 view
+- (UIView *)searchGestureTouchView:(UIGestureRecognizer *)gesture {
+    UIView *gestureView = gesture.view;
+    CGPoint point = [gesture locationInView:gestureView];
+
+    UIView *view = [gestureView.subviews lastObject];
+    UIView *sequeceView = [view.subviews lastObject];
+    UIView *reparatableVequeceView = [sequeceView.subviews firstObject];
+    UIView *stackView = [reparatableVequeceView.subviews firstObject];
+
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    if ([NSStringFromClass(gestureView.class) isEqualToString:@"_UIAlertControllerView"]) {
+        // iOS9 上，为 UICollectionView
+        stackView = [reparatableVequeceView.subviews lastObject];
+    }
+#endif
+    
+    for (UIView *subView in stackView.subviews) {
+        CGRect rect = [subView convertRect:subView.bounds toView:gestureView];
+        if (CGRectContainsPoint(rect, point)) { // 找到 _UIAlertControllerActionView，及 UIAlertController 响应点击的 view
+            // subView 类型为 _UIInterfaceActionCustomViewRepresentationView
+            // iOS9 上为 _UIAlertControllerCollectionViewCell
+            return subView;
+        }
+    }
+    return nil;
 }
 
 @end

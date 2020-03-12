@@ -7,8 +7,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAVisualizedAutoTrackConnection.h"
-#import "SAHeatMapConnection.h"
+#import "SAVisualizedConnection.h"
+
+
+typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
+    SensorsAnalyticsVisualizedTypeUnkhow,  // 未知或不允许
+    SensorsAnalyticsVisualizedTypeHeatMap, // 点击图
+    SensorsAnalyticsVisualizedTypeAutoTrack  //可视化全埋点
+};
+
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAuxiliaryToolManager : NSObject
@@ -17,11 +24,14 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)canHandleURL:(NSURL *)url;
 - (BOOL)handleURL:(NSURL *)url  isWifi:(BOOL)isWifi;
 
-
 - (BOOL)isHeatMapURL:(NSURL *)url;
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url;
 - (BOOL)isDebugModeURL:(NSURL *)url;
 
+- (BOOL)isVisualizedConnecting;
+
+/// 当前类型
+- (SensorsAnalyticsVisualizedType)currentVisualizedType;
 @end
 
 NS_ASSUME_NONNULL_END

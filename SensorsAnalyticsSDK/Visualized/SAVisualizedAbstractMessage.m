@@ -1,8 +1,8 @@
 //
-//  SAAbstractDesignerMessage.m
+//  SAVisualizedAbstractMessage.m
 //  SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/18/16.
+//  Created by 向作为 on 2018/9/4.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -24,16 +24,19 @@
 
 
 #import "SAGzipUtility.h"
-#import "SAAbstractDesignerMessage.h"
+#import "SAVisualizedAbstractMessage.h"
+#import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
+#import "UIViewController+AutoTrack.h"
+#import "SAAutoTrackUtils.h"
 
-@interface SAAbstractDesignerMessage ()
+@interface SAVisualizedAbstractMessage ()
 
 @property (nonatomic, copy, readwrite) NSString *type;
 
 @end
 
-@implementation SAAbstractDesignerMessage {
+@implementation SAVisualizedAbstractMessage {
     NSMutableDictionary *_payload;
 }
 
@@ -42,14 +45,18 @@
 }
 
 - (instancetype)initWithType:(NSString *)type {
-    return [self initWithType:type payload:@{}];
+    return [self initWithType:type payload:nil];
 }
 
 - (instancetype)initWithType:(NSString *)type payload:(NSDictionary *)payload {
     self = [super init];
     if (self) {
         _type = type;
-        _payload = [payload mutableCopy];
+        if (payload) {
+             _payload = [payload mutableCopy];
+        } else {
+            _payload = [NSMutableDictionary dictionary];
+        }
     }
 
     return self;
@@ -68,18 +75,42 @@
     return [_payload copy];
 }
 
-- (NSData *)JSONData:(BOOL)useGzip {
+- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
-    
-    [jsonObject setObject:_type forKey:@"type"];
+    jsonObject[@"type"] = _type;
+    jsonObject[@"os"] = @"iOS"; // 操作系统类型
+    jsonObject[@"lib"] = @"iOS"; // SDK 类型
+
+    @try {
+        UIViewController<SAAutoTrackViewControllerProperty> *viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
+        if (viewController) {
+            jsonObject[@"screen_name"] = viewController.sensorsdata_screenName;
+            jsonObject[@"title"] = viewController.sensorsdata_title;
+        }
+    } @catch (NSException *exception) {
+        SAError(@"%@ error: %@", self, exception);
+    }
+
+    jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
+    jsonObject[@"feature_code"] = featureCode;
+
+    if (_payload[@"serialized_objects"] && [_payload[@"serialized_objects"] isKindOfClass:NSDictionary.class]) {
+        NSMutableDictionary *serializedBbjects = [NSMutableDictionary dictionaryWithDictionary:_payload[@"serialized_objects"]];
+        NSNumber *isContainWebview = serializedBbjects[@"is_webview"];
+        [serializedBbjects removeObjectForKey:@"is_webview"];
+        jsonObject[@"is_webview"] = isContainWebview;
+    }
+
+    // SDK 版本号
+    jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
 
     if (useGzip) {
         // 如果使用 GZip 压缩
         NSError *error = nil;
-        
+
         // 1. 序列化 Payload
         NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:&error];
-        NSString * jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         // 2. 使用 GZip 进行压缩
         NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
@@ -87,21 +118,21 @@
         // 3. Base64 Encode
         NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
 
-        [jsonObject setValue:b64String forKey:@"gzip_payload"];
+        jsonObject[@"gzip_payload"] = b64String;
     } else {
-        [jsonObject setValue:[_payload copy] forKey:@"payload"];
+        jsonObject[@"payload"] = [_payload copy];
     }
 
     NSError *error = nil;
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-    if (jsonData == nil && error) {
+    if (!jsonData && error) {
         SAError(@"Failed to serialize test designer message: %@", error);
     }
 
     return jsonData;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SADesignerConnection *)connection {
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
     return nil;
 }
 

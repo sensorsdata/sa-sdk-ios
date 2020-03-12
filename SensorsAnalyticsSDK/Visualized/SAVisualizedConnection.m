@@ -1,5 +1,5 @@
 //
-//  SAVisualizedAutoTrackConnection.m,
+//  SAVisualizedConnection.m,
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -23,24 +23,24 @@
 #endif
 
 
-#import "SAVisualizedAutoTrackConnection.h"
-#import "SAVisualizedAutoTrackMessage.h"
-#import "SAVisualizedAutoTrackSnapshotMessage.h"
+#import "SAVisualizedConnection.h"
+#import "SAVisualizedMessage.h"
+#import "SAVisualizedSnapshotMessage.h"
 #import "SALogger.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-@interface SAVisualizedAutoTrackConnection ()
+@interface SAVisualizedConnection ()
 
 @end
 
-@implementation SAVisualizedAutoTrackConnection {
+@implementation SAVisualizedConnection {
     BOOL _connected;
 
     NSURL *_url;
     NSDictionary *_typeToMessageClassMap;
     NSOperationQueue *_commandQueue;
-    NSTimer *timer;
-    id<SAVisualizedAutoTrackMessage> _designerMessage;
+    NSTimer *_timer;
+    id<SAVisualizedMessage> _designerMessage;
     NSString *_featureCode;
     NSString *_postUrl;
 }
@@ -49,7 +49,7 @@
     self = [super init];
     if (self) {
         _typeToMessageClassMap = @{
-            SAVisualizedAutoTrackSnapshotRequestMessageType : [SAVisualizedAutoTrackSnapshotRequestMessage class],
+            SAVisualizedSnapshotRequestMessageType : [SAVisualizedSnapshotRequestMessage class],
         };
         _connected = NO;
         _useGzip = YES;
@@ -64,37 +64,36 @@
 }
 
 - (void)close {
-    if (timer) {
-        [timer invalidate];
-        timer = nil;
+    if (_timer) {
+        [_timer invalidate];
+        _timer = nil;
     }
+    if (_commandQueue) {
+        _commandQueue.suspended = YES;
+        _commandQueue = nil;
+    }
+}
+
+- (BOOL)isVisualizedConnecting {
+    return _timer && _timer.valid;
 }
 
 - (void)dealloc {
     [self close];
 }
 
-- (void)setSessionObject:(id)object forKey:(NSString *)key {
-    NSParameterAssert(key != nil);
-}
-
-- (id)sessionObjectForKey:(NSString *)key {
-    NSParameterAssert(key != nil);
-    return key;
-}
-
-- (void)sendMessage:(id<SAVisualizedAutoTrackMessage>)message {
+- (void)sendMessage:(id<SAVisualizedMessage>)message {
     if (_connected) {
         if (_featureCode == nil || _postUrl == nil) {
             return;
         }
-        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip featuerCode:_featureCode] encoding:NSUTF8StringEncoding];
+        NSString *jsonString = [[NSString alloc] initWithData:[message JSONData:_useGzip featureCode:_featureCode] encoding:NSUTF8StringEncoding];
         NSURL *URL = [NSURL URLWithString:_postUrl];
         NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:URL];
         [request setHTTPMethod:@"POST"];
         [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
         [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
+        NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if (response.statusCode == 200) {
                 NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
@@ -105,16 +104,20 @@
                 }
             }
         }];
+
         [task resume];
     } else {
         SADebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
     }
 }
 
-- (id <SAVisualizedAutoTrackMessage>)designerMessageForMessage:(id)message {
-    NSParameterAssert([message isKindOfClass:[NSString class]] || [message isKindOfClass:[NSData class]]);
+- (id <SAVisualizedMessage>)designerMessageForMessage:(id)message {
+    if (![message isKindOfClass:[NSString class]] && ![message isKindOfClass:[NSData class]]) {
+        SAError(@"message type error:%@",message);
+        return nil;
+    }
 
-    id <SAVisualizedAutoTrackMessage> designerMessage = nil;
+    id <SAVisualizedMessage> designerMessage = nil;
 
     NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
    // SADebug(@"%@ VTrack received message: %@", self, [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding]);
@@ -123,6 +126,7 @@
     id jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
     if ([jsonObject isKindOfClass:[NSDictionary class]]) {
         NSDictionary *messageDictionary = (NSDictionary *)jsonObject;
+        //snapshot_request
         NSString *type = messageDictionary[@"type"];
         NSDictionary *payload = messageDictionary[@"payload"];
 
@@ -136,17 +140,17 @@
 
 #pragma mark -  Methods
 
-- (void)startVisualizedAutoTrackTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
+- (void)startVisualizedTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
     _featureCode = featureCode;
     _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];
 
-    if (timer) {
-        [timer invalidate];
-        timer = nil;
+    if (_timer) {
+        [_timer invalidate];
+        _timer = nil;
     }
 
-    timer = [NSTimer scheduledTimerWithTimeInterval:1
+    _timer = [NSTimer scheduledTimerWithTimeInterval:1
                                              target:self
                                            selector:@selector(handleMessage)
                                            userInfo:nil
@@ -162,19 +166,22 @@
     }
 }
 
-- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr type:(NSString *)type {
     NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-    //文件路径
+    
+    /* type
+     heatmap 点击图
+     visualized 可视化全埋点
+     */
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualizedautotrack_path.json" ofType:nil];
+    if ([type isEqualToString:@"heatmap"]) { // 点击图
+        jsonPath = [sensorsBundle pathForResource:@"sa_headmap_path.json" ofType:nil];
+    }
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     _commandQueue.suspended = NO;
-    if (!self->_connected) {
-        self->_connected = YES;
-        [self startVisualizedAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
-    } else {
-        [self startVisualizedAutoTrackTimer:jsonString featureCode:featureCode postURL:urlStr];
-    }
+    self->_connected = YES;
+    [self startVisualizedTimer:jsonString featureCode:featureCode postURL:urlStr];
 }
 
 @end

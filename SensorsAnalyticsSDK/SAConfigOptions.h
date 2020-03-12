@@ -96,6 +96,14 @@ NS_ASSUME_NONNULL_BEGIN
 /// 设置本地缓存最多事件条数，默认为 10000 条事件
 @property (nonatomic) NSInteger maxCacheSize;
 
+/// 开启 log 打印
+@property (nonatomic, assign) BOOL enableLog;
+
+/// 开启点击图
+@property (nonatomic, assign) BOOL enableHeatMap;
+
+/// 开启可视化全埋点
+@property (nonatomic, assign) BOOL enableVisualizedAutoTrack;
 #pragma mark - 请求远程配置策略
 /// 请求远程配置地址，默认从 serverURL 解析
 @property (nonatomic, copy) NSString *remoteConfigURL;

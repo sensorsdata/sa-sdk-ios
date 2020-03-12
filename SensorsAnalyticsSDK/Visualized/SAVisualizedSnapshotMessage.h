@@ -1,9 +1,9 @@
 //
-//  SADesignerSnapshotMessage.h
+//  SAVisualizedSnapshotMessage.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 8/1/17.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+//  Created by 向作为 on 2018/9/4.
+//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -21,15 +21,15 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 
-#import "SAAbstractHeatMapMessage.h"
+#import "SAVisualizedAbstractMessage.h"
 
 @class SAObjectSerializerConfig;
 
-extern NSString *const SAHeatMapSnapshotRequestMessageType;
+extern NSString *const SAVisualizedSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Request
 
-@interface SAHeatMapSnapshotRequestMessage : SAAbstractHeatMapMessage
+@interface SAVisualizedSnapshotRequestMessage : SAVisualizedAbstractMessage
 
 + (instancetype)message;
 
@@ -39,7 +39,7 @@ extern NSString *const SAHeatMapSnapshotRequestMessageType;
 
 #pragma mark -- Snapshot Response
 
-@interface SAHeatMapSnapshotResponseMessage : SAAbstractHeatMapMessage
+@interface SAVisualizedSnapshotResponseMessage : SAVisualizedAbstractMessage
 
 + (instancetype)message;
 

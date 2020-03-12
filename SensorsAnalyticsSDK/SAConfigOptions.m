@@ -66,6 +66,9 @@
     
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
+    options.enableLog = self.enableLog;
+    options.enableHeatMap = self.enableHeatMap;
+    options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     return options;
 }
 

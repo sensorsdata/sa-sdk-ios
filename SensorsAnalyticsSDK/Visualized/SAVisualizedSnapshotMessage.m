@@ -1,5 +1,5 @@
 //
-//  SAVisualizedAutoTrackSnapshotMessage.m
+//  SAVisualizedSnapshotMessage.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 向作为 on 2018/9/4.
@@ -25,24 +25,24 @@
 
 #import <CommonCrypto/CommonDigest.h>
 
-#import "SAVisualizedAutoTrackSnapshotMessage.h"
+#import "SAVisualizedSnapshotMessage.h"
 #import "SAApplicationStateSerializer.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAObjectSerializerConfig.h"
-#import "SAVisualizedAutoTrackConnection.h"
+#import "SAVisualizedConnection.h"
 #import "SensorsAnalyticsSDK.h"
+#import "SAConstants+Private.h"
 
 #pragma mark -- Snapshot Request
 
-NSString * const SAVisualizedAutoTrackSnapshotRequestMessageType = @"snapshot_request";
+NSString * const SAVisualizedSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
-static NSString * const kObjectIdentityProviderKey = @"object_identity_provider";
 
-@implementation SAVisualizedAutoTrackSnapshotRequestMessage
+@implementation SAVisualizedSnapshotRequestMessage
 
 + (instancetype)message {
-    return [(SAVisualizedAutoTrackSnapshotRequestMessage *)[self alloc] initWithType:SAVisualizedAutoTrackSnapshotRequestMessageType];
+    return [(SAVisualizedSnapshotRequestMessage *)[self alloc] initWithType:SAVisualizedSnapshotRequestMessageType];
 }
 
 - (SAObjectSerializerConfig *)configuration {
@@ -50,56 +50,33 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
     return config ? [[SAObjectSerializerConfig alloc] initWithDictionary:config] : nil;
 }
 
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedAutoTrackConnection *)connection {
-    __block SAObjectSerializerConfig *serializerConfig = self.configuration;
-    __block NSString *imageHash = [self payloadObjectForKey:@"last_image_hash"];
 
-    __weak SAVisualizedAutoTrackConnection *weak_connection = connection;
+// 构建页面信息，包括截图和元素数据
+- (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
+    SAObjectSerializerConfig *serializerConfig = self.configuration;
+    
+    __weak SAVisualizedConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
-        __strong SAVisualizedAutoTrackConnection *conn = weak_connection;
+        __strong SAVisualizedConnection *conn = weak_connection;
         
-        // Update the class descriptions in the connection session if provided as part of the message.
-        if (serializerConfig) {
-            [connection setSessionObject:serializerConfig forKey:kSnapshotSerializerConfigKey];
-        } else if ([connection sessionObjectForKey:kSnapshotSerializerConfigKey]) {
-            // Get the class descriptions from the connection session store.
-            serializerConfig = [connection sessionObjectForKey:kSnapshotSerializerConfigKey];
-        } else {
-            // If neither place has a config, this is probably a stale message and we can't create a snapshot.
-            return;
-        }
-
         // Get the object identity provider from the connection's session store or create one if there is none already.
         SAObjectIdentityProvider *objectIdentityProvider = [[SAObjectIdentityProvider alloc] init];
-
-        SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithApplication:[UIApplication sharedApplication]
-                                                                                               configuration:serializerConfig
-                                                                                      objectIdentityProvider:objectIdentityProvider];
-
-        SAVisualizedAutoTrackSnapshotResponseMessage *snapshotMessage = [SAVisualizedAutoTrackSnapshotResponseMessage message];
-        __block UIImage *screenshot = nil;
-        __block NSDictionary *serializedObjects = nil;
-
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            
-            screenshot = [serializer screenshotImageForWindow:UIApplication.sharedApplication.keyWindow];
-        });
-        snapshotMessage.screenshot = screenshot;
-
-        if (imageHash && [imageHash isEqualToString:snapshotMessage.imageHash]) {
-            [conn sendMessage:[SAVisualizedAutoTrackSnapshotResponseMessage message]];
-            return;
-        }
         
-        dispatch_sync(dispatch_get_main_queue(), ^{
-            serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
+        SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithApplication:[UIApplication sharedApplication] configuration:serializerConfig objectIdentityProvider:objectIdentityProvider];
+        
+        SAVisualizedSnapshotResponseMessage *snapshotMessage = [SAVisualizedSnapshotResponseMessage message];
+        
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
+             snapshotMessage.serializedObjects = serializedObjects;
+            
+            [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
+                snapshotMessage.screenshot = image;
+                [conn sendMessage:snapshotMessage];
+            }];
         });
-        [connection setSessionObject:serializedObjects forKey:@"snapshot_hierarchy"];
-        snapshotMessage.serializedObjects = serializedObjects;
-
-        [conn sendMessage:snapshotMessage];
     }];
-
+    
     return operation;
 }
 
@@ -107,10 +84,10 @@ static NSString * const kObjectIdentityProviderKey = @"object_identity_provider"
 
 #pragma mark -- Snapshot Response
 
-@implementation SAVisualizedAutoTrackSnapshotResponseMessage
+@implementation SAVisualizedSnapshotResponseMessage
 
 + (instancetype)message {
-    return [(SAVisualizedAutoTrackSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
+    return [(SAVisualizedSnapshotResponseMessage *)[self alloc] initWithType:@"snapshot_response"];
 }
 
 - (void)setScreenshot:(UIImage *)screenshot {

@@ -1,8 +1,8 @@
 //
-//  SAObjectSerializerContext.h
+//  SAVisualizedAutoTrackConnection.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/18/16.
+//  Created by 向作为 on 2018/9/4.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,19 +20,19 @@
 
 #import <Foundation/Foundation.h>
 
-@interface SAObjectSerializerContext : NSObject
+@protocol SAVisualizedMessage;
 
-- (instancetype)initWithRootObject:(id)object;
+@interface SAVisualizedConnection : NSObject
 
-- (BOOL)hasUnvisitedObjects;
+@property (nonatomic, readonly) BOOL connected;
+@property (nonatomic, assign) BOOL useGzip;
 
-- (void)enqueueUnvisitedObject:(NSObject *)object;
-- (NSObject *)dequeueUnvisitedObject;
+- (instancetype)initWithURL:(NSURL *)url;
 
-- (void)addVisitedObject:(NSObject *)object;
-- (BOOL)isVisitedObject:(NSObject *)object;
+- (void)sendMessage:(id<SAVisualizedMessage>)message;
+- (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr type:(NSString *)type;
+- (void)close;
 
-- (void)addSerializedObject:(NSDictionary *)serializedObject;
-- (NSArray *)allSerializedObjects;
-
+// 是否正在进行可视化全埋点上传页面信息
+- (BOOL)isVisualizedConnecting;
 @end

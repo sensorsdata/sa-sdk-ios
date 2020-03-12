@@ -49,6 +49,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (UIViewController *)findSuperViewControllerByView:(UIView *)view;
 
+/// 是否为弹框
++ (BOOL)isAlertForResponder:(UIResponder *)responder;
+
+/// 是否为弹框点击
++ (BOOL)isAlertClickForView:(UIView *)view;
 @end
 
 #pragma mark -
@@ -110,12 +115,12 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)viewIdentifierForView:(UIView *)view;
 
 /**
- 通过响应链找到 viewPath
+ 通过响应链找到 对象的序号
 
  @param responder 响应链中的对象，可以是 UIView 或者 UIViewController
  @return 路径
  */
-+ (NSString *)itemPathForResponder:(UIResponder *)responder;
++ (NSInteger )itemIndexForResponder:(UIResponder *)responder;
 
 /**
  找到 view 的路径数组
@@ -134,6 +139,15 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
 
+/**
+获取 view 的模糊路径
+
+@param view 需要获取路径的 view
+@param viewController view 所在的 viewController
+@param shouldSimilarPath 是否需要取相似路径
+@return 路径字符串
+*/
++ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath;
 @end
 
 #pragma mark -

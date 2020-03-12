@@ -1,8 +1,8 @@
 //
-//  SAHeatMapMessage.h
+//  SAObjectSerializer.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 8/1/17.
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,17 +20,15 @@
 
 #import <Foundation/Foundation.h>
 
-@class SAHeatMapConnection;
+@class SAClassDescription;
+@class SAObjectSerializerConfig;
+@class SAObjectIdentityProvider;
 
-@protocol SAHeatMapMessage <NSObject>
+@interface SAHeatMapObjectSerializer : NSObject
 
-@property (nonatomic, copy, readonly) NSString *type;
+- (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
+               objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
-- (void)setPayloadObject:(id)object forKey:(NSString *)key;
-- (id)payloadObjectForKey:(NSString *)key;
-
-- (NSData *)JSONData:(BOOL)useGzip featuerCode:(NSString *)fetureCode;
-
-- (NSOperation *)responseCommandWithConnection:(SAHeatMapConnection *)connection;
+- (NSDictionary *)serializedObjectsWithRootObject:(id)rootObject;
 
 @end

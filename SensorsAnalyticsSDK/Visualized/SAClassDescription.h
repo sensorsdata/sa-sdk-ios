@@ -1,7 +1,8 @@
-//  UIView+SAHelpers.h
+//
+//  SAClassDescription.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/20/16
+//  Created by 雨晗 on 1/18/16.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +19,16 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "SATypeDescription.h"
 
-@interface UIView (SAHelpers)
+@interface SAClassDescription : SATypeDescription
 
-- (UIImage *)sa_snapshotImage;
-- (UIImage *)sa_snapshotForBlur;
+@property (nonatomic, readonly) SAClassDescription *superclassDescription;
+@property (nonatomic, readonly) NSArray *propertyDescriptions;
+@property (nonatomic, readonly) NSArray *delegateInfos;
 
-- (NSString *)jjf_varA;
-- (NSString *)jjf_varB;
-- (NSString *)jjf_varC;
-- (NSArray *)jjf_varSetD;
-- (NSString *)jjf_varE;
+- (instancetype)initWithSuperclassDescription:(SAClassDescription *)superclassDescription dictionary:(NSDictionary *)dictionary;
 
-@end
+- (BOOL)isDescriptionForKindOfClass:(Class)class;
 
-@interface UITableViewCell (SAHelpers)
-- (NSString *)sa_indexPath;
-@end
-
-@interface UICollectionViewCell (SAHelpers)
-- (NSString *)sa_indexPath;
-@end
-
-@interface UISegmentedControl (SAHelpers)
-- (NSArray *)sa_subviewsFixed;
-@end
-
-@interface UITableViewHeaderFooterView (SAHelpers)
-- (NSString *)sa_section;
 @end

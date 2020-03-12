@@ -115,14 +115,12 @@
           "name": "NSObject",
           "superclass": null,
           "properties": [
-            
           ]
         },
         {
           "name": "UIResponder",
           "superclass": "NSObject",
           "properties": [
-            
           ]
         },
         {
@@ -151,10 +149,6 @@
               "readonly": true
             },
             {
-              "name": "viewController",
-              "type": "UIViewController"
-            },
-            {
               "name": "performOnViewLoad",
               "type": "BOOL"
             }
@@ -164,35 +158,30 @@
           "name": "UINavigationItem",
           "superclass": "NSObject",
           "properties": [
-            
           ]
         },
         {
           "name": "UIBarItem",
           "superclass": "NSObject",
           "properties": [
-            
           ]
         },
         {
           "name": "UIBarButtonItem",
           "superclass": "UIBarItem",
           "properties": [
-            
           ]
         },
         {
           "name": "UIGestureRecognizer",
           "superclass": "NSObject",
           "properties": [
-            
           ]
         },
         {
           "name": "UIGestureRecognizerTarget",
           "superclass": "NSObject",
           "properties": [
-            
           ]
         },
         {
@@ -200,65 +189,52 @@
           "superclass": "UIResponder",
           "properties": [
             {
-              "name": "userInteractionEnabled",
-              "type": "BOOL"
+              "name": "sensorsdata_enableAppClick",
+              "key": "enableAppClick",
+              "type": "BOOL",
+              "use_kvc": false
             },
             {
-              "name": "frame",
-              "type": "CGRect"
+              "name": "sensorsdata_subElements",
+              "key": "subelements",
+              "type": "NSArray",
+              "use_kvc": false
             },
             {
-              "name": "bounds",
-              "type": "CGRect"
+              "name": "sensorsdata_elementValidContent",
+              "key": "element_content",
+              "type": "NSString",
+              "use_kvc": false
             },
             {
-              "name": "transform",
-              "type": "CGAffineTransform"
+                "name": "sensorsdata_elementPath",
+                "key": "element_path",
+                "type": "NSString",
+                "use_kvc": false
             },
             {
-              "name": "superview",
-              "type": "UIView"
+              "name": "sensorsdata_elementPosition",
+              "key": "element_position",
+              "type": "NSString",
+              "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_frame",
+              "key": "frame",
+              "type": "CGRect",
+              "use_kvc": false
             },
             {
               "name": "window",
               "type": "UIWindow"
             },
             {
-              "name": "subviews",
-              "type": "NSArray"
-            },
-            {
               "name": "jjf_fingerprintVersion",
-              "type": "NSArray",
-              "use_kvc": false
-            },
-            {
-              "name": "jjf_varA",
               "type": "NSString",
               "use_kvc": false
             },
             {
               "name": "sensorsAnalyticsViewID",
-              "type": "NSString",
-              "use_kvc": false
-            },
-            {
-              "name": "jjf_varB",
-              "type": "NSString",
-              "use_kvc": false
-            },
-            {
-              "name": "jjf_varC",
-              "type": "NSString",
-              "use_kvc": false
-            },
-            {
-              "name": "jjf_varSetD",
-              "type": "NSArray",
-              "use_kvc": false
-            },
-            {
-              "name": "jjf_varE",
               "type": "NSString",
               "use_kvc": false
             },
@@ -272,17 +248,12 @@
           "name": "UILabel",
           "superclass": "UIView",
           "properties": [
-            {
-              "name": "text",
-              "type": "NSString"
-            }
           ]
         },
         {
           "name": "UIImageView",
           "superclass": "UIView",
           "properties": [
-            
           ]
         },
         {
@@ -297,28 +268,8 @@
           "superclass": "UIView",
           "properties": [
             {
-              "name": "state",
-              "type": "UIControlState"
-            },
-            {
-              "name": "enabled",
-              "type": "BOOL"
-            },
-            {
-              "name": "allTargets",
-              "type": "NSSet"
-            },
-            {
               "name": "allControlEvents",
               "type": "UIControlEvents"
-            },
-            {
-              "name": "_targetActions",
-              "type": "NSArray"
-            },
-            {
-              "name": "nextResponder",
-              "type": "UIResponder"
             }
           ]
         },
@@ -357,22 +308,12 @@
             "name": "UITableViewCell",
             "superclass": "UIView",
             "properties": [
-              {
-                  "name": "sa_indexPath",
-                  "type": "NSString",
-                  "use_kvc": false
-              }
             ]
         },
         {
             "name": "UITableViewHeaderFooterView",
             "superclass": "UIView",
             "properties": [
-                {
-                    "name": "sa_section",
-                    "type": "NSString",
-                    "use_kvc": false
-                }
             ]
         },
         {
@@ -389,21 +330,12 @@
             "name": "UICollectionViewCell",
             "superclass": "UIView",
             "properties": [
-                {
-                    "name": "sa_indexPath",
-                    "type": "NSString",
-                    "use_kvc": false
-                }
             ]
         },
         {
           "name": "UITextView",
           "superclass": "UIScrollView",
           "properties": [
-            {
-              "name": "text",
-              "type": "NSString"
-            }
           ]
         },
         {
@@ -417,35 +349,12 @@
           "name": "UISegmentedControl",
           "superclass": "UIControl",
           "properties": [
-            {
-                "name":"sa_subviewsFixed",
-                "type":"NSArray",
-                "use_kvc": false
-            }
-          ]
-        },
-        {
-          "name": "CALayer",
-          "superclass": "NSObject",
-          "properties": [
-            
-          ]
-        },
-        {
-          "name": "NSLayoutConstraint",
-          "superclass": "NSObject",
-          "properties": [
-            
           ]
         },
         {
           "name": "UIWindow",
           "superclass": "UIView",
           "properties": [
-            {
-              "name": "rootViewController",
-              "type": "UIViewController"
-            },
             {
               "name": "screen",
               "type": "UIScreen",
@@ -463,29 +372,20 @@
               "readonly": true
             },
             {
-              "name": "view",
-              "type": "UIView",
-              "predicate": "self.isViewLoaded == YES"
+              "name": "sensorsdata_elementPath",
+              "key": "element_path",
+              "type": "NSString",
+              "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_subElements",
+              "key": "subelements",
+              "type": "NSArray",
+              "use_kvc": false
             },
             {
               "name": "restorationIdentifier",
               "type": "NSString"
-            },
-            {
-              "name": "parentViewController",
-              "type": "UIViewController"
-            },
-            {
-              "name": "presentedViewController",
-              "type": "UIViewController"
-            },
-            {
-              "name": "presentingViewController",
-              "type": "UIViewController"
-            },
-            {
-              "name": "childViewControllers",
-              "type": "NSArray"
             }
           ]
         }

@@ -1,8 +1,8 @@
 //
-//  SAClassDescription.h
+//  SAVisualizedAbstractMessage.h
 //  SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/18/16.
+//  Created by 向作为 on 2018/9/4.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,24 +19,22 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SATypeDescription.h"
 
-@interface SAClassDescription : SATypeDescription
+#import "SAVisualizedMessage.h"
 
-@property (nonatomic, readonly) SAClassDescription *superclassDescription;
-@property (nonatomic, readonly) NSArray *propertyDescriptions;
-@property (nonatomic, readonly) NSArray *delegateInfos;
+@interface SAVisualizedAbstractMessage : NSObject <SAVisualizedMessage>
 
-- (instancetype)initWithSuperclassDescription:(SAClassDescription *)superclassDescription dictionary:(NSDictionary *)dictionary;
+@property (nonatomic, copy, readonly) NSString *type;
 
-- (BOOL)isDescriptionForKindOfClass:(Class)class;
++ (instancetype)messageWithType:(NSString *)type payload:(NSDictionary *)payload;
 
-@end
+- (instancetype)initWithType:(NSString *)type;
+- (instancetype)initWithType:(NSString *)type payload:(NSDictionary *)payload;
 
-@interface SADelegateInfo : NSObject
+- (void)setPayloadObject:(id)object forKey:(NSString *)key;
+- (id)payloadObjectForKey:(NSString *)key;
+- (NSDictionary *)payload;
 
-@property (nonatomic, readonly) NSString *selectorName;
-
-- (instancetype)initWithDictionary:(NSDictionary *)dictionary;
+- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode;
 
 @end

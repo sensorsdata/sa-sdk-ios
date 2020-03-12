@@ -90,7 +90,7 @@ static const int32_t UncaughtExceptionMaximum = 10;
     sigemptyset(&action.sa_mask);
     action.sa_flags = SA_SIGINFO;
     action.sa_sigaction = &SASignalHandler;
-    int signals[] = {SIGABRT, SIGILL, SIGSEGV, SIGFPE, SIGBUS, SIGPIPE};
+    int signals[] = {SIGABRT, SIGILL, SIGSEGV, SIGFPE, SIGBUS};
     for (int i = 0; i < sizeof(signals) / sizeof(int); i++) {
         struct sigaction prev_action;
         int err = sigaction(signals[i], &action, &prev_action);
@@ -140,7 +140,9 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
         if (prev_action.sa_sigaction) {
             prev_action.sa_sigaction(crashSignal, info, context);
         }
-    } else if (prev_action.sa_handler) {
+    } else if (prev_action.sa_handler &&
+               prev_action.sa_handler != SIG_IGN) {
+        // SIG_IGN 表示忽略信号
         prev_action.sa_handler(crashSignal);
     }
 }
@@ -197,7 +199,6 @@ static void SAHandleException(NSException *exception) {
     signal(SIGSEGV, SIG_DFL);
     signal(SIGFPE, SIG_DFL);
     signal(SIGBUS, SIG_DFL);
-    signal(SIGPIPE, SIG_DFL);
 }
 
 #if defined(SENSORS_ANALYTICS_CRASH_SLIDEADDRESS)

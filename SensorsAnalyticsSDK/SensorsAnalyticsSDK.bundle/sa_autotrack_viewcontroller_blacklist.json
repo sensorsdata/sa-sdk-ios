@@ -1,6 +1,5 @@
 {
     "public": [
-        "UIAlertController",
         "UINavigationController",
         "UITabBarController",
         "SAAlertController",
@@ -18,7 +17,6 @@
         "UIInputWindowController",
         "UIKeyboardCandidateGridCollectionViewController",
         "UICompatibilityInputViewController",
-        "UIApplicationRotationFollowingController",
         "UIApplicationRotationFollowingControllerNoTouches",
         "UIActivityGroupViewController",
         "UIKeyboardCandidateRowViewController",

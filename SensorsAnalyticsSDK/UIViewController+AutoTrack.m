@@ -43,11 +43,16 @@
 }
 
 - (NSString *)sensorsdata_title {
-    NSString *titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
+    __block NSString *titleViewContent = nil;
+    __block NSString *controllerTitle = nil;
+    sensorsdata_dispatch_main_safe_sync(^{
+        titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
+        controllerTitle = self.navigationItem.title;
+    });
     if (titleViewContent.length > 0) {
         return titleViewContent;
     }
-    NSString *controllerTitle = self.navigationItem.title;
+
     if (controllerTitle.length > 0) {
         return controllerTitle;
     }
@@ -55,9 +60,15 @@
 }
 
 - (NSString *)sensorsdata_itemPath {
-    return [SAAutoTrackUtils itemPathForResponder:self];
+    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
+    NSString *classString = NSStringFromClass(self.class);
+   
+    return index < 0 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
 }
 
+- (NSString *)sensorsdata_similarPath {
+    return self.sensorsdata_itemPath;
+}
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
 
