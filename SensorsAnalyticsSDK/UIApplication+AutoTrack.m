@@ -81,12 +81,10 @@
 
 - (void)sa_track:(SEL)action to:(id)to from:(NSObject *)from forEvent:(UIEvent *)event {
    // 过滤多余点击事件，因为当 from 为 UITabBarItem，event 为 nil， 采集下次类型为 button 的事件。
-    if ([to isKindOfClass:UITabBarController.class] && [from isKindOfClass:UITabBarItem.class]) {
+    if ([from isKindOfClass:UITabBarItem.class] || [from isKindOfClass:UIBarButtonItem.class]) {
         return;
     }
-    if ([to isKindOfClass:UIViewController.class] && [from isKindOfClass:UIBarButtonItem.class]) {
-        return;
-    }
+    
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController: nil];
     if (!properties) {

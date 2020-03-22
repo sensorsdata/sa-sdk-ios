@@ -82,12 +82,12 @@
 - (void)visitObject:(NSObject *)object withContext:(SAObjectSerializerContext *)context {
     NSParameterAssert(object != nil);
     NSParameterAssert(context != nil);
-    
+
     [context addVisitedObject:object];
-    
+
     // 获取构建单个元素的所有属性
     NSMutableDictionary *propertyValues = [[NSMutableDictionary alloc] init];
-    
+
     // 获取当前类以及父类页面结构需要的 name,superclass、properties
     SAClassDescription *classDescription = [self classDescriptionForObject:object];
     if (classDescription) {
@@ -100,16 +100,23 @@
             }
         }
     }
-    
-    if ([object isKindOfClass:UIWebView.class] || [object isKindOfClass:WKWebView.class]) {
-        isContainWebView = YES;
-    }
+
+    if (
+#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+        [NSStringFromClass(object.class) isEqualToString:@"UIWebView"] ||
+#else
+        [object isKindOfClass:UIWebView.class] ||
+#endif
+        [object isKindOfClass:WKWebView.class]) {
+            isContainWebView = YES;
+        }
+
     propertyValues[@"isFromH5"] = @(NO);
     propertyValues[@"element_level"] = @([context currentLevelIndex]);
     NSDictionary *serializedObject = @{@"id": [_objectIdentityProvider identifierForObject:object],
                                        @"class": [self classHierarchyArrayForObject:object],  // 遍历获取父类名称
                                        @"properties": propertyValues};
-    
+
     [context addSerializedObject:serializedObject];
 }
 
