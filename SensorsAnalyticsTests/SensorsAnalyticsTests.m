@@ -39,7 +39,7 @@
     self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
     if (!self.sensorsAnalytics) {
         SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-        [SensorsAnalyticsSDK sharedInstanceWithConfig:options];
+        [SensorsAnalyticsSDK startWithConfigOptions:options];
         self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
     }
 }

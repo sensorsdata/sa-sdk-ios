@@ -107,7 +107,7 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             return 0;
         }
         
-        __block NSInteger count = 0;
+        __block NSUInteger count = 0;
         dispatch_block_t block = ^() {
             NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
             NSArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
