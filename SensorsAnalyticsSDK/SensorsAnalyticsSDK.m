@@ -45,8 +45,7 @@
 #import "SASwizzle.h"
 #import "NSString+HashCode.h"
 #import "SensorsAnalyticsExceptionHandler.h"
-#import "SANetwork.h"
-#import "SANetwork+URLUtils.h"
+#import "SAURLUtils.h"
 #import "SAAppExtensionDataManager.h"
 #import "SAAutoTrackUtils.h"
 
@@ -70,9 +69,11 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
+#import "SALinkHandler.h"
+#import "SAFileStore.h"
 #import "SATrackTimer.h"
 
-#define VERSION @"2.0.1"
+#define VERSION @"2.0.2"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -220,6 +221,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
+/// DeepLink handler
+@property (nonatomic, strong) SALinkHandler *linkHandler;
+
 @end
 
 @implementation SensorsAnalyticsSDK {
@@ -325,7 +329,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
              _trackTimer = [[SATrackTimer alloc] init];
             
-            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[self filePathForData:@"message-v2"]];
+            // 初始化 LinkHandler 处理 deepLink 相关操作
+            _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
+
+            _messageQueue = [[MessageQueueBySqlite alloc] initWithFilePath:[SAFileStore filePath:@"message-v2"]];
             if (self.messageQueue == nil) {
                 SADebug(@"SqliteException: init Message Queue in Sqlite fail");
             }
@@ -721,7 +728,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (UInt64)getMaxCacheSize {
     @synchronized(self) {
-        return self.configOptions.maxCacheSize;
+        return (UInt64)self.configOptions.maxCacheSize;
     };
 }
 
@@ -758,7 +765,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self archiveLoginId];
             if (![loginId isEqualToString:self.anonymousId]) {
                 self.originalId = self.anonymousId;
-                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:properties withType:@"track_signup"];
+                NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
+                // 添加来源渠道信息
+                [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+                [eventProperties addEntriesFromDictionary:properties];
+                [self track:SA_EVENT_NAME_APP_SIGN_UP withProperties:eventProperties withType:@"track_signup"];
             }
         }
     });
@@ -813,6 +824,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] setBool:YES forKey:SA_HAS_LAUNCHED_ONCE];
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
+
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -820,11 +832,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
-        NSDictionary *properties = @{SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(self->_appRelaunched), SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart)};
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(self->_appRelaunched);
+        properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+        //添加 deeplink 相关渠道信息，可能不存在
+        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+
         [self track:eventName withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
     });
 }
-
 
 - (void)startAppEndTimer {
     if ([self isLaunchedPassively]) {
@@ -954,7 +970,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
-   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url];
+   return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] || [_linkHandler canHandleURL:url];
 }
 
 - (BOOL)handleAutoTrackURL:(NSURL *)URL{
@@ -981,7 +997,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return [self handleAutoTrackURL:url];
         } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
             // url query 解析
-            NSMutableDictionary *paramDic = [[SANetwork queryItemsWithURL:url] mutableCopy];
+            NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
 
             //如果没传 info_id，视为伪造二维码，不做处理
             if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
@@ -990,6 +1006,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             } else {
                 return NO;
             }
+        } else if ([_linkHandler canHandleURL:url]) {
+            [_linkHandler handleDeepLink:url];
         }
     } @catch (NSException *exception) {
         SAError(@"%@: %@", self, exception);
@@ -1138,14 +1156,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SAError(@"%@: %@", self, exception);
         return NO;
     }
-}
-
-- (NSString *)filePathForData:(NSString *)data {
-    NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", data];
-    NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
-            stringByAppendingPathComponent:filename];
-    SADebug(@"filepath for %@ is %@", data, filepath);
-    return filepath;
 }
 
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
@@ -1490,15 +1500,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict withTrackType:(SensorsAnalyticsTrackType)trackType {
+    NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
+    // 添加 latest utms 属性，用户传入的属性优先级更高，最后添加到字典中
+    [eventProperties addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
+    [eventProperties addEntriesFromDictionary:propertieDict];
     if (trackType == SensorsAnalyticsTrackTypeCode) {
         //事件校验，预置事件提醒
         if ([_presetEventNames containsObject:event]) {
             SAError(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", event);
         };
         
-        [self track:event withProperties:propertieDict withType:@"codeTrack"];
+        [self track:event withProperties:eventProperties withType:@"codeTrack"];
     } else {
-        [self track:event withProperties:propertieDict withType:@"track"];
+        [self track:event withProperties:eventProperties withType:@"track"];
     }
 }
 
@@ -1613,15 +1627,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [properties setValue:userAgent forKey:SA_EVENT_PROPERTY_APP_USER_AGENT];
             }
 
-            if (propertyDict != nil) {
-                [properties addEntriesFromDictionary:propertyDict];
-            }
+            // 添加 deepLink 来源渠道信息
+            // 来源渠道消息只需要添加到 event 事件中，这里使用一个新的字典来添加 latest_utms 参数
+            NSMutableDictionary *eventProperties = [properties mutableCopy];
+            [eventProperties addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+            [eventProperties addEntriesFromDictionary:propertyDict];
 
             // 先发送 track
-            [self track:event withProperties:properties withType:@"track"];
+            [self track:event withProperties:eventProperties withType:@"track"];
 
             // 再发送 profile_set_once
+            // profile 事件不需要添加来源渠道信息，这里只追加用户传入的 propertyDict 和时间属性
             NSMutableDictionary *profileProperties = [properties mutableCopy];
+            [profileProperties addEntriesFromDictionary:propertyDict];
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
             [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
 
@@ -2082,20 +2100,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self unarchiveTrackChannelEvents];
 }
 
-- (id)unarchiveFromFile:(NSString *)filePath {
-    id unarchivedData = nil;
-    @try {
-        unarchivedData = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
-    } @catch (NSException *exception) {
-        SAError(@"%@ unable to unarchive data in %@, starting fresh", self, filePath);
-        unarchivedData = nil;
-    }
-    return unarchivedData;
-}
-
 - (void)unarchiveAnonymousId {
-    NSString *filePath = [self filePathForData:SA_EVENT_DISTINCT_ID];
-    NSString *archivedAnonymousId = (NSString *)[self unarchiveFromFile:filePath];
+    NSString *archivedAnonymousId = (NSString *)[SAFileStore unarchiveWithFileName:SA_EVENT_DISTINCT_ID];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *anonymousIdInKeychain = [SAKeyChainItemWrapper saUdid];
@@ -2103,11 +2109,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self.anonymousId = anonymousIdInKeychain;
         if (![archivedAnonymousId isEqualToString:anonymousIdInKeychain]) {
             //保存 Archiver
-            NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
-            [[NSFileManager defaultManager] setAttributes:protection ofItemAtPath:filePath error:nil];
-            if (![NSKeyedArchiver archiveRootObject:[self.anonymousId copy] toFile:filePath]) {
-                SAError(@"%@ unable to archive distinctId", self);
-            }
+            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:self.anonymousId];
         }
     } else {
 #endif
@@ -2125,101 +2127,44 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)unarchiveLoginId {
-    NSString *archivedLoginId = (NSString *)[self unarchiveFromFile:[self filePathForData:@"login_id"]];
-    self.loginId = archivedLoginId;
+    self.loginId = (NSString *)[SAFileStore unarchiveWithFileName:@"login_id"];
 }
 
 - (void)unarchiveFirstDay {
-    NSString *archivedFirstDay = (NSString *)[self unarchiveFromFile:[self filePathForData:@"first_day"]];
-    self.firstDay = archivedFirstDay;
+    self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
 }
 
 - (void)unarchiveSuperProperties {
-    NSDictionary *archivedSuperProperties = (NSDictionary *)[self unarchiveFromFile:[self filePathForData:@"super_properties"]];
-    if (archivedSuperProperties == nil) {
-        _superProperties = [NSDictionary dictionary];
-    } else {
-        _superProperties = [archivedSuperProperties copy];
-    }
+    NSDictionary *archivedSuperProperties = (NSDictionary *)[SAFileStore unarchiveWithFileName:@"super_properties"];
+    _superProperties = archivedSuperProperties ? [archivedSuperProperties copy] : [NSDictionary dictionary];
 }
 
 - (void)unarchiveTrackChannelEvents {
-    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    NSArray *trackChannelEvents = (NSArray *)[self unarchiveFromFile:filePath];
+    NSArray *trackChannelEvents = (NSArray *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
     [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
 }
 
 - (void)archiveAnonymousId {
-    NSString *filePath = [self filePathForData:SA_EVENT_DISTINCT_ID];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.anonymousId copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive distinctId", self);
-    }
+    [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:self.anonymousId];
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:self.anonymousId];
 #endif
-    SADebug(@"%@ archived distinctId", self);
 }
 
 - (void)archiveLoginId {
-    NSString *filePath = [self filePathForData:@"login_id"];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.loginId copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive loginId", self);
-    }
-    SADebug(@"%@ archived loginId", self);
+    [SAFileStore archiveWithFileName:@"login_id" value:self.loginId];
 }
 
 - (void)archiveFirstDay {
-    NSString *filePath = [self filePathForData:@"first_day"];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[[self firstDay] copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive firstDay", self);
-    }
-    SADebug(@"%@ archived firstDay", self);
+    [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
 }
 
 - (void)archiveSuperProperties {
-    NSString *filePath = [self filePathForData:@"super_properties"];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.superProperties copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive super properties", self);
-    }
-    SADebug(@"%@ archive super properties data", self);
+    [SAFileStore archiveWithFileName:@"super_properties" value:self.superProperties];
 }
 
 - (void)archiveTrackChannelEventNames {
-    NSString *filePath = [self filePathForData:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
-                                                           forKey:NSFileProtectionKey];
-    [[NSFileManager defaultManager] setAttributes:protection
-                                     ofItemAtPath:filePath
-                                            error:nil];
-    if (![NSKeyedArchiver archiveRootObject:[self.trackChannelEventNames copy] toFile:filePath]) {
-        SAError(@"%@ unable to archive trackChannelEventNames", self);
-    }
-    SADebug(@"%@ archive trackChannelEventNames", self);
+    [SAFileStore archiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO value:self.trackChannelEventNames];
 }
 
 #pragma mark - Network control
@@ -2405,7 +2350,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return;
     }
 
-    [self trackViewScreen:controller];
+    [self trackViewScreen:controller properties:nil autoTrack:YES];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -2413,6 +2358,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
+    [self trackViewScreen:controller properties:properties autoTrack:NO];
+}
+
+- (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
     if (!controller) {
         return;
     }
@@ -2425,6 +2374,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:controller];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
+
+    if (autoTrack) {
+        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+        // 只需要处理全埋点的页面浏览事件
+        [eventProperties addEntriesFromDictionary:[_linkHandler utmProperties]];
+        [_linkHandler clearUtmProperties];
+    }
 
     if ([controller conformsToProtocol:@protocol(SAAutoTracker)] && [controller respondsToSelector:@selector(getTrackProperties)]) {
         UIViewController<SAAutoTracker> *autoTrackerController = (UIViewController<SAAutoTracker> *)controller;
@@ -2446,14 +2402,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         _referrerScreenUrl = currentScreenUrl;
     }
-    
+
     if (properties) {
         [eventProperties addEntriesFromDictionary:properties];
         NSMutableDictionary *tempProperties = [NSMutableDictionary dictionaryWithDictionary: _lastScreenTrackProperties];
         [tempProperties addEntriesFromDictionary:properties];
         _lastScreenTrackProperties = [tempProperties copy];
     }
-    
+
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:eventProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
 
@@ -2732,10 +2688,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     if ([self isAutoTrackEnabled] && _appRelaunched) {
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
-            [self track:SA_EVENT_NAME_APP_START withProperties:@{
-                                                                 SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND: @(_appRelaunched),
-                                                                 SA_EVENT_PROPERTY_APP_FIRST_START: @(isFirstStart),
-                                                                 } withTrackType:SensorsAnalyticsTrackTypeAuto];
+            NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
+            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+            [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+
+            [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     }
 
@@ -2760,6 +2718,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SADebug(@"%@ application did enter background", self);
+
+    // 清除本次启动解析的来源渠道信息
+    [_linkHandler clearUtmProperties];
+
     _applicationWillResignActive = NO;
     
     [self stopFlushTimer];
@@ -3212,7 +3174,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         }
 
          //解析参数
-        NSMutableDictionary *paramsDic = [[SANetwork queryItemsWithURLString:urlstr] mutableCopy];
+        NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
         NSAssert(![webView isKindOfClass:NSClassFromString(@"UIWebView")], @"当前集成方式已禁用 UIWebView！❌");
@@ -3368,10 +3330,14 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                     }
                 }
                 [propertiesDict removeObjectForKey:@"_nocache"];
+
+                // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
+                [propertiesDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
             }
 
             [eventDict removeObjectForKey:@"_nocache"];
             [eventDict removeObjectForKey:@"server_url"];
+            
 
             // $project & $token
             NSString *project = [propertiesDict objectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];

@@ -15,10 +15,9 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SALogger.h"
 #import "SAAlertController.h"
-#import "SANetwork+URLUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedUtils.h"
-
+#import "SAURLUtils.h"
 
 @interface SAAuxiliaryToolManager()
 @property (nonatomic, strong) SAVisualizedConnection *visualizedConnection;
@@ -51,12 +50,12 @@
         return NO;
     }
 
-    NSDictionary *queryItems = [SANetwork decodeRueryItemsWithURL:URL];
+    NSDictionary *queryItems = [SAURLUtils decodeRueryItemsWithURL:URL];
     NSString *featureCode = queryItems[@"feature_code"];
     NSString *postURLStr = queryItems[@"url"];
 
     // project 和 host 不同
-    NSString *project = [SANetwork queryItemsWithURLString:postURLStr][@"project"] ?: @"default";
+    NSString *project = [SAURLUtils queryItemsWithURLString:postURLStr][@"project"] ?: @"default";
     BOOL isEqualProject = [[SensorsAnalyticsSDK sharedInstance].network.project isEqualToString:project];
     if (!isEqualProject) {     // 未开启可视化全埋点或点击图
         [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
