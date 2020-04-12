@@ -23,7 +23,7 @@
 #endif
 
 #import "UIApplication+AutoTrack.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+AutoTrack.h"
 #import "SAConstants+Private.h"
@@ -49,7 +49,7 @@
             sensorsAnalyticsAutoTrackAfterSendAction = YES;
         }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
         sensorsAnalyticsAutoTrackAfterSendAction = NO;
     }
 
@@ -69,7 +69,7 @@
             [self sa_track:action to:to from:from forEvent:event];
 //        }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
     }
 
     if (!sensorsAnalyticsAutoTrackAfterSendAction) {

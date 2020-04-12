@@ -25,7 +25,7 @@
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 
-#import "SALogger.h"
+#import "SALog.h"
 #import "SADeviceOrientationManager.h"
 
 static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
@@ -52,7 +52,7 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
             self.updateQueue = [[NSOperationQueue alloc] init];
             self.updateQueue.name = @"com.sensorsdata.analytics.deviceMotionUpdatesQueue";
         } @catch (NSException *e) {
-             SAError(@"%@: %@", self, e);
+             SALogError(@"%@: %@", self, e);
             return nil;
         }
     }
@@ -67,7 +67,7 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
             }];
         }
     } @catch (NSException *e) {
-        SAError(@"%@: %@", self, e);
+        SALogError(@"%@: %@", self, e);
     }
 }
 
@@ -77,7 +77,7 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
             [self.cmmotionManager stopDeviceMotionUpdates];
         }
     } @catch (NSException *e) {
-        SAError(@"%@: %@", self, e);
+        SALogError(@"%@: %@", self, e);
     }
 }
 
@@ -99,7 +99,7 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
             }
         }
     } @catch (NSException * e) {
-        SAError(@"%@: %@", self, e);
+        SALogError(@"%@: %@", self, e);
     }
 }
 
@@ -112,7 +112,7 @@ static NSTimeInterval  kSADefaultDeviceMotionUpdateInterval = 0.5;
         self.cmmotionManager = nil;
         self.deviceOrientationBlock = nil;
     } @catch (NSException *e) {
-        SAError(@"%@: %@", self, e);
+        SALogError(@"%@: %@", self, e);
     }
 }
 

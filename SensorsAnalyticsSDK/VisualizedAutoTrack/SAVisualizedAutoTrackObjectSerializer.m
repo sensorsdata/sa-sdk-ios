@@ -28,7 +28,7 @@
 #import "NSInvocation+SAHelpers.h"
 #import "SAClassDescription.h"
 #import "SAEnumDescription.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
@@ -68,7 +68,7 @@
             [self visitObject:[context dequeueUnvisitedObject] withContext:context];
         }
     } @catch (NSException *e) {
-        SAError(@"Failed to serialize objects: %@", e);
+        SALogError(@"Failed to serialize objects: %@", e);
     }
     
     NSMutableDictionary *serializedObjects = [NSMutableDictionary dictionaryWithDictionary:@{
@@ -220,7 +220,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                         }];
                         returnValue = [result copy];
                     } @catch (NSException *exception) {
-                        SAError(@"Failed to sensorsdata_subElements for UICollectionView sorted: %@", exception);
+                        SALogError(@"Failed to sensorsdata_subElements for UICollectionView sorted: %@", exception);
                     }
                 }
             }

@@ -13,7 +13,7 @@
 
 #import "SAAuxiliaryToolManager.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAAlertController.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedUtils.h"
@@ -96,11 +96,11 @@
         // start
         self.visualizedConnection = [[SAVisualizedConnection alloc] initWithURL:nil];
         if ([self isHeatMapURL:URL]) {
-             SADebug(@"Confirmed to open HeatMap ...");
+             SALogDebug(@"Confirmed to open HeatMap ...");
             self.visualizedType = SensorsAnalyticsVisualizedTypeHeatMap;
             [self.visualizedConnection startConnectionWithFeatureCode:featureCode url:postURL type:@"heatmap"];
         } else if ([self isVisualizedAutoTrackURL:URL]) {
-            SADebug(@"Confirmed to open VisualizedAutoTrack ...");
+            SALogDebug(@"Confirmed to open VisualizedAutoTrack ...");
             self.visualizedType = SensorsAnalyticsVisualizedTypeAutoTrack;
             [self.visualizedConnection startConnectionWithFeatureCode:featureCode url:postURL type:@"visualized"];
         }

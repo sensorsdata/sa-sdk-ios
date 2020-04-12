@@ -28,7 +28,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
 #import "SAGzipUtility.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAJSONUtil.h"
 
 typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionDidReceiveAuthenticationChallengeBlock)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * __autoreleasing *credential);
@@ -87,7 +87,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = [serverURL URLByAppendingPathComponent:@"debug"];
         if ([url.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
             NSString * referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
-            SALog(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
+            SALogDebug(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL.absoluteString, referenceURL);
         }
         _serverURL = url;
     }
@@ -163,7 +163,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         
         postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
     } @catch (NSException *exception) {
-        SAError(@"%@ flushByPost format data error: %@", self, exception);
+        SALogError(@"%@ flushByPost format data error: %@", self, exception);
         return nil;
     }
     
@@ -217,7 +217,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
         urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
         if (urlComponets == nil) {
-            SALog(@"URLString is malformed, nil is returned.");
+            SALogDebug(@"URLString is malformed, nil is returned.");
             return nil;
         }
         urlComponets.query = nil;
@@ -242,7 +242,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (BOOL)flushEvents:(NSArray<NSString *> *)events {
     if (![self isValidServerURL]) {
-        SAError(@"serverURL error，Please check the serverURL");
+        SALogError(@"serverURL error，Please check the serverURL");
         return NO;
     }
     
@@ -252,7 +252,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     dispatch_semaphore_t flushSemaphore = dispatch_semaphore_create(0);
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
-            SAError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
+            SALogError(@"%@", [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"]);
             dispatch_semaphore_signal(flushSemaphore);
             return;
         }
@@ -274,18 +274,18 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         BOOL successCode = (statusCode < 500 || statusCode >= 600) && statusCode != 404 && statusCode != 403;
         flushSuccess = self.debugMode != SensorsAnalyticsDebugOff || successCode;
 
-        SAError(@"==========================================================================");
+        SALogDebug(@"==========================================================================");
         @try {
             NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
             NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-            SAError(@"%@ %@: %@", self, messageDesc, dict);
+            SALogError(@"%@ %@: %@", self, messageDesc, dict);
         } @catch (NSException *exception) {
-            SAError(@"%@: %@", self, exception);
+            SALogError(@"%@: %@", self, exception);
         }
         
         if (statusCode != 200) {
-            SAError(@"%@ ret_code: %ld", self, statusCode);
-            SAError(@"%@ ret_content: %@", self, urlResponseContent);
+            SALogError(@"%@ ret_code: %ld", self, statusCode);
+            SALogError(@"%@ ret_content: %@", self, urlResponseContent);
         }
         
         dispatch_semaphore_signal(flushSemaphore);
@@ -302,7 +302,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
     if (![self isValidServerURL]) {
-        SAError(@"serverURL error，Please check the serverURL");
+        SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
@@ -311,9 +311,9 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         NSInteger statusCode = response.statusCode;
         if (statusCode == 200) {
-            SALog(@"config debugMode CallBack success");
+            SALogDebug(@"config debugMode CallBack success");
         } else {
-            SAError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, url);
+            SALogError(@"config debugMode CallBack Faild statusCode：%d，url：%@", statusCode, url);
         }
     }];
     [task resume];
@@ -322,7 +322,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
 
 - (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
     if (![self isValidServerURL]) {
-        SAError(@"serverURL error，Please check the serverURL");
+        SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
     NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
@@ -338,7 +338,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
                 config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
             }
         } @catch (NSException *e) {
-            SAError(@"%@ error: %@", self, e);
+            SALogError(@"%@ error: %@", self, e);
             success = NO;
         }
         completion(success, config);

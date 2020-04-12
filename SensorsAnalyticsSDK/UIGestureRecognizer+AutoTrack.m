@@ -27,7 +27,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import <objc/runtime.h>
@@ -65,7 +65,7 @@
             [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
         }
     } @catch (NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
     }
 }
 

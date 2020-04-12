@@ -23,14 +23,14 @@
 #endif
 
 #import "SAFileStore.h"
-#import "SALogger.h"
+#import "SALog.h"
 
 @implementation SAFileStore
 
 #pragma mark - archive file
 + (BOOL)archiveWithFileName:(NSString *)fileName value:(id)value {
     if (!fileName) {
-        SAError(@"key should not be nil for file store");
+        SALogError(@"key should not be nil for file store");
         return NO;
     }
     NSString *filePath = [SAFileStore filePath:fileName];
@@ -41,17 +41,17 @@
                                      ofItemAtPath:filePath
                                             error:nil];
     if (![NSKeyedArchiver archiveRootObject:value toFile:filePath]) {
-        SAError(@"%@ unable to archive %@", self, fileName);
+        SALogError(@"%@ unable to archive %@", self, fileName);
         return NO;
     }
-    SADebug(@"%@ archived %@", self, fileName);
+    SALogDebug(@"%@ archived %@", self, fileName);
     return YES;
 }
 
 #pragma mark - unarchive file
 + (id)unarchiveWithFileName:(NSString *)fileName {
     if (!fileName) {
-        SAError(@"key should not be nil for file store");
+        SALogError(@"key should not be nil for file store");
         return nil;
     }
     NSString *filePath = [SAFileStore filePath:fileName];
@@ -63,7 +63,7 @@
     @try {
         unarchivedData = [NSKeyedUnarchiver unarchiveObjectWithFile:filePath];
     } @catch (NSException *exception) {
-        SAError(@"%@ unable to unarchive data in %@, starting fresh", self, filePath);
+        SALogError(@"%@ unable to unarchive data in %@, starting fresh", self, filePath);
         unarchivedData = nil;
     }
     return unarchivedData;
@@ -74,7 +74,7 @@
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", key];
     NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
             stringByAppendingPathComponent:filename];
-    SADebug(@"filepath for %@ is %@", key, filepath);
+    SALogDebug(@"filepath for %@ is %@", key, filepath);
     return filepath;
 }
 

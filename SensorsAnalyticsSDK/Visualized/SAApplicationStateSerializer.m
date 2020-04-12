@@ -26,7 +26,7 @@
 #import <QuartzCore/QuartzCore.h>
 #import "SAApplicationStateSerializer.h"
 #import "SAClassDescription.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAHeatMapObjectSerializer.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
@@ -66,7 +66,7 @@
         UIGraphicsBeginImageContextWithOptions(mainWindow.bounds.size, YES, mainWindow.screen.scale);
         if ([mainWindow respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
             if (![mainWindow drawViewHierarchyInRect:mainWindow.bounds afterScreenUpdates:NO]) {
-                SAError(@"Unable to get complete screenshot for window at index: %d.", (int)index);
+                SALogError(@"Unable to get complete screenshot for window at index: %d.", (int)index);
             }
         } else {
             [mainWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
@@ -135,7 +135,7 @@
         screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
         UIGraphicsEndImageContext();
     } @catch (NSException *exception) {
-        SAError(@"screenshot fail，error %@: %@", self, exception);
+        SALogError(@"screenshot fail，error %@: %@", self, exception);
     }
     return screenshotImage;
 }

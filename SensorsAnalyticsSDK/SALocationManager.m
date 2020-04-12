@@ -26,7 +26,7 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
 
 #import "SALocationManager.h"
-#import "SALogger.h"
+#import "SALog.h"
 #define kSADefaultDistanceFilter 100.0
 #define kSADefaultDesiredAccuracy kCLLocationAccuracyHundredMeters
 @implementation SAGPSLocationConfig
@@ -59,7 +59,7 @@
     @try {
         //判断当前设备定位服务是否打开
         if (![CLLocationManager locationServicesEnabled]) {
-            SALog(@"设备尚未打开定位服务");
+            SALogDebug(@"设备尚未打开定位服务");
             return;
         }
         if (@available(iOS 8.0, *)) {
@@ -70,7 +70,7 @@
             _isUpdatingLocation = YES;
         }
     }@catch (NSException *e) {
-        SAError(@"%@ error: %@", self, e);
+        SALogError(@"%@ error: %@", self, e);
     }
 }
 
@@ -81,7 +81,7 @@
             _isUpdatingLocation = NO;
         }
     }@catch (NSException *e) {
-       SAError(@"%@ error: %@", self, e);
+       SALogError(@"%@ error: %@", self, e);
     }
 }
 
@@ -92,7 +92,7 @@
             self.updateLocationBlock(locations.lastObject, nil);
         }
     }@catch (NSException * e) {
-         SAError(@"%@ error: %@", self, e);
+         SALogError(@"%@ error: %@", self, e);
     }
 }
 
@@ -103,7 +103,7 @@
             self.updateLocationBlock(nil, error);
         }
     }@catch (NSException * e) {
-         SAError(@"%@ error: %@", self, e);
+         SALogError(@"%@ error: %@", self, e);
     }
 }
 

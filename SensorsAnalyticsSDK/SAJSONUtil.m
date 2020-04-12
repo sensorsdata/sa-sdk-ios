@@ -24,7 +24,7 @@
 
 
 #import "SAJSONUtil.h"
-#import "SALogger.h"
+#import "SALog.h"
 #import "SADateFormatter.h"
 
 @implementation SAJSONUtil
@@ -48,10 +48,10 @@
         data = [NSJSONSerialization dataWithJSONObject:coercedObj options:0 error:&error];
     }
     @catch (NSException *exception) {
-        SAError(@"%@ exception encoding api data: %@", self, exception);
+        SALogError(@"%@ exception encoding api data: %@", self, exception);
     }
     if (error) {
-        SAError(@"%@ error encoding api data: %@", self, error);
+        SALogError(@"%@ error encoding api data: %@", self, error);
     }
     return data;
 }
@@ -97,7 +97,7 @@
             NSString *stringKey;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
-                SAError(@"%@ warning: property keys should be strings. got: %@. coercing to: %@", self, [key class], stringKey);
+                SALogError(@"%@ warning: property keys should be strings. got: %@. coercing to: %@", self, [key class], stringKey);
             } else {
                 stringKey = [NSString stringWithString:key];
             }
@@ -120,7 +120,7 @@
     }
     // default to sending the object's description
     NSString *s = [newObj description];
-    SAError(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
+    SALogError(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
     return s;
 }
 

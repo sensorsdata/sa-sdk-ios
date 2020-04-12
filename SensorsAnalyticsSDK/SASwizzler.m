@@ -25,7 +25,7 @@
 
 #import <objc/runtime.h>
 
-#import "SALogger.h"
+#import "SALog.h"
 #import "SASwizzler.h"
 
 #define MIN_ARGS 2
@@ -129,7 +129,7 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
     NSEnumerator *en = [swizzles objectEnumerator];
     SASwizzle *swizzle;
     while((swizzle = (SASwizzle *)[en nextObject])) {
-        SADebug(@"%@", swizzle);
+        SALogDebug(@"%@", swizzle);
     }
 }
 
@@ -166,7 +166,7 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
     Method aMethod = class_getInstanceMethod(aClass, aSelector);
     if (!aMethod) {
 //        [NSException raise:@"SwizzleException" format:@"Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass)];
-        SALog(@"SwizzleException:Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass));
+        SALogDebug(@"SwizzleException:Cannot find method for %@ on %@", NSStringFromSelector(aSelector), NSStringFromClass(aClass));
         return;
     }
     
@@ -223,7 +223,7 @@ static void (*sa_swizzledMethods_bool[MAX_BOOL_ARGS - MIN_BOOL_ARGS + 1])(id, SE
             @try {
                 swizzle = [[SASwizzle alloc] initWithBlock:aBlock named:aName forClass:aClass selector:aSelector originalMethod:originalMethod];
             } @catch (NSException *exception) {
-                SAError(@"%@ error: %@", self, exception);
+                SALogError(@"%@ error: %@", self, exception);
             }
             [self setSwizzle:swizzle forMethod:aMethod];
         }
