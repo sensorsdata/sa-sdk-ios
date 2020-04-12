@@ -23,7 +23,8 @@
 
 
 #import <objc/runtime.h>
-#import "SALogger.h"
+#import <UIKit/UIKit.h>
+#import "SALog.h"
 #import "NSInvocation+SAHelpers.h"
 
 typedef union {
@@ -56,7 +57,7 @@ static void *SAAllocBufferForObjCType(const char *objCType) {
 
     int result = posix_memalign(&buffer, MAX(sizeof(void *), alignment), size);
     if (result != 0) {
-        SAError(@"Error allocating aligned memory: %s", strerror(result));
+        SALogError(@"Error allocating aligned memory: %s", strerror(result));
     }
 
     if (buffer) {

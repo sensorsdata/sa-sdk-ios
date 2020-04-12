@@ -26,7 +26,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAURLUtils.h"
 #import "SAFileStore.h"
-#import "SALogger.h"
+#import "SALog.h"
 
 @interface SALinkHandler ()
 
@@ -72,7 +72,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
             [set addObject:name];
         } else {
             // 这里只做 LOG 提醒
-            SAError(@"deeplink source channel property [%@] is invalid!!!", name);
+            SALogError(@"deeplink source channel property [%@] is invalid!!!", name);
         }
     }
     _sourceChannels = set;

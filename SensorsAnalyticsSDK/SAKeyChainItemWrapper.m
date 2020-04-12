@@ -24,7 +24,7 @@
 #endif
 
 
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAKeyChainItemWrapper.h"
 NSString * const kSAService = @"com.sensorsdata.analytics.udid";
 NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
@@ -97,7 +97,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
             @try {
                 [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
             } @catch (NSException *e) {
-                SAError(@"%@", e);
+                SALogError(@"%@", e);
             }
         }
 
@@ -147,7 +147,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
             // An implicit assumption is that you can only update a single item at a time.
             OSStatus  result = SecItemUpdate((__bridge CFDictionaryRef)updateItem, (__bridge CFDictionaryRef)tempCheck);
             NSAssert( result == noErr || result == errSecDuplicateItem, @"Couldn't update the Keychain Item." );
-            SALog(@"SecItemUpdate result = %d", result);
+            SALogDebug(@"SecItemUpdate result = %d", result);
         } else if(status == errSecItemNotFound) {
             [query setObject:[password dataUsingEncoding:NSUTF8StringEncoding] forKey:(__bridge id)kSecValueData];
             [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
@@ -160,17 +160,17 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
                 @try {
                     [query removeObjectForKey:(__bridge id)kSecAttrAccessible];
                 } @catch (NSException *e) {
-                    SAError(@"%@", e);
+                    SALogError(@"%@", e);
                 }
             }
 
             status= SecItemAdd((__bridge CFDictionaryRef)query, &queryResults);
             NSAssert( status == noErr || status == errSecDuplicateItem, @"Couldn't add the Keychain Item." );
-            SALog(@"SecItemAdd result = %d", status);
+            SALogDebug(@"SecItemAdd result = %d", status);
         }
         return (status == errSecSuccess);
     } @catch (NSException *e) {
-        SALog(@"%@", e);
+        SALogError(@"%@", e);
         return NO;
     }
 }
@@ -191,7 +191,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
             @try {
                 [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
             } @catch (NSException *e) {
-                SAError(@"%@", e);
+                SALogError(@"%@", e);
             }
         }
         
@@ -222,7 +222,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
         }
         return mutResultDict;
     } @catch (NSException *e) {
-        SALog(@"%@", e);
+        SALogError(@"%@", e);
         return nil;
     }
 }
@@ -245,7 +245,7 @@ NSString * const kSAAppInstallationWithDisableCallbackAccount = @"com.sensorsdat
         OSStatus status = SecItemDelete((__bridge  CFDictionaryRef)  searchQuery);
         return (status == errSecSuccess);
     } @catch (NSException *e) {
-        SALog(@"%@", e);
+        SALogError(@"%@", e);
         return NO;
     }
 }

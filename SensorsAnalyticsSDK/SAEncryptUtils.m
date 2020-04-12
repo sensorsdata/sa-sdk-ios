@@ -27,7 +27,7 @@
 #import <Security/Security.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <UIKit/UIKit.h>
-#import "SALogger.h"
+#import "SALog.h"
 
 @implementation SAEncryptUtils
 
@@ -62,7 +62,7 @@ static NSData *base64_decode(NSString *str) {
     }
     SecKeyRef keyRef = [SAEncryptUtils addPublicKey:pubKey];
     if (!keyRef) {
-        SAError(@"initialize Public SecKeyRef Fail");
+        SALogError(@"initialize Public SecKeyRef Fail");
         return nil;
     }
     return [SAEncryptUtils RSAEncryptData:data withKeyRef:keyRef];
@@ -87,7 +87,7 @@ static NSData *base64_decode(NSString *str) {
     }
     SecKeyRef keyRef = [SAEncryptUtils addPrivateKey:privKey];
     if (!keyRef) {
-        SAError(@"initialize Private SecKeyRef Fail");
+        SALogError(@"initialize Private SecKeyRef Fail");
         return nil;
     }
     return [SAEncryptUtils RSADecryptData:data withKeyRef:keyRef];
@@ -301,7 +301,7 @@ static NSData *base64_decode(NSString *str) {
                                &outlen
                                );
         if (status != 0) {
-            SAError(@"SecKeyEncrypt fail. Error Code: %d", status);
+            SALogError(@"SecKeyEncrypt fail. Error Code: %d", status);
             ret = nil;
             break;
         }else{
@@ -338,7 +338,7 @@ static NSData *base64_decode(NSString *str) {
                                &outlen
                                );
         if (status != 0) {
-            SAError(@"SecKeyEncrypt fail. Error Code: %d", (int)status);
+            SALogError(@"SecKeyEncrypt fail. Error Code: %d", (int)status);
             ret = nil;
             break;
         } else {
@@ -408,7 +408,7 @@ static NSData *base64_decode(NSString *str) {
         return encryptString;
     } else {
         free(buffer);
-        SAError(@"AES128EncryptData fail,Error Code: %d",(int)cryptStatus);
+        SALogError(@"AES128EncryptData fail,Error Code: %d",(int)cryptStatus);
     }
     return nil;
 }

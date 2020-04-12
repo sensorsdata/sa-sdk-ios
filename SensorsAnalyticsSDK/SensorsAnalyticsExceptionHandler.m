@@ -25,7 +25,7 @@
 
 #import "SensorsAnalyticsExceptionHandler.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SALogger.h"
+#import "SALog.h"
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
 #import "SAConstants+Private.h"
@@ -99,7 +99,7 @@ static const int32_t UncaughtExceptionMaximum = 10;
             char *address_signal = (char *)(_prev_signal_handlers + signals[i]);
             strlcpy(address_signal, address_action, sizeof(prev_action));
         } else {
-            SALog(@"Errored while trying to set up sigaction for signal %d", signals[i]);
+            SALogError(@"Errored while trying to set up sigaction for signal %d", signals[i]);
         }
     }
 }
@@ -188,9 +188,9 @@ static void SAHandleException(NSException *exception) {
             // 阻塞当前线程，完成 serialQueue 中数据相关的任务
             sensorsdata_dispatch_safe_sync(instance.serialQueue, ^{});
         }
-        SALog(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
+        SALogError(@"Encountered an uncaught exception. All SensorsAnalytics instances were archived.");
     } @catch(NSException *exception) {
-        SAError(@"%@ error: %@", self, exception);
+        SALogError(@"%@ error: %@", self, exception);
     }
 
     NSSetUncaughtExceptionHandler(NULL);

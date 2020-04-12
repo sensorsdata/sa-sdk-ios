@@ -23,7 +23,7 @@
 #endif
 
 
-#import "SALogger.h"
+#import "SALog.h"
 #import "SAValueTransformers.h"
 
 #pragma mark -- PassThrough
@@ -412,7 +412,7 @@ static BOOL MPCGAffineTransformMakeWithDictionaryRepresentation(NSDictionary *di
                  @"data" : [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding]
                  };
     }
-    SAError(@"Failed to convert NSAttributedString to HTML: %@", error);
+    SALogError(@"Failed to convert NSAttributedString to HTML: %@", error);
     
     return nil;
 }
@@ -436,7 +436,7 @@ static BOOL MPCGAffineTransformMakeWithDictionaryRepresentation(NSDictionary *di
                                                               error:&error];
 #endif
         if (attributedString == nil) {
-            SAError(@"Failed to convert HTML to NSAttributed string: %@", error);
+            SALogError(@"Failed to convert HTML to NSAttributed string: %@", error);
         }
         
         return attributedString;
