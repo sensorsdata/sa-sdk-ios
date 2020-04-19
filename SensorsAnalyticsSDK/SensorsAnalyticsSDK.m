@@ -74,7 +74,7 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 
-#define VERSION @"2.0.3"
+#define VERSION @"2.0.4"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -285,7 +285,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             dispatch_block_t mainThreadBlock = ^(){
                 //判断被动启动
-                if (UIApplication.sharedApplication.backgroundTimeRemaining != UIApplicationBackgroundFetchIntervalNever) {
+                if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
                     self->_launchedPassively = YES;
                 }
             };
@@ -2646,10 +2646,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-        _appRelaunched = YES;
-        self.launchedPassively = NO;
-    }
+    _appRelaunched = YES;
+    self.launchedPassively = NO;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
