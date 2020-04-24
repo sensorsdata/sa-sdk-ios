@@ -1,8 +1,8 @@
 //
-// SAFileStore.h
+// SAValidator.m
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2020/1/6.
+// Created by wenquan on 2020/2/19.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,41 +22,20 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <Foundation/Foundation.h>
+#import "SAValidator.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation SAValidator
 
-@interface SAFileStore : NSObject
++ (BOOL)isValidString:(NSString *)string {
+    return ([string isKindOfClass:[NSString class]] && ([string length] > 0));
+}
 
-/**
- @abstract
- 文件本地存储
++ (BOOL)isValidArray:(NSArray *)array {
+    return ([array isKindOfClass:[NSArray class]] && ([array count] > 0));
+}
 
- @param fileName 本地存储文件名
- @param value 本地存储文件内容
-
- @return 存储结果
-*/
-+ (BOOL)archiveWithFileName:(NSString *)fileName value:(nullable id)value;
-
-/**
- @abstract
- 获取本地存储的文件内容
-
- @param fileName 本地存储文件名
- @return 本地存储文件内容
-*/
-+ (nullable id)unarchiveWithFileName:(NSString *)fileName;
-
-/**
- @abstract
- 获取文件路径
-
- @param fileName 文件名
- @return 文件全路径
-*/
-+ (NSString *)filePath:(NSString *)fileName;
++ (BOOL)isValidDictionary:(NSDictionary *)dictionary {
+    return ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0));
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

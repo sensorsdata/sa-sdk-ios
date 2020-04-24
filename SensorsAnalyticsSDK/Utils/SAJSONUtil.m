@@ -97,7 +97,7 @@
             NSString *stringKey;
             if (![key isKindOfClass:[NSString class]]) {
                 stringKey = [key description];
-                SALogError(@"%@ warning: property keys should be strings. got: %@. coercing to: %@", self, [key class], stringKey);
+                SALogWarn(@"%@ warning: property keys should be strings. got: %@. coercing to: %@", self, [key class], stringKey);
             } else {
                 stringKey = [NSString stringWithString:key];
             }
@@ -120,7 +120,7 @@
     }
     // default to sending the object's description
     NSString *s = [newObj description];
-    SALogError(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
+    SALogWarn(@"%@ warning: property values should be valid json types. got: %@. coercing to: %@", self, [newObj class], s);
     return s;
 }
 

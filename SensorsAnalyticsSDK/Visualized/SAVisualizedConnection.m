@@ -107,7 +107,7 @@
 
         [task resume];
     } else {
-        SALogDebug(@"Not sending message as we are not connected: %@", [message debugDescription]);
+        SALogWarn(@"Not sending message as we are not connected: %@", [message debugDescription]);
     }
 }
 

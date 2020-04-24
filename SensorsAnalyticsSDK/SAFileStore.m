@@ -28,7 +28,7 @@
 @implementation SAFileStore
 
 #pragma mark - archive file
-+ (BOOL)archiveWithFileName:(NSString *)fileName value:(id)value {
++ (BOOL)archiveWithFileName:(NSString *)fileName value:(nullable id)value {
     if (!fileName) {
         SALogError(@"key should not be nil for file store");
         return NO;

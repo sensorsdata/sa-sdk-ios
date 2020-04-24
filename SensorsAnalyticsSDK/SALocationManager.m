@@ -59,7 +59,7 @@
     @try {
         //判断当前设备定位服务是否打开
         if (![CLLocationManager locationServicesEnabled]) {
-            SALogDebug(@"设备尚未打开定位服务");
+            SALogWarn(@"设备尚未打开定位服务");
             return;
         }
         if (@available(iOS 8.0, *)) {

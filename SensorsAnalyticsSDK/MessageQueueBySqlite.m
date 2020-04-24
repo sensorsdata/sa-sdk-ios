@@ -234,7 +234,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     
     // 数据缓存到内存中，如果最大缓存条数大于 10000，可能导致内存占用过大
     if (self.messageCaches.count >= kMessageCachesMaxSize) {
-        SALogError(@"AddObjectToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
+        SALogWarn(@"AddObjectToCache touch MAX_MESSAGE_SIZE:10000, try to delete some old events");
         [self removeFirstRecordsFromCache:kRemoveFirstRecordsDefaultCount];
     }
     
@@ -261,7 +261,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     
     UInt64 maxCacheSize = [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
     if (_dbMessageCount >= maxCacheSize) {
-        SALogError(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
+        SALogWarn(@"AddObjectToDatabase touch MAX_MESSAGE_SIZE:%llu, try to delete some old events", maxCacheSize);
         BOOL ret = [self removeFirstRecordsFromDatabase:kRemoveFirstRecordsDefaultCount];
         if (ret) {
             _dbMessageCount = [self sqliteCount];
@@ -488,7 +488,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     if (!stmt) {
         int result = sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL);
         if (result != SQLITE_OK) {
-            SALogError(@"%s line:%d sqlite stmt prepare error (%d): %s", __FUNCTION__, __LINE__, result, sqlite3_errmsg(_database));
+            SALogError(@"sqlite stmt prepare error (%d): %s", result, sqlite3_errmsg(_database));
             return NULL;
         }
         CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);
