@@ -1,9 +1,9 @@
 //
-// SAFileStore.h
+// SADateFormatter.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2020/1/6.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2019/12/23.
+// Copyright © 2019 SensorsData. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,36 +26,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAFileStore : NSObject
+@interface SADateFormatter : NSObject
 
 /**
- @abstract
- 文件本地存储
-
- @param fileName 本地存储文件名
- @param value 本地存储文件内容
-
- @return 存储结果
+*  @abstract
+*  获取 NSDateFormatter 单例对象
+*
+*  @param string 日期格式
+*
+*  @return 返回 NSDateFormatter 单例对象
 */
-+ (BOOL)archiveWithFileName:(NSString *)fileName value:(nullable id)value;
-
-/**
- @abstract
- 获取本地存储的文件内容
-
- @param fileName 本地存储文件名
- @return 本地存储文件内容
-*/
-+ (nullable id)unarchiveWithFileName:(NSString *)fileName;
-
-/**
- @abstract
- 获取文件路径
-
- @param fileName 文件名
- @return 文件全路径
-*/
-+ (NSString *)filePath:(NSString *)fileName;
++ (NSDateFormatter *)dateFormatterFromString:(NSString *)string;
 
 @end
 

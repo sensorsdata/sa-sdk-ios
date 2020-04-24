@@ -38,6 +38,8 @@ NSString * const SA_EVENT_LIB = @"lib";
 NSString * const SA_EVENT_PROJECT = @"project";
 NSString * const SA_EVENT_TOKEN = @"token";
 NSString * const SA_EVENT_HYBRID_H5 = @"_hybrid_h5";
+NSString * const SA_EVENT_LOGIN_ID = @"login_id";
+NSString * const SA_EVENT_ANONYMOUS_ID = @"anonymous_id";
 
 #pragma mark - Item
 NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
