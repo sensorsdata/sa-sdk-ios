@@ -35,25 +35,19 @@
 
 - (BOOL)sa_sendAction:(SEL)action to:(id)to from:(id)from forEvent:(UIEvent *)event {
 
+    BOOL ret = YES;
+
+    // 针对 tab 切换，采集切换后的页面信息，先执行系统 sendAction 完成页面切换
+    BOOL isTabBar = [to isKindOfClass:UITabBar.class] || [to isKindOfClass:UITabBarController.class];
     /*
      默认先执行 AutoTrack
      如果先执行原点击处理逻辑，可能已经发生页面 push 或者 pop，导致获取当前 ViewController 不正确
      可以通过 UIView 扩展属性 sensorsAnalyticsAutoTrackAfterSendAction，来配置 AutoTrack 是发生在原点击处理函数之前还是之后
      */
+    BOOL sensorsAnalyticsAutoTrackAfterSendAction = [from isKindOfClass:[UIView class]] && [(UIView *)from sensorsAnalyticsAutoTrackAfterSendAction];
+    BOOL autoTrackAfterSendAction = isTabBar || sensorsAnalyticsAutoTrackAfterSendAction;
 
-    BOOL ret = YES;
-    BOOL sensorsAnalyticsAutoTrackAfterSendAction = NO;
-
-    @try {
-        if ([from isKindOfClass:[UIView class]] && [(UIView *)from sensorsAnalyticsAutoTrackAfterSendAction]) {
-            sensorsAnalyticsAutoTrackAfterSendAction = YES;
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
-        sensorsAnalyticsAutoTrackAfterSendAction = NO;
-    }
-
-    if (sensorsAnalyticsAutoTrackAfterSendAction) {
+    if (autoTrackAfterSendAction) {
         ret = [self sa_sendAction:action to:to from:from forEvent:event];
     }
 
@@ -72,7 +66,7 @@
         SALogError(@"%@ error: %@", self, exception);
     }
 
-    if (!sensorsAnalyticsAutoTrackAfterSendAction) {
+    if (!autoTrackAfterSendAction) {
         ret = [self sa_sendAction:action to:to from:from forEvent:event];
     }
 
