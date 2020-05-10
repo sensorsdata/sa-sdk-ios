@@ -176,7 +176,7 @@
 #ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
     NSString *imageName = self.image.sensorsAnalyticsImageName;
     if (imageName.length > 0) {
-        return [NSString stringWithFormat:@"$%@", imageName];
+        return [NSString stringWithFormat:@"%@", imageName];
     }
 #endif
     return super.sensorsdata_elementContent;
@@ -285,15 +285,6 @@
     if (!text) {
         text = super.sensorsdata_elementContent;
     }
-#ifndef SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME
-    if (!text) {
-        NSString *imageName = self.currentImage.sensorsAnalyticsImageName;
-        if (imageName.length > 0) {
-            return [NSString stringWithFormat:@"$%@", imageName];
-        }
-    }
-#endif
-
     return text;
 }
 

@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="fastlane.lanes">
+    
+    
+    
+      
+      <testcase classname="fastlane.lanes" name="0: Verifying required fastlane version" time="0.003083">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="1: default_platform" time="0.00271">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="2: chmod 777 ./modify_version.sh" time="0.008259">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="3: ./modify_version.sh 4.0.1 mc_feature_pre_fastlane" time="0.064947">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="4: chmod 777 ./replace_code.sh" time="0.005717">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="5: ./replace_code.sh ~/Documents/Git/SensorsAnalytics ~/Documents/demo/sa-sdk-ios 4.0.1 mc_feature_pre_fastlane" time="0.217985">
+        
+      </testcase>
+    
+      
+      <testcase classname="fastlane.lanes" name="6: cd ~/Documents/demo/sa-sdk-ios &amp;&amp; fastlane release version:4.0.1 branch:mc_feature_pre_fastlane" time="4.924382">
+        
+      </testcase>
+    
+  </testsuite>
+</testsuites>
