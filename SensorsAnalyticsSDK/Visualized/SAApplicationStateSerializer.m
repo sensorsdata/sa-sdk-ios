@@ -57,67 +57,45 @@
     return self;
 }
 
-
-- (UIImage *)screenshotImageForKeyWindow {
-    UIImage *image = nil;
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    UIWindow *mainWindow = [self uiMainWindow:keyWindow];
-    if (mainWindow && !CGRectEqualToRect(mainWindow.frame, CGRectZero)) {
-        UIGraphicsBeginImageContextWithOptions(mainWindow.bounds.size, YES, mainWindow.screen.scale);
-        if ([mainWindow respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
-            if (![mainWindow drawViewHierarchyInRect:mainWindow.bounds afterScreenUpdates:NO]) {
-                SALogError(@"Unable to get complete screenshot for window at index: %d.", (int)index);
-            }
-        } else {
-            [mainWindow.layer renderInContext:UIGraphicsGetCurrentContext()];
-        }
-        image = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    }
-
-    return image;
-}
-
 // 所有 window 截图合成
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
     CGFloat scale = [UIScreen mainScreen].scale;
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    UIWindow *firstWindow = [UIApplication sharedApplication].windows.firstObject;
 
-    NSMutableArray<UIImage *> *images = [NSMutableArray array];
-    UIImage *image = [self screenshotWithView:keyWindow afterScreenUpdates:NO];
-    if (image) {
-        [images addObject:image];
-    }
-    // 如果 firstWindow 和 keyWindow 不同，则包含弹框或其他多 window，并设置为 keyWindow
-    if (firstWindow != keyWindow) {
-        UIImage *image = [self screenshotWithView:firstWindow afterScreenUpdates:NO];
-        if (image) {
-            [images insertObject:image atIndex:0];
+    NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
+    for (UIWindow *window in [UIApplication sharedApplication].windows) {
+        if ([window isMemberOfClass:UIWindow.class]) {
+            [validWindows addObject:window];
         }
     }
 
-    if (images.count == 1) {
-        // 单张图片
-        completionHandler(images.firstObject);
-    } else {
-        // 子线程异步绘图合成
-        dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-            // 将上面得到的多张图片合并绘制为一张图片，最终得到 screenshotImage
-            UIImage *screenshotImage = nil;
-            if (images.count > 0) {
-                CGSize newSize = CGSizeMake(images.firstObject.size.width * scale, images.firstObject.size.height * scale);
-                UIGraphicsBeginImageContext(newSize);
-                for (UIImage *image in images) {
-                    [image drawInRect:CGRectMake(0, 0, image.size.width * scale, image.size.height * scale)];
-                }
-                screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
-                UIGraphicsEndImageContext();
-            }
-            // 绘制操作完成
-            completionHandler(screenshotImage);
-        });
+    if (validWindows.count == 0) {
+        completionHandler(nil);
+        return;
     }
+    if (validWindows.count == 1) {
+        UIImage *image = [self screenshotWithView:validWindows.firstObject afterScreenUpdates:NO];
+        // 单张图片
+        completionHandler(image);
+        return;
+    }
+
+    CGSize keyWindowSize = [UIApplication sharedApplication].keyWindow.bounds.size;
+    CGSize newSize = CGSizeMake(keyWindowSize.width * scale, keyWindowSize.height * scale);
+    // 将上面得到的多张图片合并绘制为一张图片，最终得到 screenshotImage
+    UIImage *screenshotImage = nil;
+    UIGraphicsBeginImageContext(newSize);
+    for (UIWindow *window in validWindows) {
+        UIImage *image = [self screenshotWithView:window afterScreenUpdates:NO];
+        if (image) {
+            CGPoint windowPoint = window.frame.origin;
+            [image drawInRect:CGRectMake(windowPoint.x * scale, windowPoint.y * scale, image.size.width * scale, image.size.height * scale)];
+        }
+    }
+    screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+
+    // 绘制操作完成
+    completionHandler(screenshotImage);
 }
 
 // 对 view 截图
@@ -129,7 +107,7 @@
     @try {
         CGSize size = currentView.bounds.size;
         UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-        CGRect rect = currentView.frame;
+        CGRect rect = currentView.bounds;
         //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
         [currentView drawViewHierarchyInRect:rect afterScreenUpdates:afterUpdates];
         screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
@@ -156,7 +134,16 @@
             
             // 可视化全埋点
         } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
-            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:mainWindow];
+            // 遍历其他 window，兼容自定义 window 弹框等场景
+            __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
+            // 逆序遍历，获取最上层全屏 window
+            [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size)) {
+                    validWindow = obj;
+                    *stop = YES;
+                }
+            }];
+            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:validWindow];
         }
     }
     

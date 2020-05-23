@@ -29,6 +29,9 @@
 #import "SALog.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAVisualizedObjectSerializerManger.h"
+#import "SAConstants+Private.h"
+
 
 @interface SAVisualizedAbstractMessage ()
 
@@ -82,10 +85,16 @@
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
 
     @try {
-        UIViewController<SAAutoTrackViewControllerProperty> *viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
+        UIViewController<SAAutoTrackViewControllerProperty> *viewController = nil;
+        if ([SAVisualizedObjectSerializerManger sharedInstance].currentViewController) {
+            viewController = [SAVisualizedObjectSerializerManger sharedInstance].currentViewController;
+        } else {
+            viewController = (UIViewController<SAAutoTrackViewControllerProperty> *)[SAAutoTrackUtils currentViewController];
+        }
         if (viewController) {
-            jsonObject[@"screen_name"] = viewController.sensorsdata_screenName;
-            jsonObject[@"title"] = viewController.sensorsdata_title;
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+            jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+            jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
@@ -93,12 +102,18 @@
 
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
+    jsonObject[@"is_webview"] = @([SAVisualizedObjectSerializerManger sharedInstance].isContainWebView);
 
-    if (_payload[@"serialized_objects"] && [_payload[@"serialized_objects"] isKindOfClass:NSDictionary.class]) {
-        NSMutableDictionary *serializedBbjects = [NSMutableDictionary dictionaryWithDictionary:_payload[@"serialized_objects"]];
-        NSNumber *isContainWebview = serializedBbjects[@"is_webview"];
-        [serializedBbjects removeObjectForKey:@"is_webview"];
-        jsonObject[@"is_webview"] = isContainWebview;
+    // 添加前端弹框信息
+    if ([SAVisualizedObjectSerializerManger sharedInstance].alertInfos.count > 0) {
+        jsonObject[@"app_alert_infos"] = [[SAVisualizedObjectSerializerManger sharedInstance].alertInfos copy];
+    }
+
+    // H5 页面信息
+    if ([SAVisualizedObjectSerializerManger sharedInstance].webPageInfo) {
+        SAVisualizedWebPageInfo *webPageInfo = [SAVisualizedObjectSerializerManger sharedInstance].webPageInfo;
+        jsonObject[@"h5_url"] = webPageInfo.url;
+        jsonObject[@"h5_title"] = webPageInfo.title;
     }
 
     // SDK 版本号

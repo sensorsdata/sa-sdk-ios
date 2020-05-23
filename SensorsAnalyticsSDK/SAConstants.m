@@ -138,6 +138,9 @@ NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 
+#pragma mark - bridge name
+NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME = @"sensorsdataNativeTracker";
+
 NSSet* sensorsdata_reserved_properties() {
     return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"device_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
 }

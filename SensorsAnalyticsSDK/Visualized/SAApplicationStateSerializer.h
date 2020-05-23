@@ -29,10 +29,6 @@
                       configuration:(SAObjectSerializerConfig *)configuration
              objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
-
-/// keyWindow 截图
-- (UIImage *)screenshotImageForKeyWindow;
-
 /// 所有 window 截图合成
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void(^)(UIImage *))completionHandler;
 

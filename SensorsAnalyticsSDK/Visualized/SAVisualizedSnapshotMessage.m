@@ -32,12 +32,18 @@
 #import "SAVisualizedConnection.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 #pragma mark -- Snapshot Request
 
 NSString * const SAVisualizedSnapshotRequestMessageType = @"snapshot_request";
 
 static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descriptions";
+
+@interface SAVisualizedSnapshotRequestMessage()
+@property (nonatomic, copy) NSString *lastImageHash;
+@end
 
 @implementation SAVisualizedSnapshotRequestMessage
 
@@ -54,29 +60,40 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 // 构建页面信息，包括截图和元素数据
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
     SAObjectSerializerConfig *serializerConfig = self.configuration;
-    
+
     __weak SAVisualizedConnection *weak_connection = connection;
     NSOperation *operation = [NSBlockOperation blockOperationWithBlock:^{
         __strong SAVisualizedConnection *conn = weak_connection;
-        
+
         // Get the object identity provider from the connection's session store or create one if there is none already.
         SAObjectIdentityProvider *objectIdentityProvider = [[SAObjectIdentityProvider alloc] init];
-        
+
         SAApplicationStateSerializer *serializer = [[SAApplicationStateSerializer alloc] initWithApplication:[UIApplication sharedApplication] configuration:serializerConfig objectIdentityProvider:objectIdentityProvider];
-        
+
         SAVisualizedSnapshotResponseMessage *snapshotMessage = [SAVisualizedSnapshotResponseMessage message];
-        
+
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
-             snapshotMessage.serializedObjects = serializedObjects;
-            
             [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
                 snapshotMessage.screenshot = image;
-                [conn sendMessage:snapshotMessage];
+
+                // imageHash 不变即截图相同，页面不变，则不再解析页面元素信息
+                if ([[SAVisualizedObjectSerializerManger sharedInstance].lastImageHash isEqualToString:snapshotMessage.imageHash]) {
+                    [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
+                } else {
+                    // 重置页面配置信息
+                    [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
+
+                    // 解析页面信息
+                    NSDictionary *serializedObjects = [serializer objectHierarchyForWindow:UIApplication.sharedApplication.keyWindow];
+                    snapshotMessage.serializedObjects = serializedObjects;
+                    [conn sendMessage:snapshotMessage];
+
+                    [[SAVisualizedObjectSerializerManger sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
+                }
             }];
         });
     }];
-    
+
     return operation;
 }
 
@@ -92,7 +109,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
 
 - (void)setScreenshot:(UIImage *)screenshot {
     id payloadObject = nil;
-    id imageHash = nil;
+    NSString *imageHash = nil;
     if (screenshot) {
         NSData *jpegSnapshotImageData = UIImageJPEGRepresentation(screenshot, 0.5);
         if (jpegSnapshotImageData) {
@@ -100,8 +117,12 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
             imageHash = [self imageHashWithData:jpegSnapshotImageData];
         }
     }
-    
-    _imageHash = imageHash;
+
+    if ([SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage) {
+        imageHash = [imageHash stringByAppendingString:[SAVisualizedObjectSerializerManger sharedInstance].imageHashUpdateMessage];
+    }
+
+    self.imageHash = imageHash;
     [self setPayloadObject:(payloadObject ?: [NSNull null]) forKey:@"screenshot"];
     [self setPayloadObject:(imageHash ?: [NSNull null]) forKey:@"image_hash"];
 }

@@ -2,124 +2,10 @@
   "type": "snapshot_request",
   "payload": {
     "config": {
-      "enums": [
-        {
-          "name": "UIControlState",
-          "flag_set": true,
-          "base_type": "NSUInteger",
-          "values": [
-            {
-              "value": 0,
-              "display_name": "Normal"
-            },
-            {
-              "value": 1,
-              "display_name": "Highlighted"
-            },
-            {
-              "value": 2,
-              "display_name": "Disabled"
-            },
-            {
-              "value": 4,
-              "display_name": "Selected"
-            }
-          ]
-        },
-        {
-          "name": "UIControlEvents",
-          "base_type": "NSUInteger",
-          "flag_set": true,
-          "values": [
-            {
-              "value": 1,
-              "display_name": "TouchDown"
-            },
-            {
-              "value": 2,
-              "display_name": "TouchDownRepeat"
-            },
-            {
-              "value": 4,
-              "display_name": "TouchDragInside"
-            },
-            {
-              "value": 8,
-              "display_name": "TouchDragOutside"
-            },
-            {
-              "value": 16,
-              "display_name": "TouchDragEnter"
-            },
-            {
-              "value": 32,
-              "display_name": "TouchDragExit"
-            },
-            {
-              "value": 64,
-              "display_name": "TouchUpInside"
-            },
-            {
-              "value": 128,
-              "display_name": "TouchUpOutside"
-            },
-            {
-              "value": 256,
-              "display_name": "TouchCancel"
-            },
-            {
-              "value": 4096,
-              "display_name": "ValueChanged"
-            },
-            {
-              "value": 65536,
-              "display_name": "EditingDidBegin"
-            },
-            {
-              "value": 131072,
-              "display_name": "EditingChanged"
-            },
-            {
-              "value": 262144,
-              "display_name": "EditingDidEnd"
-            },
-            {
-              "value": 524288,
-              "display_name": "EditingDidEndOnExit"
-            },
-            {
-              "value": 4095,
-              "display_name": "AllTouchEvents"
-            },
-            {
-              "value": 983040,
-              "display_name": "AllEditingEvents"
-            },
-            {
-              "value": 251658240,
-              "display_name": "ApplicationReserved"
-            },
-            {
-              "value": 4026531840,
-              "display_name": "SystemReserved"
-            },
-            {
-              "value": 4294967295,
-              "display_name": "AllEvents"
-            }
-          ]
-        }
-      ],
       "classes": [
         {
           "name": "NSObject",
           "superclass": null,
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIResponder",
-          "superclass": "NSObject",
           "properties": [
           ]
         },
@@ -152,36 +38,6 @@
               "name": "performOnViewLoad",
               "type": "BOOL"
             }
-          ]
-        },
-        {
-          "name": "UINavigationItem",
-          "superclass": "NSObject",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIBarItem",
-          "superclass": "NSObject",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIBarButtonItem",
-          "superclass": "UIBarItem",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIGestureRecognizer",
-          "superclass": "NSObject",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIGestureRecognizerTarget",
-          "superclass": "NSObject",
-          "properties": [
           ]
         },
         {
@@ -225,10 +81,6 @@
               "use_kvc": false
             },
             {
-              "name": "window",
-              "type": "UIWindow"
-            },
-            {
               "name": "jjf_fingerprintVersion",
               "type": "NSString",
               "use_kvc": false
@@ -245,39 +97,24 @@
           ]
         },
         {
-          "name": "UILabel",
+          "name": "SAJSTouchEventView",
           "superclass": "UIView",
           "properties": [
-          ]
-        },
-        {
-          "name": "UIImageView",
-          "superclass": "UIView",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIControlTargetAction",
-          "superclass": "NSObject",
-          "properties": [
-            
-          ]
-        },
-        {
-          "name": "UIControl",
-          "superclass": "UIView",
-          "properties": [
-            {
-              "name": "allControlEvents",
-              "type": "UIControlEvents"
-            }
-          ]
-        },
-        {
-          "name": "UISwitch",
-          "superclass": "UIControl",
-          "properties": [
-            
+              {
+                "name": "url",
+                "type": "NSString"
+              },
+              {
+                "name": "title",
+                "key": "h5_title",
+                "type": "NSString"
+              },
+              {
+                  "name": "sensorsdata_elementPath",
+                  "key": "element_selector",
+                  "type": "NSString",
+                  "use_kvc": false
+              }
           ]
         },
         {
@@ -305,18 +142,6 @@
           ]
         },
         {
-            "name": "UITableViewCell",
-            "superclass": "UIView",
-            "properties": [
-            ]
-        },
-        {
-            "name": "UITableViewHeaderFooterView",
-            "superclass": "UIView",
-            "properties": [
-            ]
-        },
-        {
           "name": "UICollectionView",
           "superclass": "UIScrollView",
           "properties": [
@@ -324,31 +149,6 @@
               "name": "allowsSelection",
               "type": "BOOL"
             }
-          ]
-        },
-        {
-            "name": "UICollectionViewCell",
-            "superclass": "UIView",
-            "properties": [
-            ]
-        },
-        {
-          "name": "UITextView",
-          "superclass": "UIScrollView",
-          "properties": [
-          ]
-        },
-        {
-          "name": "UIButton",
-          "superclass": "UIControl",
-          "properties": [
-            
-          ]
-        },
-        {
-          "name": "UISegmentedControl",
-          "superclass": "UIControl",
-          "properties": [
           ]
         },
         {
@@ -370,12 +170,6 @@
               "name": "isViewLoaded",
               "type": "BOOL",
               "readonly": true
-            },
-            {
-              "name": "sensorsdata_elementPath",
-              "key": "element_path",
-              "type": "NSString",
-              "use_kvc": false
             },
             {
               "name": "sensorsdata_subElements",

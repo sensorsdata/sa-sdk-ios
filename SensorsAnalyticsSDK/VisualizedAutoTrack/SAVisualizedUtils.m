@@ -23,6 +23,11 @@
 #endif
 
 #import "SAVisualizedUtils.h"
+#import "SAJSTouchEventView.h"
+#import "SAVisualizedViewPathProperty.h"
+#import "SAJSONUtil.h"
+#import "SAVisualizedObjectSerializerManger.h"
+
 
 @implementation SAVisualizedUtils
 
@@ -77,6 +82,51 @@
         }];
     }
     return otherViews;
+}
+
++ (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
+    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+    NSArray *webPageDatas = webPageInfo.elementSources;
+    if (webPageDatas.count == 0) {
+        return nil;
+    }
+
+    // 元素去重，去除 id 相同的重复元素
+    NSMutableArray <NSString *> *allNoRepeatElementIds = [NSMutableArray array];
+    NSMutableArray <SAJSTouchEventView *> *touchViewArray = [NSMutableArray array];
+    for (NSDictionary *pageData in webPageDatas) {
+        NSString *elementId = pageData[@"id"];
+        if (elementId) {
+            if ([allNoRepeatElementIds containsObject:elementId]) {
+                continue;
+            }
+            [allNoRepeatElementIds addObject:elementId];
+        }
+
+        SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithWebView:webView webElementInfo:pageData];
+        if (touchView) {
+            [touchViewArray addObject:touchView];
+        }
+    }
+
+    // 构建子元素数组
+    for (SAJSTouchEventView *touchView1 in [touchViewArray copy]) {
+        //当前元素嵌套子元素
+        if (touchView1.jsSubElementIds.count > 0) {
+            NSMutableArray *jsSubElement = [NSMutableArray arrayWithCapacity:touchView1.jsSubElementIds.count];
+            // 根据子元素 id 查找对应子元素
+            for (NSString *elementId in touchView1.jsSubElementIds) {
+                for (SAJSTouchEventView *touchView2 in [touchViewArray copy]) {
+                    if ([elementId isEqualToString:touchView2.jsElementId]) {
+                        [jsSubElement addObject:touchView2];
+                        [touchViewArray removeObject:touchView2];
+                    }
+                }
+            }
+            touchView1.jsSubviews = [jsSubElement copy];
+        }
+    }
+    return [touchViewArray copy];
 }
 
 @end

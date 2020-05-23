@@ -132,6 +132,9 @@
 
 - (NSString *)sensorsdata_itemPath {
 #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    /* 忽略路径
+     UITableViewWrapperView 为 iOS11 新增 UITableView 与 cell 之间的 view
+     */
     if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
         return nil;
     }

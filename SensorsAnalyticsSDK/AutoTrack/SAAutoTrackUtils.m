@@ -85,31 +85,36 @@
 }
 
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    __block UIViewController *currentViewController = nil;
+    __block UIViewController *currentViewController = viewController;
     if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
         viewController = [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
     }
 
     if ([viewController isKindOfClass:[UITabBarController class]]) {
-        currentViewController = [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
-    } else if ([viewController isKindOfClass:[UINavigationController class]]) {
+        return [self findCurrentViewControllerFromRootViewController:[(UITabBarController *)viewController selectedViewController] isRoot:NO];
+    }
+    if ([viewController isKindOfClass:[UINavigationController class]]) {
         // 根视图为 UINavigationController
         UIViewController *topViewController = [(UINavigationController *)viewController topViewController];
-        currentViewController = [self findCurrentViewControllerFromRootViewController:topViewController isRoot:NO];
-    } else if (viewController.childViewControllers.count > 0) {
+        return [self findCurrentViewControllerFromRootViewController:topViewController isRoot:NO];
+    }
+
+    if (viewController.childViewControllers.count > 0) {
         if (viewController.childViewControllers.count == 1 && isRoot) {
-            currentViewController = [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
+            return [self findCurrentViewControllerFromRootViewController:viewController.childViewControllers.firstObject isRoot:NO];
         } else {
             //从最上层遍历（逆序），查找正在显示的 UITabBarController 或 UINavigationController 类型的
-            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
             // 是否包含 UINavigationController 或 UITabBarController 类全屏显示的 controller
             __block BOOL isContainController = NO;
             [viewController.childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-                CGPoint point = [keyWindow convertPoint:CGPointMake(0, 0) toView:obj.view];
-                // 正在全屏显示
-                if (!obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0))) {
-                    // 判断类型
-                    if ([obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class]) {
+                // 判断 obj.view 是否加载，如果尚未加载，调用 obj.view 会触发 viewDidLoad，可能影响客户业务
+                if (obj.isViewLoaded) {
+                    CGPoint point = [obj.view convertPoint:CGPointMake(0, 0) toView:nil];
+                   // 正在全屏显示
+                    BOOL isFullScreenShow = !obj.view.hidden && obj.view.alpha > 0 && CGPointEqualToPoint(point, CGPointMake(0, 0));
+                   // 判断类型
+                    BOOL isStopFindController = [obj isKindOfClass:UINavigationController.class] || [obj isKindOfClass:UITabBarController.class];
+                    if (isFullScreenShow && isStopFindController) {
                         currentViewController = [self findCurrentViewControllerFromRootViewController:obj isRoot:NO];
                         *stop = YES;
                         isContainController = YES;
@@ -117,7 +122,7 @@
                 }
             }];
             if (!isContainController) {
-                currentViewController = viewController;
+                return viewController;
             }
         }
     } else if ([viewController respondsToSelector:NSSelectorFromString(@"contentViewController")]) {
@@ -128,9 +133,7 @@
         if (tempViewController) {
             currentViewController = [self findCurrentViewControllerFromRootViewController:tempViewController isRoot:NO];
         }
-    } else {
-        currentViewController = viewController;
-    }
+    } 
     return currentViewController;
 }
 
@@ -268,22 +271,6 @@
     return viewPaths;
 }
 
-//+ (NSArray<NSString *> *)viewPathsForCurrentViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
-//    NSMutableArray *viewPaths = [NSMutableArray array];
-//
-//    if ([viewController isKindOfClass:UINavigationController.class]) {
-//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
-//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
-//    } else if ([viewController isKindOfClass:UIAlertController.class]) {
-//        [viewPaths addObject:viewController.sensorsdata_itemPath];
-//        UIViewController<SAAutoTrackViewPathProperty> *currentViewController = (UIViewController<SAAutoTrackViewPathProperty> *)[self currentViewController];
-//        [viewPaths addObject:currentViewController.sensorsdata_itemPath];
-//    } else {
-//        [viewPaths addObject:viewController.sensorsdata_itemPath];
-//    }
-//    return viewPaths;
-//}
-
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do { // 遍历 view 层级 路径
@@ -377,6 +364,10 @@
             index = count - 1;
         }
     }
+    // 单个 UIViewController 拼接路径，不需要序号
+    if ([responder isKindOfClass:UIViewController.class] && ![responder isKindOfClass:UIAlertController.class] && count == 1) {
+        index = -1;
+    }
     return index;
 }
 
@@ -460,8 +451,8 @@
     NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
     properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@", viewPath, [cell sensorsdata_itemPathWithIndexPath:indexPath]];
     
-    NSString *viewSimilarPath = [self viewSimilarPathForView:((UIView *)cell).superview atViewController:viewController shouldSimilarPath:NO];
-    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = [NSString stringWithFormat:@"%@/%@", viewSimilarPath, [cell sensorsdata_similarPathWithIndexPath:indexPath]];
+    NSString *viewSimilarPath = [self viewSimilarPathForView:(UIView *)cell atViewController:viewController shouldSimilarPath:YES];
+    properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
     
     return properties;
 }

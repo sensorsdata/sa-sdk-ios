@@ -39,7 +39,6 @@
         _unvisitedObjects = [NSMutableArray arrayWithObject:object];
         _serializedObjects = [[NSMutableDictionary alloc] init];
     }
-
     return self;
 }
 
@@ -63,6 +62,7 @@
             [newObjects addObject:object];
         }
     }
+    // 添加到最前面，深度优先遍历
     [_unvisitedObjects insertObjects:newObjects atIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, newObjects.count)]];
 }
 

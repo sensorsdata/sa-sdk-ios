@@ -31,7 +31,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
- 
+
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     options.enableTrackAppCrash = YES;
@@ -39,9 +39,11 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 //    options.flushBulkSize = 100;
     options.enableHeatMap = YES;
     options.enableVisualizedAutoTrack = YES;
+    options.enableJavaScriptBridge = YES;
+    options.enableLog = YES;
     options.maxCacheSize = 20000;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
-    
+
     [[SensorsAnalyticsSDK sharedInstance] registerSuperProperties:@{@"AAA":UIDevice.currentDevice.identifierForVendor.UUIDString}];
     [[SensorsAnalyticsSDK sharedInstance] registerDynamicSuperProperties:^NSDictionary * _Nonnull{
         __block UIApplicationState appState;
@@ -54,10 +56,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
         }
         return @{@"__APPState__":@(appState)};
     }];
-    
-    [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
 
-    [[SensorsAnalyticsSDK sharedInstance] addWebViewUserAgentSensorsDataFlag];
     [[SensorsAnalyticsSDK sharedInstance] trackInstallation:@"AppInstall" withProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
 
@@ -93,7 +92,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     //@"group.cn.com.sensorsAnalytics.share"
     [[SensorsAnalyticsSDK sharedInstance]trackEventFromExtensionWithGroupIdentifier:@"group.cn.com.sensorsAnalytics.share" completion:^(NSString *identifiy ,NSArray *events){
-        
+
     }];
 //   NSArray  *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier: @"group.cn.com.sensorsAnalytics.share"];
 //    NSLog(@"applicationDidBecomeActive::::::%@",eventArray);
@@ -113,3 +112,4 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 }
 
 @end
+
