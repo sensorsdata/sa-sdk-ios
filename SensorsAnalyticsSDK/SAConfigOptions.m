@@ -56,6 +56,7 @@
     options.launchOptions = self.launchOptions;
 
     options.autoTrackEventType = self.autoTrackEventType;
+    options.enableJavaScriptBridge = self.enableJavaScriptBridge;
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;
     options.flushBulkSize = self.flushBulkSize;

@@ -23,6 +23,7 @@
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SADataEncryptBuilder.h"
 
@@ -76,6 +77,13 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsTrackType) {
  @return 是否采集
  */
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
+
+/**
+向 WKWebView 注入 Message Handler
+
+@param webView 需要注入的 wkwebView
+*/
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;

@@ -20,34 +20,18 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 #import "SAAutoTrackProperty.h"
+#import "SAJSTouchEventView.h"
+#import "SAVisualizedViewPathProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty, SAVisualizedExtensionProperty>
 
-// 可视化全埋点上传页面信息相关协议
-@protocol SAVisualizedViewPathProperty <NSObject>
-
-@optional
-/// 当前元素，前端是否渲染成可交互
-@property (nonatomic, assign, readonly) BOOL sensorsdata_enableAppClick;
-
-/// 当前元素的有效内容
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementValidContent;
-
-/// 元素子视图
-@property (nonatomic, copy, readonly) NSArray *sensorsdata_subElements;
-
-/// 当前元素的相对路径
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
-
-/// 相对 keywindow 的坐标
-@property (nonatomic, assign, readonly) CGRect sensorsdata_frame;
 @end
 
-
-@interface UIView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-
+@interface UIScrollView (VisualizedAutoTrack)<SAVisualizedExtensionProperty>
 @end
 
 @interface UISwitch (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
@@ -62,13 +46,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIPageControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
+@interface WKWebView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
+
+@end
+
 @interface UIWindow (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
-@interface UITabBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
-@end
-
-@interface UINavigationBar (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UITableView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
@@ -83,10 +65,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UICollectionViewCell (VisualizedAutoTrack)<SAAutoTrackViewProperty>
 @end
 
-@interface UISegmentedControl (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
+@interface UITableViewHeaderFooterView (VisualizedAutoTrack)
 @end
 
-@interface UITableViewHeaderFooterView (VisualizedAutoTrack)
+@interface SAJSTouchEventView (VisualizedAutoTrack)<SAVisualizedViewPathProperty>
 @end
 
 @interface UIViewController (VisualizedAutoTrack)<SAVisualizedViewPathProperty>

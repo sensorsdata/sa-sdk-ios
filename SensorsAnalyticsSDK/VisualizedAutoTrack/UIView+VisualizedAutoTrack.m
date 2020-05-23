@@ -22,6 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#import <objc/runtime.h>
 #import "UIView+VisualizedAutoTrack.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
@@ -32,26 +33,36 @@
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isDisplayedInScreen {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    /* 忽略部分 view
+     _UIAlertControllerTextFieldViewCollectionCell，包含 UIAlertController 中输入框，忽略采集
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"]) {
+        return NO;
+    }
+
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController；
+     此时如果 UITabBarController 或 UINavigationController 使用 presentViewController 弹出页面，则 UITabBarController.view (即为 UILayoutContainerView) 可能未 hidden，为了可以通过 UILayoutContainerView 找到 UITabBarController 的子元素，则这里特殊处理。
+       */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"] && [self.nextResponder isKindOfClass:UIViewController.class]) {
+        UIViewController *controller = (UIViewController *)[self nextResponder];
+        if (controller.presentedViewController) {
+            return YES;
+        }
+    }
+#endif
+
     if (!(self.window && self.superview && self.alpha > 0) || self.hidden) {
         return NO;
     }
     // 计算 view 在 keyWindow 上的坐标
     CGRect rect = [self convertRect:self.frame toView:nil];
     // 若 size 为 CGrectZero
-    if (CGRectIsEmpty(rect) || CGRectIsNull(rect) || CGSizeEqualToSize(rect.size, CGSizeZero)) {
+    // 部分 view 设置宽高为 0，但是子视图可见，取消 CGRectIsEmpty(rect) 判断
+    if (CGRectIsNull(rect) || CGSizeEqualToSize(rect.size, CGSizeZero)) {
         return NO;
     }
-
-     // 忽略部分 view
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    // _UIAlertControllerTextFieldViewCollectionCell UIAlertController 中输入框，忽略采集
-    //    UITransitionView 为 UITabBarController 和 UIWindow 下的view 容器
-    //    UINavigationTransitionView 为 UINavigationController 下的 view 容器，
-    //    对应 controller.view 子控件包含了，都忽略，避免重复
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UIAlertControllerTextFieldViewCollectionCell"] || [NSStringFromClass(self.class) isEqualToString:@"UINavigationTransitionView"] || [NSStringFromClass(self.class) isEqualToString:@"UITransitionView"]) {
-        return NO;
-    }
-#endif
 
     return YES;
 }
@@ -72,11 +83,21 @@
         if ([self isKindOfClass:UISegmentedControl.class]) {
             return NO;
         }
+
+        // 部分控件，响应链中不采集 $AppClick 事件
+        if ([self isKindOfClass:UITextField.class]) {
+            return NO;
+        }
+
         UIControl *control = (UIControl *)self;
-        BOOL containTargets = control.allTargets.count > 0;
         BOOL userInteractionEnabled = control.userInteractionEnabled;
         BOOL enabled = control.enabled;
-        if (containTargets && userInteractionEnabled && enabled) { // 可点击
+        UIControlEvents appClickEvents = UIControlEventTouchUpInside | UIControlEventValueChanged;
+        if (@available(iOS 9.0, *)) {
+            appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
+        }
+        BOOL containEvents = appClickEvents & control.allControlEvents;
+        if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
         }
     } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) { // 可能添加手势
@@ -121,6 +142,7 @@
     }
     return NO;
 }
+
 #pragma mark SAVisualizedViewPathProperty
 // 当前元素，前端是否渲染成可交互
 - (BOOL)sensorsdata_enableAppClick {
@@ -138,6 +160,18 @@
 
 /// 元素子视图
 - (NSArray *)sensorsdata_subElements {
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    /* 特殊场景兼容
+     controller1.vew 上直接添加 controller2.view，
+     在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController 场景兼容
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UILayoutContainerView"]) {
+        if ([[self nextResponder] isKindOfClass:UIViewController.class]) {
+            UIViewController *controller = (UIViewController *)[self nextResponder];
+            return controller.sensorsdata_subElements;
+        }
+    }
+#endif
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
         if (view.sensorsdata_isDisplayedInScreen) {
@@ -148,16 +182,53 @@
 }
 
 - (NSString *)sensorsdata_elementPath {
-    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-    if (self.superview == keyWindow) { // 兼容 keyWindow 上控件的路径拼接
-        return [NSString stringWithFormat:@"%@/%@",keyWindow.sensorsdata_elementPath,self.sensorsdata_similarPath];
+    // 处理特殊控件
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
+        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
+            return [SAAutoTrackUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController shouldSimilarPath:YES];
+        }
     }
-    return self.sensorsdata_similarPath;
+#endif
+    if (self.sensorsdata_enableAppClick) {
+        return [SAAutoTrackUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
+    } else {
+        return nil;
+    }
 }
 
 - (CGRect)sensorsdata_frame {
-    CGRect rect = [self convertRect:self.bounds toView:nil];
-    return rect;
+    CGRect showRect = [self convertRect:self.bounds toView:nil];
+    if (self.superview && self.sensorsdata_enableAppClick) {
+        CGRect validFrame = self.superview.sensorsdata_validFrame;
+        showRect = CGRectIntersection(showRect, validFrame);
+    }
+    return showRect;
+}
+
+- (CGRect)sensorsdata_validFrame {
+    CGRect validFrame = [UIApplication sharedApplication].keyWindow.frame;
+    if (self.superview) {
+        CGRect superViewValidFrame = [self.superview sensorsdata_validFrame];
+        validFrame = CGRectIntersection(validFrame, superViewValidFrame);
+    }
+ return validFrame;
+}
+
+@end
+
+
+@implementation UIScrollView (VisualizedAutoTrack)
+
+- (CGRect)sensorsdata_validFrame {
+    CGRect showRect = [self convertRect:self.bounds toView:nil];
+    if (self.superview) {
+        CGRect superViewValidFrame = [self.superview sensorsdata_validFrame];
+        showRect = CGRectIntersection(showRect, superViewValidFrame);
+    }
+    return showRect;
 }
 
 @end
@@ -194,11 +265,23 @@
 
 @end
 
+@implementation WKWebView (VisualizedAutoTrack)
+
+- (NSArray *)sensorsdata_subElements {
+    NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
+    if (subElements.count > 0) {
+        return subElements;
+    }
+    return [super sensorsdata_subElements];
+}
+
+@end
+
 
 @implementation UIWindow (VisualizedAutoTrack)
 
 - (NSArray *)sensorsdata_subElements {
-    if ([UIApplication sharedApplication].keyWindow != self) {
+    if ([UIApplication sharedApplication].keyWindow != self && !self.rootViewController) {
         return super.sensorsdata_subElements;
     }
 
@@ -209,7 +292,16 @@
     NSArray <UIView *> *subviews = self.subviews;
     for (UIView *view in subviews) {
         if (view != self.rootViewController.view && view.sensorsdata_isDisplayedInScreen) {
+            /*
+             keyWindow 设置 rootViewController 后，视图层级为 UIWindow -> UITransitionView -> UIDropShadowView -> rootViewController.view
+             */
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+            if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+                continue;
+            }
+#endif
             [subElements addObject:view];
+
             CGRect rect = [view convertRect:view.bounds toView:nil];
             // 是否全屏
             BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, self.bounds.size);
@@ -223,28 +315,6 @@
 }
 
 @end
-
-@implementation UISegmentedControl (VisualizedAutoTrack)
-
-- (NSString *)sensorsdata_elementPath {
-    return super.sensorsdata_itemPath;
-}
-
-@end
-
-@implementation UITabBar (VisualizedAutoTrack)
-- (NSString *)sensorsdata_elementPath {
-    return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
-}
-@end
-
-
-@implementation UINavigationBar (VisualizedAutoTrack)
-- (NSString *)sensorsdata_elementPath {
-    return [NSString stringWithFormat:@"UILayoutContainerView/%@",super.sensorsdata_elementPath];
-}
-@end
-
 
 @implementation UITableView (VisualizedAutoTrack)
 
@@ -274,19 +344,26 @@
     NSArray *visibleCells = self.visibleCells;
     for (UIView *view in subviews) {
         if ([view isKindOfClass:UICollectionViewCell.class]) {
-            if ([visibleCells containsObject:view] && view.sensorsdata_isDisplayedInScreen ) {
+            if ([visibleCells containsObject:view] && view.sensorsdata_isDisplayedInScreen) {
                 [newSubviews addObject:view];
             }
         } else if (view.sensorsdata_isDisplayedInScreen) {
             [newSubviews addObject:view];
         }
     }
-    return newSubviews;
+
+    // 根据位置排序
+    NSArray *rankResult = [newSubviews sortedArrayUsingComparator:^NSComparisonResult (UIView *obj1, UIView *obj2) {
+        if (obj2.frame.origin.y > obj1.frame.origin.y || obj2.frame.origin.x > obj1.frame.origin.x) {
+            return NSOrderedDescending;
+        }
+        return NSOrderedAscending;
+    }];
+
+    return rankResult;
 }
 
 @end
-
-
 
 @implementation UITableViewCell (VisualizedAutoTrack)
 
@@ -315,7 +392,34 @@
 
 @end
 
+@implementation SAJSTouchEventView (VisualizedAutoTrack)
+
+- (NSString *)sensorsdata_elementPath {
+    return self.elementSelector;
+}
+
+- (NSString *)sensorsdata_elementValidContent {
+    return self.elementContent;
+}
+
+- (CGRect)sensorsdata_frame {
+    return self.frame;
+}
+
+- (BOOL)sensorsdata_enableAppClick {
+    return YES;
+}
+
+- (NSArray *)sensorsdata_subElements {
+    if (self.jsSubviews.count > 0) {
+        return self.jsSubviews;
+    }
+    return [super sensorsdata_subElements];
+}
+@end
+
 @implementation UIViewController (VisualizedAutoTrack)
+
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
     NSArray <UIViewController *> *childViewControllers = self.childViewControllers;
@@ -354,26 +458,28 @@
         __block BOOL isContainFullScreen = NO; // 是否包含全屏
         //逆序遍历
         [childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            UIView *objSuperview = obj.view;
-            do {
-                if ([subElements containsObject:objSuperview]) {
-                    NSInteger index = [subElements indexOfObject:objSuperview];
-                    if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
-                        [subElements replaceObjectAtIndex:index withObject:obj];
-                    } else {
-                        [subElements removeObject:objSuperview];
+            if (obj.isViewLoaded) {
+                UIView *objSuperview = obj.view;
+                do {
+                    if ([subElements containsObject:objSuperview]) {
+                        NSInteger index = [subElements indexOfObject:objSuperview];
+                        if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
+                            [subElements replaceObjectAtIndex:index withObject:obj];
+                        } else {
+                            [subElements removeObject:objSuperview];
+                        }
+                        break;
                     }
-                    break;
-                }
-                //childViewController.view 可能不直接添加在 self.view，而是在子视图
-            } while ((objSuperview = objSuperview.superview));
+               //childViewController.view 可能不直接添加在 self.view，而是在子视图
+                } while ((objSuperview = objSuperview.superview));
 
-            CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
-            // 是否全屏
-            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
-            // 正在全屏显示
-            if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
-                isContainFullScreen = YES;
+                CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
+               // 是否全屏
+                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
+               // 正在全屏显示
+                if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
+                    isContainFullScreen = YES;
+                }
             }
         }];
         return subElements;
@@ -389,15 +495,5 @@
         [subElements addObject:currentView];
     }
     return subElements;
-}
-
-- (NSString *)sensorsdata_elementPath {
-    
-    if ([self isKindOfClass:UIAlertController.class]) {
-        return self.sensorsdata_itemPath;
-    }
-
-    // 前端 viewPath 拼接，屏蔽页面信息
-    return nil;
 }
 @end

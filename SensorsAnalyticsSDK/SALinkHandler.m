@@ -24,6 +24,7 @@
 
 #import "SALinkHandler.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #import "SAURLUtils.h"
 #import "SAFileStore.h"
 #import "SALog.h"
@@ -63,8 +64,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)handleSourceChannnels {
-    //这里可以考虑和 SDK 中检查属性名方法合并
-    NSSet *reservedPropertyName = [NSSet setWithObjects:@"distinct_id", @"original_id", @"time", @"event", @"properties", @"id", @"first_id", @"second_id", @"users", @"events", @"device_id", @"user_id", @"date", @"datetime", nil];
+    NSSet *reservedPropertyName = sensorsdata_reserved_properties();
     NSMutableSet *set = [[NSMutableSet alloc] init];
     // 将用户自定义属性中与 SDK 保留字段相同的字段过滤掉
     for (NSString *name in _configOptions.sourceChannels) {
@@ -130,7 +130,7 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 #pragma mark - parse utms
 - (BOOL)canHandleURL:(NSURL *)url {
-    if (!url) {
+    if (![url isKindOfClass:NSURL.class]) {
         return NO;
     }
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
@@ -149,6 +149,9 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 
 // 解析冷启动来源渠道信息
 - (void)handleLaunchOptions:(NSDictionary *)launchOptions {
+    if (![launchOptions isKindOfClass:NSDictionary.class]) {
+        return;
+    }
     NSURL *url;
     if ([launchOptions.allKeys containsObject:UIApplicationLaunchOptionsURLKey]) {
         //通过 SchemeLink 唤起 App
@@ -172,12 +175,18 @@ static NSString *const kLocalUtmsFileName = @"latest_utms";
 }
 
 - (void)handleDeepLink:(NSURL *)url {
+    if (![url isKindOfClass:NSURL.class]) {
+        return;
+    }
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     [self parseUtmsWithDictionary:queryItems];
 }
 
 //解析渠道信息字段
 - (void)parseUtmsWithDictionary:(NSDictionary *)dictionary {
+    if (![dictionary isKindOfClass:NSDictionary.class]) {
+        return;
+    }
     [self clearUtmProperties];
 
     NSMutableDictionary *latest = [NSMutableDictionary dictionary];

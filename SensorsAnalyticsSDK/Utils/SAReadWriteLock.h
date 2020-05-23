@@ -1,8 +1,8 @@
 //
-// SAVisualizedUtils.h
+// SAReadWriteLock.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
+// Created by wenquan on 2020/5/21.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,48 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedUtils : NSObject
+@interface SAReadWriteLock : NSObject
 
-/// 判断一个 view 是否被覆盖
-+ (BOOL) isCoveredForView:(UIView *)view;
+/**
+*  @abstract
+*  初始化方法
+*
+*  @param queueLabel 队列的标识
+*
+*  @return 读写锁实例
+*
+*/
+- (instancetype)initWithQueueLabel:(NSString *)queueLabel NS_DESIGNATED_INITIALIZER; 
+
+/// 禁用 init 初始化
+- (instancetype)init NS_UNAVAILABLE;
+
+/// 禁用 new 初始化
++ (instancetype)new NS_UNAVAILABLE;
+
+/**
+*  @abstract
+*  通过读写锁读取数据
+*
+*  @param block 读取操作
+*
+*  @return 读取的数据
+*
+*/
+- (id)readWithBlock:(id(^)(void))block;
+
+/**
+*  @abstract
+*  通过读写锁写入数据
+*
+*  @param block 写入操作
+*
+*/
+- (void)writeWithBlock:(void (^)(void))block;
 
 @end
 

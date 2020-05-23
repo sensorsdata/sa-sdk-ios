@@ -69,10 +69,13 @@
 }
 
 - (IBAction)onButton1Click:(UIButton *)sender {
-
 }
 
 - (IBAction)segmentOnClick:(UISegmentedControl *)sender {
+    
+}
+
+- (IBAction)pageValueChanged:(UIPageControl *)sender {
 
 }
 

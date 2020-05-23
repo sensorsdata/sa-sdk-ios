@@ -55,6 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
 
+/// 是否开启 WKWebView 的 H5 打通功能，该功能默认是关闭的
+@property (nonatomic) BOOL enableJavaScriptBridge;
+
 /// 是否自动收集 App Crash 日志，该功能默认是关闭的
 @property (nonatomic) BOOL enableTrackAppCrash;
 

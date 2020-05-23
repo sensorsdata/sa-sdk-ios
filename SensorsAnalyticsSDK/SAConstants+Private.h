@@ -137,6 +137,9 @@ extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 
+#pragma mark - bridge name
+extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;
+
 #pragma mark - reserved property list
 NSSet* sensorsdata_reserved_properties(void);
 
