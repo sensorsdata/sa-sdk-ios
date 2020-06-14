@@ -87,36 +87,7 @@ extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
 
 #pragma mark--common property
-//常规参数
-extern NSString * const SA_EVENT_COMMON_PROPERTY_LIB;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_LIB_VERSION;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_LIB_DETAIL;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_LIB_METHOD;
-
-extern NSString * const SA_EVENT_COMMON_PROPERTY_APP_VERSION;
-
-extern NSString * const SA_EVENT_COMMON_PROPERTY_MODEL;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_MANUFACTURER;
-
-extern NSString * const SA_EVENT_COMMON_PROPERTY_OS;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_OS_VERSION;
-
-extern NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH;
-
-extern NSString * const SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_WIFI;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_CARRIER;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_DEVICE_ID;
-extern NSString * const SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY;
-
-
 //可选参数
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE;
-
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
 extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
@@ -144,8 +115,6 @@ extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;
 NSSet* sensorsdata_reserved_properties(void);
 
 #pragma mark - safe sync
-void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block);
-
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);

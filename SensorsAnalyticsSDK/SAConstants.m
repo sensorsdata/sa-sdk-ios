@@ -90,31 +90,6 @@ NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 
 #pragma mark - common property
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB = @"$lib";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_VERSION = @"$lib_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_DETAIL = @"$lib_detail";
-NSString * const SA_EVENT_COMMON_PROPERTY_LIB_METHOD = @"$lib_method";
-
-NSString * const SA_EVENT_COMMON_PROPERTY_APP_VERSION = @"$app_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_MODEL =@"$model";
-NSString * const SA_EVENT_COMMON_PROPERTY_MANUFACTURER = @"$manufacturer";
-NSString * const SA_EVENT_COMMON_PROPERTY_OS = @"$os";
-NSString * const SA_EVENT_COMMON_PROPERTY_OS_VERSION = @"$os_version";
-NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_HEIGHT = @"$screen_height";
-NSString * const SA_EVENT_COMMON_PROPERTY_SCREEN_WIDTH = @"$screen_width";
-NSString * const SA_EVENT_COMMON_PROPERTY_NETWORK_TYPE = @"$network_type";
-NSString * const SA_EVENT_COMMON_PROPERTY_WIFI = @"$wifi";
-NSString * const SA_EVENT_COMMON_PROPERTY_CARRIER = @"$carrier";
-NSString * const SA_EVENT_COMMON_PROPERTY_DEVICE_ID = @"$device_id";
-NSString * const SA_EVENT_COMMON_PROPERTY_IS_FIRST_DAY = @"$is_first_day";
-
-
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LATITUDE = @"$latitude";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_LONGITUDE = @"$longitude";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_SCREEN_ORIENTATION = @"$screen_orientation";
-
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_APP_STATE = @"$app_state";
-
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
@@ -142,11 +117,7 @@ NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstalla
 NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME = @"sensorsdataNativeTracker";
 
 NSSet* sensorsdata_reserved_properties() {
-    return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"device_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
-}
-
-void sensorsdata_dispatch_main_safe_sync(DISPATCH_NOESCAPE dispatch_block_t block) {
-    sensorsdata_dispatch_safe_sync(dispatch_get_main_queue(),block);
+    return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
 }
 
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue) {

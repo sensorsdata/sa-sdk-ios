@@ -24,10 +24,12 @@
 
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
+#import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIView+HeatMap.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
+#import "SAAlertController.h"
 #import "SAValidator.h"
 
 @implementation SAAutoTrackUtils
@@ -75,12 +77,7 @@
         currentViewController = [SAAutoTrackUtils findCurrentViewControllerFromRootViewController:rootViewController isRoot:YES];
     };
 
-    if (dispatch_queue_get_label(DISPATCH_CURRENT_QUEUE_LABEL) == dispatch_queue_get_label(dispatch_get_main_queue())) {
-        block();
-    } else {
-        dispatch_sync(dispatch_get_main_queue(), block);
-    }
-
+    [SACommonUtility performBlockOnMainThread:block];
     return currentViewController;
 }
 
@@ -147,6 +144,9 @@
 
         BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
 
+        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
+            return NO;
+        }
         if (isUIAlertController || isUIAlertView || isUIActionSheet) {
             return YES;
         }
@@ -260,7 +260,7 @@
 + (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
     NSMutableArray *viewPaths = [NSMutableArray array];
     do {
-        [viewPaths addObject:viewController.sensorsdata_itemPath];
+        [viewPaths addObject:viewController.sensorsdata_heatMapPath];
         viewController = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.parentViewController;
     } while (viewController);
 
@@ -274,8 +274,8 @@
 + (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
     NSMutableArray *viewPathArray = [NSMutableArray array];
     do { // 遍历 view 层级 路径
-        if (view.sensorsdata_itemPath) {
-            [viewPathArray addObject:view.sensorsdata_itemPath];
+        if (view.sensorsdata_heatMapPath) {
+            [viewPathArray addObject:view.sensorsdata_heatMapPath];
         }
     } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
 
@@ -396,6 +396,32 @@
     return [NSString stringWithFormat:@"%@[(%@)]", NSStringFromClass([view class]), viewVarString];
 }
 
++ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder {
+    NSString *classString = NSStringFromClass(responder.class);
+
+    NSArray *subResponder = nil;
+    if ([responder isKindOfClass:UIView.class]) {
+        UIResponder *next = [responder nextResponder];
+        if ([next isKindOfClass:UIView.class]) {
+            subResponder = [(UIView *)next subviews];
+        }
+    } else if ([responder isKindOfClass:UIViewController.class]) {
+        subResponder = [(UIViewController *)responder parentViewController].childViewControllers;
+    }
+
+    NSInteger count = 0;
+    NSInteger index = -1;
+    for (UIResponder *res in subResponder) {
+        if ([classString isEqualToString:NSStringFromClass(res.class)]) {
+            count++;
+        }
+        if (res == responder) {
+            index = count - 1;
+        }
+    }
+    return count <= 1 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
+}
+
 @end
 
 
@@ -448,8 +474,8 @@
         [properties addEntriesFromDictionary:propDict];
     }
 
-    NSString *viewPath = [self viewPathForView:((UIView *)cell).superview atViewController:viewController];
-    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = [NSString stringWithFormat:@"%@/%@", viewPath, [cell sensorsdata_itemPathWithIndexPath:indexPath]];
+    NSString *viewPath = [self viewPathForView:((UIView *)cell) atViewController:viewController];
+    properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
     
     NSString *viewSimilarPath = [self viewSimilarPathForView:(UIView *)cell atViewController:viewController shouldSimilarPath:YES];
     properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
