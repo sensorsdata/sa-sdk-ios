@@ -1,0 +1,174 @@
+# Customise this file, documentation can be found here:
+# https://github.com/fastlane/fastlane/tree/master/fastlane/docs
+# All available actions: https://docs.fastlane.tools/actions
+# can also be listed using the `fastlane actions` command
+
+# Change the syntax highlighting to Ruby
+# All lines starting with a # are ignored when running `fastlane`
+
+# If you want to automatically update fastlane if a new version is available:
+# update_fastlane
+
+# This is the minimum version number required.
+# Update this, if you use features of a newer version
+fastlane_version "2.28.3"
+
+default_platform :ios
+
+platform :ios do
+
+  desc "Runs all the tests"
+  lane :test do
+    scan
+  end
+
+  desc "Commit"
+  lane :commit do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    git_add(
+      path: "."
+    )
+    
+    # commit the branch
+    git_commit(
+      path: ".",
+      message: "Release #{options[:version]}"
+    )
+
+    #push the branch
+    push_to_git_remote(
+      remote: options[:remote]
+    )
+  end
+
+  desc "Prepare release new version"
+  lane :prepare_release do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    if options[:skip_modify_version] != true
+      sh("chmod 777 ./modify_version.sh")
+      sh("./modify_version.sh #{ENV["FRAMEWORK_NAME"]} #{options[:version]} #{options[:branch]}")
+
+      commit(
+        version: options[:version], 
+        remote: options[:remote]
+      )
+    end
+
+    if options[:skip_replace_code] != true
+      sh("chmod 777 ./replace_code.sh")
+      sh("./replace_code.sh #{ENV["GITLAB_PATH"]} #{ENV["GITHUB_PATH"]} #{options[:version]} #{options[:branch]}")
+    end
+  end
+
+
+  lane :github_tag do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    # tag the repo
+    add_git_tag(
+      tag: "v#{options[:version]}"
+    )
+
+    # push the tag
+    if options[:skip_push_tags] != true
+      sa_push_git_tags_to_remote(
+        remote: options[:remote]
+      )
+    end
+  end
+
+  lane :github_release do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+    if !options[:api_token]
+      raise "No version specified!".red
+    end
+
+    file_path = options[:file_path] ? options[:file_path] : (ENV["GITHUB_RELEASE_NOTE"] ? ENV["GITHUB_RELEASE_NOTE"] : "fastlane/ReleaseNote.md")
+    body = sa_read_release_note(
+      file_path: file_path
+    )
+
+    owner=ENV["GITHUB_OWNER"]
+    repo=ENV["GITHUB_REPOSITORY"]
+    github_release = set_github_release(
+      repository_name: "#{owner}/#{repo}",
+      api_token: "#{options[:api_token]}",
+      name: "Release #{options[:version]}",
+      tag_name: "v#{options[:version]}",
+      description: body
+    )
+  end
+
+  lane :cocoapods_push do |options|
+    pod_push(
+      allow_warnings: options[:allow_warnings]
+    )
+  end
+
+  lane :github_push do |options|
+    if options[:skip_github_commit] != true
+      commit(
+        version: options[:version], 
+        remote: options[:remote]
+      )
+    end
+
+    if options[:skip_github_tag] != true
+      github_tag(
+        version: options[:version], 
+        remote: options[:remote],
+        skip_push_tags: options[:skip_push_tags]
+      )
+    end
+
+    if options[:skip_github_release] != true      
+      github_release(
+        version: options[:version], 
+        remote: options[:remote],
+        api_token: options[:api_token],
+      )
+    end
+
+    if options[:skip_pod_push] != true
+      cocoapods_push(
+        allow_warnings: options[:allow_warnings]
+      )
+    end
+  end
+
+  lane :release do |options|
+    if !options[:version]
+      raise "No version specified!".red
+    end
+
+    branch = options[:branch] ? options[:branch] : "master"
+    remote = options[:remote] ? options[:remote] : "origin"
+    prepare_release(
+      version: options[:version],
+      branch: branch,
+      remote: remote,
+      skip_modify_version: options[:skip_modify_version],
+      skip_replace_code: options[:skip_replace_code]
+    )
+    
+    skip_push_tags = options[:skip_push_tags] ? options[:skip_push_tags] : false
+    skip_github_commit = options[:skip_github_commit] ? options[:skip_github_commit] : false
+    skip_github_tag = options[:skip_github_tag] ? options[:skip_github_tag] : false
+    skip_github_release = options[:skip_github_release] ? options[:skip_github_release] : false
+    skip_pod_push = options[:skip_pod_push] ? options[:skip_pod_push] : false
+    allow_warnings = options[:allow_warnings] ? options[:allow_warnings] : true
+    sh("cd #{ENV["GITHUB_PATH"]} && fastlane github_push version:#{options[:version]} branch:#{branch} remote:#{remote} api_token:#{options[:api_token]} skip_push_tags:#{skip_push_tags} skip_github_commit:#{skip_github_commit} skip_github_tag:#{skip_github_tag} skip_github_release:#{skip_github_release} skip_pod_push:#{skip_pod_push} allow_warnings:#{allow_warnings}")
+  end
+end
+
+

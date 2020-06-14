@@ -35,7 +35,6 @@
 @interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-
 @interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
 @end
 

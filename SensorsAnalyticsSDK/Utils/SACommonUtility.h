@@ -26,4 +26,10 @@
 ///按字节截取指定长度字符，包括汉字和表情
 + (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length;
 
+/// 获取当前网络状态
++ (NSString *)currentNetworkStatus;
+
+/// 主线程执行
++ (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
+
 @end

@@ -255,6 +255,6 @@ static NSString* sa_encryptHelper(id input) {
 @implementation UITableViewHeaderFooterView (HeatMap)
 - (NSString *)sa_section {
     // 修改页面结构采集逻辑，使得和 $element_selector 采集相同
-    return self.sensorsdata_itemPath;
+    return self.sensorsdata_heatMapPath;
 }
 @end

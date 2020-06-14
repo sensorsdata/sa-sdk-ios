@@ -969,7 +969,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 混合开发时,将 distinctId 传递给当前的 WebView
  *
- * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
+ * @param webView 当前 WebView，支持 WKWebView
  *
  * @return YES:SDK 已进行处理，NO:SDK 没有进行处理
  */
@@ -984,7 +984,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 混合开发时,将 distinctId 传递给当前的 WebView
  *
- * @param webView 当前 WebView，支持 UIWebView 和 WKWebView
+ * @param webView 当前 WebView，支持 WKWebView
  * @param request NSURLRequest
  * @param propertyDict NSDictionary 自定义扩展属性
  *

@@ -115,6 +115,14 @@ NS_ASSUME_NONNULL_BEGIN
 + (nullable NSString *)viewIdentifierForView:(UIView *)view;
 
 /**
+通过响应链找到 对象的点击图路径
+
+@param responder 响应链中的对象，可以是 UIView 或者 UIViewController
+@return 路径
+*/
++ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder;
+
+/**
  通过响应链找到 对象的序号
 
  @param responder 响应链中的对象，可以是 UIView 或者 UIViewController

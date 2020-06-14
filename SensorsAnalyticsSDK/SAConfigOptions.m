@@ -72,6 +72,8 @@
     options.enableLog = self.enableLog;
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
+
+    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
     return options;
 }
 

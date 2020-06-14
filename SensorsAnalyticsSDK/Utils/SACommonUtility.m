@@ -22,8 +22,11 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
 
 #import "SACommonUtility.h"
+#import "SAReachability.h"
+#import "SALog.h"
 
 @implementation SACommonUtility
 
@@ -52,4 +55,74 @@
     }
     return txt;
 }
+
++ (NSString *)currentNetworkStatus {
+#ifdef SA_UT
+    SALogDebug(@"In unit test, set NetWorkStates to wifi");
+    return @"WIFI";
+#endif
+    NSString *network = @"NULL";
+    @try {
+        SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
+        SANetworkStatus status = [reachability currentReachabilityStatus];
+        
+        if (status == SAReachableViaWiFi) {
+            network = @"WIFI";
+        } else if (status == SAReachableViaWWAN) {
+            static CTTelephonyNetworkInfo *netinfo = nil;
+            NSString *currentRadioAccessTechnology = nil;
+            
+            if (!netinfo) {
+                netinfo = [[CTTelephonyNetworkInfo alloc] init];
+            }
+#ifdef __IPHONE_12_0
+            if (@available(iOS 12.1, *)) {
+                currentRadioAccessTechnology = netinfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
+            }
+#endif
+            //测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
+            if (!currentRadioAccessTechnology) {
+                currentRadioAccessTechnology = netinfo.currentRadioAccessTechnology;
+            }
+            
+            if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyGPRS]) {
+                network = @"2G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyEdge]) {
+                network = @"2G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyWCDMA]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSDPA]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyHSUPA]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMA1x]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORev0]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevA]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyCDMAEVDORevB]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyeHRPD]) {
+                network = @"3G";
+            } else if ([currentRadioAccessTechnology isEqualToString:CTRadioAccessTechnologyLTE]) {
+                network = @"4G";
+            } else {
+                network = @"UNKNOWN";
+            }
+        }
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+    }
+    return network;
+}
+
++ (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block {
+    if (NSThread.isMainThread) {
+        block();
+    } else {
+        dispatch_sync(dispatch_get_main_queue(), block);
+    }
+}
+
 @end
