@@ -64,6 +64,12 @@
         return NO;
     }
 
+    // RN 项目，view 覆盖层次比较多，被覆盖元素，可以直接屏蔽，防止被覆盖元素可圈选
+    BOOL isRNView =  [NSStringFromClass(self.class) hasPrefix:@"RCT"] || [NSStringFromClass(self.class) hasPrefix:@"RNC"];
+    if (isRNView && [SAVisualizedUtils isCoveredForView:self]) {
+        return NO;
+    }
+
     return YES;
 }
 
@@ -74,8 +80,26 @@
         return NO;
     }
 
-    if ([SAAutoTrackUtils isAlertClickForView:self]) { // 标记弹框
+    // 标记弹框
+    if ([SAAutoTrackUtils isAlertClickForView:self]) {
         return YES;
+    }
+
+    // RN 可点击元素的区分
+    Class managerClass = NSClassFromString(@"SAReactNativeManager");
+    SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
+    if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        id manager = [managerClass performSelector:sharedInstanceSEL];
+        SEL clickableSEL = NSSelectorFromString(@"clickableForView:");
+        if ([manager respondsToSelector:clickableSEL]) {
+            BOOL clickable = (BOOL)[manager performSelector:clickableSEL withObject:self];
+            if (clickable) {
+                return YES;
+            }
+        }
+#pragma clang diagnostic pop
     }
 
     if ([self isKindOfClass:UIControl.class]) {
@@ -199,6 +223,10 @@
     }
 }
 
+- (BOOL)sensorsdata_isFromWeb {
+    return NO;
+}
+
 - (CGRect)sensorsdata_frame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
     if (self.superview && self.sensorsdata_enableAppClick) {
@@ -281,7 +309,7 @@
 @implementation UIWindow (VisualizedAutoTrack)
 
 - (NSArray *)sensorsdata_subElements {
-    if ([UIApplication sharedApplication].keyWindow != self && !self.rootViewController) {
+    if (!self.rootViewController) {
         return super.sensorsdata_subElements;
     }
 
@@ -416,6 +444,11 @@
     }
     return [super sensorsdata_subElements];
 }
+
+- (BOOL)sensorsdata_isFromWeb {
+    return YES;
+}
+
 @end
 
 @implementation UIViewController (VisualizedAutoTrack)
@@ -452,27 +485,22 @@
     if (childViewControllers.count > 0 && ![self isKindOfClass:UIAlertController.class]) {
         // UIAlertController 如果添加 TextField 也会嵌套 childViewController，直接返回 .view 即可
 
-        subElements = [NSMutableArray arrayWithArray:self.view.subviews];
         UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-
-        __block BOOL isContainFullScreen = NO; // 是否包含全屏
+        subElements = [NSMutableArray arrayWithArray:self.view.subviews];
+        // 是否包含全屏视图
+        __block BOOL isContainFullScreen = NO;
         //逆序遍历
         [childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj.isViewLoaded) {
                 UIView *objSuperview = obj.view;
-                do {
-                    if ([subElements containsObject:objSuperview]) {
-                        NSInteger index = [subElements indexOfObject:objSuperview];
-                        if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
-                            [subElements replaceObjectAtIndex:index withObject:obj];
-                        } else {
-                            [subElements removeObject:objSuperview];
-                        }
-                        break;
+                if ([subElements containsObject:objSuperview]) {
+                    NSInteger index = [subElements indexOfObject:objSuperview];
+                    if (objSuperview.sensorsdata_isDisplayedInScreen && !isContainFullScreen) {
+                        [subElements replaceObjectAtIndex:index withObject:obj];
+                    } else {
+                        [subElements removeObject:objSuperview];
                     }
-               //childViewController.view 可能不直接添加在 self.view，而是在子视图
-                } while ((objSuperview = objSuperview.superview));
-
+                }
                 CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
                // 是否全屏
                 BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
@@ -496,4 +524,5 @@
     }
     return subElements;
 }
+
 @end

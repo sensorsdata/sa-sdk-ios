@@ -93,6 +93,12 @@
             {
               "name": "restorationIdentifier",
               "type": "NSString"
+            },
+            {
+              "name": "sensorsdata_isFromWeb",
+              "key": "is_h5",
+              "type": "BOOL",
+              "use_kvc": false
             }
           ]
         },

@@ -63,7 +63,7 @@
 
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
     for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        if ([window isMemberOfClass:UIWindow.class]) {
+        if ([window isMemberOfClass:UIWindow.class] && !window.hidden) {
             [validWindows addObject:window];
         }
     }
@@ -138,7 +138,7 @@
             __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
             // 逆序遍历，获取最上层全屏 window
             [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size)) {
+                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
                     validWindow = obj;
                     *stop = YES;
                 }
