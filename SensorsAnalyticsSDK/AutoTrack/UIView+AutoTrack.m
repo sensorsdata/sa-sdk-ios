@@ -76,10 +76,7 @@
                 [elementContent appendString:title];
             }
         }
-#pragma clang diagnostic pop
     } else if ([self isKindOfClass:NSClassFromString(@"YYLabel")]) {    // RTLabel:https://github.com/ibireme/YYKit
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
             NSString *title = [self performSelector:NSSelectorFromString(@"text")];
             if (title.length > 0) {
@@ -87,7 +84,11 @@
             }
         }
 #pragma clang diagnostic pop
-
+    } else if ([self isKindOfClass:NSClassFromString(@"RCTView")]) { // RCTView RN 元素，https://reactnative.dev
+        NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (content.length > 0) {
+            [elementContent appendString:content];
+        }
     } else {
         NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
         for (UIView *subview in self.subviews) {

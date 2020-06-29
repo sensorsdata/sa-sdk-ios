@@ -57,7 +57,7 @@
  key:H5 页面 url
  value:SAVisualizedWebPageInfo 对象
  */
-@property (nonatomic, strong) NSCache <NSString *,SAVisualizedWebPageInfo *>*webPageInfoCache;
+@property (nonatomic, strong) NSMutableDictionary <NSString *,SAVisualizedWebPageInfo *>*webPageInfoCache;
 
 @end
 
@@ -83,7 +83,7 @@
 - (void)initializeObjectSerializer {
     _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
     _alertInfos = [NSMutableArray array];
-    _webPageInfoCache = [[NSCache alloc] init];
+    _webPageInfoCache = [NSMutableDictionary dictionary];
     _jsonUtil = [[SAJSONUtil alloc] init];
     [self resetObjectSerializer];
 }
@@ -138,13 +138,13 @@
                 SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
                 // 是否包含当前 url 的页面信息
                 if ([self.webPageInfoCache objectForKey:url]) {
-                    webPageInfo = [self.webPageInfoCache objectForKey:url];
+                    webPageInfo = self.webPageInfoCache[url];
 
                     // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
                     webPageInfo.alertSources = nil;
                 }
                 webPageInfo.elementSources = pageDatas;
-                [self.webPageInfoCache setObject:webPageInfo forKey:url];
+                self.webPageInfoCache[url] = webPageInfo;
 
                 // 刷新数据
                 [self refreshImageHashWithData:pageDatas];
@@ -165,7 +165,7 @@
             SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
-                webPageInfo = [self.webPageInfoCache objectForKey:url];
+                webPageInfo = self.webPageInfoCache[url];
 
                 // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
                 webPageInfo.elementSources = nil;
@@ -173,8 +173,7 @@
                 webPageInfo.title = nil;
             }
             webPageInfo.alertSources = alertDatas;
-
-            [self.webPageInfoCache setObject:webPageInfo forKey:url];
+            self.webPageInfoCache[url] = webPageInfo;
             // 刷新数据
             [self refreshImageHashWithData:alertDatas];
         }
@@ -185,15 +184,14 @@
             SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
             // 是否包含当前 url 的页面信息
             if ([self.webPageInfoCache objectForKey:url]) {
-                webPageInfo = [self.webPageInfoCache objectForKey:url];
+                webPageInfo = self.webPageInfoCache[url];
 
                 // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
                 webPageInfo.alertSources = nil;
             }
             webPageInfo.url = url;
             webPageInfo.title = webInfo[@"$title"];
-            [self.webPageInfoCache setObject:webPageInfo forKey:url];
-
+            self.webPageInfoCache[url] = webPageInfo;
             // 刷新数据
             [self refreshImageHashWithData:webInfo];
         }

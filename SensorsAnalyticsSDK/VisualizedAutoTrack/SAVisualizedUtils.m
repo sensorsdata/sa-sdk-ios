@@ -40,6 +40,10 @@
 
     // 遍历判断是否存在覆盖
     CGRect rect = [view convertRect:view.bounds toView:nil];
+    // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
+    CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
+    rect = CGRectIntersection(keyWindowFrame, rect);
+
     for (UIView *otherView in allOtherViews) {
         CGRect otherRect = [otherView convertRect:otherView.bounds toView:nil];
         if (CGRectContainsRect(otherRect, rect)) {
@@ -52,7 +56,7 @@
 
 // 根据层数，查询一个 view 所有可能覆盖的 view
 + (NSArray *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
-    __block NSMutableArray <UIView *> *allOtherViews = [NSMutableArray array];
+    NSMutableArray <UIView *> *allOtherViews = [NSMutableArray array];
     NSInteger index = count;
     UIView *currentView = view;
     while (index > 0 && currentView) {

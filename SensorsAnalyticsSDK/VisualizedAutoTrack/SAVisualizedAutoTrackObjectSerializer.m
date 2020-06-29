@@ -116,10 +116,7 @@
     NSArray *classNames = [self classHierarchyArrayForObject:object];
     if ([object isKindOfClass:SAJSTouchEventView.class]) {
         SAJSTouchEventView *touchView = (SAJSTouchEventView *)object;
-        propertyValues[@"is_h5"] = @(YES);
         classNames = @[touchView.tagName];
-    } else {
-        propertyValues[@"is_h5"] = @(NO);
     }
 
     // 记录当前可点击元素所在的 viewController
