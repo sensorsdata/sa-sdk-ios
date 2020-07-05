@@ -76,7 +76,7 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 
-#define VERSION @"2.0.10-pre";
+#define VERSION @"2.0.11-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -306,13 +306,19 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _pullSDKConfigurationRetryMaxCount = 3;// SDK 开启关闭功能接口最大重试次数
             _flushBeforeEnterBackground = YES;
             
-            NSString *label = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
-            _serialQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
+            NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
+            _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
             
-            NSString *readWriteLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
-            _readWriteQueue = dispatch_queue_create([readWriteLabel UTF8String], DISPATCH_QUEUE_SERIAL);
+            NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
+            _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             
+            NSString *remoteConfigLockLabel = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
+            _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:remoteConfigLockLabel];
+            
+            NSString *dynamicSuperPropertiesLockLabel = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
+            _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:dynamicSuperPropertiesLockLabel];
+                        
             NSDictionary *sdkConfig = [[NSUserDefaults standardUserDefaults] objectForKey:SA_SDK_TRACK_CONFIG];
             [self setSDKWithRemoteConfigDict:sdkConfig];
             
@@ -484,7 +490,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
-    self.network.serverURL = [NSURL URLWithString:serverUrl];
+    dispatch_async(self.serialQueue, ^{
+        self.network.serverURL = [NSURL URLWithString:serverUrl];
+    });
 }
 
 - (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
@@ -678,10 +686,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.identifier login:loginId];
     });
-
-    if ([loginId isEqualToString:self.anonymousId]) {
-        return;
-    }
 
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     // 添加来源渠道信息
@@ -1043,8 +1047,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }];
         
         if (!isContainJavaScriptBridge) {
-            // forMainFrameOnly:NO(全局窗口)，YES（只限主窗口）
-            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:YES];
+            // forMainFrameOnly:标识脚本是仅应注入主框架（YES）还是注入所有框架（NO）
+            WKUserScript *userScript = [[WKUserScript alloc] initWithSource:[NSString stringWithString:javaScriptSource] injectionTime:WKUserScriptInjectionTimeAtDocumentStart forMainFrameOnly:NO];
             [contentController addUserScript:userScript];
         }
     } @catch (NSException *exception) {
@@ -1117,19 +1121,28 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         SALogError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
         return;
     }
-
+    
     // 校验 properties
     NSString *type = itemDict[SA_EVENT_TYPE];
     if (![self assertPropertyTypes:&propertyDict withEventType:type]) {
         SALogError(@"%@ failed to item properties", self);
         return;
     }
-
+    
     NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
-    if (propertyDict.count > 0) {
-        itemProperties[SA_EVENT_PROPERTIES] = propertyDict;
+    
+    // 处理 $project
+    NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
+    id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+    if (project) {
+        itemProperties[SA_EVENT_PROJECT] = project;
+        propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT] = nil;
     }
-
+    
+    if (propertyMDict.count > 0) {
+        itemProperties[SA_EVENT_PROPERTIES] = propertyMDict;
+    }
+    
     itemProperties[SA_EVENT_LIB] = [self.presetProperty libPropertiesWithMethod:@"code"];
 
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
@@ -1241,6 +1254,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     
     UInt64 currentSystemUpTime = [[self class] getSystemUpTime];
     
+    __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
+    
     dispatch_async(self.serialQueue, ^{
         //根据当前 event 解析计时操作时加工前的原始 eventName，若当前 event 不是 trackTimerStart 计时操作后返回的字符串，event 和 eventName 一致
         NSString *eventName = [self.trackTimer eventNameFromEventId:event];
@@ -1255,7 +1270,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         //去重
         [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
 
-        NSNumber *timeStamp = @([[self class] getCurrentTime]);
         NSMutableDictionary *eventPropertiesDic = [NSMutableDictionary dictionary];
         if ([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
             // track / track_signup 类型的请求，还是要加上各种公共property
@@ -1280,41 +1294,41 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 eventPropertiesDic[@"event_duration"] = eventDuration;
             }
         }
-
-        NSString *project = nil;
-        NSString *token = nil;
-        if (propertieDict) {
-            NSArray *keys = propertieDict.allKeys;
-            for (id key in keys) {
-                NSObject *obj = propertieDict[key];
-                if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT]) {
-                    project = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN]) {
-                    token = (NSString *)obj;
-                } else if ([key isEqualToString:SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME]) {
-                    if ([obj isKindOfClass:NSDate.class]) {
-                        NSDate *customTime = (NSDate *)obj;
-                        NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
-                        if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
-                            timeStamp = @(customTimeInt);
-                        } else {
-                            SALogError(@"$time error %ld，Please check the value", customTimeInt);
-                        }
-                    } else {
-                        SALogError(@"$time '%@' invalid，Please check the value", obj);
-                    }
-                } else {
-                    if ([obj isKindOfClass:[NSDate class]]) {
-                        // 序列化所有 NSDate 类型
-                        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
-                        NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
-                        eventPropertiesDic[key] = dateStr;
-                    } else {
-                        eventPropertiesDic[key] = obj;
-                    }
-                }
-            }
+        
+        if ([propertieDict isKindOfClass:[NSDictionary class]]) {
+            [eventPropertiesDic addEntriesFromDictionary:propertieDict];
         }
+
+        // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
+        NSString *project = (NSString *)eventPropertiesDic[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
+        NSString *token = (NSString *)eventPropertiesDic[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN];
+        id originalTime = eventPropertiesDic[SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+        if ([originalTime isKindOfClass:NSDate.class]) {
+            NSDate *customTime = (NSDate *)originalTime;
+            NSInteger customTimeInt = [customTime timeIntervalSince1970] * 1000;
+            if (customTimeInt >= SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT) {
+                timeStamp = @(customTimeInt);
+            } else {
+                SALogError(@"$time error %ld，Please check the value", (long)customTimeInt);
+            }
+        } else if (originalTime) {
+            SALogError(@"$time '%@' invalid，Please check the value", originalTime);
+        }
+        
+        // $project, $token, $time 处理完毕后需要移除
+        NSArray<NSString *> *needRemoveKeys = @[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT,
+                                                SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN,
+                                                SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME];
+        [eventPropertiesDic removeObjectsForKeys:needRemoveKeys];
+        
+        // 序列化所有 NSDate 类型
+        [eventPropertiesDic enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:[NSDate class]]) {
+                NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+                NSString *dateStr = [dateFormatter stringFromDate:(NSDate *)obj];
+                eventPropertiesDic[key] = dateStr;
+            }
+        }];
 
         //修正 $device_id，防止用户修改
         if (eventPropertiesDic[SAEventPresetPropertyDeviceID] && self.presetProperty.deviceID) {
@@ -2848,24 +2862,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
 }
 
-#pragma mark – Getters and Setters
-
-- (SAReadWriteLock *)remoteConfigLock {
-    if (!_remoteConfigLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.remoteConfigLock.%p", self];
-        _remoteConfigLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
-    }
-    return _remoteConfigLock;
-}
-
-- (SAReadWriteLock *)dynamicSuperPropertiesLock {
-    if (!_dynamicSuperPropertiesLock) {
-        NSString *label = [NSString stringWithFormat:@"com.sensorsdata.dynamicSuperPropertiesLock.%p", self];
-        _dynamicSuperPropertiesLock = [[SAReadWriteLock alloc] initWithQueueLabel:label];
-    }
-    return _dynamicSuperPropertiesLock;
-}
-
 @end
 
 
@@ -3038,6 +3034,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
+    __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
     __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
     
     dispatch_async(self.serialQueue, ^{
@@ -3065,7 +3062,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
             NSString *type = eventDict[SA_EVENT_TYPE];
             NSString *bestId = self.distinctId;
-            NSNumber *timeStamp = @([[self class] getCurrentTime]);
 
             if([type isEqualToString:@"track_signup"]) {
                 NSString *realOriginalId = self.originalId ?: self.distinctId;
@@ -3172,11 +3168,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 NSString *newLoginId = eventDict[SA_EVENT_DISTINCT_ID];
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
-                    if (![newLoginId isEqualToString:self.anonymousId]) {
-                        enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
-                        [self enqueueWithType:type andEvent:[enqueueEvent copy]];
-                        SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-                    }
+                    enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    [self enqueueWithType:type andEvent:[enqueueEvent copy]];
+                    SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
                 }
             } else {
                 [self enqueueWithType:type andEvent:[enqueueEvent copy]];

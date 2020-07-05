@@ -35,14 +35,14 @@ fi
 ######################
 LIB_VERSION_PATH=${FRAMEWORK_NAME}/${FRAMEWORK_NAME}.m
 LIB_VERSION_CODE="#define VERSION @"
-if [ `grep -c "${LIB_VERSION_CODE}\"${VERSION}\";" ${LIB_VERSION_PATH}` == '0' ]; then
+if [ `grep -c "${LIB_VERSION_CODE}\"${VERSION}\"" ${LIB_VERSION_PATH}` == '0' ]; then
     LINE=`grep -n "${LIB_VERSION_CODE}" ${LIB_VERSION_PATH} | head -1 | cut -d ":" -f 1`
     LINE=$((${LINE} - 1))
     echo "${LIB_VERSION_CODE} at line: ${LINE}"
 
     sed -i '' "/${LIB_VERSION_CODE}/d" ${LIB_VERSION_PATH}
     sed -i '' "${LINE} a\ 
-    \\${LIB_VERSION_CODE}\"${VERSION}\";
+    \\${LIB_VERSION_CODE}\"${VERSION}\"
     " ${LIB_VERSION_PATH}
 fi
 
