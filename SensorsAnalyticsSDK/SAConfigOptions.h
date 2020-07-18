@@ -129,6 +129,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
+
+/// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
+@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
+
 @end
 
 NS_ASSUME_NONNULL_END
