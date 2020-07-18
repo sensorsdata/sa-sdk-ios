@@ -76,7 +76,7 @@
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
 
-#define VERSION @"2.0.11-pre"
+#define VERSION @"2.0.12-pre"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -1136,7 +1136,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     id project = propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     if (project) {
         itemProperties[SA_EVENT_PROJECT] = project;
-        propertyMDict[SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT] = nil;
+        [propertyMDict removeObjectForKey:SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT];
     }
     
     if (propertyMDict.count > 0) {
@@ -1636,7 +1636,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 [profileProperties addEntriesFromDictionary:propertyDict];
             }
             [profileProperties setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-            [self track:nil withProperties:profileProperties withType:SA_PROFILE_SET_ONCE];
+            [self track:nil withProperties:profileProperties withType: self.configOptions.enableMultipleChannelMatch ? SA_PROFILE_SET : SA_PROFILE_SET_ONCE];
 
             [self flush];
         };
@@ -3079,8 +3079,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             }
 
             NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];
-            automaticPropertiesCopy[SAEventPresetPropertyLib] = nil;
-            automaticPropertiesCopy[SAEventPresetPropertyLibVersion] = nil;
+            [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLib];
+            [automaticPropertiesCopy removeObjectForKey:SAEventPresetPropertyLibVersion];
 
             NSMutableDictionary *propertiesDict = eventDict[SA_EVENT_PROPERTIES];
             if([type isEqualToString:@"track"] || [type isEqualToString:@"track_signup"]) {
