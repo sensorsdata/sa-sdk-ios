@@ -48,6 +48,7 @@ static BOOL isAutoTrackModeValid(NSInteger autoTrackMode) {
         _v = [dict valueForKey:@"v"];
         _disableSDK = [[dict valueForKeyPath:@"configs.disableSDK"] boolValue];
         _disableDebugMode = [[dict valueForKeyPath:@"configs.disableDebugMode"] boolValue];
+        _localLibVersion = [dict valueForKey:@"localLibVersion"];
         NSNumber *autoTrackMode = [dict valueForKeyPath:@"configs.autoTrackMode"];
         if (autoTrackMode != nil) {
             NSInteger iMode = autoTrackMode.integerValue;

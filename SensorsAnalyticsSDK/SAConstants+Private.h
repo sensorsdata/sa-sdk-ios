@@ -26,7 +26,6 @@
 extern NSString * const SA_EVENT_TIME;
 extern NSString * const SA_EVENT_TRACK_ID;
 extern NSString * const SA_EVENT_NAME;
-extern NSString * const SA_EVENT_FLUSH_TIME;
 extern NSString * const SA_EVENT_DISTINCT_ID;
 extern NSString * const SA_EVENT_PROPERTIES;
 extern NSString * const SA_EVENT_TYPE;

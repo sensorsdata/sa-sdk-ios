@@ -29,6 +29,9 @@ static NSInteger kSAAutoTrackModeEnabledAll = 15;
 @property (nonatomic, assign) BOOL disableDebugMode;
 @property (nonatomic, assign) NSInteger autoTrackMode;//-1,0,1~15
 
+//本地保存 SDK 版本号
+@property(nonatomic,copy)NSString *localLibVersion;
+
 + (instancetype)configWithDict:(NSDictionary *)dict;
 - (instancetype)initWithDict:(NSDictionary *)dict;
 @end

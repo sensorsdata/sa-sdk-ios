@@ -7,7 +7,7 @@
 //
 
 #import "ElementViewController.h"
-#import "SensorsAnalyticsSDK.h"
+#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
 
 
 @implementation CustomButton

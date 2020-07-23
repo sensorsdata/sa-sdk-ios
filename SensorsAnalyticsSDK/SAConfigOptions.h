@@ -21,6 +21,8 @@
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
 
+@class SASecretKey;
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**
@@ -129,9 +131,29 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
+/// 是否开启加密
+@property (nonatomic, assign) BOOL enableEncrypt;
+
+/// 存储公钥的回调
+@property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
+
+/// 获取公钥的回调
+@property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
 
 /// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
 @property (nonatomic, assign) BOOL enableMultipleChannelMatch;
+
+@end
+
+
+/// RSA 公钥秘钥信息
+@interface SASecretKey : NSObject <NSCoding>
+
+/// 秘钥版本
+@property(nonatomic, assign) NSInteger version;
+
+/// 秘钥值
+@property(nonatomic, copy) NSString *key;
 
 @end
 

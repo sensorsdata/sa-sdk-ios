@@ -151,17 +151,25 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     return [NSString stringWithFormat:@"[%@]", [events componentsJoinedByString:@","]];
 }
 
-- (NSURLRequest *)buildFlushRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod {
+- (NSURLRequest *)buildFlushRequestWithJSONString:(NSString *)jsonString HTTPMethod:(NSString *)HTTPMethod isEncrypted:(BOOL)isEncrypted {
     NSString *postBody;
     @try {
-        // 2. 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        // 3. base64
-        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        int gzip = 9; // gzip = 9 表示加密编码
+        NSString *b64String = [jsonString copy];
+        
+        if (!isEncrypted) {
+            // 加密数据已经做过 gzip 压缩和 base64 处理了，就不需要再处理。
+            gzip = 1;
+            // 使用gzip进行压缩
+            NSData *zippedData = [SAGzipUtility gzipData:[b64String dataUsingEncoding:NSUTF8StringEncoding]];
+            // base64
+            b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+        }
+
         int hashCode = [b64String sensorsdata_hashCode];
         b64String = [b64String stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-        
-        postBody = [NSString stringWithFormat:@"crc=%d&gzip=1&data_list=%@", hashCode, b64String];
+        postBody = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, b64String];
+
     } @catch (NSException *exception) {
         SALogError(@"%@ flushByPost format data error: %@", self, exception);
         return nil;
@@ -240,7 +248,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
     }];
 }
 
-- (BOOL)flushEvents:(NSArray<NSString *> *)events {
+- (BOOL)flushEvents:(NSArray<NSString *> *)events isEncrypted:(BOOL)isEncrypted {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return NO;
@@ -284,13 +292,13 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         }
         
         if (statusCode != 200) {
-            SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
+            SALogError(@"%@ ret_code: %ld, ret_content: %@", self, (long)statusCode, urlResponseContent);
         }
         
         dispatch_semaphore_signal(flushSemaphore);
     };
     
-    NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST"];
+    NSURLRequest *request = [self buildFlushRequestWithJSONString:jsonString HTTPMethod:@"POST" isEncrypted:isEncrypted];
     NSURLSessionDataTask *task = [self dataTaskWithRequest:request completionHandler:handler];
     [task resume];
     
