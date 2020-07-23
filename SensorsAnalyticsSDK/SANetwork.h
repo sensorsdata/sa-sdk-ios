@@ -70,9 +70,10 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  数据将同步发送，请在异步线程中调用
 
  @param events 事件的 json 字符串组成的数组
+ @param isEncrypted 事件是否加密
  @return 同步返回数据是否上传成功
  */
-- (BOOL)flushEvents:(NSArray<NSString *> *)events;
+- (BOOL)flushEvents:(NSArray<NSString *> *)events isEncrypted:(BOOL)isEncrypted;
 
 /**
  设置 DebugMode 时回调请求方法

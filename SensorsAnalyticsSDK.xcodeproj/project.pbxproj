@@ -52,14 +52,16 @@
 		8888473824530F9100EBA7F6 /* SANetwork.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473224530F9100EBA7F6 /* SANetwork.m */; };
 		8888473924530F9100EBA7F6 /* SASecurityPolicy.m in Sources */ = {isa = PBXBuildFile; fileRef = 8888473324530F9100EBA7F6 /* SASecurityPolicy.m */; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
-		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
-		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		A84FE7B8247661110090BC37 /* SAReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = A84FE7B6247661100090BC37 /* SAReadWriteLock.h */; };
 		A84FE7B9247661110090BC37 /* SAReadWriteLock.m in Sources */ = {isa = PBXBuildFile; fileRef = A84FE7B7247661100090BC37 /* SAReadWriteLock.m */; };
+		A86663CA249A892E0065A540 /* SAEncryptSecretKeyHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A86663C8249A892E0065A540 /* SAEncryptSecretKeyHandler.h */; };
+		A86663CB249A892E0065A540 /* SAEncryptSecretKeyHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A86663C9249A892E0065A540 /* SAEncryptSecretKeyHandler.m */; };
 		A869D69F242F57F600069B6E /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69B242F57F600069B6E /* WKWebView+SABridge.h */; };
 		A869D6A0242F57F600069B6E /* SAScriptMessageHandler.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */; };
 		A869D6A1242F57F600069B6E /* WKWebView+SABridge.m in Sources */ = {isa = PBXBuildFile; fileRef = A869D69D242F57F600069B6E /* WKWebView+SABridge.m */; };
 		A869D6A2242F57F600069B6E /* SAScriptMessageHandler.h in Headers */ = {isa = PBXBuildFile; fileRef = A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */; };
+		A8E962EB246A4373006A337D /* SAPresetProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8E962E9246A4373006A337D /* SAPresetProperty.h */; };
+		A8E962EC246A4373006A337D /* SAPresetProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8E962EA246A4373006A337D /* SAPresetProperty.m */; };
 		CB30C03F22840EC00004061D /* SATypeDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD222840EBF0004061D /* SATypeDescription.m */; };
 		CB30C04222840EC00004061D /* NSString+HashCode.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30BFD522840EBF0004061D /* NSString+HashCode.m */; };
 		CB30C04522840EC00004061D /* NSInvocation+SAHelpers.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30BFD822840EBF0004061D /* NSInvocation+SAHelpers.h */; };
@@ -241,14 +243,16 @@
 		8888473224530F9100EBA7F6 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		8888473324530F9100EBA7F6 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
-		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
-		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		A84FE7B6247661100090BC37 /* SAReadWriteLock.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = SAReadWriteLock.h; path = Utils/SAReadWriteLock.h; sourceTree = "<group>"; };
 		A84FE7B7247661100090BC37 /* SAReadWriteLock.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = SAReadWriteLock.m; path = Utils/SAReadWriteLock.m; sourceTree = "<group>"; };
+		A86663C8249A892E0065A540 /* SAEncryptSecretKeyHandler.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEncryptSecretKeyHandler.h; sourceTree = "<group>"; };
+		A86663C9249A892E0065A540 /* SAEncryptSecretKeyHandler.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEncryptSecretKeyHandler.m; sourceTree = "<group>"; };
 		A869D69B242F57F600069B6E /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
 		A869D69C242F57F600069B6E /* SAScriptMessageHandler.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScriptMessageHandler.m; sourceTree = "<group>"; };
 		A869D69D242F57F600069B6E /* WKWebView+SABridge.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "WKWebView+SABridge.m"; sourceTree = "<group>"; };
 		A869D69E242F57F600069B6E /* SAScriptMessageHandler.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScriptMessageHandler.h; sourceTree = "<group>"; };
+		A8E962E9246A4373006A337D /* SAPresetProperty.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAPresetProperty.h; sourceTree = "<group>"; };
+		A8E962EA246A4373006A337D /* SAPresetProperty.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30BFD222840EBF0004061D /* SATypeDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATypeDescription.m; sourceTree = "<group>"; };
 		CB30BFD522840EBF0004061D /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
@@ -720,10 +724,12 @@
 		FC5A4BE2244E98DC00063624 /* Encrypt */ = {
 			isa = PBXGroup;
 			children = (
+				FC5A4BE5244E98DC00063624 /* SAEncryptUtils.h */,
 				FC5A4BE3244E98DC00063624 /* SAEncryptUtils.m */,
 				FC5A4BE4244E98DC00063624 /* SADataEncryptBuilder.h */,
-				FC5A4BE5244E98DC00063624 /* SAEncryptUtils.h */,
 				FC5A4BE6244E98DC00063624 /* SADataEncryptBuilder.m */,
+				A86663C8249A892E0065A540 /* SAEncryptSecretKeyHandler.h */,
+				A86663C9249A892E0065A540 /* SAEncryptSecretKeyHandler.m */,
 			);
 			path = Encrypt;
 			sourceTree = "<group>";
@@ -815,6 +821,7 @@
 				CB30C09C22840EC00004061D /* SAAlertController.h in Headers */,
 				4DB14DE32456C107002C224C /* SAFileLogger.h in Headers */,
 				4D5A02032411EDFA007E651A /* UIView+VisualizedAutoTrack.h in Headers */,
+				A86663CA249A892E0065A540 /* SAEncryptSecretKeyHandler.h in Headers */,
 				CB30C06322840EC00004061D /* SensorsAnalyticsSDK+Private.h in Headers */,
 				CB30C06022840EC00004061D /* SAAuxiliaryToolManager.h in Headers */,
 				FC5A4BC1244E976F00063624 /* SAWeakPropertyContainer.h in Headers */,
@@ -1009,6 +1016,7 @@
 				CB30C06B22840EC00004061D /* SAKeyChainItemWrapper.m in Sources */,
 				CB30C07B22840EC00004061D /* SADeviceOrientationManager.m in Sources */,
 				FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */,
+				A86663CB249A892E0065A540 /* SAEncryptSecretKeyHandler.m in Sources */,
 				4DB14DDB2456C107002C224C /* SALoggerPrePostFixFormatter.m in Sources */,
 				4DB14DDE2456C107002C224C /* SAFileLogger.m in Sources */,
 				CB30C07D22840EC00004061D /* SAConfigOptions.m in Sources */,

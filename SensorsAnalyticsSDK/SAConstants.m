@@ -30,7 +30,6 @@
 NSString * const SA_EVENT_TIME = @"time";
 NSString * const SA_EVENT_TRACK_ID = @"_track_id";
 NSString * const SA_EVENT_NAME = @"event";
-NSString * const SA_EVENT_FLUSH_TIME = @"_flush_time";
 NSString * const SA_EVENT_DISTINCT_ID = @"distinct_id";
 NSString * const SA_EVENT_PROPERTIES = @"properties";
 NSString * const SA_EVENT_TYPE = @"type";

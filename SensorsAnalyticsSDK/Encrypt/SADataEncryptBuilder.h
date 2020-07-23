@@ -47,8 +47,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSDictionary *)encryptionJSONObject:(id)obj;
 
 /// 构造加密的数据结构
-- (nullable NSArray *)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray;
-
+- (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
+                                 completion:(void (^)(BOOL isContentEncrypted, NSArray *contentArray))completion;
 @end
 
 NS_ASSUME_NONNULL_END
