@@ -27,7 +27,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+typedef void(^SALinkHandlerCallback)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime);
+
 @interface SALinkHandler : NSObject
+
+@property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
 
 /**
 @abstract
@@ -46,6 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
  @return 是否需要被解析
 */
 - (BOOL)canHandleURL:(NSURL *)url;
+
+- (void)acquireColdLaunchDeepLinkInfo;
 
 /**
  @abstract

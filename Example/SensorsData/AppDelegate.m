@@ -75,6 +75,13 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     return NO;
 }
 
+- (BOOL)application:(UIApplication *)application continueUserActivity:(NSUserActivity *)userActivity restorationHandler:(void (^)(NSArray<id<UIUserActivityRestoring>> * _Nullable))restorationHandler {
+    if ([[SensorsAnalyticsSDK sharedInstance] canHandleURL:userActivity.webpageURL]) {
+        [[SensorsAnalyticsSDK sharedInstance] handleSchemeUrl:userActivity.webpageURL];
+    }
+    return YES;
+}
+
 - (void)applicationWillResignActive:(UIApplication *)application {
     // Sent when the application is about to move from active to inactive state. This can occur for certain types of temporary interruptions (such as an incoming phone call or SMS message) or when the user quits the application and it begins the transition to the background state.
     // Use this method to pause ongoing tasks, disable timers, and throttle down OpenGL ES frame rates. Games should use this method to pause the game.

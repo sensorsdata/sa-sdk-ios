@@ -28,6 +28,7 @@
 #import "UIViewController+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
+#import "SAConstants+Private.h"
 
 @implementation UIView (VisualizedAutoTrack)
 
@@ -73,6 +74,42 @@
     return YES;
 }
 
+/// 判断 ReactNative 元素是否可点击
+- (BOOL)sensorsdata_clickableForRNView {
+    // RN 可点击元素的区分
+    Class managerClass = NSClassFromString(@"SAReactNativeManager");
+    SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
+    if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
+    #pragma clang diagnostic push
+    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        id manager = [managerClass performSelector:sharedInstanceSEL];
+        SEL clickableSEL = NSSelectorFromString(@"clickableForView:");
+        if ([manager respondsToSelector:clickableSEL]) {
+            BOOL clickable = (BOOL)[manager performSelector:clickableSEL withObject:self];
+            if (clickable) {
+                return YES;
+            }
+        }
+    #pragma clang diagnostic pop
+    }
+    return NO;
+}
+
+/// 解析 ReactNative 元素页面信息
+- (NSDictionary *)sensorsdata_RNViewScreenProperties {
+    SEL screenPropertiesSEL = NSSelectorFromString(@"sa_reactnative_screenProperties");
+    if ([self respondsToSelector:screenPropertiesSEL]) {
+        #pragma clang diagnostic push
+        #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        NSDictionary *screenProperties = (NSDictionary *)[self performSelector:screenPropertiesSEL];
+        if (screenProperties) {
+            return screenProperties;
+        }
+        #pragma clang diagnostic pop
+    }
+    return nil;
+}
+
 // 判断一个 view 是否会触发全埋点事件
 - (BOOL)sensorsdata_isAutoTrackAppClick {
     // 判断是否被覆盖
@@ -85,21 +122,8 @@
         return YES;
     }
 
-    // RN 可点击元素的区分
-    Class managerClass = NSClassFromString(@"SAReactNativeManager");
-    SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
-    if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-        id manager = [managerClass performSelector:sharedInstanceSEL];
-        SEL clickableSEL = NSSelectorFromString(@"clickableForView:");
-        if ([manager respondsToSelector:clickableSEL]) {
-            BOOL clickable = (BOOL)[manager performSelector:clickableSEL withObject:self];
-            if (clickable) {
-                return YES;
-            }
-        }
-#pragma clang diagnostic pop
+    if ([self sensorsdata_clickableForRNView]) {
+        return YES;
     }
 
     if ([self isKindOfClass:UIControl.class]) {
@@ -245,6 +269,35 @@
  return validFrame;
 }
 
+- (NSString *)sensorsdata_screenName {
+    // 处理 ReactNative 元素
+    if ([self sensorsdata_clickableForRNView]) {
+        NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
+        return screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+    }
+
+    // 处理 Native 元素
+    if (self.sensorsdata_viewController) {
+        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        return autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+    }
+    return nil;
+}
+
+- (NSString *)sensorsdata_title {
+    // 处理 ReactNative 元素
+    if ([self sensorsdata_clickableForRNView]) {
+        NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
+        return screenProperties[SA_EVENT_PROPERTY_TITLE];
+    }
+
+    // 处理 Native 元素
+    if (self.sensorsdata_viewController) {
+        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        return autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+    }
+    return nil;
+}
 @end
 
 

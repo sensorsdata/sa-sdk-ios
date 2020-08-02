@@ -25,6 +25,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SAAutoTrackUtils.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -239,7 +240,10 @@
             mostShowViewController = controller;
         }
     }
-    return mostShowViewController;
+    if (mostShowViewController) {
+        return mostShowViewController;
+    }
+    return [SAAutoTrackUtils currentViewController];
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {

@@ -95,6 +95,18 @@
               "type": "NSString"
             },
             {
+              "name": "sensorsdata_screenName",
+              "key": "screen_name",
+              "type": "NSString",
+              "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_title",
+              "key": "title",
+              "type": "NSString",
+              "use_kvc": false
+            },
+            {
               "name": "sensorsdata_isFromWeb",
               "key": "is_h5",
               "type": "BOOL",
