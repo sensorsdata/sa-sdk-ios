@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 解析构造 web 元素
 + (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
+
+///  获取 RN 当前页面信息
++ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
 @end
 
 NS_ASSUME_NONNULL_END

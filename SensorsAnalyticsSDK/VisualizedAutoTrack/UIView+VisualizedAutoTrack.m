@@ -96,8 +96,9 @@
 }
 
 /// 解析 ReactNative 元素页面信息
-- (NSDictionary *)sensorsdata_RNViewScreenProperties {
+- (NSDictionary *)sensorsdata_RNElementScreenProperties {
     SEL screenPropertiesSEL = NSSelectorFromString(@"sa_reactnative_screenProperties");
+    // 获取 RN 元素所在页面信息
     if ([self respondsToSelector:screenPropertiesSEL]) {
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
@@ -106,6 +107,9 @@
             return screenProperties;
         }
         #pragma clang diagnostic pop
+    } else {
+        // 获取 RN 页面信息
+        return [SAVisualizedUtils currentRNScreenVisualizeProperties];
     }
     return nil;
 }
@@ -270,13 +274,17 @@
 }
 
 - (NSString *)sensorsdata_screenName {
-    // 处理 ReactNative 元素
+    // 解析 ReactNative 元素页面名称
     if ([self sensorsdata_clickableForRNView]) {
-        NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
-        return screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
+        // 如果 ReactNative 页面信息为空，则使用 Native 的
+        NSString *screenName = screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        if (screenName) {
+            return screenName;
+        }
     }
 
-    // 处理 Native 元素
+    // 解析 Native 元素页面信息
     if (self.sensorsdata_viewController) {
         NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
         return autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
@@ -287,8 +295,11 @@
 - (NSString *)sensorsdata_title {
     // 处理 ReactNative 元素
     if ([self sensorsdata_clickableForRNView]) {
-        NSDictionary *screenProperties = [self sensorsdata_RNViewScreenProperties];
-        return screenProperties[SA_EVENT_PROPERTY_TITLE];
+        NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
+        // 如果 ReactNative 的 screenName 不存在，则判断页面信息不存在，即使用 Native 逻辑
+        if (screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME]) {
+            return screenProperties[SA_EVENT_PROPERTY_TITLE];
+        }
     }
 
     // 处理 Native 元素

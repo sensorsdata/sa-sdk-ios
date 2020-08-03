@@ -31,6 +31,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAConstants+Private.h"
+#import "SAVisualizedUtils.h"
 
 
 @interface SAVisualizedAbstractMessage ()
@@ -98,19 +99,7 @@
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
         // 获取 RN 页面信息
-        NSDictionary <NSString *, NSString *> *RNScreenInfo = nil;
-        Class managerClass = NSClassFromString(@"SAReactNativeManager");
-        SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
-        if ([managerClass respondsToSelector:sharedInstanceSEL]) {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-            id manager = [managerClass performSelector:sharedInstanceSEL];
-            SEL propsSEL = NSSelectorFromString(@"visualizeProperties");
-            if ([manager respondsToSelector:propsSEL]) {
-                RNScreenInfo = [manager performSelector:propsSEL];
-            }
-#pragma clang diagnostic pop
-        }
+        NSDictionary <NSString *, NSString *> *RNScreenInfo = [SAVisualizedUtils currentRNScreenVisualizeProperties];
         if (RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME]) {
             jsonObject[@"page_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"screen_name"] = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
