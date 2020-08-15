@@ -30,6 +30,6 @@
  *
  *  @return 转化后得到的字符串
  */
-- (NSData *)JSONSerializeObject:(id)obj;
++ (NSData *)JSONSerializeObject:(id)obj;
 
 @end

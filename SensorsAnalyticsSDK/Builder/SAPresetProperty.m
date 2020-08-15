@@ -29,6 +29,7 @@
 #import "SAPresetProperty.h"
 #import "SAConstants+Private.h"
 #import "SAIdentifier.h"
+#import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SACommonUtility.h"
 #import "SALog.h"

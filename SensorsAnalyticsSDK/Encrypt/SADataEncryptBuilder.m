@@ -32,7 +32,6 @@
 
 @interface SADataEncryptBuilder()
 
-@property(nonatomic,strong) SAJSONUtil *jsonUtil;
 /// RSA 公钥配置
 @property(nonatomic, strong) SASecretKey *rsaSecretKey;
 
@@ -49,7 +48,6 @@
 - (instancetype)initWithRSAPublicKey:(SASecretKey *)secretKey {
     self = [super init];
     if (self) {
-        _jsonUtil = [[SAJSONUtil alloc] init];
         [self updateRSAPublicSecretKey:secretKey];
     }
     return self;
@@ -87,7 +85,7 @@
         return nil;
     }
 
-    NSData *jsonData = [self.jsonUtil JSONSerializeObject:obj];
+    NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
     NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
     NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
     //使用 gzip 进行压缩
@@ -104,64 +102,6 @@
     secretObj[@"ekey"] = self.rsaEncryptAESKey;
     secretObj[@"payload"] = encryptString;
     return [NSDictionary dictionaryWithDictionary:secretObj];
-}
-
-- (void)buildFlushEncryptionDataWithRecords:(NSArray *)recordArray
-                                 completion:(void (^)(BOOL isContentEncrypted, NSArray *contentArray))completion {
-    /***** 构造加密数据结构 *****/
-    // 存储明文数据
-    NSMutableArray *unencryptedArray = [NSMutableArray array];
-    // 存储密文数据
-    NSMutableArray *encryptedArray = [NSMutableArray array];
-    
-    // 根据加密数据中相同的 ekey 进行合并
-    NSMutableArray *encryptedDicArray = [NSMutableArray array];
-    NSMutableArray *allKeys = [NSMutableArray arrayWithCapacity:recordArray.count];
-    [recordArray enumerateObjectsUsingBlock:^(id  _Nonnull json, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSData *jsonData = [json dataUsingEncoding:NSUTF8StringEncoding];
-        if (!jsonData) {
-            return;
-        }
-        
-        NSMutableDictionary *jsonDic = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-        if (!jsonDic) {
-            return;
-        }
-        
-        if (!jsonDic[@"ekey"]) {
-            // 构造未加密数据
-            [unencryptedArray addObject:json];
-            return;
-        }
-        
-        NSInteger index = [allKeys indexOfObject:jsonDic[@"ekey"]];
-        if (index == NSNotFound) {
-            [allKeys addObject:jsonDic[@"ekey"]];
-            jsonDic[@"payloads"] = [NSMutableArray arrayWithObject:jsonDic[@"payload"]];
-            jsonDic[@"payload"] = nil;
-            [encryptedDicArray addObject:jsonDic];
-            return;
-        }
-        NSMutableDictionary *contentDic = encryptedDicArray[index];
-        [(NSMutableArray *)contentDic[@"payloads"] addObject:jsonDic[@"payload"]];
-    }];
-    
-    // 构造加密数据
-    [encryptedDicArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        NSData *encrypData = [self.jsonUtil JSONSerializeObject:obj];
-        NSString *encrypString = [[NSString alloc] initWithData:encrypData encoding:NSUTF8StringEncoding];
-        if ([SAValidator isValidString:encrypString]) {
-            [encryptedArray addObject:encrypString];
-        }
-    }];
-    
-    if (encryptedArray.count > 0) {
-        // 优先使用密文
-        completion(YES, encryptedArray);
-    } else {
-        // 没有密文则使用明文
-        completion(NO, unencryptedArray);
-    }
 }
 
 @end

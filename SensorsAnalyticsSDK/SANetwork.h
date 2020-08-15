@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SensorsAnalyticsSDK.h"
 #import "SASecurityPolicy.h"
+#import "SAHTTPSession.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -30,12 +31,8 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 /// 用于评价请求是否是服务器信任的链接，默认为：defaultPolicy
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy;
-/// 服务器的 URL
-@property (nonatomic, strong) NSURL *serverURL;
 /// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
-
-- (instancetype)initWithServerURL:(NSURL *)serverURL;
 
 /**
  * @abstract
@@ -54,26 +51,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  * @return NSString cookie
  */
 - (NSString *)cookieWithDecoded:(BOOL)decode;
-
-
-/**
- 通过 URLRequest 创建一个 task，并设置完成的回调
-
- @param request 请求对象
- @param completionHandler 完成回调
- @return 数据 task
- */
-- (NSURLSessionDataTask *)dataTaskWithRequest:(NSURLRequest *)request completionHandler:(SAURLSessionTaskCompletionHandler)completionHandler;
-
-/**
- 将数据上传到 Sensors Analytics 的服务器上
- 数据将同步发送，请在异步线程中调用
-
- @param events 事件的 json 字符串组成的数组
- @param isEncrypted 事件是否加密
- @return 同步返回数据是否上传成功
- */
-- (BOOL)flushEvents:(NSArray<NSString *> *)events isEncrypted:(BOOL)isEncrypted;
 
 /**
  设置 DebugMode 时回调请求方法
@@ -97,6 +74,7 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @interface SANetwork (ServerURL)
 
+@property (nonatomic, copy, readonly) NSURL *serverURL;
 /// 通过 serverURL 获取的 host
 @property (nonatomic, copy, readonly, nullable) NSString *host;
 /// 在 serverURL 中获取的 project 名称
@@ -106,24 +84,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString;
 - (BOOL)isValidServerURL;
-
-@end
-
-@interface SANetwork (SessionAndTask)
-
-/**
- Sets a block to be executed when a connection level authentication challenge has occurred, as handled by the `NSURLSessionDelegate` method `URLSession:didReceiveChallenge:completionHandler:`.
- 
- @param block A block object to be executed when a connection level authentication challenge has occurred. The block returns the disposition of the authentication challenge, and takes three arguments: the session, the authentication challenge, and a pointer to the credential that should be used to resolve the challenge.
- */
-- (void)setSessionDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
-
-/**
- Sets a block to be executed when a session task has received a request specific authentication challenge, as handled by the `NSURLSessionTaskDelegate` method `URLSession:task:didReceiveChallenge:completionHandler:`.
- 
- @param block A block object to be executed when a session task has received a request specific authentication challenge. The block returns the disposition of the authentication challenge, and takes four arguments: the session, the task, the authentication challenge, and a pointer to the credential that should be used to resolve the challenge.
- */
-- (void)setTaskDidReceiveAuthenticationChallengeBlock:(nullable NSURLSessionAuthChallengeDisposition (^)(NSURLSession *session, NSURLSessionTask *task, NSURLAuthenticationChallenge *challenge, NSURLCredential * _Nullable __autoreleasing * _Nullable credential))block;
 
 @end
 

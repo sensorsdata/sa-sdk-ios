@@ -99,7 +99,7 @@
         [request setHTTPMethod:@"POST"];
         [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
         [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+        NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if (response.statusCode == 200) {
                 NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];

@@ -131,17 +131,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, readonly, copy) NSString *loginId;
 
 /**
- * @proeprty
- *
- * @abstract
- * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
- *
- * @discussion
- * 默认值为 YES
- */
-@property (atomic) BOOL flushBeforeEnterBackground;
-
-/**
  @abstract
  用于评估是否为服务器信任的安全链接。
 
@@ -1170,6 +1159,17 @@ DeepLink 回调函数
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
 @property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
+
+/**
+ * @proeprty
+ *
+ * @abstract
+ * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
+ *
+ * @discussion
+ * 默认值为 YES
+ */
+@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground")));
 
 /**
  * @abstract

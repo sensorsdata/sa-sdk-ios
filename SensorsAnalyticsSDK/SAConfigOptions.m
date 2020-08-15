@@ -45,6 +45,8 @@
 
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
+
+        _flushBeforeEnterBackground = YES;
     }
     return self;
 }
@@ -73,6 +75,8 @@
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+
+    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
     
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;

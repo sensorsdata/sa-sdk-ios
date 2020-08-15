@@ -37,7 +37,7 @@
  *
  *  @return 转化后得到的字符串
  */
-- (NSData *)JSONSerializeObject:(id)obj {
++ (NSData *)JSONSerializeObject:(id)obj {
     id coercedObj = [self JSONSerializableObjectForObject:obj];
     NSError *error = nil;
     NSData *data = nil;
@@ -64,7 +64,7 @@
  *
  *  @return 处理后的对象Object
  */
-- (id)JSONSerializableObjectForObject:(id)obj {
++ (id)JSONSerializableObjectForObject:(id)obj {
     id newObj = [obj copy];
     // valid json types
     if ([newObj isKindOfClass:[NSString class]]) {

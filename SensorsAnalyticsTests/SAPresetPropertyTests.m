@@ -40,7 +40,7 @@
     
     NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
     _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-    _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
+//    _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
 }
 
 - (void)tearDown {

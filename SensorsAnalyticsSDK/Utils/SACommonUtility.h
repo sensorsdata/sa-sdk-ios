@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-
+#import "SAConstants.h"
 
 @interface SACommonUtility : NSObject
 
@@ -28,6 +28,9 @@
 
 /// 获取当前网络状态
 + (NSString *)currentNetworkStatus;
+
+/// 获取当前网络类型
++ (SensorsAnalyticsNetworkType)currentNetworkType;
 
 /// 主线程执行
 + (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;

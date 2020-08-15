@@ -131,6 +131,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
+/// 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics，默认为 YES
+@property (nonatomic, assign) BOOL flushBeforeEnterBackground;
+
 /// 是否开启加密
 @property (nonatomic, assign) BOOL enableEncrypt;
 
