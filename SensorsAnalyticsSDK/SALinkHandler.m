@@ -323,7 +323,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         return;
     }
     NSTimeInterval start = NSDate.date.timeIntervalSince1970;
-    NSURLSessionDataTask *task = [[SensorsAnalyticsSDK sharedInstance].network dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
+    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSTimeInterval interval = (NSDate.date.timeIntervalSince1970 - start);
         NSDictionary *result;
         NSString *errorMsg;
