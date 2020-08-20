@@ -184,7 +184,7 @@
 @implementation SANetwork (ServerURL)
 
 - (NSURL *)serverURL {
-    NSURL *serverURL = [NSURL URLWithString:[SensorsAnalyticsSDK sharedInstance].configOptions.serverURL];
+    NSURL *serverURL = [NSURL URLWithString:SensorsAnalyticsSDK.sdkInstance.configOptions.serverURL];
     if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
         return serverURL;
     }
