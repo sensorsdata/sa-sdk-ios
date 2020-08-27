@@ -54,6 +54,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否为弹框点击
 + (BOOL)isAlertClickForView:(UIView *)view;
+
+///  在间隔时间内是否采集 $AppClick 全埋点
++ (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object;
 @end
 
 #pragma mark -

@@ -32,6 +32,9 @@
 #import "SAAlertController.h"
 #import "SAValidator.h"
 
+/// 一个元素 $AppClick 全埋点最小时间间隔，100 毫秒
+static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
+
 @implementation SAAutoTrackUtils
 
 + (UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder {
@@ -164,6 +167,19 @@
      return NO;
 }
 
+///  在间隔时间内是否采集 $AppClick 全埋点
++ (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object {
+    if (!object) {
+        return NO;
+    }
+    NSTimeInterval lastTime = object.sensorsdata_timeIntervalForLastAppClick;
+    NSTimeInterval currentTime = [[NSProcessInfo processInfo] systemUptime];
+    if (lastTime > 0 && currentTime - lastTime < SATrackAppClickMinTimeInterval) {
+        return NO;
+    }
+    return YES;
+}
+
 @end
 
 #pragma mark -
@@ -205,19 +221,19 @@
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
     properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
-    
+
     viewController = viewController ? : object.sensorsdata_viewController;
     if (!isCodeTrack && viewController.sensorsdata_isIgnored) {
         return nil;
     }
-    
+
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
-    
+
     properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
     properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
     properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
-    
+
     UIView *view = (UIView *)object;
     //View Properties
     if ([object isKindOfClass:UIView.class]) {
@@ -225,10 +241,10 @@
     } else {
         return properties;
     }
-    
+
     NSString *viewPath = [self viewPathForView:view atViewController:viewController];
     properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
-    
+
     NSString *viewSimilarPath = [self viewSimilarPathForView:view atViewController:viewController shouldSimilarPath:YES];
     properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
 
@@ -461,6 +477,7 @@
     if (viewController.sensorsdata_isIgnored) {
         return nil;
     }
+
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
@@ -476,10 +493,10 @@
 
     NSString *viewPath = [self viewPathForView:((UIView *)cell) atViewController:viewController];
     properties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = viewPath;
-    
+
     NSString *viewSimilarPath = [self viewSimilarPathForView:(UIView *)cell atViewController:viewController shouldSimilarPath:YES];
     properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewSimilarPath;
-    
+
     return properties;
 }
 

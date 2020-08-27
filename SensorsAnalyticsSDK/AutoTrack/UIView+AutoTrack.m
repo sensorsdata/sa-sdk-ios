@@ -25,6 +25,9 @@
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK.h"
+#import <objc/runtime.h>
+
+static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
 #pragma mark - UIView
 
@@ -39,6 +42,14 @@
     BOOL isAutoTrackEventTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
     BOOL isViewTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[self class]];
     return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
+}
+
+- (void)setSensorsdata_timeIntervalForLastAppClick:(NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
+    objc_setAssociatedObject(self, kSALastAppClickIntervalPropertyName, [NSNumber numberWithDouble:sensorsdata_timeIntervalForLastAppClick], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {
+    return [objc_getAssociatedObject(self, kSALastAppClickIntervalPropertyName) doubleValue];
 }
 
 - (NSString *)sensorsdata_elementType {
