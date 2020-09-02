@@ -82,7 +82,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.1.5"
+#define VERSION @"2.1.6"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -3142,10 +3142,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 if ([self.identifier isValidLoginId:newLoginId]) {
                     [self.identifier login:newLoginId];
                     enqueueEvent[SA_EVENT_LOGIN_ID] = newLoginId;
+                    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
                     [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
                     SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
+                    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
                 }
             } else {
+                [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
                 [self.eventTracker trackEvent:enqueueEvent];
                 SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
             }
