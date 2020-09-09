@@ -35,7 +35,6 @@
     NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
 
-    [_webView addObserver:self forKeyPath:@"loading" options:NSKeyValueObservingOptionNew context:nil];
     _webView.UIDelegate = self;
     _webView.navigationDelegate = self;
 
@@ -65,8 +64,5 @@
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
 }
 
--(void)dealloc {
-    [_webView removeObserver:self forKeyPath:@"loading"];
-}
 @end
 
