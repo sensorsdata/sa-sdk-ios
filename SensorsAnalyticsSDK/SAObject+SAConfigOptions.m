@@ -34,7 +34,7 @@
         return 10000;
     }
 #endif
-    return [SensorsAnalyticsSDK sharedInstance].configOptions.maxCacheSize;
+    return [SensorsAnalyticsSDK sdkInstance].configOptions.maxCacheSize;
 }
 
 @end
@@ -45,23 +45,23 @@
 @implementation SAEventFlush (SAConfigOptions)
 
 - (BOOL)isDebugMode {
-    return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
+    return [[SensorsAnalyticsSDK sdkInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
 - (NSURL *)serverURL {
-    return [SensorsAnalyticsSDK sharedInstance].network.serverURL;
+    return [SensorsAnalyticsSDK sdkInstance].network.serverURL;
 }
 
 - (BOOL)flushBeforeEnterBackground {
-    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBeforeEnterBackground;
+    return SensorsAnalyticsSDK.sdkInstance.configOptions.flushBeforeEnterBackground;
 }
 
 - (BOOL)enableEncrypt {
-    return [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
+    return [SensorsAnalyticsSDK sdkInstance].configOptions.enableEncrypt;
 }
 
 - (NSString *)cookie {
-    return [[SensorsAnalyticsSDK sharedInstance].network cookieWithDecoded:NO];
+    return [[SensorsAnalyticsSDK sdkInstance].network cookieWithDecoded:NO];
 }
 
 @end
@@ -72,23 +72,23 @@
 @implementation SAEventTracker (SAConfigOptions)
 
 - (BOOL)isDebugMode {
-    return [[SensorsAnalyticsSDK sharedInstance] debugMode] != SensorsAnalyticsDebugOff;
+    return [[SensorsAnalyticsSDK sdkInstance] debugMode] != SensorsAnalyticsDebugOff;
 }
 
 - (SensorsAnalyticsNetworkType)networkTypePolicy {
-    return [[SensorsAnalyticsSDK.sharedInstance valueForKey:@"networkTypePolicy"] integerValue];
+    return [[SensorsAnalyticsSDK.sdkInstance valueForKey:@"networkTypePolicy"] integerValue];
 }
 
 - (NSInteger)flushBulkSize {
-    return SensorsAnalyticsSDK.sharedInstance.configOptions.flushBulkSize;
+    return SensorsAnalyticsSDK.sdkInstance.configOptions.flushBulkSize;
 }
 
 - (BOOL)enableEncrypt {
-    return [SensorsAnalyticsSDK sharedInstance].configOptions.enableEncrypt;
+    return [SensorsAnalyticsSDK sdkInstance].configOptions.enableEncrypt;
 }
 
 - (SADataEncryptBuilder *)encryptBuilder {
-    return [SensorsAnalyticsSDK sharedInstance].encryptBuilder;
+    return [SensorsAnalyticsSDK sdkInstance].encryptBuilder;
 }
 
 @end

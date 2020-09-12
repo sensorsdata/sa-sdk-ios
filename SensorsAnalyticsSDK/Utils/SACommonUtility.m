@@ -28,6 +28,7 @@
 #import "SAReachability.h"
 #import "SAConstants.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 @implementation SACommonUtility
 
@@ -126,8 +127,7 @@
     }
 }
 
-+ (SensorsAnalyticsNetworkType)currentNetworkType {
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
++ (SensorsAnalyticsNetworkType)toNetworkType:(NSString *)networkType {
     if ([@"NULL" isEqualToString:networkType]) {
         return SensorsAnalyticsNetworkTypeNONE;
     } else if ([@"WIFI" isEqualToString:networkType]) {
@@ -142,6 +142,25 @@
         return SensorsAnalyticsNetworkType4G;
     }
     return SensorsAnalyticsNetworkTypeNONE;
+}
+
++ (SensorsAnalyticsNetworkType)currentNetworkType {
+    NSString *currentNetworkStatus = [SACommonUtility currentNetworkStatus];
+    return [SACommonUtility toNetworkType:currentNetworkStatus];
+}
+
++ (NSString *)currentUserAgent {
+    return [[NSUserDefaults standardUserDefaults] objectForKey:@"UserAgent"];
+}
+
++ (void)saveUserAgent:(NSString *)userAgent {
+    if (![SAValidator isValidString:userAgent]) {
+        return;
+    }
+    
+    NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:userAgent, @"UserAgent", nil];
+    [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
+    [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
 @end

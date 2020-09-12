@@ -61,15 +61,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  */
 - (nullable NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params;
 
-/**
- 请求远程配置
-
- @param version 远程配置的 version
- @param completion 结束的回调
- @return request task
- */
-- (nullable NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion;
-
 @end
 
 @interface SANetwork (ServerURL)

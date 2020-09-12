@@ -119,7 +119,7 @@
     request.HTTPBody = HTTPBody;
     // 普通事件请求，使用标准 UserAgent
     [request setValue:@"SensorsAnalytics iOS SDK" forHTTPHeaderField:@"User-Agent"];
-    if ([SensorsAnalyticsSDK.sharedInstance debugMode] == SensorsAnalyticsDebugOnly) {
+    if ([SensorsAnalyticsSDK.sdkInstance debugMode] == SensorsAnalyticsDebugOnly) {
         [request setValue:@"true" forHTTPHeaderField:@"Dry-Run"];
     }
 

@@ -106,29 +106,6 @@
     return request;
 }
 
-- (NSURLRequest *)buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version {
-
-    NSURLComponents *urlComponets = nil;
-    if (remoteConfigURL) {
-        urlComponets = [NSURLComponents componentsWithURL:remoteConfigURL resolvingAgainstBaseURL:YES];
-    }
-    if (!urlComponets.host) {
-        NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
-        urlComponets = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
-        if (urlComponets == nil) {
-            SALogError(@"URLString is malformed, nil is returned.");
-            return nil;
-        }
-        urlComponets.query = nil;
-        urlComponets.path = [urlComponets.path stringByAppendingPathComponent:@"/config/iOS.conf"];
-    }
-
-    if (version.length) {
-        urlComponets.query = [NSString stringWithFormat:@"v=%@", version];
-    }
-    return [NSURLRequest requestWithURL:urlComponets.URL cachePolicy:NSURLRequestReloadIgnoringCacheData timeoutInterval:30];
-}
-
 #pragma mark - request
 
 - (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
@@ -144,35 +121,8 @@
         if (statusCode == 200) {
             SALogDebug(@"config debugMode CallBack success");
         } else {
-            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", statusCode, url);
+            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", (long)statusCode, url);
         }
-    }];
-    [task resume];
-    return task;
-}
-
-- (NSURLSessionTask *)functionalManagermentConfigWithRemoteConfigURL:(nullable NSURL *)remoteConfigURL version:(NSString *)version completion:(void(^)(BOOL success, NSDictionary<NSString *, id> *config))completion {
-    if (![self isValidServerURL]) {
-        SALogError(@"serverURL error，Please check the serverURL");
-        return nil;
-    }
-    NSURLRequest *request = [self buildFunctionalManagermentConfigRequestWithWithRemoteConfigURL:remoteConfigURL version:version];
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        if (!completion) {
-            return ;
-        }
-        NSInteger statusCode = response.statusCode;
-        BOOL success = statusCode == 200 || statusCode == 304;
-        NSDictionary<NSString *, id> *config = nil;
-        @try{
-            if (statusCode == 200 && data.length) {
-                config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-            }
-        } @catch (NSException *e) {
-            SALogError(@"%@ error: %@", self, e);
-            success = NO;
-        }
-        completion(success, config);
     }];
     [task resume];
     return task;

@@ -25,6 +25,7 @@
 #import <XCTest/XCTest.h>
 #import "SAPresetProperty.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK.h"
 
 @interface SAPresetPropertyTests : XCTestCase
 
@@ -40,7 +41,7 @@
     
     NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
     _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-//    _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
+    _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[[SensorsAnalyticsSDK sharedInstance] libVersion]];
 }
 
 - (void)tearDown {
@@ -57,31 +58,7 @@
 
 - (void)testAppVersion {
     NSString *appVersion = _presetProperty.appVersion;
-    XCTAssertTrue(!appVersion || [appVersion isEqualToString:_presetProperty.automaticProperties[SA_EVENT_COMMON_PROPERTY_APP_VERSION]]);
-}
-
-- (void)testLib {
-    NSString *lib = _presetProperty.lib;
-    XCTAssertTrue([lib isEqualToString:_presetProperty.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB]]);
-}
-
-- (void)testLibVersion {
-    NSString *libVersion = _presetProperty.libVersion;
-    XCTAssertTrue([libVersion isEqualToString:_presetProperty.automaticProperties[SA_EVENT_COMMON_PROPERTY_LIB_VERSION]]);
-}
-
-- (void)testCurrentPresetProperties {
-    NSDictionary *currentPresetProperties = [_presetProperty currentPresetProperties];
-    
-    // 时区偏移
-    NSInteger hourOffsetGMT = [[NSTimeZone systemTimeZone] secondsFromGMTForDate:[NSDate date]] / 60;
-    NSNumber *timeZoneOfffset = currentPresetProperties[SA_EVENT_COMMON_PROPERTY_TIMEZONE_OFFSET];
-    XCTAssertTrue([timeZoneOfffset isEqualToNumber:@(hourOffsetGMT)]);
-    
-    // app_id
-    NSString *bundleIdentifier = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
-    NSString *appId = currentPresetProperties[SA_EVENT_COMMON_PROPERTY_APP_ID];
-    XCTAssertTrue([bundleIdentifier isEqualToString:appId]);
+    XCTAssertTrue(!appVersion || [appVersion isEqualToString:_presetProperty.automaticProperties[SAEventPresetPropertyAppVersion]]);
 }
 
 @end

@@ -103,13 +103,13 @@
 
 - (void)setMinRequestHourInterval:(NSInteger)minRequestHourInterval {
     if (minRequestHourInterval > 0) {
-        _minRequestHourInterval = minRequestHourInterval;
+        _minRequestHourInterval = MIN(minRequestHourInterval, 7*24);
     }
 }
 
 - (void)setMaxRequestHourInterval:(NSInteger)maxRequestHourInterval {
     if (maxRequestHourInterval > 0) {
-        _maxRequestHourInterval = maxRequestHourInterval;
+        _maxRequestHourInterval = MIN(maxRequestHourInterval, 7*24);
     }
 }
 

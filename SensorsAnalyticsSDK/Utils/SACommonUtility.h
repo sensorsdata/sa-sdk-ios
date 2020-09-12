@@ -35,4 +35,10 @@
 /// 主线程执行
 + (void)performBlockOnMainThread:(DISPATCH_NOESCAPE dispatch_block_t)block;
 
+/// 获取当前的 UserAgent
++ (NSString *)currentUserAgent;
+
+/// 保存 UserAgent
++ (void)saveUserAgent:(NSString *)userAgent;
+
 @end

@@ -176,8 +176,22 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract
  * 设置当前 serverUrl
  *
+ * @discussion
+ * 默认不请求远程配置
+ *
+ * @param serverUrl 当前的 serverUrl
+ *
  */
 - (void)setServerUrl:(NSString *)serverUrl;
+
+/**
+* @abstract
+* 设置当前 serverUrl，并选择是否请求远程配置
+*
+* @param serverUrl 当前的 serverUrl
+* @param isRequestRemoteConfig 是否请求远程配置
+*/
+- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig;
 
 #pragma mark--cache and flush
 
