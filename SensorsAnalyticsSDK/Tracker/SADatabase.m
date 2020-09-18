@@ -228,7 +228,6 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         }
         sqlite3_reset(insertStatement);
     }
-    sqlite3_finalize(insertStatement);
     BOOL bulkInsertResult = sqlite3_exec(_database, success ? "COMMIT" : "ROLLBACK", 0, 0, 0) == SQLITE_OK;
     self.count = [self messagesCount];
     return bulkInsertResult;

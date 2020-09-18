@@ -82,7 +82,7 @@
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
 
-#define VERSION @"2.1.8"
+#define VERSION @"2.1.9"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -1134,6 +1134,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - track event
 
 - (BOOL)isValidName:(NSString *)name {
+    if (!name) {
+        return NO;
+    }
     @try {
         // 保留字段通过字符串直接比较，效率更高
         NSSet *reservedProperties = sensorsdata_reserved_properties();
@@ -1538,6 +1541,15 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
+- (void)removeTimer:(NSString *)event {
+    if (![self checkEventName:event]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.trackTimer trackTimerRemove:event];
+    });
+}
+
 - (void)clearTrackTimer {
     dispatch_async(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];
@@ -1883,7 +1895,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
         }
         if (unregisterPropertyKeys.count > 0) {
-            [self unregisterSuperPropertys:unregisterPropertyKeys];
+            [self removeDuplicateSuperProperties:unregisterPropertyKeys];
         }
     };
     if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
@@ -1895,27 +1907,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        if (tmp[property] != nil) {
-            [tmp removeObjectForKey:property];
+        NSMutableDictionary *superProperties = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+        if (property) {
+            [superProperties removeObjectForKey:property];
         }
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
+        self.superProperties = [NSDictionary dictionaryWithDictionary:superProperties];
         [self archiveSuperProperties];
     });
 }
 
-- (void)unregisterSuperPropertys:(NSArray<NSString *> *)propertys {
-    dispatch_block_t block =  ^{
-        NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self->_superProperties];
-        [tmp removeObjectsForKeys:propertys];
-        self->_superProperties = [NSDictionary dictionaryWithDictionary:tmp];
-        [self archiveSuperProperties];
-    };
-    if (dispatch_get_specific(SensorsAnalyticsQueueTag)) {
-        block();
-    } else {
-        dispatch_async(self.serialQueue, block);
-    }
+//remove duplicate keys, case insensitive
+- (void)removeDuplicateSuperProperties:(NSArray<NSString *> *)properties {
+    NSMutableDictionary *tmp = [NSMutableDictionary dictionaryWithDictionary:self.superProperties];
+    [tmp removeObjectsForKeys:properties];
+    self.superProperties = [NSDictionary dictionaryWithDictionary:tmp];
 }
 
 - (void)clearSuperProperties {

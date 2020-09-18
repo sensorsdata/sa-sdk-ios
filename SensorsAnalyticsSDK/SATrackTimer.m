@@ -93,6 +93,16 @@ static NSString *const kEventIdSuffix = @"_SATimer";
     [self handleEventResume:eventId mapping:self.eventNames currentSystemUpTime:currentSysUpTime];
 }
 
+- (void)trackTimerRemove:(NSString *)eventId {
+    if (self.eventIds[eventId]) {
+        [self.eventIds removeObjectForKey:eventId];
+        return;
+    }
+    if (self.eventNames[eventId]) {
+        [self.eventNames removeObjectForKey:eventId];
+    }
+}
+
 - (NSString *)eventNameFromEventId:(NSString *)eventId {
     if (![eventId hasSuffix:kEventIdSuffix]) {
         return eventId;
