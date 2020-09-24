@@ -151,6 +151,22 @@
     return url;
 }
 
+- (NSURLComponents *)baseURLComponents {
+    if (self.serverURL.absoluteString.length <= 0) {
+        return nil;
+    }
+    NSURLComponents *components;
+    NSURL *url = self.serverURL.lastPathComponent.length > 0 ? [self.serverURL URLByDeletingLastPathComponent] : self.serverURL;
+    if (url) {
+        components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:YES];
+    }
+    if (!components.host) {
+        SALogError(@"URLString is malformed, nil is returned.");
+        return nil;
+    }
+    return components;
+}
+
 - (NSString *)host {
     return [SAURLUtils hostWithURL:self.serverURL] ?: @"";
 }

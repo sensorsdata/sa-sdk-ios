@@ -38,7 +38,6 @@
 		CB30C247228421C60004061D /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1E1228414420004061D /* LaunchScreen.xib */; };
 		CB30C249228421E80004061D /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C248228421E80004061D /* Foundation.framework */; };
 		CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24A228421F60004061D /* QuartzCore.framework */; };
-		CB30C24D228422090004061D /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24C228422090004061D /* CoreGraphics.framework */; };
 		CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24E228422190004061D /* CoreFoundation.framework */; };
 		CB30C251228422210004061D /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C250228422210004061D /* CFNetwork.framework */; };
 		CB30C2532284222D0004061D /* CoreMotion.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2522284222D0004061D /* CoreMotion.framework */; };
@@ -55,6 +54,7 @@
 		CB6EBB2622855F0C003CFBA8 /* SensorsAnalyticsExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB6EBB2522855F0C003CFBA8 /* SensorsAnalyticsExtension.framework */; };
 		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
 		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
+		FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24C228422090004061D /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -181,6 +181,7 @@
 				CB30C261228422830004061D /* libsqlite3.tbd in Frameworks */,
 				CB30C25F2284227C0004061D /* libz.tbd in Frameworks */,
 				CB30C25D228422730004061D /* UIKit.framework in Frameworks */,
+				FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */,
 				CB30C25B2284226D0004061D /* SystemConfiguration.framework in Frameworks */,
 				CB30C259228422650004061D /* CoreTelephony.framework in Frameworks */,
 				CB30C2572284225E0004061D /* Security.framework in Frameworks */,
@@ -189,7 +190,6 @@
 				CB30C251228422210004061D /* CFNetwork.framework in Frameworks */,
 				4DCD115B22927F6E0091D129 /* SensorsAnalyticsExtension.framework in Frameworks */,
 				CB30C24F228422190004061D /* CoreFoundation.framework in Frameworks */,
-				CB30C24D228422090004061D /* CoreGraphics.framework in Frameworks */,
 				CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */,
 				CB30C249228421E80004061D /* Foundation.framework in Frameworks */,
 				4DCD115922927F6E0091D129 /* SensorsAnalyticsSDK.framework in Frameworks */,

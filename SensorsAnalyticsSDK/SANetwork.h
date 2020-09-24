@@ -73,6 +73,8 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 /// 在 serverURL 中获取的 token 名称
 @property (nonatomic, copy, readonly, nullable) NSString *token;
 
+@property (nonatomic, copy, readonly, nullable) NSURLComponents *baseURLComponents;
+
 - (BOOL)isSameProjectWithURLString:(NSString *)URLString;
 - (BOOL)isValidServerURL;
 

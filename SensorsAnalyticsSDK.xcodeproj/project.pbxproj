@@ -199,6 +199,8 @@
 		FC61B14D23B4BAD6006B4096 /* SATrackTimer.h in Headers */ = {isa = PBXBuildFile; fileRef = FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */; };
 		FC61B14E23B4BAD6006B4096 /* SATrackTimer.m in Sources */ = {isa = PBXBuildFile; fileRef = FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
+		FC86E5F024FA5B0D006FDDA8 /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */; };
+		FC86E5F124FA5B0D006FDDA8 /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */; };
 		FC906D10242DEBD900C6686D /* SAIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = FC906D0C242DEBD800C6686D /* SAIdentifier.m */; };
 		FC906D11242DEBD900C6686D /* SAIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = FC906D0D242DEBD900C6686D /* SAIdentifier.h */; };
 /* End PBXBuildFile section */
@@ -409,6 +411,8 @@
 		FC61B14B23B4BAD6006B4096 /* SATrackTimer.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SATrackTimer.h; sourceTree = "<group>"; };
 		FC61B14C23B4BAD6006B4096 /* SATrackTimer.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
+		FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
+		FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
 		FC906D0C242DEBD800C6686D /* SAIdentifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIdentifier.m; sourceTree = "<group>"; };
 		FC906D0D242DEBD900C6686D /* SAIdentifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAIdentifier.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -631,6 +635,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				FC86E5ED24FA5ADF006FDDA8 /* Channel */,
 				A86CA70724BF20F400DB5C45 /* RemoteConfig */,
 				CB30C0AB22840F1B0004061D /* Resources */,
 				FC1AFF0723C45CA800F1B9E4 /* Utils */,
@@ -808,6 +813,15 @@
 			path = Encrypt;
 			sourceTree = "<group>";
 		};
+		FC86E5ED24FA5ADF006FDDA8 /* Channel */ = {
+			isa = PBXGroup;
+			children = (
+				FC86E5EE24FA5B0D006FDDA8 /* SAChannelMatchManager.h */,
+				FC86E5EF24FA5B0D006FDDA8 /* SAChannelMatchManager.m */,
+			);
+			path = Channel;
+			sourceTree = "<group>";
+		};
 		FCB60249242B46FC003CFA47 /* Builder */ = {
 			isa = PBXGroup;
 			children = (
@@ -893,6 +907,7 @@
 				CB30C08822840EC00004061D /* SASDKRemoteConfig.h in Headers */,
 				CB30C07F22840EC00004061D /* SensorsAnalyticsExceptionHandler.h in Headers */,
 				88824F99249B7C99003ADC59 /* SAEventFlush.h in Headers */,
+				FC86E5F024FA5B0D006FDDA8 /* SAChannelMatchManager.h in Headers */,
 				FC1AFF0123C32AB000F1B9E4 /* SALinkHandler.h in Headers */,
 				4DB14DE02456C107002C224C /* SALoggerPrePostFixFormatter.h in Headers */,
 				6523731F23EBC44000A786A2 /* SAHeatMapObjectSerializer.h in Headers */,
@@ -1078,6 +1093,7 @@
 				CB30C09B22840EC00004061D /* SAObjectSerializerConfig.m in Sources */,
 				FC5A4BDA244E980700063624 /* UIViewController+AutoTrack.m in Sources */,
 				8888473824530F9100EBA7F6 /* SANetwork.m in Sources */,
+				FC86E5F124FA5B0D006FDDA8 /* SAChannelMatchManager.m in Sources */,
 				CB30C07122840EC00004061D /* SAObjectIdentityProvider.m in Sources */,
 				CB30C08922840EC00004061D /* SAObjectSerializerContext.m in Sources */,
 				FC5A4BBC244E976F00063624 /* SAURLUtils.m in Sources */,
