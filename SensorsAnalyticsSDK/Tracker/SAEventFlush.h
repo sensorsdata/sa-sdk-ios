@@ -30,24 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEventFlush : NSObject
 
-/**
- * @abstract
- * 设置 Cookie
- *
- * @param cookie NSString cookie
- * @param encode BOOL 是否 encode
- */
-- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encode;
-
-/**
- * @abstract
- * 返回已设置的 Cookie
- *
- * @param decode BOOL 是否 decode
- * @return NSString cookie
- */
-- (NSString *)cookieWithDecoded:(BOOL)decode;
-
 - (void)flushEventRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL success))completion;
 
 @end

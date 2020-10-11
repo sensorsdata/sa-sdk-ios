@@ -32,7 +32,6 @@
 
 @interface SAEventFlush ()
 
-@property (nonatomic, copy) NSString *cookie;
 @property (nonatomic, strong) dispatch_semaphore_t flushSemaphore;
 
 @end
@@ -44,20 +43,6 @@
         _flushSemaphore = dispatch_semaphore_create(0);
     }
     return _flushSemaphore;
-}
-
-#pragma mark - cookie
-
-- (void)setCookie:(NSString *)cookie isEncoded:(BOOL)encoded {
-    if (encoded) {
-        _cookie = [cookie stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-    } else {
-        _cookie = cookie;
-    }
-}
-
-- (NSString *)cookieWithDecoded:(BOOL)isDecoded {
-    return isDecoded ? _cookie.stringByRemovingPercentEncoding : _cookie;
 }
 
 #pragma mark - build

@@ -1,4 +1,4 @@
-//  SUIView+HeatMap.m
+//  UIView+HeatMap.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -115,9 +115,12 @@
         Ivar *ivars = class_copyIvarList([responder class], &count);
         for (uint i = 0; i < count; i++) {
             Ivar ivar = ivars[i];
-            if (ivar_getTypeEncoding(ivar)[0] == '@' && object_getIvar(responder, ivar) == self) {
-                result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
-                break;
+            const char *objCType = ivar_getTypeEncoding(ivar);
+            if (objCType) {
+                if (objCType[0] == '@' && object_getIvar(responder, ivar) == self) {
+                    result = [NSString stringWithCString:ivar_getName(ivar) encoding:NSUTF8StringEncoding];
+                    break;
+                }
             }
         }
         free(ivars);
@@ -221,7 +224,6 @@ static NSString* sa_encryptHelper(id input) {
 // 获取内容
 - (NSString *)jjf_varE {
     return sa_encryptHelper([self sa_text]);
-    
 }
 
 @end

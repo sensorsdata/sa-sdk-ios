@@ -38,7 +38,6 @@
 @property (nonatomic, strong) dispatch_queue_t queue;
 
 @property (nonatomic, copy, readwrite) NSString *loginId;
-@property (nonatomic, copy, readwrite) NSString *originalId;
 @property (nonatomic, copy, readwrite) NSString *anonymousId;
 
 @end
@@ -70,13 +69,9 @@
     if ([anonymousId length] > 255) {
         SALogWarn(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
     }
-
-    // 同步任务获取匿名 ID
-    NSString *originalId = self.anonymousId;
-
+    
     // 异步任务设置匿名 ID
     dispatch_async(self.queue, ^{
-        self.originalId = originalId;
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
@@ -124,7 +119,6 @@
 - (void)login:(NSString *)loginId {
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
-        self.originalId = self.anonymousId;
         [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
     });
 }
@@ -206,14 +200,6 @@
         loginId = _loginId;
     });
     return loginId;
-}
-
-- (NSString *)originalId {
-    __block NSString *originalId;
-    sensorsdata_dispatch_safe_sync(self.queue, ^{
-        originalId = _originalId;
-    });
-    return originalId;
 }
 
 - (NSString *)anonymousId {

@@ -33,9 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 唯一用户标识：loginId -> 设备 Id
 @property (nonatomic, copy, readonly) NSString *distinctId;
 
-/// Login 或 identify 操作前的 anonymousId
-@property (nonatomic, copy, readonly) NSString *originalId;
-
 /**
  初始化方法
 

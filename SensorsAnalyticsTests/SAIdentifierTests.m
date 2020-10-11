@@ -58,11 +58,6 @@
     XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_identifier"]);
 }
 
-- (void)testOriginalIdAfterIdentify {
-    [_identifier identify:@"new_identifier"];
-    XCTAssertTrue([_identifier.originalId isEqualToString:_deviceId]);
-}
-
 - (void)testAnonymousIdAfterIdentifyEmtpyString {
     [_identifier identify:@""];
     XCTAssertTrue([_identifier.anonymousId isEqualToString:_deviceId]);
@@ -71,11 +66,6 @@
 - (void)testDistinctIdAfterIdentifyEmtpyString {
     [_identifier identify:@""];
     XCTAssertTrue([_identifier.distinctId isEqualToString:_deviceId]);
-}
-
-- (void)testOriginalIdAfterIdentifyEmtpyString {
-    [_identifier identify:@""];
-    XCTAssertNil(_identifier.originalId);
 }
 
 - (void)testAnonymousIdMaxLength {
@@ -115,11 +105,6 @@
     XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_login_id"]);
 }
 
-- (void)testOriginalIdAfterLogin {
-    [_identifier login:@"new_login_id"];
-    XCTAssertTrue([_identifier.originalId isEqualToString:_identifier.anonymousId]);
-}
-
 - (void)testLoginIdAfterLoginEmptyString {
     [_identifier login:@""];
     XCTAssertNil(_identifier.loginId);
@@ -128,11 +113,6 @@
 - (void)testDistinctIdAfterLoginEmptyString {
     [_identifier login:@""];
     XCTAssertTrue([_identifier.distinctId isEqualToString:_identifier.anonymousId]);
-}
-
-- (void)testOriginalIdAfterLoginEmptyString {
-    [_identifier login:@""];
-    XCTAssertNil(_identifier.originalId);
 }
 
 - (void)testResetAnonymousId {
