@@ -83,7 +83,7 @@
 #import "SAEncryptSecretKeyHandler.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.11"
+#define VERSION @"2.1.12"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -220,6 +220,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
+@property (nonatomic, assign, getter=isLaunchedAppStartTracked) BOOL launchedAppStartTracked; // 标记启动事件是否触发过
+
 ///是否为被动启动
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
@@ -299,14 +301,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
             _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
             
-            dispatch_block_t mainThreadBlock = ^(){
-                //判断被动启动
-                if (UIApplication.sharedApplication.applicationState == UIApplicationStateBackground) {
-                    self->_launchedPassively = YES;
-                }
-            };
-            [SACommonUtility performBlockOnMainThread:mainThreadBlock];
-            
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
 
@@ -374,10 +368,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                                       SA_EVENT_NAME_APP_CRASHED,
                                       SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, nil];
 
-            if (!_launchedPassively) {
-                [self startFlushTimer];
-            }
-
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
             
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
@@ -385,13 +375,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 取上一次进程退出时保存的distinctId、loginId、superProperties
             [self unarchive];
 
-            [self startAppEndTimer];
-            [self setUpListeners];
+            [self setupListeners];
             
-            dispatch_async(dispatch_get_main_queue(), ^{
-                [self requestRemoteConfigWhenInitialized];
-                [self autoTrackAppStart];
-            });
+            [self setupLaunchedState];
 
             if (_configOptions.enableTrackAppCrash) {
                 // Install uncaught exception handlers first
@@ -414,6 +400,34 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     
     return self;
+}
+
+- (void)setupLaunchedState {
+    _launchedAppStartTracked = NO;
+    dispatch_block_t mainThreadBlock = ^(){
+        self.launchedPassively = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+        self.launchedAppStartTracked = YES;
+    };
+    
+    // 被动启动时 iOS 13 以下异步主队列的 block 不会执行
+    if (@available(iOS 13.0, *)) {
+        dispatch_async(dispatch_get_main_queue(), mainThreadBlock);
+    } else {
+        [SACommonUtility performBlockOnMainThread:mainThreadBlock];
+    }
+    
+    // 补发启动事件
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if ([self isLaunchedPassively]) {
+            [self stopFlushTimer];
+        } else {
+            [self startFlushTimer];
+            [self startAppEndTimer];
+            [self requestRemoteConfigWhenInitialized];
+        }
+        
+        [self autoTrackAppStart];
+    });
 }
 
 - (void)enableLoggers:(BOOL)enableLog {
@@ -783,7 +797,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&onceToken, ^{
         NSString *eventName = [self isLaunchedPassively] ? SA_EVENT_NAME_APP_START_PASSIVELY : SA_EVENT_NAME_APP_START;
         NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(self->_appRelaunched);
+        properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
         [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
@@ -793,10 +807,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)startAppEndTimer {
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-
     // 启动 AppEnd 事件计时器
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -1896,6 +1906,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if ([SARemoteConfigManager sharedInstance].isDisableSDK || (self.timer && [self.timer isValid])) {
             return;
         }
+
+        if ([self isLaunchedPassively]) {
+            return;
+        }
         
         if (self.configOptions.flushInterval > 0) {
             double interval = self.configOptions.flushInterval > 100 ? (double)self.configOptions.flushInterval / 1000.0 : 0.1f;
@@ -1956,14 +1970,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 #pragma mark - UIApplication Events
 
-- (void)setUpListeners {
+- (void)setupListeners {
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
 
-    [notificationCenter addObserver:self
-                           selector:@selector(applicationDidFinishLaunching:)
-                               name:UIApplicationDidFinishLaunchingNotification
-                             object:nil];
+    if (@available(iOS 13.0, *)) {
+        // Code that requires iOS 13 or later
+    } else {
+        [notificationCenter addObserver:self
+                               selector:@selector(applicationDidFinishLaunching:)
+                                   name:UIApplicationDidFinishLaunchingNotification
+                                 object:nil];
+    }
 
     [notificationCenter addObserver:self
                            selector:@selector(applicationWillEnterForeground:)
@@ -2278,18 +2296,16 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)applicationDidFinishLaunching:(NSNotification *)notification {
     SALogDebug(@"%@ applicationDidFinishLaunchingNotification did become active", self);
-    [self requestRemoteConfigWhenInitialized];
     
-    if (self.configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
-        //全埋点
-        [self autoTrackAppStart];
-    }
+    // iOS 13 以下需要额外依赖于 UIApplicationDidFinishLaunchingNotification 通知（被动启动时补发启动事件逻辑不会执行）
+    [self autoTrackAppStart];
 }
 
 - (void)applicationWillEnterForeground:(NSNotification *)notification {
     SALogDebug(@"%@ application will enter foreground", self);
     
-    _appRelaunched = YES;
+    _appRelaunched = self.isLaunchedAppStartTracked;
+    
     self.launchedPassively = NO;
 }
 
@@ -2307,12 +2323,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
     }
     
-    // 是否首次启动
-    BOOL isFirstStart = NO;
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:SA_HAS_LAUNCHED_ONCE]) {
-        isFirstStart = YES;
-    }
-    
     // 遍历 trackTimer
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
     dispatch_async(self.serialQueue, ^{
@@ -2323,8 +2333,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         // 追踪 AppStart 事件
         if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart] == NO) {
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(_appRelaunched);
-            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
+            properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
+            properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
             [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
 
             [self track:SA_EVENT_NAME_APP_START withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
@@ -2627,10 +2637,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)requestRemoteConfigWhenInitialized {
-    if ([self isLaunchedPassively]) {
-        return;
-    }
-    
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         [[SARemoteConfigManager sharedInstance] requestRemoteConfig];
