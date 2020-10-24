@@ -32,7 +32,6 @@
 #import <UIKit/UIScreen.h>
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
-#import "SAReachability.h"
 #import "SASwizzler.h"
 #import "SensorsAnalyticsSDK.h"
 #import "UIApplication+AutoTrack.h"
@@ -55,7 +54,6 @@
 
 #import "SARemoteConfigManager.h"
 #import "SADeviceOrientationManager.h"
-#import "SALocationManager.h"
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
@@ -81,9 +79,10 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAEncryptSecretKeyHandler.h"
+#import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.12"
+#define VERSION @"2.1.13"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -205,11 +204,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 @property (nonatomic, strong) SADeviceOrientationManager *deviceOrientationManager;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
-#endif
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-@property (nonatomic, strong) SALocationManager *locationManager;
-@property (nonatomic, strong) SAGPSLocationConfig *locationConfig;
 #endif
 
 #ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
@@ -336,10 +330,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
             _deviceOrientationConfig = [[SADeviceOrientationConfig alloc] init];
-#endif
-            
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-            _locationConfig = [[SAGPSLocationConfig alloc] init];
 #endif
             
             _ignoredViewControllers = [[NSMutableArray alloc] init];
@@ -1352,9 +1342,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                                                                                        orientationConfig:self.deviceOrientationConfig
 #endif
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                                                                                          locationConfig:self.locationConfig
-#endif
                                                          ];
             [eventPropertiesDic addEntriesFromDictionary:presetPropertiesOfTrackType];
             
@@ -1569,18 +1556,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.trackTimer clearAllEventTimers];
     });
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackInstallation:event properties:propertyDict disableCallback:disableCallback];
-}
-
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
-    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
-}
-
-- (void)trackInstallation:(NSString *)event {
-    [self trackInstallation:event withProperties:nil disableCallback:NO];
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
@@ -2380,10 +2355,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    [self.locationManager stopUpdatingLocation];
-#endif
 
     UIApplication *application = UIApplication.sharedApplication;
     __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
@@ -2518,36 +2489,13 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    dispatch_block_t block = ^{
-        self.locationConfig.enableGPSLocation = enableGPSLocation;
-        if (enableGPSLocation) {
-            if (self.locationManager == nil) {
-                self.locationManager = [[SALocationManager alloc] init];
-                __weak SensorsAnalyticsSDK *weakSelf = self;
-                self.locationManager.updateLocationBlock = ^(CLLocation * location, NSError *error) {
-                    __strong SensorsAnalyticsSDK *strongSelf = weakSelf;
-                    if (location) {
-                        strongSelf.locationConfig.coordinate = location.coordinate;
-                    }
-                    if (error) {
-                        SALogError(@"enableTrackGPSLocation error：%@", error);
-                    }
-                };
-            }
-            [self.locationManager startUpdatingLocation];
-        } else {
-            if (self.locationManager != nil) {
-                [self.locationManager stopUpdatingLocation];
-            }
-        }
-    };
     if (NSThread.isMainThread) {
-        block();
+        [SAModuleManager.sharedInstance setEnable:enableGPSLocation forModuleType:SAModuleTypeLocation];
     } else {
-        dispatch_async(dispatch_get_main_queue(), block);
+        dispatch_async(dispatch_get_main_queue(), ^ {
+            [SAModuleManager.sharedInstance setEnable:enableGPSLocation forModuleType:SAModuleTypeLocation];
+        });
     }
-#endif
 }
 
 - (void)clearKeychainData {
@@ -2610,10 +2558,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     [self.deviceOrientationManager stopDeviceMotionUpdates];
 #endif
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    [self.locationManager stopUpdatingLocation];
-#endif
+
     // 停止采集数据之后 flush 本地数据
     [self flush];
 }
@@ -2626,12 +2571,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     if (self.deviceOrientationConfig.enableTrackScreenOrientation) {
         [self.deviceOrientationManager startDeviceMotionUpdates];
-    }
-#endif
-    
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    if (self.locationConfig.enableGPSLocation) {
-        [self.locationManager startUpdatingLocation];
     }
 #endif
 }
@@ -2719,6 +2658,22 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 @end
 
+#pragma mark - $AppInstall
+@implementation SensorsAnalyticsSDK (AppInstall)
+
+- (void)trackAppInstall {
+    [self trackAppInstallWithProperties:nil];
+}
+
+- (void)trackAppInstallWithProperties:(NSDictionary *)properties {
+    [self trackAppInstallWithProperties:properties disableCallback:NO];
+}
+
+- (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+}
+
+@end
 
 #pragma mark - Deeplink
 @implementation SensorsAnalyticsSDK (Deeplink)
@@ -2897,7 +2852,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 - (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify {
     __block NSNumber *timeStamp = @([[self class] getCurrentTime]);
     __block NSDictionary *dynamicSuperPropertiesDict = [self acquireDynamicSuperProperties];
-    
+
     dispatch_async(self.serialQueue, ^{
         @try {
             if (!eventInfo) {
@@ -2947,7 +2902,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 // track / track_signup 类型的请求，还是要加上各种公共property
                 // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
                 [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-                
+
                 //获取用户自定义的动态公共属性
                 if (dynamicSuperPropertiesDict && [dynamicSuperPropertiesDict isKindOfClass:NSDictionary.class] == NO) {
                     SALogDebug(@"dynamicSuperProperties  returned: %@  is not an NSDictionary Obj.", dynamicSuperPropertiesDict);
@@ -2957,7 +2912,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 }
                 // 去重
                 [self unregisterSameLetterSuperProperties:dynamicSuperPropertiesDict];
-                
+
                 [propertiesDict addEntriesFromDictionary:self->_superProperties];
                 [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
 
@@ -2997,7 +2952,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
                     customTime = timeNumber;
                 }
-                
+
                 if (!customTime) {
                     SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
                 } else if ([customTime compare:@(SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT)] == NSOrderedAscending) {
@@ -3277,4 +3232,17 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     }
     [self track:SA_EVENT_NAME_APP_VIEW_SCREEN withProperties:trackProperties withTrackType:SensorsAnalyticsTrackTypeAuto];
 }
+
+- (void)trackInstallation:(NSString *)event {
+    [self trackInstallation:event withProperties:nil disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict {
+    [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
+}
+
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
+    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
+}
+
 @end

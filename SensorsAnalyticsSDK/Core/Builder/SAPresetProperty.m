@@ -36,8 +36,8 @@
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
 #import "SADeviceOrientationManager.h"
-#import "SALocationManager.h"
 #import "SAValidator.h"
+#import "SAModuleManager.h"
 
 //中国运营商 mcc 标识
 static NSString* const SACarrierChinaMCC = @"460";
@@ -79,8 +79,6 @@ NSString * const SAEventPresetPropertyNetworkType = @"$network_type";
 NSString * const SAEventPresetPropertyWifi = @"$wifi";
 /// 是否首日
 NSString * const SAEventPresetPropertyIsFirstDay = @"$is_first_day";
-/// 应用程序状态
-static NSString * const SAEventPresetPropertyAppState = @"$app_state";
 
 #pragma mark - lib
 /// SDK 类型
@@ -94,11 +92,6 @@ NSString * const SAEventPresetPropertyLibDetail = @"$lib_detail";
 
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
 static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orientation";
-#endif
-
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
-static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 #endif
 
 #pragma mark -
@@ -181,17 +174,11 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
                             orientationConfig:(SADeviceOrientationConfig *)orientationConfig
 #endif
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-                               locationConfig:(SAGPSLocationConfig *)locationConfig
-#endif
 {
     NSMutableDictionary *presetPropertiesOfTrackType = [NSMutableDictionary dictionary];
     // 是否首日访问
     presetPropertiesOfTrackType[SAEventPresetPropertyIsFirstDay] = @([self isFirstDay]);
-    // 是否被动启动
-    if (isLaunchedPassively) {
-        presetPropertiesOfTrackType[SAEventPresetPropertyAppState] = @"background";
-    }
+    
     // 采集设备方向
 #ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
     if (orientationConfig.enableTrackScreenOrientation && [SAValidator isValidString:orientationConfig.deviceOrientation]) {
@@ -199,15 +186,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     }
 #endif
     // 采集地理位置信息
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-    if (locationConfig.enableGPSLocation && CLLocationCoordinate2DIsValid(locationConfig.coordinate)) {
-        NSInteger latitude = locationConfig.coordinate.latitude * pow(10, 6);
-        NSInteger longitude = locationConfig.coordinate.longitude * pow(10, 6);
-        presetPropertiesOfTrackType[SAEventPresetPropertyLatitude] = @(latitude);
-        presetPropertiesOfTrackType[SAEventPresetPropertyLongitude] = @(longitude);
-    }
-#endif
-    
+    [presetPropertiesOfTrackType addEntriesFromDictionary:SAModuleManager.sharedInstance.properties];
+
     return presetPropertiesOfTrackType;
 }
 

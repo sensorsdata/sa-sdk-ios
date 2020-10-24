@@ -61,6 +61,9 @@ extern NSString * const SA_EVENT_NAME_APP_CRASHED;
 
 extern NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED;
 
+// 激活事件
+extern NSString * const kSAEventNameAppInstall;
+
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
@@ -128,3 +131,5 @@ extern NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
+
+extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;

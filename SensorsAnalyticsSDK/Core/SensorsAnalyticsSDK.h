@@ -420,54 +420,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIViewController *_Nullable)currentViewController;
 
-#pragma mark trackInstallation
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- * @param propertyDict     event 的属性
- */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- * @param propertyDict     event 的属性
- * @param disableCallback     是否关闭这次渠道匹配的回调请求
- */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- * 使用该接口
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- */
-- (void)trackInstallation:(NSString *)event;
-
 #pragma mark track event
 /**
  * @abstract
@@ -947,6 +899,35 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark - $AppInstall
+@interface SensorsAnalyticsSDK (AppInstall)
+
+#pragma mark trackInstallation
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ */
+- (void)trackAppInstall;
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ *
+ * @param properties 激活事件的属性
+ */
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties;
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ *
+ * @param properties 激活事件的属性
+ * @param disableCallback  是否关闭这次渠道匹配的回调请求
+ */
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback;
+
+@end
+
 #pragma mark - Deeplink
 @interface SensorsAnalyticsSDK (Deeplink)
 
@@ -1390,6 +1371,54 @@ DeepLink 回调函数
  * @param properties 用户扩展属性
  */
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ * 使用该接口
+ *
+ * @discussion
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param event             event 的名称
+ */
+- (void)trackInstallation:(NSString *)event __attribute__((deprecated("已过时，请参考 trackAppInstall")));
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
+ *
+ * @discussion
+ * propertyDict 是一个 Map。
+ * 其中的 key 是 Property 的名称，必须是 NSString
+ * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
+ * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
+ *
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param event             event 的名称
+ * @param propertyDict     event 的属性
+ */
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考 trackAppInstallWithProperties:")));
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
+ *
+ * @discussion
+ * propertyDict 是一个 Map。
+ * 其中的 key 是 Property 的名称，必须是 NSString
+ * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
+ * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
+ *
+ * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
+ *
+ * @param event             event 的名称
+ * @param propertyDict     event 的属性
+ * @param disableCallback     是否关闭这次渠道匹配的回调请求
+ */
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback __attribute__((deprecated("已过时，请参考 trackAppInstallWithProperties: disableCallback:")));
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -18,20 +18,22 @@
 //  limitations under the License.
 //
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_GPS
-#import <Foundation/Foundation.h>
 #import <CoreLocation/CoreLocation.h>
-@interface SAGPSLocationConfig : NSObject
-@property (nonatomic, assign) BOOL enableGPSLocation; //default is NO .
-@property (nonatomic, assign) CLLocationCoordinate2D coordinate;//default is kCLLocationCoordinate2DInvalid
-@end;
+#import "SAModuleProtocol.h"
 
-@interface SALocationManager : NSObject {
-    CLLocationManager *_locationManager;
-}
-@property (nonatomic, copy) void(^updateLocationBlock)(CLLocation *location, NSError *error);
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SALocationManager : NSObject <SAPropertyModuleProtocol>
+
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
+
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
 - (void)startUpdatingLocation;
 - (void)stopUpdatingLocation;
 
 @end
-#endif
+
+NS_ASSUME_NONNULL_END

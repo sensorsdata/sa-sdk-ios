@@ -103,7 +103,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 #pragma mark - 激活事件
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
 
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
     BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
@@ -156,6 +156,8 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
     NSMutableDictionary *profileProps = [NSMutableDictionary dictionary];
     [profileProps addEntriesFromDictionary:properties];
+    // 用户属性中不需要添加 $ios_install_disable_callback，这里主动移除掉
+    [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
     // 再发送 profile_set_once
     [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
     if (self.enableMultipleChannelMatch) {

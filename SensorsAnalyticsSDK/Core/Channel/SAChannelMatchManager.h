@@ -34,16 +34,17 @@ NS_ASSUME_NONNULL_BEGIN
  * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
  *
  * @param event  event 的名称
- * @param propertyDict     event 的属性
+ * @param properties     event 的属性
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
 */
-- (void)trackInstallation:(NSString *)event properties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
 /**
  * @abstract
  * 用于检查当前唤起 App 的 URL 是否为有效的渠道联调诊断功能链接
  *
  * @param url 唤起 App 的链接
+ * @return 是否为有效链接
 */
 - (BOOL)canHandleURL:(NSURL *)url;
 

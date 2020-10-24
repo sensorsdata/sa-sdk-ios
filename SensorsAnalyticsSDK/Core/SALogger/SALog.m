@@ -60,9 +60,17 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
 }
 
 + (void)log:(BOOL)asynchronous level:(SALogLevel)level file:(const char *)file function:(const char *)function line:(NSUInteger)line context:(NSInteger)context format:(NSString *)format, ... {
+    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
+#ifndef DEBUG
+    if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
+        return;
+    }
+#endif
+
     if (!format) {
         return;
     }
+
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
@@ -101,9 +109,17 @@ static void *const GlobalLoggingQueueIdentityKey = (void *)&GlobalLoggingQueueId
 }
 
 - (void)log:(BOOL)asynchronous level:(SALogLevel)level file:(const char *)file function:(const char *)function line:(NSUInteger)line context:(NSInteger)context format:(NSString *)format, ... {
+    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
+#ifndef DEBUG
+    if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
+        return;
+    }
+#endif
+
     if (!format) {
         return;
     }
+
     va_list args;
     va_start(args, format);
     NSString *message = [[NSString alloc] initWithFormat:format arguments:args];

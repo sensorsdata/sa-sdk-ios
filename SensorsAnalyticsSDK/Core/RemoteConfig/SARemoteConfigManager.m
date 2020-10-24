@@ -95,6 +95,9 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     NSDictionary *configDic = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
     self.remoteConfigModel = [[SARemoteConfigModel alloc] initWithDictionary:configDic];
     
+    // 发送远程配置模块 Model 变化通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.remoteConfigModel];
+    
     BOOL isDisableSDK = self.isDisableSDK;
     BOOL isDisableDebugMode = self.isDisableDebugMode;
     self.managerOptions.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
