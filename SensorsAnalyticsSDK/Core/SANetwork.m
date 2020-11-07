@@ -82,8 +82,18 @@
 
 #pragma mark - build
 
-- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, id> *)params {
-    NSURLComponents *urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
+- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, NSString *> *)params {
+    NSURLComponents *urlComponents = nil;
+    NSString *sfPushCallbackUrl = params[@"sf_push_distinct_id"];
+    NSString *infoId = params[@"info_id"];
+    NSString *project = params[@"project"];
+    if (sfPushCallbackUrl.length > 0 && infoId.length > 0 && project.length > 0) {
+        NSURL *url = [NSURL URLWithString:sfPushCallbackUrl];
+        urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
+        urlComponents.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:infoId]];
+        return urlComponents.URL;
+    }
+    urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
     NSString *queryString = [SAURLUtils urlQueryStringWithParams:params];
     if (urlComponents.query.length) {
         urlComponents.query = [NSString stringWithFormat:@"%@&%@", urlComponents.query, queryString];
@@ -97,6 +107,7 @@
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
     request.timeoutInterval = 30;
     [request setHTTPMethod:@"POST"];
+    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
     
     NSDictionary *callData = @{@"distinct_id": distinctId};
     NSData *jsonData = [SAJSONUtil JSONSerializeObject:callData];
@@ -108,12 +119,17 @@
 
 #pragma mark - request
 
-- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, id> *)params {
+- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, NSString *> *)params {
     if (![self isValidServerURL]) {
         SALogError(@"serverURL error，Please check the serverURL");
         return nil;
     }
     NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
+    if (!url) {
+        SALogError(@"callback url in debug mode was nil");
+        return nil;
+    }
+
     NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
 
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {

@@ -82,7 +82,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.14"
+#define VERSION @"2.1.15"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -618,7 +618,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #endif
 }
 
-- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, id> *)params {
+- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, NSString *> *)params {
     dispatch_async(dispatch_get_main_queue(), ^{
         @try {
             
@@ -1425,16 +1425,14 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [properties setValue:@"" forKey:SA_EVENT_PROPERTY_CHANNEL_INFO];
         }
 
-        if ([self.trackChannelEventNames containsObject:event]) {
-            [properties setValue:@(NO) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
-        } else {
-            [properties setValue:@(YES) forKey:SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT];
+        BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+        properties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+        if (isNotContains && event) {
             [self.trackChannelEventNames addObject:event];
             dispatch_async(self.serialQueue, ^{
                 [self archiveTrackChannelEventNames];
             });
         }
-
         [self track:event withProperties:properties withTrackType:SensorsAnalyticsTrackTypeCode];
     };
 
@@ -1470,9 +1468,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // 这里仍然添加此字段是为了解决服务端版本兼容问题
             eventProperties[SA_EVENT_PROPERTY_CHANNEL_INFO] = @"1";
 
-            BOOL isContains = [self.trackChannelEventNames containsObject:event];
-            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(!isContains);
-            if (!isContains && event) {
+            BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+            eventProperties[SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT] = @(isNotContains);
+            if (isNotContains && event) {
                 [self.trackChannelEventNames addObject:event];
                 dispatch_async(self.serialQueue, ^{
                     [self archiveTrackChannelEventNames];
@@ -1868,8 +1866,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)unarchiveTrackChannelEvents {
-    NSArray *trackChannelEvents = (NSArray *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
-    [self.trackChannelEventNames addObjectsFromArray:trackChannelEvents];
+    NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:SA_EVENT_PROPERTY_CHANNEL_INFO];
+    [self.trackChannelEventNames unionSet:trackChannelEvents];
 }
 
 - (void)archiveSuperProperties {
@@ -2285,12 +2283,12 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     SALogDebug(@"%@ application will enter foreground", self);
     
     _appRelaunched = self.isLaunchedAppStartTracked;
-    
-    self.launchedPassively = NO;
 }
 
 - (void)applicationDidBecomeActive:(NSNotification *)notification {
     SALogDebug(@"%@ application did become active", self);
+    
+    self.launchedPassively = NO;
     
     if (_applicationWillResignActive) {
         _applicationWillResignActive = NO;
