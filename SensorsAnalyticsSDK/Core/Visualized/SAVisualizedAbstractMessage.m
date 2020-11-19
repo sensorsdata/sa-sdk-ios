@@ -87,9 +87,10 @@
 
     SAVisualizedObjectSerializerManger *serializerManger = [SAVisualizedObjectSerializerManger sharedInstance];
     @try {
-        if (serializerManger.currentViewController) {
-            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:serializerManger.currentViewController];
+        if ([SAAutoTrackUtils currentViewController]) {
+            NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:[SAAutoTrackUtils currentViewController]];
             jsonObject[@"screen_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+            jsonObject[@"page_name"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
             jsonObject[@"title"] = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
         }
 

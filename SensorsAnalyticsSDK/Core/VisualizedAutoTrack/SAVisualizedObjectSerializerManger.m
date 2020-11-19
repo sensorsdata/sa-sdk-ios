@@ -46,8 +46,8 @@
 /// 上次截图 hash
 @property (nonatomic, copy, readwrite) NSString *lastImageHash;
 
-/// 保存不同 controller 可点击元素个数
-@property (nonatomic, copy) NSMapTable <UIViewController *, NSNumber *> *controllerCountMap;
+/// 记录当前栈中的 controller，不会持有
+@property (nonatomic, strong) NSPointerArray *controllersStack;
 
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
@@ -81,16 +81,20 @@
 }
 
 - (void)initializeObjectSerializer {
-    _controllerCountMap = [NSMapTable weakToStrongObjectsMapTable];
+
+    /* NSPointerArray 使用 weakObjectsPointerArray 初始化
+     对于集合中的对象不会强引用，如果对象被释放，则会被置为 NULL，调用 compact 即可移除所有 NULL 对象
+     */
+    _controllersStack = [NSPointerArray weakObjectsPointerArray];
     _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [NSMutableDictionary dictionary];
-    [self resetObjectSerializer];
+
+    _isContainWebView = NO;
 }
 
 /// 重置解析配置
 - (void)resetObjectSerializer {
     self.isContainWebView = NO;
-    [self.controllerCountMap removeAllObjects];
 
     self.webPageInfo = nil;
     [self.alertInfos removeAllObjects];
@@ -213,35 +217,44 @@
 
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
-    NSNumber *countNumber = [self.controllerCountMap objectForKey:viewController];
-    if (countNumber) {
-        NSInteger countValue = [countNumber integerValue];
-        [self.controllerCountMap setObject:@(countValue + 1) forKey:viewController];
-    } else {
-        [self.controllerCountMap setObject:@(1) forKey:viewController];
+    [self removeAllNullInControllersStack];
+    [self.controllersStack addPointer:(__bridge void * _Nullable)(viewController)];
+}
+
+- (UIViewController *)lastViewScreenController {
+    // allObjects 会自动过滤 NULL
+    if (self.controllersStack.allObjects.count == 0) {
+        return nil;
     }
+    UIViewController *lastVC = [self.controllersStack.allObjects lastObject];
+
+    // 如果 viewController 不在屏幕显示就移除
+    while (lastVC && !lastVC.view.window) {
+        // 如果 count 不等，即 controllersStack 存在 NULL
+        if (self.controllersStack.count > self.controllersStack.allObjects.count) {
+            [self removeAllNullInControllersStack];
+        }
+
+        // 移除最后一个不显示的 viewController
+        [self.controllersStack removePointerAtIndex:self.controllersStack.count - 1];
+        if (self.controllersStack.allObjects.count == 0) {
+            return nil;
+        }
+        lastVC = [self.controllersStack.allObjects lastObject];
+    }
+    return lastVC;
+}
+
+/// 移除 controllersStack 中所有 NULL
+- (void)removeAllNullInControllersStack {
+    // 每次 compact 之前需要添加 NULL，规避系统 Bug（compact 函数有个已经报备的 bug，每次 compact 之前需要添加一个 NULL，否则会 compact 失败）
+    [self.controllersStack addPointer:NULL];
+    [self.controllersStack compact];
 }
 
 - (void)resetLastImageHash:(NSString *)imageHash {
     self.lastImageHash = imageHash;
     self.imageHashUpdateMessage = nil;
-}
-
-- (UIViewController *)currentViewController {
-    NSArray <UIViewController *>*allViewControllers = NSAllMapTableKeys(self.controllerCountMap);
-    UIViewController *mostShowViewController = nil;
-    NSInteger mostShowCount = 1;
-    for (UIViewController *controller in allViewControllers) {
-        NSNumber *countNumber = [self.controllerCountMap objectForKey:controller];
-        if (countNumber.integerValue >= mostShowCount) {
-            mostShowCount = countNumber.integerValue;
-            mostShowViewController = controller;
-        }
-    }
-    if (mostShowViewController) {
-        return mostShowViewController;
-    }
-    return [SAAutoTrackUtils currentViewController];
 }
 
 - (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {

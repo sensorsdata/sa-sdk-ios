@@ -82,7 +82,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.1.15"
+#define VERSION @"2.1.17"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -292,8 +292,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
-            
-            _networkTypePolicy = SensorsAnalyticsNetworkType3G | SensorsAnalyticsNetworkType4G | SensorsAnalyticsNetworkTypeWIFI;
+
+            _networkTypePolicy = SensorsAnalyticsNetworkType3G |
+                SensorsAnalyticsNetworkType4G |
+#ifdef __IPHONE_14_1
+                SensorsAnalyticsNetworkType5G |
+#endif
+                SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
             _debugMode = debugMode;
@@ -2008,7 +2013,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
     if (self.configOptions.enableVisualizedAutoTrack) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] setLastViewScreenController:controller];
+        [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
     [self trackViewScreen:controller properties:nil autoTrack:YES];

@@ -72,7 +72,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
  * 都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 是否 WIFI/3G/4G 网络
+ * 1. 是否 WIFI/3G/4G/5G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
  *   2) 本地缓存日志数目是否达到 flushBulkSize
@@ -89,7 +89,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @discussion
  * 默认值为 100，在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
- * 1. 是否 WIFI/3G/4G 网络
+ * 1. 是否 WIFI/3G/4G/5G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
  *   2) 本地缓存日志数目是否达到 flushBulkSize

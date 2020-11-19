@@ -119,15 +119,6 @@
         classNames = @[touchView.tagName];
     }
 
-    // 记录当前可点击元素所在的 viewController
-    if ([object isKindOfClass:UIView.class] && [object respondsToSelector:@selector(sensorsdata_enableAppClick)] && [object respondsToSelector:@selector(sensorsdata_viewController)]) {
-        UIView <SAAutoTrackViewProperty> *view = (UIView <SAAutoTrackViewProperty> *)object;
-        UIViewController *viewController = [view sensorsdata_viewController];
-        if (viewController && view.sensorsdata_enableAppClick) {
-            [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:viewController];
-        }
-    }
-
     propertyValues[@"element_level"] = @([context currentLevelIndex]);
     NSDictionary *serializedObject = @{ @"id": [_objectIdentityProvider identifierForObject:object],
                                         @"class": classNames, // 遍历获取父类名称
