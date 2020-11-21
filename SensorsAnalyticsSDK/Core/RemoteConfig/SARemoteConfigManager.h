@@ -2,7 +2,7 @@
 // SARemoteConfigManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/7/20.
+// Created by wenquan on 2020/11/5.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,47 +18,31 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
-#import "SARemoteConfigModel.h"
-#import "SANetwork.h"
-#import "SAConfigOptions.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "SARemoteConfigCommonOperator.h"
+#import "SARemoteConfigCheckOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SARemoteConfigManagerOptions : NSObject
-
-@property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
-@property (nonatomic, copy) NSString *currentLibVersion; // 当前 SDK 版本
-@property (nonatomic, strong) SANetwork *network; // 网络相关类
-@property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void); // 加密构造器创建结果的回调
-@property (nonatomic, copy) void (^handleEncryptBlock)(NSDictionary *encryptConfig); // 处理加密的回调
-@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *propertieDict); // 触发事件的回调
-@property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK, BOOL isDisableDebugMode); // 触发远程配置生效的回调
-
-@end
-
+/// 远程配置管理类
 @interface SARemoteConfigManager : NSObject
 
 @property (nonatomic, assign, readonly) BOOL isDisableSDK; // 是否禁用 SDK
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode; // 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
 
 /// 初始化远程配置管理类
-/// @param managerOptions 管理模型
-+ (void)startWithRemoteConfigManagerOptions:(SARemoteConfigManagerOptions *)managerOptions;
+/// @param options 远程配置处理参数
++ (void)startWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
 
 /// 获取远程配置管理类的实例
+/// @return 远程配置管理类的实例
 + (instancetype)sharedInstance;
 
-/// 配置本地远程配置模型
-- (void)configLocalRemoteConfigModel;
+/// 生效本地远程配置
+- (void)enableLocalRemoteConfig;
 
 /// 请求远程配置
-- (void)requestRemoteConfig;
+- (void)tryToRequestRemoteConfig;
 
 /// 删除远程配置请求
 - (void)cancelRequestRemoteConfig;
@@ -69,7 +53,22 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名
-- (BOOL)isBlackListContainsEvent:(NSString *)event;
+/// @return 是否在事件黑名单中
+- (BOOL)isBlackListContainsEvent:(nullable NSString *)event;
+
+/// 处理远程配置的 URL
+/// @param url 远程配置的 URL
+- (void)handleRemoteConfigURL:(NSURL *)url;
+
+/// 是否为远程控制的 URL
+/// @param url 输入的 URL
+/// @return 是否为远程控制的 URL
+- (BOOL)isRemoteConfigURL:(NSURL *)url;
+
+/// 远程控制管理类能否处理该 URL
+/// @param url 输入的 URL
+/// @return 能否处理该 URL
+- (BOOL)canHandleURL:(NSURL *)url;
 
 @end
 

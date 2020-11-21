@@ -130,15 +130,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (atomic, readonly, copy) NSString *loginId;
 
-/**
- @abstract
- 用于评估是否为服务器信任的安全链接。
-
- @discussion
- 默认使用 defaultPolicy
- */
-@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
-
 #pragma mark- init instance
 /**
  通过配置参数，配置神策 SDK

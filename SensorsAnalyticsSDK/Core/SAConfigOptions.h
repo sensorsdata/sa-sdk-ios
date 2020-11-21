@@ -22,6 +22,7 @@
 #import "SAConstants.h"
 
 @class SASecretKey;
+@class SASecurityPolicy;
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -62,6 +63,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否自动收集 App Crash 日志，该功能默认是关闭的
 @property (nonatomic) BOOL enableTrackAppCrash;
+
+/**
+ @abstract
+ 用于评估是否为服务器信任的安全链接。
+
+ @discussion
+ 默认使用 defaultPolicy
+ */
+@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 
 /**
  * @property

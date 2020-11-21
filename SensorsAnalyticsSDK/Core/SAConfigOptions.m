@@ -77,6 +77,7 @@
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
 
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.securityPolicy = [self.securityPolicy copy];
     
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;

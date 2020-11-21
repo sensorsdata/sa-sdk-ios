@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.1.17"
+  s.version      = "2.2.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -37,18 +37,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_DEBUG_WARNING' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
-  end
-
-  # 不采集 UICollectionView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UICOLLECTIONVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UICOLLECTIONVIEW=1'}
-  end
-
-  # 不采集 UITableView 点击事件
-  s.subspec 'DISABLE_AUTOTRACK_UITABLEVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABLEVIEW=1'}
   end
 
   # 不采集 UIImage 的名称
@@ -91,12 +79,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
-  end
-
-  # 支持非 UIViewController 实现 UITableView 或 UICollectionView delegate 的点击事件采集
-  s.subspec 'ENABLE_AUTOTRACK_DIDSELECTROW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_DIDSELECTROW=1'}
   end
 
   # trackInstallation 不保存在 keychain，卸载重装会重新触发激活事件

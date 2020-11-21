@@ -29,8 +29,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @interface SANetwork : NSObject
 
-/// 用于评价请求是否是服务器信任的链接，默认为：defaultPolicy
-@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
 /// debug mode
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
