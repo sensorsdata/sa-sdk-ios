@@ -25,13 +25,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
+    SAModuleTypeChannelMatch,
 };
 
-@interface SAModuleManager : NSObject
+@interface SAModuleManager : NSObject <SAOpenURLProtocol>
 
 + (instancetype)sharedInstance;
 
-- (nullable id<SAModuleProtocol>)modelManagerForModuleType:(SAModuleType)type;
+- (nullable id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type;
 
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
@@ -43,6 +44,11 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (ChannelMatch) <SAChannelMatchModuleProtocol>
 @end
 
 NS_ASSUME_NONNULL_END

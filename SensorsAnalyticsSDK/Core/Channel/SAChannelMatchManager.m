@@ -44,15 +44,6 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 @implementation SAChannelMatchManager
 
-+ (instancetype)sharedInstance {
-    static dispatch_once_t onceToken;
-    static SAChannelMatchManager *manager;
-    dispatch_once(&onceToken, ^{
-        manager = [[SAChannelMatchManager alloc] init];
-    });
-    return manager;
-}
-
 #pragma mark - indicator view
 - (void)showIndicator {
     _window = [self alertWindow];
@@ -160,7 +151,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
     // 再发送 profile_set_once
     [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-    if (self.enableMultipleChannelMatch) {
+    if (sdk.configOptions.enableMultipleChannelMatch) {
         [sdk set:profileProps];
     } else {
         [sdk setOnce:profileProps];
@@ -168,38 +159,65 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [sdk flush];
 }
 
-#pragma mark - Alert
+#pragma mark - handle URL
 - (BOOL)canHandleURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
     NSString *monitorId = queryItems[@"monitor_id"];
     return [url.host isEqualToString:@"channeldebug"] && monitorId.length;
 }
 
-- (void)showAuthorizationAlertWithURL:(NSURL *)url {
+- (BOOL)handleURL:(NSURL *)url {
     if (![self canHandleURL:url]) {
-        return;
+        return NO;
     }
 
     SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
     if (!network.serverURL.absoluteString.length) {
         [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
-        return;
+        return NO;
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project_name"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
     if (!isEqualProject) {
         [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
-        return;
+        return NO;
     }
+    // 如果是重连二维码功能，直接进入重连二维码流程
+    if ([self isRelinkURL:url]) {
+        [self showRelinkAlertWithURL:url];
+        return YES;
+    }
+    // 展示渠道联调诊断询问弹窗
+    [self showAuthorizationAlertWithURL:url];
+    return YES;
+}
 
-    NSString *title = @"即将开启联调模式";
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:@"" preferredStyle:SAAlertControllerStyleAlert];
+#pragma mark - 重连二维码
+- (BOOL)isRelinkURL:(NSURL *)url {
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
+    return [queryItems[@"is_relink"] boolValue];
+}
+
+- (void)showRelinkAlertWithURL:(NSURL *)url {
+    NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
+    NSString *deviceId = queryItems[@"device_code"];
+    if ([deviceId isEqualToString:[SAIdentifier idfa]]) {
+        [self showChannelDebugInstall];
+    } else {
+        [self showErrorMessage:@"无法重连，请检查是否更换了联调手机"];
+    }
+}
+
+#pragma mark - Auth Alert
+- (void)showAuthorizationAlertWithURL:(NSURL *)url {
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"即将开启联调模式" message:nil preferredStyle:SAAlertControllerStyleAlert];
+    __weak SAChannelMatchManager *weakSelf = self;
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (![self isAppInstall] || ([self isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
+        if (![weakSelf isAppInstall] || ([weakSelf isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
-            [self uploadUserInfoIntoWhiteList:qureyItems];
+            [weakSelf uploadUserInfoIntoWhiteList:qureyItems];
         } else {
-            [self showChannelDebugErrorMessage];
+            [weakSelf showChannelDebugErrorMessage];
         }
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
@@ -224,11 +242,10 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
     [request setHTTPMethod:@"POST"];
 
-    NSMutableDictionary *params = [NSMutableDictionary dictionary];
+    NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:qureyItems];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstall]);
     params[@"device_code"] = [SAIdentifier idfa];
-    [params addEntriesFromDictionary:qureyItems];
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
     [self showIndicator];
@@ -257,6 +274,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [task resume];
 }
 
+#pragma mark - ChannelDebugInstall Alert
 - (void)showChannelDebugInstall {
     NSString *title = @"成功开启联调模式";
     NSString *content = @"此模式下不需要卸载 App，点击“激活”按钮可反复触发激活。";
@@ -269,6 +287,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     [alertController show];
 }
 
+#pragma mark - Error Message
 - (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
     NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackInstallation 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。";

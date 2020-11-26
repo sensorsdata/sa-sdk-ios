@@ -81,7 +81,7 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.2.0"
+#define VERSION @"2.2.1"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -351,7 +351,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
 
             // 渠道联调诊断功能获取多渠道匹配开关
-            [[SAChannelMatchManager sharedInstance] setEnableMultipleChannelMatch:configOptions.enableMultipleChannelMatch];
+            [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
             
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
@@ -946,7 +946,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (BOOL)canHandleURL:(NSURL *)url {
     return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
     [_linkHandler canHandleURL:url] ||
-    [[SAChannelMatchManager sharedInstance] canHandleURL:url] ||
+    [SAModuleManager.sharedInstance canHandleURL:url] ||
     [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
 
@@ -961,45 +961,39 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 
 - (BOOL)handleSchemeUrl:(NSURL *)url {
-    @try {
-        if (!url) {
+    if (!url) {
+        return NO;
+    }
+
+    if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
+        //点击图 & 可视化全埋点
+        return [self handleAutoTrackURL:url];
+    } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
+        // url query 解析
+        NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
+
+        //如果没传 info_id，视为伪造二维码，不做处理
+        if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
+            [self showDebugModeAlertWithParams:paramDic];
+            return YES;
+        } else {
             return NO;
         }
-        
-        if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
-            //点击图 & 可视化全埋点
-            return [self handleAutoTrackURL:url];
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-            // url query 解析
-            NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
-
-            //如果没传 info_id，视为伪造二维码，不做处理
-            if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
-                [self showDebugModeAlertWithParams:paramDic];
-                return YES;
-            } else {
-                return NO;
-            }
-        } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
-            // 校验加密公钥
-            [self.secretKeyHandler checkSecretKeyURL:url];
-            return YES;
-        } else if ([_linkHandler canHandleURL:url]) {
-            [_linkHandler handleDeepLink:url];
-            return YES;
-        } else if ([[SAChannelMatchManager sharedInstance] canHandleURL:url]) {
-            [[SAChannelMatchManager sharedInstance] showAuthorizationAlertWithURL:url];
-            return YES;
-        } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
-            [self enableLog:YES];
-            [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
-            [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-            return YES;
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+    } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
+        [self enableLog:YES];
+        [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
+        [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
+        return YES;
+    } else if ([[SAAuxiliaryToolManager sharedInstance] isSecretKeyURL:url]) {
+        // 校验加密公钥
+        [self.secretKeyHandler checkSecretKeyURL:url];
+        return YES;
+    } else if ([_linkHandler canHandleURL:url]) {
+        [_linkHandler handleDeepLink:url];
+        return YES;
+    } else {
+        return [SAModuleManager.sharedInstance handleURL:url];
     }
-    return NO;
 }
 
 #pragma mark - VisualizedAutoTrack
@@ -2705,7 +2699,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
 }
 
 - (void)trackInstallation:(NSString *)event {
@@ -2716,8 +2710,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     [self trackInstallation:event withProperties:propertyDict disableCallback:NO];
 }
 
-- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback {
-    [[SAChannelMatchManager sharedInstance] trackAppInstall:event properties:propertyDict disableCallback:disableCallback];
+- (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
+    [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback];
 }
 
 @end

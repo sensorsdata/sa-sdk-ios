@@ -30,9 +30,36 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+#pragma mark -
+
 @protocol SAPropertyModuleProtocol <SAModuleProtocol>
 
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
+
+@end
+
+#pragma mark -
+
+@protocol SAOpenURLProtocol <NSObject>
+
+- (BOOL)canHandleURL:(NSURL *)url;
+- (BOOL)handleURL:(NSURL *)url;
+
+@end
+
+#pragma mark -
+
+@protocol SAChannelMatchModuleProtocol <NSObject>
+
+/**
+ * @abstract
+ * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
+ *
+ * @param event  event 的名称
+ * @param properties     event 的属性
+ * @param disableCallback     是否关闭这次渠道匹配的回调请求
+*/
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
 @end
 

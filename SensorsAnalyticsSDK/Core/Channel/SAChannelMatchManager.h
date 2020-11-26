@@ -19,15 +19,13 @@
 //
 
 #import "SAConfigOptions.h"
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAChannelMatchManager : NSObject
+@interface SAChannelMatchManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAChannelMatchModuleProtocol>
 
-/// 激活事件是否开启多渠道匹配，开启后调用 profile_set , 不开启则调用 profile_set_once
-@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
-
-+ (instancetype)sharedInstance;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 /**
  * @abstract
@@ -38,23 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
 */
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
-
-/**
- * @abstract
- * 用于检查当前唤起 App 的 URL 是否为有效的渠道联调诊断功能链接
- *
- * @param url 唤起 App 的链接
- * @return 是否为有效链接
-*/
-- (BOOL)canHandleURL:(NSURL *)url;
-
-/**
- * @abstract
- * 展示渠道联调诊断功能的授权弹窗
- *
- * @param url 唤起 App 的链接
-*/
-- (void)showAuthorizationAlertWithURL:(NSURL *)url;
 
 @end
 
