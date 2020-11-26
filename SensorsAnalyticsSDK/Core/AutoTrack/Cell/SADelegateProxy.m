@@ -139,11 +139,24 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     NSObject *delegate = (NSObject *)scrollView.delegate;
     // 优先获取记录的原始父类, 若获取不到则是 KVO 场景, KVO 场景通过 class 接口获取原始类
     Class originalClass = NSClassFromString(delegate.sensorsdata_className) ?: delegate.class;
-    IMP originalImplementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
-    if (originalImplementation) {
-        ((SensorsDidSelectImplementation)originalImplementation)(delegate, selector, scrollView, indexPath);
+    IMP originalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:originalClass];
+    if (originalIMP) {
+        ((SensorsDidSelectImplementation)originalIMP)(delegate, selector, scrollView, indexPath);
     } else if ([SADelegateProxy isRxDelegateProxyClass:originalClass]) {
-        ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
+        NSObject<UITableViewDelegate> *forwardToDelegate = nil;
+        if ([delegate respondsToSelector:NSSelectorFromString(@"_forwardToDelegate")]) {
+            // 获取 _forwardToDelegate 属性
+            forwardToDelegate = [delegate valueForKey:@"_forwardToDelegate"];
+        }
+        if (forwardToDelegate) {
+            Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
+            IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
+            if (forwardOriginalIMP) {
+                ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
+            }
+        } else {
+            ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
+        }
     }
 
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
