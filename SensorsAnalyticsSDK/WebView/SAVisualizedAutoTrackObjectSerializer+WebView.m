@@ -1,8 +1,8 @@
 //
-// SAVisualizedUtils.h
+// SAVisualizedAutoTrackObjectSerializer+WebView.m
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2020/3/3.
+// Created by 储强盛 on 2020/12/12.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,33 +18,17 @@
 // limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
 
-#import <Foundation/Foundation.h>
+#import "SAVisualizedAutoTrackObjectSerializer+WebView.h"
 #import <UIKit/UIKit.h>
-#import <WebKit/WebKit.h>
 
-NS_ASSUME_NONNULL_BEGIN
+@implementation SAVisualizedAutoTrackObjectSerializer (WebView)
 
-@interface SAVisualizedUtils : NSObject
-
-/// view 是否被覆盖
-+ (BOOL)isCoveredForView:(UIView *)view;
-
-/// view 是否可见
-+ (BOOL)isVisibleForView:(UIView *)view;
-
-/// 解析构造 web 元素
-+ (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
-
-///  获取 RN 当前页面信息
-+ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
-
-/// 获取当前有效的 keyWindow
-+ (UIWindow *)currentValidKeyWindow;
-
-/// 是否为 RN 的 View
-+ (BOOL)isKindOfRNView:(UIView *)view;
+- (BOOL)isWebViewWithObject:(NSObject *)obj {
+    return obj && [obj isKindOfClass:UIWebView.class];
+}
 
 @end
-
-NS_ASSUME_NONNULL_END

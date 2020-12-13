@@ -20,39 +20,49 @@
 
 #import "JSCallOCViewController.h"
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+#import <WebKit/WebKit.h>
 
+@interface JSCallOCViewController ()<WKNavigationDelegate, WKUIDelegate>
+@property WKWebView *webView;
+@end
 @implementation JSCallOCViewController
 - (void)viewDidLoad
 {
     [super viewDidLoad];
-    UIWebView *webView = [[UIWebView alloc] initWithFrame:self.view.bounds];
-    self.title = @"UIWebView";
+    _webView = [[WKWebView alloc] initWithFrame:self.view.bounds];
+    self.title = @"WKWebView";
 
-    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"test2.html"];
+    NSString *path = [[[NSBundle mainBundle] bundlePath]  stringByAppendingPathComponent:@"JSCallOC.html"];
     NSURLRequest *request = [NSURLRequest requestWithURL:[NSURL fileURLWithPath:path]];
-    [webView loadRequest:request];
 
-    webView.delegate = self;
+    _webView.UIDelegate = self;
+    _webView.navigationDelegate = self;
 
-    [self.view addSubview:webView];
+    [self.view addSubview:_webView];
 
-//    //网址
+    //网址
 //    NSString *httpStr=@"https://www.sensorsdata.cn/test/in.html";
 //    NSURL *httpUrl=[NSURL URLWithString:httpStr];
 //    NSURLRequest *request=[NSURLRequest requestWithURL:httpUrl];
-    
-    [webView loadRequest:request];
+
+    [self.webView loadRequest:request];
+
 }
 
-- (BOOL)webView:(UIWebView *)webView shouldStartLoadWithRequest:(NSURLRequest *)request navigationType:(UIWebViewNavigationType)navigationType {
-    if ([[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView WithRequest:request enableVerify:YES]) {
-        return NO;
-    }
-    return YES;
+- (void)webView:(WKWebView *)webView runJavaScriptAlertPanelWithMessage:(NSString *)message initiatedByFrame:(WKFrameInfo *)frame completionHandler:(void (^)(void))completionHandler {
+    UIAlertController *alertController = [UIAlertController alertControllerWithTitle:@"提示" message:message?:@"" preferredStyle:UIAlertControllerStyleAlert];
+    [alertController addAction:([UIAlertAction actionWithTitle:@"确认" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        completionHandler();
+    }])];
+    [self presentViewController:alertController animated:YES completion:nil];
 }
 
-- (void)webViewDidFinishLoad:(UIWebView *)webView {
-    //[[SensorsAnalyticsSDK sharedInstance] showUpWebView:webView];
+- (void)webView:(WKWebView *)webView decidePolicyForNavigationAction:(WKNavigationAction *)navigationAction decisionHandler:(void (^)(WKNavigationActionPolicy))decisionHandler {
+    decisionHandler(WKNavigationActionPolicyAllow);
+}
+
+- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSString *,id> *)change context:(void *)context {
 }
 
 @end
+

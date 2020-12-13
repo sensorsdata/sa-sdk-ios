@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.2.2"
+  s.version      = "2.2.3"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
 
@@ -31,6 +31,20 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
+  end
+
+  # 使用 UIWebView 或者 WKWebView 进行打通
+  s.subspec 'WebView' do |w|
+    w.dependency 'SensorsAnalyticsSDK/Core'
+    w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"
+    w.public_header_files = 'SensorsAnalyticsSDK/WebView/SensorsAnalyticsSDK+WebView.h'
+  end
+
+  # 使用 WKWebView 进行打通
+  s.subspec 'WKWebView' do |w|
+    w.dependency 'SensorsAnalyticsSDK/Core'
+    w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
+    w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
 
   # 禁用 debugMode 下弹框提示
@@ -100,12 +114,9 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
   end
 
-  # 禁用 UIWebView
+  # 禁用 UIWebView，已废弃，会在后续版本中删除
   s.subspec 'DISABLE_UIWEBVIEW' do |f|
-    # 需要使用 WKWebView，支持最低版本为 iOS 8
-    f.platform = :ios, "8.0"
     f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_UIWEBVIEW=1'}
   end
 
   # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断

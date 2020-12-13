@@ -16,7 +16,7 @@
 		88EA2E85250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */; };
 		88EA2E86250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		CB30C204228414420004061D /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D8228414420004061D /* TestViewController.m */; };
-		CB30C205228414420004061D /* JSCallOCViewController2.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController2.m */; };
+		CB30C205228414420004061D /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController.m */; };
 		CB30C206228414420004061D /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1DC228414420004061D /* test2.html */; };
 		CB30C207228414420004061D /* TestCollectionViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1DE228414420004061D /* TestCollectionViewController.m */; };
 		CB30C208228414420004061D /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1DF228414420004061D /* ViewController.m */; };
@@ -24,7 +24,6 @@
 		CB30C20C228414420004061D /* TestTableViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E5228414420004061D /* TestTableViewController.m */; };
 		CB30C20D228414420004061D /* AutoTrackViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E6228414420004061D /* AutoTrackViewController.m */; };
 		CB30C20E228414420004061D /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1E8228414420004061D /* main.m */; };
-		CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1EA228414420004061D /* JSCallOCViewController.m */; };
 		CB30C210228414420004061D /* JSCallOC.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1EB228414420004061D /* JSCallOC.html */; };
 		CB30C211228414420004061D /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1EC228414420004061D /* Images.xcassets */; };
 		CB30C212228414420004061D /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1EE228414420004061D /* AppDelegate.m */; };
@@ -116,11 +115,10 @@
 		CB30C1D5228414420004061D /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CB30C1D6228414420004061D /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB30C1D8228414420004061D /* TestViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestViewController.m; sourceTree = "<group>"; };
-		CB30C1D9228414420004061D /* JSCallOCViewController2.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController2.m; sourceTree = "<group>"; };
+		CB30C1D9228414420004061D /* JSCallOCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController.m; sourceTree = "<group>"; };
 		CB30C1DA228414420004061D /* AutoTrackViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AutoTrackViewController.h; sourceTree = "<group>"; };
 		CB30C1DB228414420004061D /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AppDelegate.h; sourceTree = "<group>"; };
 		CB30C1DC228414420004061D /* test2.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = test2.html; sourceTree = "<group>"; };
-		CB30C1DD228414420004061D /* JSCallOCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController.h; sourceTree = "<group>"; };
 		CB30C1DE228414420004061D /* TestCollectionViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestCollectionViewController.m; sourceTree = "<group>"; };
 		CB30C1DF228414420004061D /* ViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
 		CB30C1E0228414420004061D /* DemoController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DemoController.m; sourceTree = "<group>"; };
@@ -128,10 +126,9 @@
 		CB30C1E4228414420004061D /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
 		CB30C1E5228414420004061D /* TestTableViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = TestTableViewController.m; sourceTree = "<group>"; };
 		CB30C1E6228414420004061D /* AutoTrackViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AutoTrackViewController.m; sourceTree = "<group>"; };
-		CB30C1E7228414420004061D /* JSCallOCViewController2.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController2.h; sourceTree = "<group>"; };
+		CB30C1E7228414420004061D /* JSCallOCViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = JSCallOCViewController.h; sourceTree = "<group>"; };
 		CB30C1E8228414420004061D /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
 		CB30C1E9228414420004061D /* TestViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = TestViewController.h; sourceTree = "<group>"; };
-		CB30C1EA228414420004061D /* JSCallOCViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = JSCallOCViewController.m; sourceTree = "<group>"; };
 		CB30C1EB228414420004061D /* JSCallOC.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; path = JSCallOC.html; sourceTree = "<group>"; };
 		CB30C1EC228414420004061D /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Images.xcassets; sourceTree = "<group>"; };
 		CB30C1ED228414420004061D /* SensorsData.entitlements */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.entitlements; path = SensorsData.entitlements; sourceTree = "<group>"; };
@@ -263,10 +260,8 @@
 				CB30C1DF228414420004061D /* ViewController.m */,
 				CB30C1F2228414420004061D /* DemoController.h */,
 				CB30C1E0228414420004061D /* DemoController.m */,
-				CB30C1DD228414420004061D /* JSCallOCViewController.h */,
-				CB30C1EA228414420004061D /* JSCallOCViewController.m */,
-				CB30C1E7228414420004061D /* JSCallOCViewController2.h */,
-				CB30C1D9228414420004061D /* JSCallOCViewController2.m */,
+				CB30C1E7228414420004061D /* JSCallOCViewController.h */,
+				CB30C1D9228414420004061D /* JSCallOCViewController.m */,
 				CB30C1DA228414420004061D /* AutoTrackViewController.h */,
 				CB30C1E6228414420004061D /* AutoTrackViewController.m */,
 				CB30C1F0228414420004061D /* TestCollectionViewController.h */,
@@ -491,11 +486,10 @@
 				CB30C20E228414420004061D /* main.m in Sources */,
 				CB30C20D228414420004061D /* AutoTrackViewController.m in Sources */,
 				CB30C208228414420004061D /* ViewController.m in Sources */,
-				CB30C205228414420004061D /* JSCallOCViewController2.m in Sources */,
+				CB30C205228414420004061D /* JSCallOCViewController.m in Sources */,
 				CB30C209228414420004061D /* DemoController.m in Sources */,
 				CB30C20C228414420004061D /* TestTableViewController.m in Sources */,
 				CB30C207228414420004061D /* TestCollectionViewController.m in Sources */,
-				CB30C20F228414420004061D /* JSCallOCViewController.m in Sources */,
 				CB30C212228414420004061D /* AppDelegate.m in Sources */,
 				CB30C204228414420004061D /* TestViewController.m in Sources */,
 			);

@@ -38,7 +38,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
         SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
         SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
-        SensorsAnalyticsSDK.sharedInstance()?.addWebViewUserAgentSensorsDataFlag()
 
         let dict: Dictionary = ["key": "value", "key1": "value1"]
         SensorsAnalyticsSDK.sharedInstance()?.track("testEvent", withProperties: dict)

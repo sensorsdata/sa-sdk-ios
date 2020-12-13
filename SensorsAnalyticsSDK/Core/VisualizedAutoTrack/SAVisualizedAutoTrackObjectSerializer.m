@@ -39,7 +39,6 @@
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedObjectSerializerManger.h"
-#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -102,15 +101,19 @@
         }
     }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    if ([object isKindOfClass:UIWebView.class]) { // 暂不支持 UIWebView，添加弹框
-        [self addUIWebViewAlertInfo];
-    } else
-#endif
     if ([object isKindOfClass:WKWebView.class]) {
         // 针对 WKWebView 数据检查
         WKWebView *webView = (WKWebView *)object;
         [self checkWKWebViewInfoWithWebView:webView];
+    } else {
+        SEL isWebViewSEL = NSSelectorFromString(@"isWebViewWithObject:");
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        if ([self respondsToSelector:isWebViewSEL] && [self performSelector:isWebViewSEL withObject:object]) {
+#pragma clang diagnostic pop
+            // 暂不支持非 WKWebView，添加弹框
+            [self addNotWKWebViewAlertInfo];
+        }
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
@@ -247,19 +250,17 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
 #pragma mark webview
 
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-/// 添加 UIWebView 弹框信息
-- (void)addUIWebViewAlertInfo {
+/// 添加弹框信息
+- (void)addNotWKWebViewAlertInfo {
     [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
 
     NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
     alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
-    alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
+    alertInfo[@"message"] = @"此页面不是 WKWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
     alertInfo[@"link_text"] = @"配置文档";
     alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
-#endif
 
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {

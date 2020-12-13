@@ -32,6 +32,7 @@
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAAuxiliaryToolManager.h"
+#import "SAVisualizedUtils.h"
 
 @implementation SAApplicationStateSerializer {
     SAHeatMapObjectSerializer *_heatmapSerializer;
@@ -61,9 +62,25 @@
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
     CGFloat scale = [UIScreen mainScreen].scale;
 
+    // 获取所有可见的 window 截图
+    NSMutableArray <UIWindow *> *allActiveWindows = [NSMutableArray array];
+#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
+    if (@available(iOS 13.0, *)) {
+        for (UIWindowScene *windowScene in [UIApplication sharedApplication].connectedScenes) {
+            if (windowScene.activationState == UISceneActivationStateForegroundActive) {
+                [allActiveWindows addObjectsFromArray:windowScene.windows];
+            }
+        }
+    }
+#endif
+    if (allActiveWindows.count == 0) {
+        [allActiveWindows addObjectsFromArray:[UIApplication sharedApplication].windows];
+    }
+
     NSMutableArray <UIWindow *> *validWindows = [NSMutableArray array];
-    for (UIWindow *window in [UIApplication sharedApplication].windows) {
-        if ([window isMemberOfClass:UIWindow.class] && !window.hidden) {
+    for (UIWindow *window in allActiveWindows) {
+        // 如果 window.superview 存在，则 window 最终被添加在 keyWindow 上，不需要再截图
+        if ([SAVisualizedUtils isVisibleForView:window] && !window.superview) {
             [validWindows addObject:window];
         }
     }
@@ -118,35 +135,21 @@
     return screenshotImage;
 }
 
-- (UIWindow *)uiMainWindow:(UIWindow *)window {
-    if (window != nil) {
-        return window;
-    }
-    return _application.windows[0];
-}
-
 - (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window {
-    UIWindow *mainWindow = [self uiMainWindow:window];
-    if (mainWindow) {
-        // 点击图
-        if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
-            return [_heatmapSerializer serializedObjectsWithRootObject:mainWindow];
-            
-            // 可视化全埋点
-        } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
-            // 遍历其他 window，兼容自定义 window 弹框等场景
-            __block UIWindow *validWindow = [UIApplication sharedApplication].keyWindow;
-            // 逆序遍历，获取最上层全屏 window
-            [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-                if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(validWindow.frame.size, obj.frame.size) && !obj.hidden) {
-                    validWindow = obj;
-                    *stop = YES;
-                }
-            }];
-            return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:validWindow];
-        }
+    // 从 keyWindow 开始遍历
+    UIWindow *keyWindow = [SAVisualizedUtils currentValidKeyWindow];
+    if (!keyWindow) {
+        return @{};
     }
-    
+
+    // 点击图
+    if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+        return [_heatmapSerializer serializedObjectsWithRootObject:keyWindow];
+
+        // 可视化全埋点
+    } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
+        return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:keyWindow];
+    }
     return @{};
 }
 

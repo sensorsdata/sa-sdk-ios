@@ -47,9 +47,7 @@
     #import "SAKeyChainItemWrapper.h"
 #endif
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 #import <WebKit/WebKit.h>
-#endif
 
 #import "SARemoteConfigManager.h"
 #import "SADeviceOrientationManager.h"
@@ -81,12 +79,9 @@
 #import "SAModuleManager.h"
 #import "SAChannelMatchManager.h"
 
-#define VERSION @"2.2.2"
+#define VERSION @"2.2.3"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
-
-static NSString* const SA_JS_GET_APP_INFO_SCHEME = @"sensorsanalytics://getAppInfo";
-static NSString* const SA_JS_TRACK_EVENT_NATIVE_SCHEME = @"sensorsanalytics://trackEvent";
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -205,10 +200,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, strong) SADeviceOrientationConfig *deviceOrientationConfig;
 #endif
 
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
 @property (nonatomic, strong) WKWebView *wkWebView;
 @property (nonatomic, strong) dispatch_group_t loadUAGroup;
-#endif
 
 @property (nonatomic, copy) NSDictionary<NSString *, id> *(^dynamicSuperProperties)(void);
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
@@ -477,7 +470,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (self.userAgent) {
         return completion(self.userAgent);
     }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
+
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.wkWebView) {
             dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
@@ -509,13 +502,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }];
         }
     });
-#else
-    [SACommonUtility performBlockOnMainThread:^{
-        UIWebView *webView = [[UIWebView alloc] initWithFrame:CGRectZero];
-        self.userAgent = [webView stringByEvaluatingJavaScriptFromString:@"navigator.userAgent"];
-        completion(self.userAgent);
-    }];
-#endif
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type {
@@ -724,19 +710,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     @synchronized(self) {
         return (UInt64)self.configOptions.maxCacheSize;
     };
-}
-
-- (NSMutableDictionary *)webViewJavascriptBridgeCallbackInfo {
-    NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"iOS" forKey:SA_EVENT_TYPE];
-    if (self.loginId != nil) {
-        [libProperties setValue:self.loginId forKey:SA_EVENT_DISTINCT_ID];
-        [libProperties setValue:[NSNumber numberWithBool:YES] forKey:@"is_login"];
-    } else{
-        [libProperties setValue:self.anonymousId forKey:SA_EVENT_DISTINCT_ID];
-        [libProperties setValue:[NSNumber numberWithBool:NO] forKey:@"is_login"];
-    }
-    return [libProperties copy];
 }
 
 - (void)login:(NSString *)loginId {
@@ -2728,163 +2701,6 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 #pragma mark - JSCall
 
 @implementation SensorsAnalyticsSDK (JSCall)
-
-#pragma mark about webView
-
-- (void)addWebViewUserAgentSensorsDataFlag {
-    [self addWebViewUserAgentSensorsDataFlag:YES];
-}
-
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify  {
-    [self addWebViewUserAgentSensorsDataFlag:enableVerify userAgent:nil];
-}
-
-- (void)addWebViewUserAgentSensorsDataFlag:(BOOL)enableVerify userAgent:(nullable NSString *)userAgent {
-    __weak typeof(self) weakSelf = self;
-    void (^ changeUserAgent)(BOOL verify, NSString *oldUserAgent) = ^void (BOOL verify, NSString *oldUserAgent) {
-        __strong typeof(weakSelf) strongSelf = weakSelf;
-        
-        NSString *newUserAgent = oldUserAgent;
-        if ([oldUserAgent rangeOfString:@"sa-sdk-ios"].location == NSNotFound) {
-            strongSelf.addWebViewUserAgent = verify ? [NSString stringWithFormat:@" /sa-sdk-ios/sensors-verify/%@?%@ ", strongSelf.network.host, strongSelf.network.project] : @" /sa-sdk-ios";
-            newUserAgent = [oldUserAgent stringByAppendingString:strongSelf.addWebViewUserAgent];
-        }
-        //使 newUserAgent 生效，并设置 newUserAgent
-        strongSelf.userAgent = newUserAgent;
-        [SACommonUtility saveUserAgent:newUserAgent];
-    };
-
-    BOOL verify = enableVerify;
-    @try {
-        if (![self.network isValidServerURL]) {
-            verify = NO;
-        }
-        NSString *oldAgent = userAgent.length > 0 ? userAgent : self.userAgent;
-        if (oldAgent) {
-            changeUserAgent(verify, oldAgent);
-        } else {
-            [self loadUserAgentWithCompletion:^(NSString *ua) {
-                changeUserAgent(verify, ua);
-            }];
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-}
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request {
-    return [self showUpWebView:webView WithRequest:request andProperties:nil];
-}
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request enableVerify:(BOOL)enableVerify {
-    return [self showUpWebView:webView WithRequest:request andProperties:nil enableVerify:enableVerify];
-}
-
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict {
-    return [self showUpWebView:webView WithRequest:request andProperties:propertyDict enableVerify:NO];
-}
-
-- (BOOL)showUpWebView:(id)webView WithRequest:(NSURLRequest *)request andProperties:(NSDictionary *)propertyDict enableVerify:(BOOL)enableVerify {
-    if (![self shouldHandleWebView:webView request:request]) {
-        return NO;
-    }
-#ifdef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-    NSAssert([webView isKindOfClass:WKWebView.class], @"当前集成方式，请使用 WKWebView！❌");
-#endif
-
-    @try {
-        SALogDebug(@"showUpWebView");
-        NSDictionary *bridgeCallbackInfo = [self webViewJavascriptBridgeCallbackInfo];
-        NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-        if (bridgeCallbackInfo) {
-            [properties addEntriesFromDictionary:bridgeCallbackInfo];
-        }
-        if (propertyDict) {
-            [properties addEntriesFromDictionary:propertyDict];
-        }
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-        NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];
-
-        //判断系统是否支持WKWebView
-        Class wkWebViewClass = NSClassFromString(@"WKWebView");
-
-        NSString *urlstr = request.URL.absoluteString;
-        if (!urlstr) {
-            return YES;
-        }
-
-        //解析参数
-        NSMutableDictionary *paramsDic = [[SAURLUtils queryItemsWithURLString:urlstr] mutableCopy];
-
-#ifndef SENSORS_ANALYTICS_DISABLE_UIWEBVIEW
-        if ([webView isKindOfClass:[UIWebView class]]) {//UIWebView
-            SALogDebug(@"showUpWebView: UIWebView");
-            if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
-                [webView stringByEvaluatingJavaScriptFromString:js];
-            } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
-                if ([paramsDic count] > 0) {
-                    NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
-                    if (eventInfo != nil) {
-                        NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                        [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
-                    }
-                }
-            }
-        } else
-#endif
-        if (wkWebViewClass && [webView isKindOfClass:wkWebViewClass]) {//WKWebView
-            SALogDebug(@"showUpWebView: WKWebView");
-            if ([urlstr rangeOfString:SA_JS_GET_APP_INFO_SCHEME].location != NSNotFound) {
-                typedef void (^Myblock)(id, NSError *);
-                Myblock myBlock = ^(id _Nullable response, NSError *_Nullable error) {
-                    SALogDebug(@"response: %@ error: %@", response, error);
-                };
-                SEL sharedManagerSelector = NSSelectorFromString(@"evaluateJavaScript:completionHandler:");
-                if (sharedManagerSelector) {
-                    ((void (*)(id, SEL, NSString *, Myblock))[webView methodForSelector:sharedManagerSelector])(webView, sharedManagerSelector, js, myBlock);
-                }
-            } else if ([urlstr rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].location != NSNotFound) {
-                if ([paramsDic count] > 0) {
-                    NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
-                    if (eventInfo != nil) {
-                        NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
-                        [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
-                    }
-                }
-            }
-        } else {
-            SALogDebug(@"showUpWebView: not valid webview");
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    } @finally {
-        return YES;
-    }
-}
-
-
-- (BOOL)shouldHandleWebView:(id)webView request:(NSURLRequest *)request {
-    if (webView == nil) {
-        SALogDebug(@"showUpWebView == nil");
-        return NO;
-    }
-
-    if (request == nil || ![request isKindOfClass:NSURLRequest.class]) {
-        SALogDebug(@"request == nil or not NSURLRequest class");
-        return NO;
-    }
-
-    NSString *urlString = request.URL.absoluteString;
-    if ([urlString rangeOfString:SA_JS_GET_APP_INFO_SCHEME].length ||[urlString rangeOfString:SA_JS_TRACK_EVENT_NATIVE_SCHEME].length) {
-        return YES;
-    }
-    return NO;
-}
-
-#pragma mark trackFromH5
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo {
     [self trackFromH5WithEvent:eventInfo enableVerify:NO];

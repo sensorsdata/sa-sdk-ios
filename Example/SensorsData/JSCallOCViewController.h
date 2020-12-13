@@ -20,6 +20,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface JSCallOCViewController : UIViewController<UIWebViewDelegate>
+@interface JSCallOCViewController : UIViewController
 
 @end
