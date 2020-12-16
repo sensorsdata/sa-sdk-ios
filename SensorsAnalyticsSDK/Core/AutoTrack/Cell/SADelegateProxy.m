@@ -42,8 +42,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 }
 
 + (void)hookDidSelectMethodWithDelegate:(id)delegate {
-    // 代理对象的继承链中存在动态添加的类, 则不重复添加类
-    if ([SADelegateProxy sensorsClassInInheritanceChain:delegate]) {
+    // 当前代理对象已经处理过
+    if ([delegate sensorsdata_className]) {
         return;
     }
     
@@ -62,10 +62,10 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
     if ([SADelegateProxy isKVOClass:realClass]) {
+        // 记录 KVO 的父类(KVO 会重写 class 方法, 返回父类)
+        [delegate setSensorsdata_className:NSStringFromClass([delegate class])];
         // 在移除所有的 KVO 属性监听时, 系统会重置对象的 isa 指针为原有的类; 因此需要在移除监听时, 重新为代理对象设置新的子类, 来采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
-        // removeObserver:forKeyPath: 和 removeObserver:forKeyPath:context: 两种移除方式, 系统是分开调用的, 因此需要同时监听两种移除方法
-        [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:context:) fromClass:proxyClass toClass:realClass];
         
         // 给 KVO 的类添加 cell 点击方法, 采集点击事件
         [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:realClass];
@@ -121,6 +121,43 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     return NO;
 }
 
++ (void)invokeRXProxyMethodWithTarget:(id)target selector:(SEL)selector argument1:(SEL)arg1 argument2:(id)arg2 {
+    Class cla = NSClassFromString([target sensorsdata_className]) ?: [target class];
+    IMP implementation = [SAMethodHelper implementationOfMethodSelector:selector fromClass:cla];
+    if (implementation) {
+        void(*imp)(id, SEL, SEL, id) = (void(*)(id, SEL, SEL, id))implementation;
+        imp(target, selector, arg1, arg2);
+    }
+}
+
+/// 执行 RxCocoa 中，点击事件相关的响应方法
+/// 这个方法中调用的顺序和 _RXDelegateProxy 中的 - forwardInvocation: 方法执行相同
+/// @param scrollView UITableView 或者 UICollectionView 的对象
+/// @param selector 需要执行的方法：tableView:didSelectRowAtIndexPath: 或者 collectionView:didSelectItemAtIndexPath:
+/// @param indexPath 点击的 NSIndexPath 对象
++ (void)rxInvokeWithScrollView:(UIScrollView *)scrollView selector:(SEL)selector selectedAtIndexPath:(NSIndexPath *)indexPath {
+    // 1. 执行 _sentMessage:withArguments: 方法
+    [SADelegateProxy invokeRXProxyMethodWithTarget:scrollView.delegate selector:NSSelectorFromString(@"_sentMessage:withArguments:") argument1:selector argument2:@[scrollView, indexPath]];
+
+    // 2. 执行 UIKit 的代理方法
+    NSObject<UITableViewDelegate> *forwardToDelegate = nil;
+    SEL forwardDelegateSelector = NSSelectorFromString(@"_forwardToDelegate");
+    IMP forwardDelegateIMP = [(NSObject *)scrollView.delegate methodForSelector:forwardDelegateSelector];
+    if (forwardDelegateIMP) {
+        forwardToDelegate = ((NSObject<UITableViewDelegate> *(*)(id, SEL))forwardDelegateIMP)(scrollView.delegate, forwardDelegateSelector);
+    }
+    if (forwardToDelegate) {
+        Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
+        IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
+        if (forwardOriginalIMP) {
+            ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
+        }
+    }
+
+    // 3. 执行 _methodInvoked:withArguments: 方法
+    [SADelegateProxy invokeRXProxyMethodWithTarget:scrollView.delegate selector:NSSelectorFromString(@"_methodInvoked:withArguments:") argument1:selector argument2:@[scrollView, indexPath]];
+}
+
 @end
 
 #pragma mark - UITableViewDelegate & UICollectionViewDelegate
@@ -143,20 +180,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     if (originalIMP) {
         ((SensorsDidSelectImplementation)originalIMP)(delegate, selector, scrollView, indexPath);
     } else if ([SADelegateProxy isRxDelegateProxyClass:originalClass]) {
-        NSObject<UITableViewDelegate> *forwardToDelegate = nil;
-        if ([delegate respondsToSelector:NSSelectorFromString(@"_forwardToDelegate")]) {
-            // 获取 _forwardToDelegate 属性
-            forwardToDelegate = [delegate valueForKey:@"_forwardToDelegate"];
-        }
-        if (forwardToDelegate) {
-            Class forwardOriginalClass = NSClassFromString(forwardToDelegate.sensorsdata_className) ?: forwardToDelegate.class;
-            IMP forwardOriginalIMP = [SAMethodHelper implementationOfMethodSelector:selector fromClass:forwardOriginalClass];
-            if (forwardOriginalIMP) {
-                ((SensorsDidSelectImplementation)forwardOriginalIMP)(forwardToDelegate, selector, scrollView, indexPath);
-            }
-        } else {
-            ((SensorsDidSelectImplementation)_objc_msgForward)(delegate, selector, scrollView, indexPath);
-        }
+        [SADelegateProxy rxInvokeWithScrollView:scrollView selector:selector selectedAtIndexPath:indexPath];
     }
 
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
@@ -201,19 +225,8 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
     
     // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
     if (oldClassIsKVO && !newClassIsKVO) {
-        [SADelegateProxy proxyWithDelegate:self];
-    }
-}
-
-- (void)removeObserver:(NSObject *)observer forKeyPath:(NSString *)keyPath context:(void *)context {
-    // remove 前代理对象是否归属于 KVO 创建的类
-    BOOL oldClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
-    [super removeObserver:observer forKeyPath:keyPath context:context];
-    // remove 后代理对象是否归属于 KVO 创建的类
-    BOOL newClassIsKVO = [SADelegateProxy isKVOClass:[SAClassHelper realClassWithObject:self]];
-    
-    // 有多个属性监听时, 在最后一个监听被移除后, 对象的 isa 发生变化, 需要重新为代理对象添加子类
-    if (oldClassIsKVO && !newClassIsKVO) {
+        // 清空已经记录的原始类
+        self.sensorsdata_className = nil;
         [SADelegateProxy proxyWithDelegate:self];
     }
 }
@@ -223,6 +236,7 @@ typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexP
 #pragma mark - Utils
 /// Delegate 的类前缀
 static NSString *const kSADelegateSuffix = @"__CN.SENSORSDATA";
+static NSString *const kSAKVODelegatePrefix = @"NSKVONotifying_";
 static NSString *const kSAClassSeparatedChar = @".";
 static long subClassIndex = 0;
 
@@ -231,13 +245,13 @@ static long subClassIndex = 0;
 /// 是不是 KVO 创建的类
 /// @param cls 类
 + (BOOL)isKVOClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) rangeOfString:@"NSKVONotifying_"].location != NSNotFound;
+    return [NSStringFromClass(cls) containsString:kSAKVODelegatePrefix];
 }
 
 /// 是不是神策创建的类
 /// @param cls 类
 + (BOOL)isSensorsClass:(Class _Nullable)cls {
-    return [NSStringFromClass(cls) rangeOfString:kSADelegateSuffix].location != NSNotFound;
+    return [NSStringFromClass(cls) containsString:kSADelegateSuffix];
 }
 
 /// 生成神策要创建类的类名
@@ -246,19 +260,6 @@ static long subClassIndex = 0;
     Class class = [SAClassHelper realClassWithObject:obj];
     if ([SADelegateProxy isSensorsClass:class]) return NSStringFromClass(class);
     return [NSString stringWithFormat:@"%@%@%@%@", NSStringFromClass(class), kSAClassSeparatedChar, @(subClassIndex++), kSADelegateSuffix];
-}
-
-/// 实例对象的 class 继承链中是否包含神策添加的类
-/// @param obj 实例对象
-+ (Class _Nullable)sensorsClassInInheritanceChain:(id _Nullable)obj {
-    Class class = [SAClassHelper realClassWithObject:obj];
-    while (class) {
-        if ([SADelegateProxy isSensorsClass:class]) {
-            return class;
-        }
-        class = [SAClassHelper realSuperClassWithClass:class];
-    }
-    return nil;
 }
 
 @end

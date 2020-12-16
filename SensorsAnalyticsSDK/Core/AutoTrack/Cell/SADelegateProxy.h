@@ -47,8 +47,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)generateSensorsClassName:(id)obj;
 
-+ (Class _Nullable)sensorsClassInInheritanceChain:(id _Nullable)obj;
-
 @end
 
 NS_ASSUME_NONNULL_END

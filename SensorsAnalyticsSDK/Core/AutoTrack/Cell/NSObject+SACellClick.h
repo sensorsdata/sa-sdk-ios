@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface NSObject (SACellClick)
 
 /// 用于记录创建子类时的原始父类名称
-@property (nonatomic, copy) NSString *sensorsdata_className;
+@property (nonatomic, copy, nullable) NSString *sensorsdata_className;
 
 /// 注册一个操作,在对象释放时调用; 重复调用该方法时,只有第一次调用时的 block 生效
 /// @param deallocBlock 操作
