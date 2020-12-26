@@ -96,14 +96,14 @@
         [object isKindOfClass:[UIPageControl class]]) {
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-        [[SensorsAnalyticsSDK sharedInstance] track:SA_EVENT_NAME_APP_CLICK withProperties:properties withTrackType:SensorsAnalyticsTrackTypeAuto];
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
         return;
     }
 }

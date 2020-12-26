@@ -156,6 +156,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
 @property (nonatomic, assign) BOOL enableMultipleChannelMatch;
 
+/// 开启前向页面标题采集功能，默认不开启
+@property (nonatomic, assign) BOOL enableReferrerTitle;
+
 @end
 
 

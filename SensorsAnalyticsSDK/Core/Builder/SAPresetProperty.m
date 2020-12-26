@@ -124,14 +124,13 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 
 #pragma mark – Public Methods
 
-- (NSMutableDictionary *)libPropertiesWithMethod:(NSString *)method {
+- (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod {
     NSMutableDictionary *libProperties = [NSMutableDictionary dictionary];
     libProperties[SAEventPresetPropertyLib] = self.automaticProperties[SAEventPresetPropertyLib];
     libProperties[SAEventPresetPropertyLibVersion] = self.automaticProperties[SAEventPresetPropertyLibVersion];
     libProperties[SAEventPresetPropertyAppVersion] = self.automaticProperties[SAEventPresetPropertyAppVersion];
-    if ([SAValidator isValidString:method]) {
-        libProperties[SAEventPresetPropertyLibMethod] = method;
-    }
+    NSString *method = [SAValidator isValidString:libMethod] ? libMethod : kSALibMethodCode;
+    libProperties[SAEventPresetPropertyLibMethod] = method;
     return libProperties;
 }
 

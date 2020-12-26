@@ -70,11 +70,11 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /**
 获取 lib 相关属性
 
-@param method SDK 方法
+@param libMethod SDK 方法
 
 @return lib 相关属性
 */
-- (NSMutableDictionary *)libPropertiesWithMethod:(NSString *)method;
+- (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod;
 
 /// 是否为首日
 - (BOOL)isFirstDay;

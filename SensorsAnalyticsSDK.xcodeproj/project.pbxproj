@@ -201,6 +201,8 @@
 		F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
+		FC6871482580D34F003A2841 /* SAReferrerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = FC6871462580D34F003A2841 /* SAReferrerManager.h */; };
+		FC6871492580D34F003A2841 /* SAReferrerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = FC6871472580D34F003A2841 /* SAReferrerManager.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
 /* End PBXBuildFile section */
 
@@ -414,6 +416,8 @@
 		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
+		FC6871462580D34F003A2841 /* SAReferrerManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAReferrerManager.h; sourceTree = "<group>"; };
+		FC6871472580D34F003A2841 /* SAReferrerManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAReferrerManager.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -678,6 +682,8 @@
 			isa = PBXGroup;
 			children = (
 				45886522253EE0E600DF208D /* Cell */,
+				FC6871462580D34F003A2841 /* SAReferrerManager.h */,
+				FC6871472580D34F003A2841 /* SAReferrerManager.m */,
 				881A413F253D7B4F00854F69 /* UIGestureRecognizer+AutoTrack.h */,
 				881A4140253D7B4F00854F69 /* SAAutoTrackUtils.h */,
 				881A4141253D7B4F00854F69 /* UIView+AutoTrack.h */,
@@ -930,6 +936,7 @@
 				881A420A253D7B5000854F69 /* SADataEncryptBuilder.h in Headers */,
 				881A4191253D7B4F00854F69 /* SALinkHandler.h in Headers */,
 				881A41D8253D7B5000854F69 /* SATypeDescription.h in Headers */,
+				FC6871482580D34F003A2841 /* SAReferrerManager.h in Headers */,
 				881A4186253D7B4F00854F69 /* SALog.h in Headers */,
 				881A41C9253D7B4F00854F69 /* SAObjectIdentityProvider.h in Headers */,
 				881A419B253D7B4F00854F69 /* SAConfigOptions.h in Headers */,
@@ -1160,6 +1167,7 @@
 				881A4209253D7B5000854F69 /* SAEncryptUtils.m in Sources */,
 				881A41A1253D7B4F00854F69 /* SAAppExtensionDataManager.m in Sources */,
 				881A41D6253D7B5000854F69 /* SAObjectIdentityProvider.m in Sources */,
+				FC6871492580D34F003A2841 /* SAReferrerManager.m in Sources */,
 				881A418A253D7B4F00854F69 /* SAAbstractLogger.m in Sources */,
 				881A41BA253D7B4F00854F69 /* SAGzipUtility.m in Sources */,
 				881A421F253D7B5000854F69 /* UIView+VisualizedAutoTrack.m in Sources */,

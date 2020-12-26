@@ -86,6 +86,9 @@ NSString * const SA_EVENT_PROPERTY_SCREEN_NAME = @"$screen_name";
 NSString * const SA_EVENT_PROPERTY_TITLE = @"$title";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION = @"$element_position";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR = @"$element_selector";
+
+NSString * const kSAEeventPropertyReferrerTitle = @"$referrer_title";
+
 // 模糊路径
 NSString * const SA_EVENT_PROPERTY_ELEMENT_PATH = @"$element_path";
 NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";
@@ -101,6 +104,14 @@ NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
 NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
 long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
+
+#pragma mark--lib method
+NSString * const kSALibMethodAuto = @"autoTrack";
+NSString * const kSALibMethodCode = @"code";
+
+#pragma mark--track type
+NSString * const kSAEventTypeTrack = @"track";
+NSString * const kSAEventTypeSignup = @"track_signup";
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";
