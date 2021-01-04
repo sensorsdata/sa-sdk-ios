@@ -31,7 +31,7 @@
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
 
-    if (delegate == nil) {
+    if (self.delegate == nil) {
         return;
     }
     // 判断是否忽略 $AppClick 事件采集
@@ -40,7 +40,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:delegate];
+    [SADelegateProxy proxyWithDelegate:self.delegate];
 }
 
 @end
@@ -51,7 +51,7 @@
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     [self sensorsdata_setDelegate:delegate];
 
-    if (delegate == nil) {
+    if (self.delegate == nil) {
         return;
     }
     // 判断是否忽略 $AppClick 事件采集
@@ -60,7 +60,7 @@
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:delegate];
+    [SADelegateProxy proxyWithDelegate:self.delegate];
 }
 
 @end
