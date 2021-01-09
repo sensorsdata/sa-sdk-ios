@@ -396,7 +396,7 @@
 
             CGRect rect = [view convertRect:view.bounds toView:nil];
             // 是否全屏
-            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, self.bounds.size);
+            BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, self.bounds.size);
             // keyWindow 上存在全屏显示可交互的 view，此时 rootViewController 内元素不可交互
             if (isFullScreenShow && view.userInteractionEnabled) {
                 [subElements removeObject:self.rootViewController];
@@ -567,7 +567,7 @@
                 }
                 CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
                // 是否全屏
-                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointMake(0, 0)) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
+                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
                // 正在全屏显示
                 if (isFullScreenShow && obj.view.sensorsdata_isDisplayedInScreen) {
                     isContainFullScreen = YES;

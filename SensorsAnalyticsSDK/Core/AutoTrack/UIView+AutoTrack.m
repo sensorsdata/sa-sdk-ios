@@ -136,7 +136,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
 
     // 获取当前 controller 作为 screen_name
-    if ([viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
+    if (!viewController || [viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
         viewController = [SAAutoTrackUtils currentViewController];
     }
     return viewController;

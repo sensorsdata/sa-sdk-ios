@@ -85,11 +85,6 @@
     XCTAssertEqualObjects(self.viewController, vc);
 }
 
-- (void)testFindSuperViewControllerByView {
-    UIViewController *vc = [SAAutoTrackUtils findSuperViewControllerByView:self.viewController.firstButton];
-    XCTAssertEqualObjects(self.viewController, vc);
-}
-
 - (void)testAutoTrackPropertiesWithButton {
     NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackObject:self.viewController.firstButton viewController:self.viewController];
 
