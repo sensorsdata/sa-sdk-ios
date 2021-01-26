@@ -225,9 +225,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 - (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {
-    SAReachability *reachability = [SAReachability reachabilityForInternetConnection];
-    SANetworkStatus status = [reachability currentReachabilityStatus];
-    if (status == SANotReachable) {
+    if (![SAReachability sharedInstance].isReachable) {
         [self showErrorMessage:@"当前网络不可用，请检查网络！"];
         return;
     }

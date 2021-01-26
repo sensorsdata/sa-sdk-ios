@@ -66,6 +66,7 @@
 #import "SAEventStore.h"
 #import "SAHTTPSession.h"
 #import "SANetwork.h"
+#import "SAReachability.h"
 #import "SAEventTracker.h"
 #import "SAScriptMessageHandler.h"
 #import "WKWebView+SABridge.h"
@@ -80,7 +81,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.2.7"
+#define VERSION @"2.2.8"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -303,6 +304,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
 
+            [[SAReachability sharedInstance] startMonitoring];
+            
             _network = [[SANetwork alloc] init];
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
 
@@ -922,7 +925,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         return NO;
     }
     
-    BOOL isWifi = [[SACommonUtility currentNetworkStatus] isEqualToString:@"WIFI"];
+    BOOL isWifi = [SAReachability sharedInstance].isReachableViaWiFi;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
@@ -931,6 +934,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (!url) {
         return NO;
     }
+
+    // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
+    [[SAReachability sharedInstance] startMonitoring];
 
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点

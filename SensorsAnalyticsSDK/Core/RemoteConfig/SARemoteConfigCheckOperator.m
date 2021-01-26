@@ -27,6 +27,7 @@
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
 #import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SALog.h"
 
 typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
@@ -83,7 +84,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 - (void)handleRemoteConfigURL:(NSURL *)url {
     SALogDebug(@"【remote config】The input QR url is: %@", url);
     
-    if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
+    if (![SAReachability sharedInstance].isReachable) {
         [self showNetworkErrorAlert];
         return;
     }

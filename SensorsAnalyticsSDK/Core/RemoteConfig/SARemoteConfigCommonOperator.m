@@ -23,7 +23,7 @@
 #endif
 
 #import "SARemoteConfigCommonOperator.h"
-#import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SALog.h"
 
 typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
@@ -202,7 +202,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     BOOL isForceUpdate = [params[@"isForceUpdate"] boolValue];
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = params[@"completion"];
 
-    if ([SACommonUtility currentNetworkType] == SensorsAnalyticsNetworkTypeNONE) {
+    if (![SAReachability sharedInstance].isReachable) {
         if (completion) {
             completion(NO, nil);
         }

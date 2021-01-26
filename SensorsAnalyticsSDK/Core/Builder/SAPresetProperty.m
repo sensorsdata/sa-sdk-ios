@@ -31,7 +31,7 @@
 #import "SAIdentifier.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SADateFormatter.h"
@@ -145,7 +145,7 @@ static NSString * const SAEventPresetPropertyScreenOrientation = @"$screen_orien
 }
 
 - (NSDictionary *)currentNetworkProperties {
-    NSString *networkType = [SACommonUtility currentNetworkStatus];
+    NSString *networkType = [SANetwork networkTypeString];
 
     NSMutableDictionary *networkProperties = [NSMutableDictionary dictionary];
     networkProperties[SAEventPresetPropertyNetworkType] = networkType;

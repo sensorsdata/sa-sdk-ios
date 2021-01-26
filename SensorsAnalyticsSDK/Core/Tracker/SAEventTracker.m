@@ -31,7 +31,7 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAObject+SAConfigOptions.h"
-#import "SACommonUtility.h"
+#import "SAReachability.h"
 #import "SAConstants+Private.h"
 #import "SADataEncryptBuilder.h"
 
@@ -89,7 +89,7 @@
         return NO;
     }
     // 判断当前网络类型是否符合同步数据的网络策略
-    if (!([SACommonUtility currentNetworkType] & self.networkTypePolicy)) {
+    if (!([SANetwork networkTypeOptions] & self.networkTypePolicy)) {
         return NO;
     }
     return YES;

@@ -78,4 +78,14 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
 
 @end
 
+@interface SANetwork (Type)
+
+/// 当前网络类型（NS_OPTIONS 形式）
++ (SensorsAnalyticsNetworkType)networkTypeOptions;
+
+/// 当前网络类型（NSString 形式）
++ (NSString *)networkTypeString;
+
+@end
+
 NS_ASSUME_NONNULL_END

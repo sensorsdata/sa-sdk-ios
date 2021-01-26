@@ -494,6 +494,7 @@
 		881A40D2253D7B4F00854F69 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				A8057DBF25A9829D00BB8ACB /* Network */,
 				881A413E253D7B4F00854F69 /* AutoTrack */,
 				881A416D253D7B4F00854F69 /* Builder */,
 				881A414E253D7B4F00854F69 /* Channel */,
@@ -530,12 +531,8 @@
 				881A40F6253D7B4F00854F69 /* SAModuleManager.h */,
 				881A415D253D7B4F00854F69 /* SAModuleManager.m */,
 				881A414C253D7B4F00854F69 /* SAModuleProtocol.h */,
-				881A414A253D7B4F00854F69 /* SANetwork.h */,
-				881A40E6253D7B4F00854F69 /* SANetwork.m */,
 				881A4158253D7B4F00854F69 /* SAObject+SAConfigOptions.h */,
 				881A40E9253D7B4F00854F69 /* SAObject+SAConfigOptions.m */,
-				881A40F2253D7B4F00854F69 /* SAReachability.h */,
-				881A4164253D7B4F00854F69 /* SAReachability.m */,
 				881A4152253D7B4F00854F69 /* SASecurityPolicy.h */,
 				881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */,
 				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
@@ -768,6 +765,17 @@
 				881A4226253D7B5E00854F69 /* SALocationManager.m */,
 			);
 			path = Location;
+			sourceTree = "<group>";
+		};
+		A8057DBF25A9829D00BB8ACB /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				881A414A253D7B4F00854F69 /* SANetwork.h */,
+				881A40E6253D7B4F00854F69 /* SANetwork.m */,
+				881A40F2253D7B4F00854F69 /* SAReachability.h */,
+				881A4164253D7B4F00854F69 /* SAReachability.m */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 		CB30BD4A22840CA40004061D = {
