@@ -26,21 +26,6 @@
           ]
         },
         {
-          "name": "UIStoryboardSegueTemplate",
-          "superclass": "NSObject",
-          "properties": [
-            {
-              "name": "identifier",
-              "type": "NSString",
-              "readonly": true
-            },
-            {
-              "name": "performOnViewLoad",
-              "type": "BOOL"
-            }
-          ]
-        },
-        {
           "name": "UIView",
           "superclass": "UIResponder",
           "properties": [
@@ -65,6 +50,12 @@
             {
                 "name": "sensorsdata_elementPath",
                 "key": "element_path",
+                "type": "NSString",
+                "use_kvc": false
+            },
+            {
+                "name": "sensorsdata_elementSelector",
+                "key": "element_selector",
                 "type": "NSString",
                 "use_kvc": false
             },
@@ -128,7 +119,7 @@
                 "type": "NSString"
               },
               {
-                  "name": "sensorsdata_elementPath",
+                  "name": "sensorsdata_elementSelector",
                   "key": "element_selector",
                   "type": "NSString",
                   "use_kvc": false
@@ -150,45 +141,9 @@
           ]
         },
         {
-          "name": "UITableView",
-          "superclass": "UIScrollView",
-          "properties": [
-            {
-              "name": "allowsSelection",
-              "type": "BOOL"
-            }
-          ]
-        },
-        {
-          "name": "UICollectionView",
-          "superclass": "UIScrollView",
-          "properties": [
-            {
-              "name": "allowsSelection",
-              "type": "BOOL"
-            }
-          ]
-        },
-        {
-          "name": "UIWindow",
-          "superclass": "UIView",
-          "properties": [
-            {
-              "name": "screen",
-              "type": "UIScreen",
-              "readonly": true
-            }
-          ]
-        },
-        {
           "name": "UIViewController",
           "superclass": "UIResponder",
           "properties": [
-            {
-              "name": "isViewLoaded",
-              "type": "BOOL",
-              "readonly": true
-            },
             {
               "name": "sensorsdata_subElements",
               "key": "subelements",

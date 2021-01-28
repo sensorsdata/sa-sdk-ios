@@ -830,12 +830,18 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ *
+ * @discussion
+ * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
  */
 - (void)trackAppInstall;
 
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ *
+ * @discussion
+ * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
  *
  * @param properties 激活事件的属性
  */
@@ -844,6 +850,9 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  * @abstract
  * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
+ *
+ * @discussion
+ * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。 
  *
  * @param properties 激活事件的属性
  * @param disableCallback  是否关闭这次渠道匹配的回调请求

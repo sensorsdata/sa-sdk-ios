@@ -1,4 +1,4 @@
-//  UIView+HeatMap.m
+//  UIView+SAElementSelector.m
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -25,79 +25,16 @@
 #import <QuartzCore/QuartzCore.h>
 #import <CommonCrypto/CommonDigest.h>
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+HeatMap.h"
+#import "UIView+SAElementSelector.h"
 #import "UIView+AutoTrack.h"
 
 // NB If you add any more fingerprint methods, increment this.
 #define SA_FINGERPRINT_VERSION 1
 
-@implementation UIView (HeatMap)
+@implementation UIView (SAElementSelector)
 
 - (int)jjf_fingerprintVersion {
     return SA_FINGERPRINT_VERSION;
-}
-
-- (UIImage *)sa_snapshotImage {
-    CGFloat offsetHeight = 0.0f;
-    
-    //Avoid the status bar on phones running iOS < 7
-    if (@available(iOS 7.0, *)) {
-        if (![UIApplication sharedApplication].statusBarHidden) {
-            offsetHeight = [UIApplication sharedApplication].statusBarFrame.size.height;
-        }
-    }
-    CGSize size = self.layer.bounds.size;
-    size.height -= offsetHeight;
-    UIGraphicsBeginImageContext(size);
-    CGContextRef context = UIGraphicsGetCurrentContext();
-    CGContextTranslateCTM(context, 0.0f, -offsetHeight);
-    
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= 70000
-    if ([self respondsToSelector:@selector(drawViewHierarchyInRect:afterScreenUpdates:)]) {
-        [self drawViewHierarchyInRect:CGRectMake(0.0f, 0.0f, size.width, size.height) afterScreenUpdates:YES];
-    } else {
-        [self.layer renderInContext:UIGraphicsGetCurrentContext()];
-    }
-#else
-    [self.layer renderInContext:UIGraphicsGetCurrentContext()];
-#endif
-    
-    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
-    UIGraphicsEndImageContext();
-    
-    return image;
-}
-
-- (UIImage *)sa_snapshotForBlur {
-    UIImage *image = [self sa_snapshotImage];
-    // hack, helps with colors when blurring
-    NSData *imageData = UIImageJPEGRepresentation(image, 1); // convert to jpeg
-    return [UIImage imageWithData:imageData];
-}
-
-// sa_targetActions
-- (NSArray *)sa_targetActions {
-    NSMutableArray *targetActions = [NSMutableArray array];
-    if (![self isKindOfClass:[UIControl class]]) {
-        return [targetActions copy];
-    }
-    
-    for (id target in [(UIControl *)(self) allTargets]) {
-        UIControlEvents allEvents = UIControlEventAllTouchEvents | UIControlEventAllEditingEvents;
-        for (NSUInteger e = 0; (allEvents >> e) > 0; e++) {
-            UIControlEvents event = allEvents & (0x01 << e);
-            if(event) {
-                NSArray *actions = [(UIControl *)(self) actionsForTarget:target forControlEvent:event];
-                NSArray *ignoreActions = @[@"caojiangPreVerify:forEvent:", @"caojiangExecute:forEvent:"];
-                for (NSString *action in actions) {
-                    if ([ignoreActions indexOfObject:action] == NSNotFound) {
-                        [targetActions addObject:[NSString stringWithFormat:@"%lu/%@", (unsigned long)event, action]];
-                    }
-                }
-            }
-        }
-    }
-    return [targetActions copy];
 }
 
 // 在 controller 上的成员变量
@@ -212,51 +149,9 @@ static NSString* sa_encryptHelper(id input) {
     return sa_encryptHelper([self sa_imageFingerprint]);
 }
 
-- (NSArray *)jjf_varSetD {
-    NSArray *targetActions = [self sa_targetActions];
-    NSMutableArray *encryptedActions = [NSMutableArray array];
-    for (NSUInteger i = 0 ; i < [targetActions count]; i++) {
-        [encryptedActions addObject:sa_encryptHelper(targetActions[i])];
-    }
-    return encryptedActions;
-}
-
 // 获取内容
 - (NSString *)jjf_varE {
     return sa_encryptHelper([self sa_text]);
 }
 
-@end
-
-
-
-@implementation UITableViewCell (HeatMap)
-
-- (NSString *)sa_indexPath {
-    if (self.sensorsdata_IndexPath) {
-        return [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.row];
-    }
-    return @"";
-}
-
-
-@end
-@implementation UICollectionViewCell (HeatMap)
-
-- (NSString *)sa_indexPath {
-    if (self.sensorsdata_IndexPath) {
-        return [[NSString alloc] initWithFormat:@"[%ld][%ld]", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
-    }
-    return @"";
-}
-
-@end
-
-
-
-@implementation UITableViewHeaderFooterView (HeatMap)
-- (NSString *)sa_section {
-    // 修改页面结构采集逻辑，使得和 $element_selector 采集相同
-    return self.sensorsdata_heatMapPath;
-}
 @end

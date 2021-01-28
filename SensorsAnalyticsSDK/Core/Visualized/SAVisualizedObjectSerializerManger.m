@@ -26,6 +26,7 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAAutoTrackUtils.h"
+#import "SAAuxiliaryToolManager.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -174,6 +175,16 @@
                 webPageInfo.elementSources = nil;
                 webPageInfo.url = nil;
                 webPageInfo.title = nil;
+            }
+            // 区分点击分析和可视化全埋点，针对 JS 发送的弹框信息，截取标题替换处理
+            if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+                NSMutableArray <NSDictionary *>* alertNewDatas = [NSMutableArray array];
+                for (NSDictionary *alertDic in alertDatas) {
+                    NSMutableDictionary <NSString *, NSString *>* alertNewDic = [NSMutableDictionary dictionaryWithDictionary:alertDic];
+                    alertNewDic[@"title"] = [alertDic[@"title"] stringByReplacingOccurrencesOfString:@"可视化全埋点" withString:@"点击分析"];
+                    [alertNewDatas addObject:alertNewDic];
+                };
+                alertDatas = [alertNewDatas copy];
             }
             webPageInfo.alertSources = alertDatas;
             self.webPageInfoCache[url] = webPageInfo;

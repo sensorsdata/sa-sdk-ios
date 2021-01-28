@@ -19,11 +19,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SATypeDescription.h"
 
-@interface SAClassDescription : SATypeDescription
+@interface SAClassDescription : NSObject
 
 @property (nonatomic, readonly) SAClassDescription *superclassDescription;
+@property (nonatomic, readonly) NSString *name;
 @property (nonatomic, readonly) NSArray *propertyDescriptions;
 @property (nonatomic, readonly) NSArray *delegateInfos;
 

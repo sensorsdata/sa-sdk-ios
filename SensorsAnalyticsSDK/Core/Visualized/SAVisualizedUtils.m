@@ -24,6 +24,7 @@
 
 #import "SAVisualizedUtils.h"
 #import "SAJSTouchEventView.h"
+#import "SAAutoTrackUtils.h"
 #import "SAVisualizedViewPathProperty.h"
 #import "SAJSONUtil.h"
 #import "SAVisualizedObjectSerializerManger.h"
@@ -40,7 +41,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
     for (UIView *otherView in allOtherViews) {
         // 是否为 RN 的 View
-        if ([SAVisualizedUtils isKindOfRNView:otherView]) {
+        if ([self isKindOfRCTView:otherView]) {
             if ([self isCoveredOfRNView:view fromRNView:otherView]) {
                 return YES;
             }
@@ -96,11 +97,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return CGRectContainsRect(otherRect, rect);
 }
 
-+ (BOOL)isKindOfRNView:(UIView *)view {
-    Class RNViewClass = NSClassFromString(@"RCTView");
-    return RNViewClass && [view isKindOfClass:RNViewClass];
-}
-
 // 根据层数，查询一个 view 所有可能覆盖的 view
 + (NSArray <UIView *> *)findAllPossibleCoverViews:(UIView *)view hierarchyCount:(NSInteger)count {
     NSMutableArray <UIView *> *allOtherViews = [NSMutableArray array];
@@ -137,6 +133,11 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 /// view 是否可见
 + (BOOL)isVisibleForView:(UIView *)view {
     return view.alpha > 0.01 && !view.isHidden;
+}
+
++ (BOOL)isKindOfRCTView:(UIView *)view {
+    Class RCTView = NSClassFromString(@"RCTView");
+    return RCTView && [view isKindOfClass:RCTView];
 }
 
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {

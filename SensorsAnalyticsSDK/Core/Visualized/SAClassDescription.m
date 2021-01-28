@@ -32,10 +32,10 @@
 
 - (instancetype)initWithSuperclassDescription:(SAClassDescription *)superclassDescription
                                    dictionary:(NSDictionary *)dictionary {
-    self = [super initWithDictionary:dictionary];
+    self = [super init];
     if (self) {
         _superclassDescription = superclassDescription;
-
+        _name = dictionary[@"name"];
         NSMutableArray *propertyDescriptions = [NSMutableArray array];
         for (NSDictionary *propertyDictionary in dictionary[@"properties"]) {
             [propertyDescriptions addObject:[[SAPropertyDescription alloc] initWithDictionary:propertyDictionary]];

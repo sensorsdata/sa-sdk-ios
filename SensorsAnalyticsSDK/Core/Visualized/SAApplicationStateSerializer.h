@@ -25,13 +25,12 @@
 
 @interface SAApplicationStateSerializer : NSObject
 
-- (instancetype)initWithApplication:(UIApplication *)application
-                      configuration:(SAObjectSerializerConfig *)configuration
+- (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
              objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider;
 
 /// 所有 window 截图合成
 - (void)screenshotImageForAllWindowWithCompletionHandler:(void(^)(UIImage *))completionHandler;
 
-- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window;
+- (NSDictionary *)objectHierarchyForRootObject;
 
 @end

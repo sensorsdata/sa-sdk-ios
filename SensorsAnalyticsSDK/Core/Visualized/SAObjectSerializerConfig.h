@@ -20,9 +20,7 @@
 
 #import <Foundation/Foundation.h>
 
-@class SAEnumDescription;
 @class SAClassDescription;
-@class SATypeDescription;
 
 @interface SAObjectSerializerConfig : NSObject
 
@@ -31,8 +29,6 @@
 
 - (instancetype)initWithDictionary:(NSDictionary *)dictionary;
 
-- (SATypeDescription *)typeWithName:(NSString *)name;
-- (SAEnumDescription *)enumWithName:(NSString *)name;
 - (SAClassDescription *)classWithName:(NSString *)name;
 
 @end

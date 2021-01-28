@@ -24,6 +24,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// H5 页面元素构造
 @interface SAJSTouchEventView : UIView
 
 /// 根据 web 页面元素信息构造对象

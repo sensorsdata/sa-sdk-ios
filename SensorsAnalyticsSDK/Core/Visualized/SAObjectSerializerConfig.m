@@ -24,9 +24,7 @@
 
 
 #import "SAClassDescription.h"
-#import "SAEnumDescription.h"
 #import "SAObjectSerializerConfig.h"
-#import "SATypeDescription.h"
 
 @implementation SAObjectSerializerConfig {
     NSDictionary *_classes;
@@ -46,15 +44,8 @@
 
             classDescriptions[classDescription.name] = classDescription;
         }
-
-        NSMutableDictionary *enumDescriptions = [[NSMutableDictionary alloc] init];
-        for (NSDictionary *d in dictionary[@"enums"]) {
-            SAEnumDescription *enumDescription = [[SAEnumDescription alloc] initWithDictionary:d];
-            enumDescriptions[enumDescription.name] = enumDescription;
-        }
  
         _classes = [classDescriptions copy];
-        _enums = [enumDescriptions copy];
     }
 
     return self;
@@ -64,26 +55,7 @@
     return [_classes allValues];
 }
 
-- (SAEnumDescription *)enumWithName:(NSString *)name {
-    return _enums[name];
-}
-
 - (SAClassDescription *)classWithName:(NSString *)name {
     return _classes[name];
 }
-
-- (SATypeDescription *)typeWithName:(NSString *)name {
-    SAEnumDescription *enumDescription = [self enumWithName:name];
-    if (enumDescription) {
-        return enumDescription;
-    }
-
-    SAClassDescription *classDescription = [self classWithName:name];
-    if (classDescription) {
-        return classDescription;
-    }
-
-    return nil;
-}
-
 @end

@@ -57,19 +57,25 @@
     // project 和 host 不同
     NSString *project = [SAURLUtils queryItemsWithURLString:postURLStr][@"project"] ?: @"default";
     BOOL isEqualProject = [[SensorsAnalyticsSDK sharedInstance].network.project isEqualToString:project];
-    if (!isEqualProject) {     // 未开启可视化全埋点或点击图
-        [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
+    if (!isEqualProject) {
+        if ([self isHeatMapURL:URL]) {
+            [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行点击分析"];
+        } else if([self isVisualizedAutoTrackURL:URL]){
+            [self showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
+        }
         return YES;
+    // 未开启点击图
     } else if ([self isHeatMapURL:URL] && ![[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled]) {
-        [self showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启点击图"];
+        [self showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启点击分析"];
         return YES;
+    // 未开启可视化全埋点
     } else if ([self isVisualizedAutoTrackURL:URL] && ![[SensorsAnalyticsSDK sharedInstance] isVisualizedAutoTrackEnabled]) {
         [self showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启可视化全埋点"];
         return YES;
     } else if (featureCode && postURLStr) {
         [self showOpenDialogWithURL:URL featureCode:featureCode postURL:postURLStr isWifi:isWifi];
         return YES;
-    } else { //feature_code  url 参数错误
+    } else { //feature_code url 参数错误
         [self showParameterError:@"ERROR" message:@"参数错误"];
         return NO;
     }
@@ -84,31 +90,31 @@
     NSString *alertMessage = [self alertMessageWithURL:URL isWifi:isWifi];
 
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
-    
-    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
+
+    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:^(SAAlertAction *_Nonnull action) {
         [self.visualizedConnection close];
         self.visualizedConnection = nil;
     }];
-    
-    [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+
+    [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction *_Nonnull action) {
         // 关闭之前的连接
         [self.visualizedConnection close];
         // start
         self.visualizedConnection = [[SAVisualizedConnection alloc] initWithURL:nil];
         if ([self isHeatMapURL:URL]) {
-             SALogDebug(@"Confirmed to open HeatMap ...");
+            SALogDebug(@"Confirmed to open HeatMap ...");
             self.visualizedType = SensorsAnalyticsVisualizedTypeHeatMap;
-            [self.visualizedConnection startConnectionWithFeatureCode:featureCode url:postURL type:@"heatmap"];
         } else if ([self isVisualizedAutoTrackURL:URL]) {
             SALogDebug(@"Confirmed to open VisualizedAutoTrack ...");
             self.visualizedType = SensorsAnalyticsVisualizedTypeAutoTrack;
-            [self.visualizedConnection startConnectionWithFeatureCode:featureCode url:postURL type:@"visualized"];
         }
+        [self.visualizedConnection startConnectionWithFeatureCode:featureCode url:postURL];
     }];
-    
+
     [alertController show];
 }
 
+/// 是否正在进行可视化全埋点连接
 - (BOOL)isVisualizedConnecting {
     return self.visualizedConnection.isVisualizedConnecting;
 }
@@ -139,11 +145,6 @@
 
 - (BOOL)isSecretKeyURL:(NSURL *)url {
      return [url.host isEqualToString:@"encrypt"];
-}
-
-/// 当前类型
-- (SensorsAnalyticsVisualizedType)currentVisualizedType {
-    return self.visualizedType;
 }
 
 - (void)showParameterError:(NSString *)alertTitle message:(NSString *)alertMessage {

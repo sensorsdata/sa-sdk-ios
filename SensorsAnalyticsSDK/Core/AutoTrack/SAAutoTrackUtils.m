@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+HeatMap.h"
+#import "UIView+SAElementSelector.h"
 #import "UIView+AutoTrack.h"
 #import "SALog.h"
 #import "SAAlertController.h"
@@ -175,6 +175,18 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return YES;
 }
 
+// 判断是否为 RN 元素
++ (BOOL)isKindOfRNView:(UIView *)view {
+    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo"];
+    for (NSString *className in classNames) {
+        Class class = NSClassFromString(className);
+        if (class && [view isKindOfClass:class]) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
 @end
 
 #pragma mark -
@@ -250,16 +262,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 #pragma mark -
 @implementation SAAutoTrackUtils (ViewPath)
-
-+ (BOOL)isIgnoredVisualizedAutoTrackForViewController:(UIViewController *)viewController {
-    if (!viewController) {
-        return NO;
-    }
-    SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
-    BOOL isEnableVisualizedAutoTrack = [sa isVisualizedAutoTrackEnabled] && [sa isVisualizedAutoTrackViewController:viewController];
-    return !isEnableVisualizedAutoTrack;
-}
-
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     SensorsAnalyticsSDK *sa = [SensorsAnalyticsSDK sharedInstance];
 
@@ -309,7 +311,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 /// 获取模糊路径
 + (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
-    if ([self isIgnoredVisualizedAutoTrackForViewController:viewController]) {
+    if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
 

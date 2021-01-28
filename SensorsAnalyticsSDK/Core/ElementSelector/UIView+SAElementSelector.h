@@ -1,4 +1,4 @@
-//  UIView+HeatMap.h
+//  UIView+SAElementSelector.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 雨晗 on 1/20/16
@@ -21,10 +21,7 @@
 #import <UIKit/UIKit.h>
 
 
-@interface UIView (HeatMap)
-
-- (UIImage *)sa_snapshotImage;
-- (UIImage *)sa_snapshotForBlur;
+@interface UIView (SAElementSelector)
 
 /// viewId 的 sha256 加密
 - (NSString *)jjf_varA;
@@ -34,25 +31,8 @@
 
 /// 获取 8 像素图片，并获取 8 * 8 位图的 RGBA 数据 base64 编码的字符串，再做 sha256 加密
 - (NSString *)jjf_varC;
-- (NSArray *)jjf_varSetD;
 
 /// 控件内容拼接，再做 sha256 加密
 - (NSString *)jjf_varE;
 
 @end
-
-
-
-@interface UITableViewCell (HeatMap)
-- (NSString *)sa_indexPath;
-@end
-
-@interface UICollectionViewCell (HeatMap)
-- (NSString *)sa_indexPath;
-@end
-
-
-@interface UITableViewHeaderFooterView (HeatMap)
-- (NSString *)sa_section;
-@end
-

@@ -56,8 +56,6 @@
 
 @property (nonatomic, readonly) SAPropertySelectorDescription *getSelectorDescription;
 
-- (BOOL)shouldReadPropertyValueForObject:(NSObject *)object;
-
 - (NSValueTransformer *)valueTransformer;
 
 @end

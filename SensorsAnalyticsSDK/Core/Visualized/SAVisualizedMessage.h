@@ -30,8 +30,11 @@
 
 - (id)payloadObjectForKey:(NSString *)key;
 
-- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode;
+- (void)removePayloadObjectForKey:(NSString *)key;
 
+- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode;
+
+@optional
 - (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection;
 
 @end

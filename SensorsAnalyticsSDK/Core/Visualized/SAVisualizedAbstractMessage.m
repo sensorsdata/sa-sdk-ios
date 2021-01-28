@@ -67,19 +67,26 @@
 }
 
 - (void)setPayloadObject:(id)object forKey:(NSString *)key {
-    _payload[key] = object ?: [NSNull null];
+    _payload[key] = object;
 }
 
 - (id)payloadObjectForKey:(NSString *)key {
     id object = _payload[key];
-    return [object isEqual:[NSNull null]] ? nil : object;
+    return object;
+}
+
+- (void)removePayloadObjectForKey:(NSString *)key {
+    if (!key) {
+        return;
+    }
+    _payload[key] = nil;
 }
 
 - (NSDictionary *)payload {
     return [_payload copy];
 }
 
-- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode {
+- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     jsonObject[@"type"] = _type;
     jsonObject[@"os"] = @"iOS"; // 操作系统类型
@@ -129,36 +136,27 @@
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
 
-    if (useGzip) {
-        // 如果使用 GZip 压缩
-        NSError *error = nil;
-
-        // 1. 序列化 Payload
-        NSData *jsonData = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:&error];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-
-        // 2. 使用 GZip 进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-
-        // 3. Base64 Encode
-        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-
-        jsonObject[@"gzip_payload"] = b64String;
-    } else {
-        jsonObject[@"payload"] = [_payload copy];
-    }
-
+    // 使用 GZip 压缩
     NSError *error = nil;
+
+    // 1. 序列化 Payload
+    NSData *jsonDataPayload = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:&error];
+    NSString *jsonString = [[NSString alloc] initWithData:jsonDataPayload encoding:NSUTF8StringEncoding];
+
+    // 2. 使用 GZip 进行压缩
+    NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+
+    // 3. Base64 Encode
+    NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+
+    jsonObject[@"gzip_payload"] = b64String;
+
     NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
     if (!jsonData && error) {
         SALogError(@"Failed to serialize test designer message: %@", error);
     }
 
     return jsonData;
-}
-
-- (NSOperation *)responseCommandWithConnection:(SAVisualizedConnection *)connection {
-    return nil;
 }
 
 - (NSString *)debugDescription {

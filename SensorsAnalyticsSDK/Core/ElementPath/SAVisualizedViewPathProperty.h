@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 
-// 可视化全埋点上传页面信息相关协议
+// 可视化全埋点&点击分析 上传页面信息相关协议
 @protocol SAVisualizedViewPathProperty <NSObject>
 
 @optional
@@ -36,6 +36,9 @@
 
 /// 当前元素的相对路径
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
+
+/// 当前元素的元素选择器
+@property (nonatomic, copy, readonly) NSString *sensorsdata_elementSelector;
 
 /// 相对 keywindow 的坐标
 @property (nonatomic, assign, readonly) CGRect sensorsdata_frame;

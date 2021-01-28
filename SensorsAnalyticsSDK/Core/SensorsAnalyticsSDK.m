@@ -81,7 +81,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.2.8"
+#define VERSION @"2.3.0"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -383,7 +383,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
             
             // WKWebView 打通
-            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack) {
+            if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
             }
         }
@@ -929,7 +929,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     return [[SAAuxiliaryToolManager sharedInstance] handleURL:URL isWifi:isWifi];
 }
 
-
 - (BOOL)handleSchemeUrl:(NSURL *)url {
     if (!url) {
         return NO;
@@ -982,11 +981,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableVisualizedAutoTrack) {
         return NO;
     }
 
-    if (_visualizedAutoTrackViewControllers.count == 0 && self.configOptions.enableVisualizedAutoTrack) {
+    if (_visualizedAutoTrackViewControllers.count == 0) {
         return YES;
     }
 
@@ -1050,7 +1049,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
 
         // App 内嵌 H5 数据交互
-        if (self.configOptions.enableVisualizedAutoTrack) {
+        if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
             [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
             if ([SAAuxiliaryToolManager sharedInstance].isVisualizedConnecting) {
                 [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
@@ -1098,11 +1097,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    if (!viewController) {
+    if (!viewController || !self.configOptions.enableHeatMap) {
         return NO;
     }
 
-    if (_heatMapViewControllers.count == 0 && self.configOptions.enableHeatMap) {
+    if (_heatMapViewControllers.count == 0) {
         return YES;
     }
 
@@ -2106,7 +2105,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
-    if (self.configOptions.enableVisualizedAutoTrack) {
+    if (self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableHeatMap) {
         [[SAVisualizedObjectSerializerManger sharedInstance] enterViewController:controller];
     }
 
@@ -3116,6 +3115,9 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 
 - (void)enableHeatMap {
     self.configOptions.enableHeatMap = YES;
+
+    // 开启 WKWebView 和 js 的数据交互
+    [self swizzleWebViewMethod];
 }
 
 - (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {

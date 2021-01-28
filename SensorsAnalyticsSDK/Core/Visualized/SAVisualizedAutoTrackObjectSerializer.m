@@ -27,18 +27,19 @@
 #import <WebKit/WebKit.h>
 #import "NSInvocation+SAHelpers.h"
 #import "SAClassDescription.h"
-#import "SAEnumDescription.h"
 #import "SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
-#import "UIView+VisualizedAutoTrack.h"
+#import "UIView+SAElementPath.h"
 #import "SAAutoTrackProperty.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSTouchEventView.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SAAuxiliaryToolManager.h"
+
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
 @end
@@ -61,7 +62,10 @@
 
 - (NSDictionary *)serializedObjectsWithRootObject:(id)rootObject {
     NSParameterAssert(rootObject != nil);
-    
+    if (!rootObject) {
+        return nil;
+    }
+
     SAObjectSerializerContext *context = [[SAObjectSerializerContext alloc] initWithRootObject:rootObject];
     
     @try {// 遍历 _unvisitedObjects 中所有元素，解析元素信息
@@ -93,11 +97,9 @@
     if (classDescription) {
         // 遍历自身和父类的所需的属性及类型，合并为当前类所有属性
         for (SAPropertyDescription *propertyDescription in [classDescription propertyDescriptions]) {
-            if ([propertyDescription shouldReadPropertyValueForObject:object]) {
-                //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
-                id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context]; // $递增作为元素 id
-                propertyValues[propertyDescription.key] = propertyValue ? : [NSNull null];
-            }
+            //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
+            id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context];         // $递增作为元素 id
+            propertyValues[propertyDescription.key] = propertyValue;
         }
     }
 
@@ -161,7 +163,7 @@
 
 - (id)propertyValue:(id)propertyValue
 propertyDescription:(SAPropertyDescription *)propertyDescription
-           context : (SAObjectSerializerContext *)context {
+            context:(SAObjectSerializerContext *)context {
     
     if ([context isVisitedObject:propertyValue]) {
         return [_objectIdentityProvider identifierForObject:propertyValue];
@@ -191,7 +193,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
 - (id)propertyValueForObject:(NSObject *)object
      withPropertyDescription:(SAPropertyDescription *)propertyDescription
-                    context : (SAObjectSerializerContext *)context {
+                     context:(SAObjectSerializerContext *)context {
     SAPropertySelectorDescription *selectorDescription = propertyDescription.getSelectorDescription;
     
     // 使用 kvc 解析属性
@@ -259,6 +261,11 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     alertInfo[@"message"] = @"此页面不是 WKWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
     alertInfo[@"link_text"] = @"配置文档";
     alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
+    if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+        alertInfo[@"title"] = @"当前页面无法进行点击分析";
+        alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-16286049.html";
+    }
     [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
 
@@ -331,6 +338,9 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                         alertInfo[@"message"] = @"此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
                         alertInfo[@"link_text"] = @"配置文档";
                         alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_web_use-7548173.html";
+                        if ([SAAuxiliaryToolManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+                            alertInfo[@"title"] = @"当前页面无法进行点击分析";
+                        }
                         NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
                         [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
                     }

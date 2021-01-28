@@ -33,8 +33,9 @@
 
 - (void)setPayloadObject:(id)object forKey:(NSString *)key;
 - (id)payloadObjectForKey:(NSString *)key;
+- (void)removePayloadObjectForKey:(NSString *)key;
 - (NSDictionary *)payload;
 
-- (NSData *)JSONData:(BOOL)useGzip featureCode:(NSString *)featureCode;
+- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode;
 
 @end

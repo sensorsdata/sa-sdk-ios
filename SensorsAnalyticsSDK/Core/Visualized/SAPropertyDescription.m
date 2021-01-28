@@ -64,8 +64,6 @@
 
 @interface SAPropertyDescription ()
 
-@property (nonatomic, readonly) NSPredicate *predicate;
-
 @end
 
 @implementation SAPropertyDescription
@@ -92,10 +90,6 @@
         _name = [dictionary[@"name"] copy]; // required
         _readonly = [dictionary[@"readonly"] boolValue]; // Optional
         _key = dictionary[@"key"] ?: _name;
-        NSString *predicateFormat = dictionary[@"predicate"]; // Optional
-        if (predicateFormat) {
-            _predicate = [NSPredicate predicateWithFormat:predicateFormat];
-        }
 
         NSDictionary *get = dictionary[@"get"];
         if (get == nil) {
@@ -128,15 +122,6 @@
 
 - (NSString *)debugDescription {
     return [NSString stringWithFormat:@"<%@:%p name='%@' type='%@' %@>", NSStringFromClass([self class]), (__bridge void *)self, self.name, self.type, self.readonly ? @"readonly" : @""];
-}
-
-// 是否显示，是否需要读取属性
-- (BOOL)shouldReadPropertyValueForObject:(NSObject *)object {
-    if (_predicate) { // 判断 self.isViewLoaded == YES
-        return [_predicate evaluateWithObject:object];
-    }
-
-    return YES;
 }
 
 @end

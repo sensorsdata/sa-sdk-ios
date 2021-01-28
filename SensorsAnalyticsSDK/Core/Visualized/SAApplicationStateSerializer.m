@@ -28,31 +28,24 @@
 #import "SAClassDescription.h"
 #import "SALog.h"
 #import "SAObjectIdentityProvider.h"
-#import "SAHeatMapObjectSerializer.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAAuxiliaryToolManager.h"
 #import "SAVisualizedUtils.h"
 
 @implementation SAApplicationStateSerializer {
-    SAHeatMapObjectSerializer *_heatmapSerializer;
-    SAVisualizedAutoTrackObjectSerializer *_visualizedAutoTrackSerializer;
-    UIApplication *_application;
+    SAVisualizedAutoTrackObjectSerializer *_visualizedSerializer;
 }
 
-- (instancetype)initWithApplication:(UIApplication *)application
-                      configuration:(SAObjectSerializerConfig *)configuration
-             objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider {
-    NSParameterAssert(application != nil);
-    NSParameterAssert(configuration != nil);
-    if (!application || !configuration) {
+- (instancetype)initWithConfiguration:(SAObjectSerializerConfig *)configuration
+               objectIdentityProvider:(SAObjectIdentityProvider *)objectIdentityProvider {
+    NSParameterAssert(configuration);
+    if (!configuration) {
         return nil;
     }
     self = [super init];
     if (self) {
-        _application = application;
-        _heatmapSerializer = [[SAHeatMapObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
-        _visualizedAutoTrackSerializer = [[SAVisualizedAutoTrackObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
+        _visualizedSerializer = [[SAVisualizedAutoTrackObjectSerializer alloc] initWithConfiguration:configuration objectIdentityProvider:objectIdentityProvider];
     }
     
     return self;
@@ -135,22 +128,15 @@
     return screenshotImage;
 }
 
-- (NSDictionary *)objectHierarchyForWindow:(UIWindow *)window {
+
+- (NSDictionary *)objectHierarchyForRootObject {
     // 从 keyWindow 开始遍历
     UIWindow *keyWindow = [SAVisualizedUtils currentValidKeyWindow];
     if (!keyWindow) {
         return @{};
     }
 
-    // 点击图
-    if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
-        return [_heatmapSerializer serializedObjectsWithRootObject:keyWindow];
-
-        // 可视化全埋点
-    } else if ([SAAuxiliaryToolManager sharedInstance].currentVisualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
-        return [_visualizedAutoTrackSerializer serializedObjectsWithRootObject:keyWindow];
-    }
-    return @{};
+    return [_visualizedSerializer serializedObjectsWithRootObject:keyWindow];
 }
 
 @end
