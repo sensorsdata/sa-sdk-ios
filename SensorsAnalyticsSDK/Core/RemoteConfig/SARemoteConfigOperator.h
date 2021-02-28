@@ -53,7 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
 @property (nonatomic, copy) NSString *currentLibVersion; // 当前 SDK 版本
 @property (nonatomic, strong) SANetwork *network; // 网络相关类
-@property (nonatomic, copy) BOOL (^encryptBuilderCreateResultBlock)(void); // 加密构造器创建结果的回调
+@property (nonatomic, copy) BOOL (^createEncryptorResultBlock)(void); // 加密构造器创建结果的回调
 @property (nonatomic, copy) void (^handleEncryptBlock)(NSDictionary *encryptConfig); // 处理加密的回调
 @property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *properties); // 触发事件的回调
 @property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK, BOOL isDisableDebugMode); // 触发远程配置生效的回调

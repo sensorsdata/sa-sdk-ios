@@ -1,8 +1,8 @@
 //
-// SAValidator.m
+// SAAbstractEncryptor.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/2/19.
+// Created by wenquan on 2020/12/14.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,26 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAValidator.h"
+#import "SAAbstractEncryptor.h"
 
-@implementation SAValidator
+@implementation SAAbstractEncryptor
 
-+ (BOOL)isValidString:(NSString *)string {
-    return ([string isKindOfClass:[NSString class]] && ([string length] > 0));
+- (instancetype)initWithSecretKey:(id)secretKey {
+    self = [super init];
+    if (self) {
+        // base implementation
+    }
+    return self;
 }
 
-+ (BOOL)isValidArray:(NSArray *)array {
-    return ([array isKindOfClass:[NSArray class]] && ([array count] > 0));
+- (nullable NSString *)encryptObject:(NSData *)obj {
+    // base implementation
+    return nil;
 }
 
-+ (BOOL)isValidDictionary:(NSDictionary *)dictionary {
-    return ([dictionary isKindOfClass:[NSDictionary class]] && ([dictionary count] > 0));
-}
-
-+ (BOOL)isValidData:(NSData *)data {
-    return ([data isKindOfClass:[NSData class]] && ([data length] > 0));
+- (NSData *)random16ByteData {
+    // base implementation
+    return nil;
 }
 
 @end

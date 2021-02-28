@@ -153,7 +153,7 @@
         return YES;
     }
     
-    return self.options.encryptBuilderCreateResultBlock();
+    return self.options.createEncryptorResultBlock();
 }
 
 - (NSURLRequest *)buildURLRequestWithOriginalVersion:(nullable NSString *)originalVersion latestVersion:(nullable NSString *)latestVersion {

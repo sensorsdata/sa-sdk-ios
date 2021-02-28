@@ -1,8 +1,8 @@
 //
-// SAReferrerManager.h
+// SAEncryptManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2020/12/9.
+// Created by 张敏超🍎 on 2020/11/25.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,21 +19,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAReferrerManager : NSObject
+@interface SAEncryptManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAEncryptModuleProtocol>
 
-@property (nonatomic, assign) BOOL isClearReferrer;
-@property (nonatomic, assign) BOOL enableReferrerTitle;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 
-@property (atomic, copy, readonly) NSDictionary *referrerProperties;
-@property (atomic, copy, readonly) NSString *referrerURL;
-@property (nonatomic, copy, readonly) NSString *referrerTitle;
-
-- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties serialQueue:(dispatch_queue_t)serialQueue;
-- (void)clearReferrer;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

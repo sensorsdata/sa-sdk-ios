@@ -162,13 +162,13 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 
-/// RSA 公钥秘钥信息
+/// 密钥信息
 @interface SASecretKey : NSObject <NSCoding>
 
-/// 秘钥版本
+/// 密钥版本
 @property(nonatomic, assign) NSInteger version;
 
-/// 秘钥值
+/// 密钥值
 @property(nonatomic, copy) NSString *key;
 
 @end

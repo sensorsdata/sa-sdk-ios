@@ -30,6 +30,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isValidArray:(NSArray *)array;
 
++ (BOOL)isValidData:(NSData *)data;
+
 @end
 
 NS_ASSUME_NONNULL_END

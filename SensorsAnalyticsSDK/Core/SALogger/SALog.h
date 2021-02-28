@@ -52,6 +52,8 @@ typedef NS_OPTIONS(NSUInteger, SALogLevel) {
 
 + (instancetype)sharedLog;
 
+@property (atomic, assign) BOOL enableLog;
+
 + (void)log:(BOOL)asynchronous
       level:(SALogLevel)level
        file:(const char *)file

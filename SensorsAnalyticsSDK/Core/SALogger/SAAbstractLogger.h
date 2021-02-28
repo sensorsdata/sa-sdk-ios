@@ -40,7 +40,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAbstractLogger : NSObject <SALogger>
 
-@property (nonatomic, assign) BOOL enableLog;
 @property (nonatomic, strong) dispatch_queue_t loggerQueue;
 
 @end

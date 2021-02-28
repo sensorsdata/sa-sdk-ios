@@ -27,8 +27,8 @@
 
 @interface SAReferrerManager ()
 
-@property (nonatomic, copy, readwrite) NSDictionary *referrerProperties;
-@property (nonatomic, copy, readwrite) NSString *referrerURL;
+@property (atomic, copy, readwrite) NSDictionary *referrerProperties;
+@property (atomic, copy, readwrite) NSString *referrerURL;
 @property (nonatomic, copy, readwrite) NSString *referrerTitle;
 @property (nonatomic, copy) NSString *currentTitle;
 

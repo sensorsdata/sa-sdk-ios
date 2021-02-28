@@ -24,18 +24,33 @@
 
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
+#import "SAConfigOptions.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
+static NSString * const kSAEncryptModuleName = @"Encrypt";
 
 @interface SAModuleManager ()
 
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 
 @implementation SAModuleManager
+
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
+    SAModuleManager.sharedInstance.configOptions = configOptions;
+
+    // 渠道联调诊断功能获取多渠道匹配开关
+    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    
+    // 加密
+    if (configOptions.enableEncrypt) {
+        [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
+    }
+}
 
 + (instancetype)sharedInstance {
     static dispatch_once_t onceToken;
@@ -56,6 +71,9 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAModuleProtocol> object = [[(Class)cla alloc] init];
+            if ([object respondsToSelector:@selector(setConfigOptions:)]) {
+                object.configOptions = self.configOptions;
+            }
             object.enable = enable;
             self.modules[moduleName] = object;
         }
@@ -78,6 +96,8 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
             return kSALocationModuleName;
         case SAModuleTypeChannelMatch:
             return kSAChannelMatchModuleName;
+        case SAModuleTypeEncrypt:
+            return kSAEncryptModuleName;
         default:
             return nil;
     }
@@ -136,7 +156,6 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 
 @end
 
-
 #pragma mark -
 
 @implementation SAModuleManager (ChannelMatch)
@@ -144,6 +163,29 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
     id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Encrypt)
+
+- (id<SAEncryptModuleProtocol>)encryptManager {
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeEncrypt];
+    return manager.isEnable ? manager : nil;
+}
+
+- (BOOL)hasSecretKey {
+    return self.encryptManager.hasSecretKey;
+}
+
+- (nullable NSDictionary *)encryptJSONObject:(nonnull id)obj {
+    return [self.encryptManager encryptJSONObject:obj];
+}
+
+- (void)handleEncryptWithConfig:(nonnull NSDictionary *)encryptConfig {
+    [self.encryptManager handleEncryptWithConfig:encryptConfig];
 }
 
 @end

@@ -41,7 +41,7 @@
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL] || [self isDebugModeURL:URL] || [self isSecretKeyURL:URL];
+    return [self isHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL] || [self isDebugModeURL:URL];
 }
 
 // 可视化全埋点 & 点击图 参数个接口判断
@@ -143,8 +143,9 @@
      return [url.host isEqualToString:@"debugmode"];
 }
 
-- (BOOL)isSecretKeyURL:(NSURL *)url {
-     return [url.host isEqualToString:@"encrypt"];
+/// 当前类型
+- (SensorsAnalyticsVisualizedType)currentVisualizedType {
+    return self.visualizedType;
 }
 
 - (void)showParameterError:(NSString *)alertTitle message:(NSString *)alertMessage {

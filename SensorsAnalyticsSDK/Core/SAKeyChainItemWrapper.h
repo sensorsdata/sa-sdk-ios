@@ -19,21 +19,14 @@
 //
 
 #import <Foundation/Foundation.h>
+
 extern  NSString * const kSAService;
 extern  NSString * const kSAUdidAccount;
-extern  NSString * const kSAAppInstallationAccount;
-extern  NSString * const kSAAppInstallationWithDisableCallbackAccount;
+
 @interface SAKeyChainItemWrapper : NSObject
 
 + (NSString *)saUdid;
 + (NSString *)saveUdid:(NSString *)udid;
-
-#ifndef SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN
-+ (BOOL)hasTrackInstallation;
-+ (BOOL)hasTrackInstallationWithDisableCallback;
-+ (BOOL)markHasTrackInstallation;
-+ (BOOL)markHasTrackInstallationWithDisableCallback;
-#endif
 
 + (BOOL)saveOrUpdatePassword:(NSString *)password account:(NSString *)account service:(NSString *)service ;
 + (NSDictionary *)fetchPasswordWithAccount:(NSString *)account service:(NSString *)service ;

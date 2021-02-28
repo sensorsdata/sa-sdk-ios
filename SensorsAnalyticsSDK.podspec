@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.3.0"
+  s.version      = "2.3.1"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -53,18 +53,6 @@ Pod::Spec.new do |s|
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING=1'}
   end
 
-  # 不采集 UIImage 的名称
-  s.subspec 'DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UIIMAGE_IMAGENAME=1'}
-  end
-
-  # 不采集手势点击事件
-  s.subspec 'DISABLE_AUTOTRACK_GESTURE' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_GESTURE=1'}
-  end
-
   # 开启 React Native 页面控件的自动采集 $AppClick 事件
   s.subspec 'ENABLE_REACT_NATIVE_APPCLICK' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -93,12 +81,6 @@ Pod::Spec.new do |s|
   s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
-  end
-
-  # trackInstallation 不保存在 keychain，卸载重装会重新触发激活事件
-  s.subspec 'DISABLE_INSTALLATION_MARK_IN_KEYCHAIN' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_INSTALLATION_MARK_IN_KEYCHAIN=1'}
   end
 
    # 禁用 keychain

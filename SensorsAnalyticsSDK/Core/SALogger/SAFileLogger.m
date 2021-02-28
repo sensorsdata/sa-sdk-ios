@@ -40,9 +40,6 @@
 }
 
 - (void)logMessage:(SALogMessage *)logMessage {
-    if (!self.enableLog) {
-        return;
-    }
     [super logMessage:logMessage];
     if (logMessage.level > self.fileLogLevel) {
         return;

@@ -1,9 +1,9 @@
 //
-// SADataEncryptBuilder.h
+// SAIDFAHelper.h
 // SensorsAnalyticsSDK
 //
-// Created by 储强盛 on 2019/7/23.
-// Copyright © 2019-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 张敏超🍎 on 2020/12/1.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,33 +18,18 @@
 // limitations under the License.
 //
 
-
 #import <Foundation/Foundation.h>
-#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SADataEncryptBuilder : NSObject
+@interface SAIDFAHelper : NSObject
 
 /**
- 指定初始化方法，设置 RSA 公钥
+ 获取设备的 IDFA
 
- @param secretKey 公钥配置
- @return 配置对象
+ @return idfa
  */
-- (instancetype)initWithRSAPublicKey:(nonnull SASecretKey *)secretKey NS_DESIGNATED_INITIALIZER;
-
-/// 禁用 init 初始化
-- (instancetype)init NS_UNAVAILABLE;
-
-/// 禁用 new 初始化
-+ (instancetype)new NS_UNAVAILABLE;
-
-/// 设置公钥
-- (void)updateRSAPublicSecretKey:(nonnull SASecretKey *)secretKey;
-
-/// 加密数据
-- (nullable NSDictionary *)encryptionJSONObject:(id)obj;
++ (nullable NSString *)idfa;
 
 @end
 

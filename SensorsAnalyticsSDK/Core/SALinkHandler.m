@@ -35,8 +35,8 @@ static NSString *const SADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResul
 @interface SALinkHandler ()
 
 /// 包含 SDK 预置属性和用户自定义属性
-@property (nonatomic, strong) NSMutableDictionary *utms;
-@property (nonatomic, copy) NSDictionary *latestUtms;
+@property (atomic, strong) NSMutableDictionary *utms;
+@property (atomic, copy) NSDictionary *latestUtms;
 /// 预置属性列表
 @property (nonatomic, copy) NSSet *presetUtms;
 /// 过滤后的用户自定义属性
@@ -105,18 +105,18 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
             latest[newName] = local[newName];
         }
     }
-    _latestUtms = latest;
+    self.latestUtms = latest;
 }
 
 #pragma mark - utm properties
 /// $latest_utm_* 属性，当本次启动是通过 DeepLink 唤起时所有 event 事件都会新增这些属性
 - (nullable NSDictionary *)latestUtmProperties {
-    return [_latestUtms copy];
+    return [self.latestUtms copy];
 }
 
 /// $utm_* 属性，当通过 DeepLink 唤起 App 时 只针对  $AppStart 事件和第一个 $AppViewScreen 事件会新增这些属性
 - (NSDictionary *)utmProperties {
-    return [_utms copy];
+    return [self.utms copy];
 }
 
 /// 在固定场景下需要清除 utm_* 属性
@@ -124,12 +124,12 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 // 通过 DeepLink 唤起 App 并触发第一个页面浏览时需要清除本次的 utm 属性
 // 退出 App 时需要清除本次的 utms 属性
 - (void)clearUtmProperties {
-    [_utms removeAllObjects];
+    [self.utms removeAllObjects];
 }
 
 /// 只有通过 DeepLink 唤起 App 时需要清除 latest utms
 - (void)clearLatestUtmProperties {
-    _latestUtms = nil;
+    self.latestUtms = nil;
 }
 
 /// 清空上一次 DeepLink 唤起时的信息，并保存本次唤起的 URL
@@ -138,7 +138,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [self clearLatestUtmProperties];
     // 删除本地保存的 DeepLink 信息
     [self saveDeepLinkInfo:nil];
-    _utms[@"$deeplink_url"] = url.absoluteString;
+    self.utms[@"$deeplink_url"] = url.absoluteString;
 }
 
 #pragma mark - save latest utms in local file
@@ -244,8 +244,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if (![dictionary isKindOfClass:NSDictionary.class]) {
         return;
     }
-    _utms = [self acquireUtmProperties:dictionary];
-    _latestUtms = [self acquireLatestUtmProperties:dictionary];
+    self.utms = [self acquireUtmProperties:dictionary];
+    self.latestUtms = [self acquireLatestUtmProperties:dictionary];
 }
 
 - (NSMutableDictionary *)acquireUtmProperties:(NSDictionary *)dictionary {
@@ -345,8 +345,8 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 #pragma mark - deeplink event
 - (void)trackAppDeepLinkLaunchEvent:(NSURL *)url {
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    [props addEntriesFromDictionary:_utms];
-    [props addEntriesFromDictionary:_latestUtms];
+    [props addEntriesFromDictionary:self.utms];
+    [props addEntriesFromDictionary:self.latestUtms];
     props[@"$deeplink_url"] = url.absoluteString;
     [[SensorsAnalyticsSDK sharedInstance] track:SAAppDeeplinkLaunchEvent withProperties:props];
 }

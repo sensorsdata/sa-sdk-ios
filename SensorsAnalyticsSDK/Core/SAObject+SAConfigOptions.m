@@ -83,12 +83,4 @@
     return SensorsAnalyticsSDK.sdkInstance.configOptions.flushBulkSize;
 }
 
-- (BOOL)enableEncrypt {
-    return [SensorsAnalyticsSDK sdkInstance].configOptions.enableEncrypt;
-}
-
-- (SADataEncryptBuilder *)encryptBuilder {
-    return [SensorsAnalyticsSDK sdkInstance].encryptBuilder;
-}
-
 @end

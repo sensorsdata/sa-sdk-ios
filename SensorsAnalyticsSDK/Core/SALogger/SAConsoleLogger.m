@@ -61,9 +61,6 @@
 }
 
 - (void)logMessage:(SALogMessage *)logMessage {
-    if (!self.enableLog) {
-        return;
-    }
     [super logMessage:logMessage];
     
     SALoggerConsoleFormatter *formatter = [[SALoggerConsoleFormatter alloc] init];
