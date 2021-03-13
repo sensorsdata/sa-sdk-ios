@@ -80,7 +80,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.3.1"
+#define VERSION @"2.4.0"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -371,6 +371,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             // WKWebView 打通
             if (_configOptions.enableJavaScriptBridge || _configOptions.enableVisualizedAutoTrack || _configOptions.enableHeatMap) {
                 [self swizzleWebViewMethod];
+            }
+            
+            if (_configOptions.enableTrackPush) {
+                [[SAModuleManager sharedInstance] setEnable:YES forModuleType:SAModuleTypeAppPush];
+                [SAModuleManager sharedInstance].launchOptions = configOptions.launchOptions;
             }
         }
         
@@ -2244,6 +2249,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
+        [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         if (error) {
             SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);

@@ -27,20 +27,27 @@
 @implementation SAIDFAHelper
 
 + (NSString *)idfa {
-    NSString *idfa = nil;
     Class ASIdentifierManagerClass = NSClassFromString(@"ASIdentifierManager");
-    if (ASIdentifierManagerClass) {
-        SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
-        id sharedManager = ((id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector])(ASIdentifierManagerClass, sharedManagerSelector);
-        SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
-        NSUUID *uuid = ((NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector])(sharedManager, advertisingIdentifierSelector);
-        idfa = [uuid UUIDString];
-        // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
-        // 00000000-0000-0000-0000-000000000000
-        if ([idfa hasPrefix:@"00000000"]) {
-            return nil;
-        }
+    SEL sharedManagerSelector = NSSelectorFromString(@"sharedManager");
+    if (![ASIdentifierManagerClass respondsToSelector:sharedManagerSelector]) {
+        return nil;
     }
+    id (*sharedManagerIMP)(id, SEL) = (id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector];
+    id sharedManager = sharedManagerIMP(ASIdentifierManagerClass, sharedManagerSelector);
+    
+    SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
+    if (![sharedManager respondsToSelector:advertisingIdentifierSelector]) {
+        return nil;
+    }
+    NSUUID * (*advertisingIdentifierIMP)(id, SEL) = (NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector];
+    NSUUID *uuid = advertisingIdentifierIMP(sharedManager, advertisingIdentifierSelector);
+    NSString *idfa = [uuid UUIDString];
+    // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
+    // 00000000-0000-0000-0000-000000000000
+    if ([idfa hasPrefix:@"00000000"]) {
+        return nil;
+    }
+    
     return idfa;
 }
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.3.1"
+  s.version      = "2.4.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -25,6 +25,13 @@ Pod::Spec.new do |s|
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
+  end
+
+  # 推送点击
+  s.subspec 'AppPush' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
   end
 
   # 禁用设备方向采集
