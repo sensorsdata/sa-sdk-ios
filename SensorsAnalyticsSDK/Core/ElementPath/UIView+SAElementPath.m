@@ -29,6 +29,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
+#import "SAViewElementInfoFactory.h"
 
 @implementation UIView (SAElementPath)
 
@@ -120,11 +121,13 @@
     if ([SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
-
-    // 标记弹框
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    
+#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
+    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
+    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         return YES;
     }
+#endif
 
     if ([self sensorsdata_clickableForRNView]) {
         return YES;
@@ -152,26 +155,6 @@
         if (containEvents && userInteractionEnabled && enabled) { // 可点击
             return YES;
         }
-    } else if ([self isKindOfClass:UIImageView.class] || [self isKindOfClass:UILabel.class]) { // 可能添加手势
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-        if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-            return YES;
-        }
-#endif
-        if (self.userInteractionEnabled && self.gestureRecognizers.count > 0) {
-            __block BOOL enableGestureClick = NO;
-            [self.gestureRecognizers enumerateObjectsUsingBlock:^(__kindof UIGestureRecognizer *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-                // 目前 $AppClick 只采集 UITapGestureRecognizer 和 UILongPressGestureRecognizer
-                if ([obj isKindOfClass:UITapGestureRecognizer.class] || [obj isKindOfClass:UILongPressGestureRecognizer.class]) {
-                    *stop = YES;
-                    enableGestureClick = YES;
-                }
-            }];
-            return enableGestureClick;
-        } else {
-            return NO;
-        }
     } else if ([self isKindOfClass:UITableViewCell.class]) {
         UITableView *tableView = (UITableView *)[self superview];
         do {
@@ -190,9 +173,10 @@
                 return YES;
             }
         }
-        return NO;
     }
-    return NO;
+    
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return elementInfo.isVisualView;
 }
 
 #pragma mark SAVisualizedViewPathProperty
@@ -507,10 +491,11 @@
 @implementation UICollectionViewCell (SAElementPath)
 
 - (NSString *)sensorsdata_elementPosition {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportElementPosition) {
         return nil;
     }
-
+    
     if (self.sensorsdata_IndexPath) {
         return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
     }

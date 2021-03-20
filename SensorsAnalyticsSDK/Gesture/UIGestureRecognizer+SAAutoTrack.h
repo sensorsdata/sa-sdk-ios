@@ -1,5 +1,5 @@
 //
-//  UIGestureRecognizer+AutoTrack.h
+//  UIGestureRecognizer+SAAutoTrack.h
 //  SensorsAnalyticsSDK
 //
 //  Created by 储强盛 on 2018/10/25.
@@ -20,28 +20,19 @@
 
 #import <UIKit/UIKit.h>
 #import "SAAutoTrackProperty.h"
+#import "SAGestureTarget.h"
+#import "SAGestureTargetActionModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIGestureRecognizer (AutoTrack)
+@interface UIGestureRecognizer (SAAutoTrack)
 
-@end
+@property (nonatomic, strong, readonly) NSMutableArray <SAGestureTargetActionModel *>*sensorsdata_targetActionModels;
+@property (nonatomic, strong, readonly) SAGestureTarget *sensorsdata_gestureTarget;
 
-
-@interface UITapGestureRecognizer (AutoTrack)
-
-- (instancetype)sa_initWithTarget:(id)target action:(SEL)action;
-
-- (void)sa_addTarget:(id)target action:(SEL)action;
-
-@end
-
-
-@interface UILongPressGestureRecognizer (AutoTrack)
-
-- (instancetype)sa_initWithTarget:(id)target action:(SEL)action;
-
-- (void)sa_addTarget:(id)target action:(SEL)action;
+- (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action;
+- (void)sensorsdata_addTarget:(id)target action:(SEL)action;
+- (void)sensorsdata_removeTarget:(id)target action:(SEL)action;
 
 @end
 

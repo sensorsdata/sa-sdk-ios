@@ -68,7 +68,8 @@
             "PUUIMomentsGridViewController",
             "SFPasswordRemoteViewController",
             "UIWebRotatingAlertController",
-            "UIEditUserWordController"
+            "UIEditUserWordController",
+            "_UIContextMenuActionsOnlyViewController"
         ]
     },
     "$AppClick": {

@@ -76,8 +76,21 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return currentViewController;
 }
 
++ (BOOL)canFindPresentedViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
+    if ([viewController isKindOfClass:UIAlertController.class]) {
+        return NO;
+    }
+    if ([@"_UIContextMenuActionsOnlyViewController" isEqualToString:NSStringFromClass(viewController.class)]) {
+        return NO;
+    }
+    return YES;
+}
+
 + (UIViewController *)findCurrentViewControllerFromRootViewController:(UIViewController *)viewController isRoot:(BOOL)isRoot {
-    if (viewController.presentedViewController && ![viewController.presentedViewController isKindOfClass:UIAlertController.class]) {
+    if ([self canFindPresentedViewController:viewController.presentedViewController]) {
          return [self findCurrentViewControllerFromRootViewController:viewController.presentedViewController isRoot:NO];
      }
 
@@ -125,36 +138,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
         }
     } 
     return viewController;
-}
-
-+ (BOOL)isAlertForResponder:(UIResponder *)responder {
-    do {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-        BOOL isUIAlertView = [responder isKindOfClass:UIAlertView.class];
-        BOOL isUIActionSheet = [responder isKindOfClass:UIActionSheet.class];
-#pragma clang diagnostic pop
-
-        BOOL isUIAlertController = [responder isKindOfClass:UIAlertController.class];
-
-        if ([[responder nextResponder] isKindOfClass:SAAlertController.class]) {
-            return NO;
-        }
-        if (isUIAlertController || isUIAlertView || isUIActionSheet) {
-            return YES;
-        }
-    } while ((responder = [responder nextResponder]));
-    return NO;
-}
-
-/// 是否为弹框点击
-+ (BOOL)isAlertClickForView:(UIView *)view {
- #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        if ([NSStringFromClass(view.class) isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] || [NSStringFromClass(view.class) isEqualToString:@"_UIAlertControllerCollectionViewCell"]) { // 标记弹框
-            return YES;
-        }
-#endif
-     return NO;
 }
 
 ///  在间隔时间内是否采集 $AppClick 全埋点

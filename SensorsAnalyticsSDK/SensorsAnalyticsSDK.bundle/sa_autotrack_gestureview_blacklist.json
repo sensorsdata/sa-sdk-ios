@@ -1,0 +1,16 @@
+{
+    "public": [
+        "UIPageControl",
+        "UITextView",
+        "UITabBar",
+        "UICollectionView",
+        "UISearchBar"
+    ],
+    "private": [
+        "_UIContextMenuContainerView",
+        "_UIPreviewPlatterView",
+        "UISwitchModernVisualElement",
+        "WKContentView",
+        "UIWebBrowserView"
+    ]
+}

@@ -26,6 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
+#import "SAViewElementInfoFactory.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -53,26 +54,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementType {
-
-    // 采集弹框类型（UIAlertController、UIActionSheet、UIAlertView）
-    if ([SAAutoTrackUtils isAlertForResponder:self]) {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        UIWindow *window = self.window;
-        if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
-            CGFloat actionHeight = self.bounds.size.height;
-            if (actionHeight > 50) {
-                return NSStringFromClass(UIActionSheet.class);
-            } else {
-                return NSStringFromClass(UIAlertView.class);
-            }
-        } else {
-            return NSStringFromClass(UIAlertController.class);
-        }
-#else
-        return NSStringFromClass(UIAlertController.class);
-#endif
-    }
-    return NSStringFromClass(self.class);
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return elementInfo.elementType;
 }
 
 - (NSString *)sensorsdata_elementContent {
@@ -502,7 +485,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    if ([SAAutoTrackUtils isAlertClickForView:self]) {
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    if (!elementInfo.isSupportElementPosition) {
         return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];

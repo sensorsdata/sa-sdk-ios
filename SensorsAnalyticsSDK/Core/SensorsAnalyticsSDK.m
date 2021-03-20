@@ -54,7 +54,6 @@
 #import "UIView+AutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
-#import "UIGestureRecognizer+AutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAlertController.h"
 #import "SAAuxiliaryToolManager.h"
@@ -80,7 +79,7 @@
 #import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.4.0"
+#define VERSION @"2.5.0"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -2246,42 +2245,15 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [UIApplication sa_swizzleMethod:@selector(sendAction:to:from:forEvent:)
                              withMethod:@selector(sa_sendAction:to:from:forEvent:)
                                   error:&error];
+        if (error) {
+            SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
+            error = NULL;
+        }
         
         SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
         [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
         [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
-        if (error) {
-            SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
-            error = NULL;
-        }
-    });
-    
-    //UILabel
-    static dispatch_once_t onceTokenGesture;
-    dispatch_once(&onceTokenGesture, ^{
-
-        NSError *error = NULL;
-        //$AppClick
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                             withMethod:@selector(sa_addTarget:action:)
-                                  error:&error];
-        
-        [UITapGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                                      withMethod:@selector(sa_addTarget:action:)
-                                           error:&error];
-        
-        [UILongPressGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                                      withMethod:@selector(sa_initWithTarget:action:)
-                                           error:&error];
-        if (error) {
-            SALogError(@"Failed to swizzle Target on UITapGestureRecognizer. Details: %@", error);
-            error = NULL;
-        }
     });
     
     //React Native

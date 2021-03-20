@@ -41,12 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (nullable UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
 
-/// 是否为弹框
-+ (BOOL)isAlertForResponder:(UIResponder *)responder;
-
-/// 是否为弹框点击
-+ (BOOL)isAlertClickForView:(UIView *)view;
-
 ///  在间隔时间内是否采集 $AppClick 全埋点
 + (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object;
 

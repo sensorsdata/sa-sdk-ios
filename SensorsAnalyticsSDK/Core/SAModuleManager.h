@@ -67,4 +67,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 @end
 
+#pragma mark -
+
+@interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
+
+@property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+
+@end
+
 NS_ASSUME_NONNULL_END

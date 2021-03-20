@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.4.0"
+  s.version      = "2.5.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -11,11 +11,23 @@ Pod::Spec.new do |s|
   s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
-  s.subspec 'Core' do |c|
+  s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+  end
+
+  s.subspec 'Core' do |c|
+    c.dependency 'SensorsAnalyticsSDK/Common'
+    c.dependency 'SensorsAnalyticsSDK/Gesture'
+  end
+
+  # 手势采集
+  s.subspec 'Gesture' do |g|
+    g.dependency 'SensorsAnalyticsSDK/Common'
+    g.source_files = "SensorsAnalyticsSDK/Gesture/**/*.{h,m}"
+    g.private_header_files = 'SensorsAnalyticsSDK/Gesture/**/*.h'
   end
 
   # 开启 GPS 定位采集
