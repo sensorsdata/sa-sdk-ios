@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.5.0"
+  s.version      = "2.5.1"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -17,10 +17,17 @@ Pod::Spec.new do |s|
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
-
+  
   s.subspec 'Core' do |c|
     c.dependency 'SensorsAnalyticsSDK/Common'
     c.dependency 'SensorsAnalyticsSDK/Gesture'
+  end
+
+  # 支持 CAID 渠道匹配
+  s.subspec 'CAID' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
+    f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
   end
 
   # 手势采集

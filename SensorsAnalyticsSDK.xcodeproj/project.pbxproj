@@ -220,6 +220,8 @@
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
+		FCEA7FBA25F8D95400C81687 /* SACAIDUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = FCEA7FB825F8D95400C81687 /* SACAIDUtils.m */; };
+		FCEA7FBB25F8D95400C81687 /* SACAIDUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = FCEA7FB925F8D95400C81687 /* SACAIDUtils.h */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -469,6 +471,8 @@
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
+		FCEA7FB825F8D95400C81687 /* SACAIDUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SACAIDUtils.m; sourceTree = "<group>"; };
+		FCEA7FB925F8D95400C81687 /* SACAIDUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SACAIDUtils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -898,6 +902,7 @@
 			children = (
 				F277F5B025CF9A43009B5CE6 /* AppPush */,
 				881A40D2253D7B4F00854F69 /* Core */,
+				FCEA7FB725F8D95400C81687 /* CAID */,
 				881A4224253D7B5E00854F69 /* Location */,
 				453FC62425EE3D6300591C47 /* Gesture */,
 				CB30C0AB22840F1B0004061D /* Resources */,
@@ -949,6 +954,15 @@
 				CB6EBAF122855222003CFBA8 /* ca.der.cer */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		FCEA7FB725F8D95400C81687 /* CAID */ = {
+			isa = PBXGroup;
+			children = (
+				FCEA7FB925F8D95400C81687 /* SACAIDUtils.h */,
+				FCEA7FB825F8D95400C81687 /* SACAIDUtils.m */,
+			);
+			path = CAID;
 			sourceTree = "<group>";
 		};
 		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
@@ -1088,6 +1102,7 @@
 				4D4DB2E725B7D1F300938842 /* SAReferrerManager.h in Headers */,
 				4D9E5DC925943BCE0095A0D0 /* SAApplicationStateSerializer.h in Headers */,
 				881A419B253D7B4F00854F69 /* SAConfigOptions.h in Headers */,
+				FCEA7FBB25F8D95400C81687 /* SACAIDUtils.h in Headers */,
 				4D9E5DC325943BCE0095A0D0 /* SATypeDescription.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1317,6 +1332,7 @@
 				4D9E5DA925943BCD0095A0D0 /* SAVisualizedConnection.m in Sources */,
 				A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */,
 				4D9E5DBA25943BCE0095A0D0 /* SAJSTouchEventView.m in Sources */,
+				FCEA7FBA25F8D95400C81687 /* SACAIDUtils.m in Sources */,
 				4D9E5DC825943BCE0095A0D0 /* SAValueTransformers.m in Sources */,
 				881A4210253D7B5000854F69 /* SAIdentifier.m in Sources */,
 				4D9E5DC725943BCE0095A0D0 /* SAVisualizedUtils.m in Sources */,

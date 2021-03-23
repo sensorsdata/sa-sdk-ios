@@ -83,6 +83,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (NSString *)idfa;
 
 /**
+ 获取设备的 IDFV
+
+ @return idfv
+ */
++ (NSString *)idfv;
+
+/**
  生成匿名 Id（设备 Id）：IDFA -> IDFV -> UUID
 
  @return 匿名 Id（设备 Id）

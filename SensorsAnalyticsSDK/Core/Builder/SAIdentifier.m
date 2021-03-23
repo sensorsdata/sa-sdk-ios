@@ -139,12 +139,16 @@
     return nil;
 }
 
++ (NSString *)idfv {
+    return [UIDevice currentDevice].identifierForVendor.UUIDString;;
+}
+
 + (NSString *)uniqueHardwareId {
     NSString *distinctId = [self idfa];
 
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
-        distinctId = [UIDevice currentDevice].identifierForVendor.UUIDString;
+        distinctId = [self idfv];
     }
 
     // 没有IDFV，则使用UUID

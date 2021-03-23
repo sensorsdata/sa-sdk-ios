@@ -48,6 +48,47 @@
 
 @implementation NSObject (SASwizzle)
 
++ (BOOL)sa_swizzleMethod:(SEL)origSel_  withClass:(Class)altCla_ withMethod:(SEL)altSel_ error:(NSError **)error_ {
+    Method origMethod = class_getInstanceMethod(self, origSel_);
+    if (!origMethod) {
+#if TARGET_OS_IPHONE
+        SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self class]);
+#else
+        SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self className]);
+#endif
+        return NO;
+    }
+
+    Method altMethod = class_getInstanceMethod(altCla_, altSel_);
+    if (!altMethod) {
+#if TARGET_OS_IPHONE
+        SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [altCla_ class]);
+#else
+        SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [altCla_ className]);
+#endif
+        return NO;
+    }
+
+    class_addMethod(self,
+                    origSel_,
+                    class_getMethodImplementation(self, origSel_),
+                    method_getTypeEncoding(origMethod));
+    class_addMethod(altCla_,
+                    altSel_,
+                    class_getMethodImplementation(altCla_, altSel_),
+                    method_getTypeEncoding(altMethod));
+
+    //交换之前，先对自定义方法进行添加
+    BOOL didAddMethod = class_addMethod(self,
+                                        altSel_,
+                                        method_getImplementation(altMethod),
+                                        method_getTypeEncoding(altMethod));
+    if (didAddMethod) {
+        method_exchangeImplementations(origMethod, class_getInstanceMethod(self, altSel_));
+    }
+    return didAddMethod;
+}
+
 + (BOOL)sa_swizzleMethod:(SEL)origSel_ withMethod:(SEL)altSel_ error:(NSError **)error_ {
 #if OBJC_API_VERSION >= 2
 	Method origMethod = class_getInstanceMethod(self, origSel_);

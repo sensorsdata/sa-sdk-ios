@@ -32,7 +32,7 @@
 #import "SAReachability.h"
 #import "SALog.h"
 
-NSString * const SAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
+NSString * const SAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 @interface SAChannelMatchManager ()
@@ -82,32 +82,42 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 #pragma mark - 渠道联调诊断标记
-// 客户是否手动触发过激活事件
-- (BOOL)isAppInstall {
-    NSNumber *appInstalled = [[NSUserDefaults standardUserDefaults] objectForKey:SAChannelDebugFlagKey];
-    return (appInstalled != nil);
+/// 客户是否触发过激活事件
+- (BOOL)isAppInstalled {
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
+    return [userDefault boolForKey:SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK] || [userDefault boolForKey:SA_HAS_TRACK_INSTALLATION];
 }
 
-// 客户手动触发过的激活事件中 IDFA 是否为空
-- (BOOL)isNotEmptyIDFAOfAppInstall {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:SAChannelDebugFlagKey];
+/// 客户可以使用渠道联调诊断功能
+- (BOOL)isValidForChannelDebug {
+    if (![self isAppInstalled]) {
+        // 当未触发过激活事件时，可以使用联调诊断功能
+        return YES;
+    }
+    return [[NSUserDefaults standardUserDefaults] boolForKey:SAIsValidForChannelDebugKey];
+}
+
+/// 当前获取到的设备 ID 为有效值
+- (BOOL)isValidOfDeviceInfo {
+    return ([SAIdentifier idfa].length > 0 || [self CAIDInfo].allKeys > 0);
 }
 
 #pragma mark - 激活事件
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
 
+    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
     NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-    BOOL hasTrackInstallation = [[NSUserDefaults standardUserDefaults] boolForKey:userDefaultsKey];
+    BOOL hasTrackInstallation = [userDefault boolForKey:userDefaultsKey];
     if (hasTrackInstallation) {
         return;
     }
-    // 渠道联调诊断功能 - 激活事件中 IDFA 内容是否为空
-    BOOL isNotEmpty = [SAIdentifier idfa].length > 0;
-    [[NSUserDefaults standardUserDefaults] setValue:@(isNotEmpty) forKey:SAChannelDebugFlagKey];
+
+    // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
+    [userDefault setBool:[self isValidOfDeviceInfo] forKey:SAIsValidForChannelDebugKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
-    [[NSUserDefaults standardUserDefaults] setBool:YES forKey:userDefaultsKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [userDefault setBool:YES forKey:userDefaultsKey];
+    [userDefault synchronize];
 
     NSMutableDictionary *eventProps = [NSMutableDictionary dictionary];
     if ([SAValidator isValidDictionary:properties]) {
@@ -125,9 +135,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 - (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
     NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
-    NSString *idfa = [SAIdentifier idfa];
-    NSString *appInstallSource = idfa ? [NSString stringWithFormat:@"idfa=%@", idfa] : @"";
-    eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = appInstallSource;
+    eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
 
     NSString *userAgent = eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT];
     if (userAgent.length == 0) {
@@ -138,6 +146,27 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     } else {
         [self trackAppInstallEvent:event properties:eventProps];
     }
+}
+
+- (NSString *)appInstallSource {
+    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
+    [sources addEntriesFromDictionary:[self CAIDInfo]];
+    sources[@"idfa"] = [SAIdentifier idfa];
+    sources[@"idfv"] = [SAIdentifier idfv];
+    NSMutableArray *result = [NSMutableArray array];
+    for (NSString *key in sources.allKeys) {
+        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
+    }
+    return [result componentsJoinedByString:@"##"];
+}
+
+- (NSDictionary *)CAIDInfo {
+    Class cla = NSClassFromString(@"SACAIDUtils");
+    SEL sel = NSSelectorFromString(@"CAIDInfo");
+    if ([cla respondsToSelector:sel]) {
+        return ((NSDictionary * (*)(id, SEL))[cla methodForSelector:sel])(cla, sel);
+    }
+    return nil;
 }
 
 - (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
@@ -200,8 +229,16 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
 - (void)showRelinkAlertWithURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
-    NSString *deviceId = queryItems[@"device_code"];
-    if ([deviceId isEqualToString:[SAIdentifier idfa]]) {
+    NSString *deviceId = [queryItems[@"device_code"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    // 重连二维码对应的设备信息
+    NSMutableSet *deviceIdSet = [NSMutableSet setWithArray:[deviceId componentsSeparatedByString:@"##"]];
+    // 当前设备的设备信息
+    NSSet *installSourceSet = [NSSet setWithArray:[[self appInstallSource] componentsSeparatedByString:@"##"]];
+    // 当 IDFV 、IDFA caid、last_caid 都不一致，且只有 caid_version 一致时会出现匹配错误的情况
+    // 此场景在实际业务中出现概率较低，不考虑此问题
+    [deviceIdSet intersectSet:installSourceSet];
+    // 取交集，当交集不为空时，表示设备一致
+    if (deviceIdSet.count > 0) {
         [self showChannelDebugInstall];
     } else {
         [self showErrorMessage:@"无法重连，请检查是否更换了联调手机"];
@@ -213,11 +250,12 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"即将开启联调模式" message:nil preferredStyle:SAAlertControllerStyleAlert];
     __weak SAChannelMatchManager *weakSelf = self;
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-        if (![weakSelf isAppInstall] || ([weakSelf isNotEmptyIDFAOfAppInstall] && [SAIdentifier idfa])) {
+        __strong SAChannelMatchManager *strongSelf = weakSelf;
+        if ([strongSelf isValidForChannelDebug] && [strongSelf isValidOfDeviceInfo]) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
-            [weakSelf uploadUserInfoIntoWhiteList:qureyItems];
+            [strongSelf uploadUserInfoIntoWhiteList:qureyItems];
         } else {
-            [weakSelf showChannelDebugErrorMessage];
+            [strongSelf showChannelDebugErrorMessage];
         }
     }];
     [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
@@ -242,8 +280,8 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:qureyItems];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
-    params[@"has_active"] = @([self isAppInstall]);
-    params[@"device_code"] = [SAIdentifier idfa];
+    params[@"has_active"] = @([self isAppInstalled]);
+    params[@"device_code"] = [self appInstallSource];
     request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
 
     [self showIndicator];
@@ -288,7 +326,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 #pragma mark - Error Message
 - (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
-    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackInstallation 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。";
+    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackAppInstall 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。\n\n3. 若集成了 CAID SDK，请联系研发人员确认 trackAppInstall 接口是否在 “getCAIDAsyncly” 授权之后调用。\n\n";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
