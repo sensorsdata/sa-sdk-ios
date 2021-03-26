@@ -18,10 +18,6 @@
 //  limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import "SAMethodHelper.h"
 #import <objc/runtime.h>
 #import "SALog.h"
@@ -42,9 +38,6 @@
 + (void)addInstanceMethodWithDestinationSelector:(SEL)destinationSelector sourceSelector:(SEL)sourceSelector fromClass:(Class)fromClass toClass:(Class)toClass {
     // 获取一个实例方法的指针
     Method method = class_getInstanceMethod(fromClass, sourceSelector);
-    if (!method) {
-        return;
-    }
     // 返回该方法的实现
     IMP methodIMP = method_getImplementation(method);
     // 获取该方法的返回类型

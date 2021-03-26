@@ -25,53 +25,47 @@
 #import "SADelegateProxy.h"
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
+#import "NSObject+SACellClick.h"
 #import "SALog.h"
+#import "SAAutoTrackUtils.h"
 #import "SAAutoTrackProperty.h"
-#import "NSObject+DelegateProxy.h"
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #import <objc/message.h>
+
+typedef void (*SensorsDidSelectImplementation)(id, SEL, UIScrollView *, NSIndexPath *);
 
 @implementation SADelegateProxy
 
-/// Overridden instance class method
-- (Class)class {
-    if (self.sensorsdata_className) {
-        return NSClassFromString(self.sensorsdata_className);
++ (void)proxyWithDelegate:(id)delegate {
+    @try {
+        [SADelegateProxy hookDidSelectMethodWithDelegate:delegate];
+    } @catch (NSException *exception) {
+        return SALogError(@"%@", exception);
     }
-    return [super class];
 }
 
-+ (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *> *)selectors {
-    if (selectors.count < 1) {
-        return;
-    }
-    
-    Class proxyClass = [self class];
-    NSMutableSet *delegateSelectors = [NSMutableSet setWithSet:[self selectorsFor:delegate withSelectors:selectors]];
-    
++ (void)hookDidSelectMethodWithDelegate:(id)delegate {
     // 当前代理对象已经处理过
     if ([delegate sensorsdata_className]) {
-        NSMutableSet *currentSelectors = [NSMutableSet setWithSet:((NSObject *)delegate).sensorsdata_selectors];
-        if (currentSelectors.count > 0) {
-            [delegateSelectors minusSet:currentSelectors];
-        }
-        
-        if (delegateSelectors.count < 1) {
-            return;
-        }
-        
-        [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:[SAClassHelper realClassWithObject:delegate]];
-        [delegateSelectors unionSet:currentSelectors];
-        ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
-        ((NSObject *)delegate).sensorsdata_delegateProxy = self;
         return;
     }
     
-    ((NSObject *)delegate).sensorsdata_selectors = [delegateSelectors copy];
-    ((NSObject *)delegate).sensorsdata_delegateProxy = self;
+    SEL tablViewSelector = @selector(tableView:didSelectRowAtIndexPath:);
+    SEL collectionViewSelector = @selector(collectionView:didSelectItemAtIndexPath:);
+    
+    BOOL canResponseTableView = [delegate respondsToSelector:tablViewSelector];
+    BOOL canResponseCollectionView = [delegate respondsToSelector:collectionViewSelector];
+    
+    // 代理对象未实现单元格选中方法, 则不处理
+    if (!canResponseTableView && !canResponseCollectionView) {
+        return;
+    }
+    Class proxyClass = [SADelegateProxy class];
     // KVO 创建子类后会重写 - (Class)class 方法, 直接通过 object.class 无法获取真实的类
     Class realClass = [SAClassHelper realClassWithObject:delegate];
     // 如果当前代理对象归属为 KVO 创建的类, 则无需新建子类
-    if ([self isKVOClass:realClass]) {
+    if ([SADelegateProxy isKVOClass:realClass]) {
         // 记录 KVO 的父类(KVO 会重写 class 方法, 返回父类)
         [delegate setSensorsdata_className:NSStringFromClass([delegate class])];
         if ([realClass isKindOfClass:[NSObject class]]) {
@@ -79,8 +73,9 @@
             [SAMethodHelper addInstanceMethodWithSelector:@selector(removeObserver:forKeyPath:) fromClass:proxyClass toClass:realClass];
         }
         
-        // 给 KVO 的类添加需要 hook 的方法
-        [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:realClass];
+        // 给 KVO 的类添加 cell 点击方法, 采集点击事件
+        [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:realClass];
+        [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:realClass];
         return;
     }
     
@@ -91,8 +86,9 @@
         return;
     }
     
-    // 给新创建的类添加需要 hook 的方法
-    [self addInstanceMethodWithSelectors:delegateSelectors fromClass:proxyClass toClass:dynamicClass];
+    // 给新创建的类添加 cell 点击方法, 采集点击事件
+    [SAMethodHelper addInstanceMethodWithSelector:tablViewSelector fromClass:proxyClass toClass:dynamicClass];
+    [SAMethodHelper addInstanceMethodWithSelector:collectionViewSelector fromClass:proxyClass toClass:dynamicClass];
 
     if ([realClass isKindOfClass:[NSObject class]]) {
         // 新建子类后,需要监听是否添加了 KVO, 因为添加 KVO 属性监听后, KVO 会重写 Class 方法, 导致获取的 Class 为神策添加的子类
@@ -118,64 +114,56 @@
     }
 }
 
-+ (void)addInstanceMethodWithSelectors:(NSSet<NSString *> *)selectors fromClass:(Class)fromClass toClass:(Class)toClass {
-    for (NSString *selector in selectors) {
-        SEL sel = NSSelectorFromString(selector);
-        [SAMethodHelper addInstanceMethodWithSelector:sel fromClass:fromClass toClass:toClass];
+@end
+
+#pragma mark - UITableViewDelegate & UICollectionViewDelegate
+
+@implementation SADelegateProxy (SubclassMethod)
+
+/// Overridden instance class method
+- (Class)class {
+    if (self.sensorsdata_className) {
+        return NSClassFromString(self.sensorsdata_className);
     }
+    return [super class];
 }
 
-+ (NSSet<NSString *> *)selectorsFor:(id)object withSelectors:(NSSet<NSString *> *)selectors {
-    NSMutableSet<NSString *> *validSelectors = [[NSMutableSet alloc] init];
-    for (NSString *selector in selectors) {
-        SEL aSelector = NSSelectorFromString(selector);
-        if (aSelector && [object respondsToSelector:aSelector]) {
-            [validSelectors addObject:selector];
-        }
-    }
-    return [validSelectors copy];
-}
-
-+ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector, ... {
++ (void)invokeWithTarget:(NSObject *)target selector:(SEL)selector scrollView:(UIScrollView *)scrollView indexPath:(NSIndexPath *)indexPath {
     Class originalClass = NSClassFromString(target.sensorsdata_className) ?: target.superclass;
-    if (![target forwardingTargetForSelector:selector] && ![originalClass instancesRespondToSelector:selector]) {
-        return;
-    }
-    va_list args;
-    va_start(args, selector);
-    id arg1 = nil, arg2 = nil, arg3 = nil, arg4 = nil;
-    NSInteger count = [NSStringFromSelector(selector) componentsSeparatedByString:@":"].count - 1;
-    for (NSInteger i = 0; i < count; i++) {
-        i == 0 ? (arg1 = va_arg(args, id)) : nil;
-        i == 1 ? (arg2 = va_arg(args, id)) : nil;
-        i == 2 ? (arg3 = va_arg(args, id)) : nil;
-        i == 3 ? (arg4 = va_arg(args, id)) : nil;
-    }
     struct objc_super targetSuper = {
         .receiver = target,
         .super_class = originalClass
     };
     // 消息转发给原始类
-    void (*func)(struct objc_super *, SEL, id, id, id, id) = (void *)&objc_msgSendSuper;
-    func(&targetSuper, selector, arg1, arg2, arg3, arg4);
-    va_end(args);
+    void (*func)(struct objc_super *, SEL, id, id) = (void *)&objc_msgSendSuper;
+    func(&targetSuper, selector, scrollView, indexPath);
+    
+    // 当 target 和 delegate 不相等时为消息转发, 此时无需重复采集事件
+    if (target != scrollView.delegate) {
+        return;
+    }
+
+    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)scrollView didSelectedAtIndexPath:indexPath];
+    if (!properties) {
+        return;
+    }
+    NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:scrollView didSelectedAtIndexPath:indexPath];
+    [properties addEntriesFromDictionary:dic];
+
+    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
 }
 
-+ (void)resolveOptionalSelectorsForDelegate:(id)delegate {
-    NSSet *currentOptionalSelectors = ((NSObject *)delegate).sensorsdata_optionalSelectors;
-    NSMutableSet *optionalSelectors = [[NSMutableSet alloc] init];
-    if (currentOptionalSelectors) {
-        [optionalSelectors unionSet:currentOptionalSelectors];
-    }
-    
-    if ([self respondsToSelector:@selector(optionalSelectors)] &&[self optionalSelectors]) {
-        [optionalSelectors unionSet:[self optionalSelectors]];
-    }
-    ((NSObject *)delegate).sensorsdata_optionalSelectors = [optionalSelectors copy];
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    SEL methodSelector = @selector(tableView:didSelectRowAtIndexPath:);
+    [SADelegateProxy invokeWithTarget:self selector:methodSelector scrollView:tableView indexPath:indexPath];
+}
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
+    [SADelegateProxy invokeWithTarget:self selector:methodSelector scrollView:collectionView indexPath:indexPath];
 }
 
 @end
-
 
 #pragma mark - KVO
 @implementation SADelegateProxy (KVO)
@@ -199,15 +187,11 @@
     if (oldClassIsKVO && !newClassIsKVO) {
         // 清空已经记录的原始类
         self.sensorsdata_className = nil;
-        Class delegateProxy = [self.sensorsdata_delegateProxy class];
-        if ([delegateProxy respondsToSelector:NSSelectorFromString(@"proxyDelegate:selectors:")]) {
-            [delegateProxy proxyDelegate:self selectors:self.sensorsdata_selectors];
-        }
+        [SADelegateProxy proxyWithDelegate:self];
     }
 }
 
 @end
-
 
 #pragma mark - Utils
 /// Delegate 的类前缀

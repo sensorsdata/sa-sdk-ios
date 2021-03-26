@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "NSObject+DelegateProxy.h"
+#import "NSObject+SACellClick.h"
 #import <objc/runtime.h>
 
 @interface SADelegateProxyParasite : NSObject
@@ -41,9 +41,6 @@
 
 static void *const kSADelegateProxyParasiteName = (void *)&kSADelegateProxyParasiteName;
 static void *const kSADelegateProxyClassName = (void *)&kSADelegateProxyClassName;
-static void *const kSADelegateSelectors = (void *)&kSADelegateSelectors;
-static void *const kSADelegateOptionalSelectors = (void *)&kSADelegateOptionalSelectors;
-static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
 
 @interface NSObject (SACellClick)
 
@@ -51,7 +48,7 @@ static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
 
 @end
 
-@implementation NSObject (DelegateProxy)
+@implementation NSObject (SACellClick)
 
 - (SADelegateProxyParasite *)sensorsdata_parasite {
     return objc_getAssociatedObject(self, kSADelegateProxyParasiteName);
@@ -69,45 +66,11 @@ static void *const kSADelegateProxy = (void *)&kSADelegateProxy;
     objc_setAssociatedObject(self, kSADelegateProxyClassName, sensorsdata_className, OBJC_ASSOCIATION_COPY);
 }
 
-- (NSSet<NSString *> *)sensorsdata_selectors {
-    return objc_getAssociatedObject(self, kSADelegateSelectors);
-}
-
-- (void)setSensorsdata_selectors:(NSSet<NSString *> *)sensorsdata_selectors {
-    objc_setAssociatedObject(self, kSADelegateSelectors, sensorsdata_selectors, OBJC_ASSOCIATION_COPY);
-}
-
-- (NSSet<NSString *> *)sensorsdata_optionalSelectors {
-    return objc_getAssociatedObject(self, kSADelegateOptionalSelectors);
-}
-
-- (void)setSensorsdata_optionalSelectors:(NSSet<NSString *> *)sensorsdata_optionalSelectors {
-    objc_setAssociatedObject(self, kSADelegateOptionalSelectors, sensorsdata_optionalSelectors, OBJC_ASSOCIATION_COPY);
-}
-
-- (id)sensorsdata_delegateProxy {
-    return objc_getAssociatedObject(self, kSADelegateProxy);
-}
-
-- (void)setSensorsdata_delegateProxy:(id)sensorsdata_delegateProxy {
-    objc_setAssociatedObject(self, kSADelegateProxy, sensorsdata_delegateProxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
 - (void)sensorsdata_registerDeallocBlock:(void (^)(void))deallocBlock {
     if (!self.sensorsdata_parasite) {
         self.sensorsdata_parasite = [[SADelegateProxyParasite alloc] init];
         self.sensorsdata_parasite.deallocBlock = deallocBlock;
     }
-}
-
-- (BOOL)sensorsdata_respondsToSelector:(SEL)aSelector {
-    if ([self sensorsdata_respondsToSelector:aSelector]) {
-        return YES;
-    }
-    if ([self.sensorsdata_optionalSelectors containsObject:NSStringFromSelector(aSelector)]) {
-        return YES;
-    }
-    return NO;
 }
 
 @end

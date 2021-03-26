@@ -86,7 +86,6 @@
     options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
 
     options.enableReferrerTitle = self.enableReferrerTitle;
-    options.enableTrackPush = self.enableTrackPush;
     
     return options;
 }
