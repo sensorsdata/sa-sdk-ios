@@ -18,29 +18,38 @@
 //  limitations under the License.
 //
 
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
 #import "UIScrollView+AutoTrack.h"
-#import "SADelegateProxy.h"
+#import "SAScrollViewDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
+
 @implementation UITableView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
+    //resolve optional selectors
+    [SAScrollViewDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
 
-    if (self.delegate == nil) {
+    if (!delegate || !self.delegate) {
         return;
     }
+    
     // 判断是否忽略 $AppClick 事件采集
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:self.delegate];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"tableView:didSelectRowAtIndexPath:"]]];
 }
 
 @end
@@ -49,18 +58,22 @@
 @implementation UICollectionView (AutoTrack)
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
+    //resolve optional selectors
+    [SAScrollViewDelegateProxy resolveOptionalSelectorsForDelegate:delegate];
+    
     [self sensorsdata_setDelegate:delegate];
-
-    if (self.delegate == nil) {
+    
+    if (!delegate || !self.delegate) {
         return;
     }
+    
     // 判断是否忽略 $AppClick 事件采集
     if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     
     // 使用委托类去 hook 点击事件方法
-    [SADelegateProxy proxyWithDelegate:self.delegate];
+    [SAScrollViewDelegateProxy proxyDelegate:self.delegate selectors:[NSSet setWithArray:@[@"collectionView:didSelectItemAtIndexPath:"]]];
 }
 
 @end

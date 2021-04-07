@@ -159,6 +159,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 开启前向页面标题采集功能，默认不开启
 @property (nonatomic, assign) BOOL enableReferrerTitle;
 
+///开启自动采集通知
+@property (nonatomic, assign) BOOL enableTrackPush;
+
 @end
 
 

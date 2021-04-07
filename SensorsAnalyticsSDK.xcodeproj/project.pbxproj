@@ -40,12 +40,10 @@
 		4D4DB2C725B7D19C00938842 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */; };
 		4D4DB2C825B7D19C00938842 /* SADelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */; };
 		4D4DB2C925B7D19C00938842 /* UIScrollView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BF25B7D19B00938842 /* UIScrollView+AutoTrack.h */; };
-		4D4DB2CA25B7D19C00938842 /* NSObject+SACellClick.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2C025B7D19B00938842 /* NSObject+SACellClick.h */; };
 		4D4DB2CB25B7D19C00938842 /* SAMethodHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */; };
 		4D4DB2CC25B7D19C00938842 /* UIScrollView+AutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C225B7D19B00938842 /* UIScrollView+AutoTrack.m */; };
 		4D4DB2CD25B7D19C00938842 /* SAMethodHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */; };
 		4D4DB2CE25B7D19C00938842 /* SAClassHelper.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C425B7D19B00938842 /* SAClassHelper.m */; };
-		4D4DB2CF25B7D19C00938842 /* NSObject+SACellClick.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C525B7D19B00938842 /* NSObject+SACellClick.m */; };
 		4D4DB2D025B7D19C00938842 /* SADelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */; };
 		4D4DB2E425B7D1F300938842 /* UIViewController+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2D725B7D1F200938842 /* UIViewController+AutoTrack.h */; };
 		4D4DB2E525B7D1F300938842 /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */; };
@@ -201,6 +199,24 @@
 		CB6EBAF522855222003CFBA8 /* ca.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAF122855222003CFBA8 /* ca.der.cer */; };
 		CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAF222855222003CFBA8 /* SANetworkTests.m */; };
 		F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */; };
+		F277F5BF25CF9A43009B5CE6 /* SAApplicationDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B125CF9A43009B5CE6 /* SAApplicationDelegateProxy.m */; };
+		F277F5C025CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5B225CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h */; };
+		F277F5C125CF9A43009B5CE6 /* SANotificationUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B325CF9A43009B5CE6 /* SANotificationUtil.m */; };
+		F277F5C225CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B425CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m */; };
+		F277F5C325CF9A43009B5CE6 /* UIApplication+PushClick.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5B525CF9A43009B5CE6 /* UIApplication+PushClick.h */; };
+		F277F5C525CF9A43009B5CE6 /* SAAppPushConstants.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5B725CF9A43009B5CE6 /* SAAppPushConstants.h */; };
+		F277F5C625CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5B825CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m */; };
+		F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5B925CF9A43009B5CE6 /* SAApplicationDelegateProxy.h */; };
+		F277F5C825CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5BA25CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h */; };
+		F277F5C925CF9A43009B5CE6 /* SANotificationUtil.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5BB25CF9A43009B5CE6 /* SANotificationUtil.h */; };
+		F277F5CA25CF9A43009B5CE6 /* UIApplication+PushClick.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5BC25CF9A43009B5CE6 /* UIApplication+PushClick.m */; };
+		F277F5CB25CF9A43009B5CE6 /* SAAppPushConstants.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5BD25CF9A43009B5CE6 /* SAAppPushConstants.m */; };
+		F277F5D525CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5D325CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h */; };
+		F277F5D625CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5D425CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m */; };
+		F277F5E325CFCE56009B5CE6 /* NSObject+DelegateProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = F277F5E125CFCE56009B5CE6 /* NSObject+DelegateProxy.m */; };
+		F277F5E425CFCE56009B5CE6 /* NSObject+DelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */; };
+		F2E9723125E637820009A2B9 /* SAAppPushManager.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E9722F25E637820009A2B9 /* SAAppPushManager.h */; };
+		F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E9723025E637820009A2B9 /* SAAppPushManager.m */; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
@@ -277,12 +293,10 @@
 		4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAClassHelper.h; sourceTree = "<group>"; };
 		4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADelegateProxy.h; sourceTree = "<group>"; };
 		4D4DB2BF25B7D19B00938842 /* UIScrollView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIScrollView+AutoTrack.h"; sourceTree = "<group>"; };
-		4D4DB2C025B7D19B00938842 /* NSObject+SACellClick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+SACellClick.h"; sourceTree = "<group>"; };
 		4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAMethodHelper.h; sourceTree = "<group>"; };
 		4D4DB2C225B7D19B00938842 /* UIScrollView+AutoTrack.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIScrollView+AutoTrack.m"; sourceTree = "<group>"; };
 		4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAMethodHelper.m; sourceTree = "<group>"; };
 		4D4DB2C425B7D19B00938842 /* SAClassHelper.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAClassHelper.m; sourceTree = "<group>"; };
-		4D4DB2C525B7D19B00938842 /* NSObject+SACellClick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SACellClick.m"; sourceTree = "<group>"; };
 		4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADelegateProxy.m; sourceTree = "<group>"; };
 		4D4DB2D725B7D1F200938842 /* UIViewController+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+AutoTrack.h"; sourceTree = "<group>"; };
 		4D4DB2D825B7D1F200938842 /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
@@ -434,6 +448,24 @@
 		CB6EBAF122855222003CFBA8 /* ca.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = ca.der.cer; sourceTree = "<group>"; };
 		CB6EBAF222855222003CFBA8 /* SANetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetworkTests.m; sourceTree = "<group>"; };
 		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
+		F277F5B125CF9A43009B5CE6 /* SAApplicationDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAApplicationDelegateProxy.m; sourceTree = "<group>"; };
+		F277F5B225CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAUNUserNotificationCenterDelegateProxy.h; sourceTree = "<group>"; };
+		F277F5B325CF9A43009B5CE6 /* SANotificationUtil.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANotificationUtil.m; sourceTree = "<group>"; };
+		F277F5B425CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UNUserNotificationCenter+PushClick.m"; sourceTree = "<group>"; };
+		F277F5B525CF9A43009B5CE6 /* UIApplication+PushClick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+PushClick.h"; sourceTree = "<group>"; };
+		F277F5B725CF9A43009B5CE6 /* SAAppPushConstants.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppPushConstants.h; sourceTree = "<group>"; };
+		F277F5B825CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAUNUserNotificationCenterDelegateProxy.m; sourceTree = "<group>"; };
+		F277F5B925CF9A43009B5CE6 /* SAApplicationDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAApplicationDelegateProxy.h; sourceTree = "<group>"; };
+		F277F5BA25CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UNUserNotificationCenter+PushClick.h"; sourceTree = "<group>"; };
+		F277F5BB25CF9A43009B5CE6 /* SANotificationUtil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SANotificationUtil.h; sourceTree = "<group>"; };
+		F277F5BC25CF9A43009B5CE6 /* UIApplication+PushClick.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIApplication+PushClick.m"; sourceTree = "<group>"; };
+		F277F5BD25CF9A43009B5CE6 /* SAAppPushConstants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppPushConstants.m; sourceTree = "<group>"; };
+		F277F5D325CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAScrollViewDelegateProxy.h; sourceTree = "<group>"; };
+		F277F5D425CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAScrollViewDelegateProxy.m; sourceTree = "<group>"; };
+		F277F5E125CFCE56009B5CE6 /* NSObject+DelegateProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSObject+DelegateProxy.m"; sourceTree = "<group>"; };
+		F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSObject+DelegateProxy.h"; sourceTree = "<group>"; };
+		F2E9722F25E637820009A2B9 /* SAAppPushManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppPushManager.h; sourceTree = "<group>"; };
+		F2E9723025E637820009A2B9 /* SAAppPushManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppPushManager.m; sourceTree = "<group>"; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
 		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
 		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
@@ -534,14 +566,8 @@
 		4D4DB28C25B7D17E00938842 /* Cell */ = {
 			isa = PBXGroup;
 			children = (
-				4D4DB2C025B7D19B00938842 /* NSObject+SACellClick.h */,
-				4D4DB2C525B7D19B00938842 /* NSObject+SACellClick.m */,
-				4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */,
-				4D4DB2C425B7D19B00938842 /* SAClassHelper.m */,
-				4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */,
-				4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */,
-				4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */,
-				4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */,
+				F277F5D325CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h */,
+				F277F5D425CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m */,
 				4D4DB2BF25B7D19B00938842 /* UIScrollView+AutoTrack.h */,
 				4D4DB2C225B7D19B00938842 /* UIScrollView+AutoTrack.m */,
 			);
@@ -612,6 +638,7 @@
 				881A416D253D7B4F00854F69 /* Builder */,
 				881A414E253D7B4F00854F69 /* Channel */,
 				881A4165253D7B4F00854F69 /* Encrypt */,
+				F2346B7D25E0AE5600AA3684 /* HookDelegate */,
 				881A40FE253D7B4F00854F69 /* JSBridge */,
 				4DA89BBC25C2BC1E003ABA43 /* Network */,
 				881A40F8253D7B4F00854F69 /* RemoteConfig */,
@@ -869,6 +896,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				F277F5B025CF9A43009B5CE6 /* AppPush */,
 				881A40D2253D7B4F00854F69 /* Core */,
 				881A4224253D7B5E00854F69 /* Location */,
 				453FC62425EE3D6300591C47 /* Gesture */,
@@ -923,6 +951,51 @@
 			path = Resources;
 			sourceTree = "<group>";
 		};
+		FCEA7FB725F8D95400C81687 /* CAID */ = {
+			isa = PBXGroup;
+			children = (
+				FCEA7FB925F8D95400C81687 /* SACAIDUtils.h */,
+				FCEA7FB825F8D95400C81687 /* SACAIDUtils.m */,
+			);
+			path = CAID;
+			sourceTree = "<group>";
+		};
+		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
+			isa = PBXGroup;
+			children = (
+				F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */,
+				F277F5E125CFCE56009B5CE6 /* NSObject+DelegateProxy.m */,
+				4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */,
+				4D4DB2C425B7D19B00938842 /* SAClassHelper.m */,
+				4D4DB2BE25B7D19B00938842 /* SADelegateProxy.h */,
+				4D4DB2C625B7D19B00938842 /* SADelegateProxy.m */,
+				4D4DB2C125B7D19B00938842 /* SAMethodHelper.h */,
+				4D4DB2C325B7D19B00938842 /* SAMethodHelper.m */,
+			);
+			path = HookDelegate;
+			sourceTree = "<group>";
+		};
+		F277F5B025CF9A43009B5CE6 /* AppPush */ = {
+			isa = PBXGroup;
+			children = (
+				F277F5B925CF9A43009B5CE6 /* SAApplicationDelegateProxy.h */,
+				F277F5B125CF9A43009B5CE6 /* SAApplicationDelegateProxy.m */,
+				F277F5B725CF9A43009B5CE6 /* SAAppPushConstants.h */,
+				F277F5BD25CF9A43009B5CE6 /* SAAppPushConstants.m */,
+				F2E9722F25E637820009A2B9 /* SAAppPushManager.h */,
+				F2E9723025E637820009A2B9 /* SAAppPushManager.m */,
+				F277F5BB25CF9A43009B5CE6 /* SANotificationUtil.h */,
+				F277F5B325CF9A43009B5CE6 /* SANotificationUtil.m */,
+				F277F5B225CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h */,
+				F277F5B825CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m */,
+				F277F5B525CF9A43009B5CE6 /* UIApplication+PushClick.h */,
+				F277F5BC25CF9A43009B5CE6 /* UIApplication+PushClick.m */,
+				F277F5BA25CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h */,
+				F277F5B425CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m */,
+			);
+			path = AppPush;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -945,12 +1018,17 @@
 				4D4DB2EA25B7D1F300938842 /* UIApplication+AutoTrack.h in Headers */,
 				881A420F253D7B5000854F69 /* SAAlertController.h in Headers */,
 				4D9E5DB525943BCD0095A0D0 /* SAPropertyDescription.h in Headers */,
+				4D4DB2E925B7D1F300938842 /* UIGestureRecognizer+AutoTrack.h in Headers */,
+				F277F5C025CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.h in Headers */,
 				881A419A253D7B4F00854F69 /* SADeviceOrientationManager.h in Headers */,
 				4D2D53C22591EB3A00805141 /* SAReadWriteLock.h in Headers */,
 				881A4201253D7B5000854F69 /* SAAppExtensionDataManager.h in Headers */,
 				884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */,
+				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
 				881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */,
 				453ECA1525DE4B0700E5DFB6 /* SAViewElementInfo.h in Headers */,
+				F277F5D525CFBF38009B5CE6 /* SAScrollViewDelegateProxy.h in Headers */,
+				F277F5C525CF9A43009B5CE6 /* SAAppPushConstants.h in Headers */,
 				4DA89BC325C2BC1E003ABA43 /* SANetwork.h in Headers */,
 				881A41A2253D7B4F00854F69 /* SAModuleManager.h in Headers */,
 				4D9E5DAD25943BCD0095A0D0 /* SAAuxiliaryToolManager.h in Headers */,
@@ -967,8 +1045,10 @@
 				A835227525E5FD75005D69D5 /* SARSAEncryptor.h in Headers */,
 				A835227825E5FD75005D69D5 /* SAEncryptManager.h in Headers */,
 				4D4DB2CA25B7D19C00938842 /* NSObject+SACellClick.h in Headers */,
+				F277F5C925CF9A43009B5CE6 /* SANotificationUtil.h in Headers */,
 				881A41A0253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h in Headers */,
 				4D9E5DB625943BCD0095A0D0 /* SAVisualizedSnapshotMessage.h in Headers */,
+				F277F5C825CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h in Headers */,
 				A8A87E532568EBD500E16895 /* SARemoteConfigCommonOperator.h in Headers */,
 				881A4212253D7B5000854F69 /* SAIdentifier.h in Headers */,
 				881A4214253D7B5000854F69 /* SAKeyChainItemWrapper.h in Headers */,
@@ -993,12 +1073,15 @@
 				881A419C253D7B4F00854F69 /* SAConstants+Private.h in Headers */,
 				4D4DB2EE25B7D1F300938842 /* SAAutoTrackProperty.h in Headers */,
 				881A419F253D7B4F00854F69 /* SAHTTPSession.h in Headers */,
+				F2E9723125E637820009A2B9 /* SAAppPushManager.h in Headers */,
 				4D9E5DB825943BCD0095A0D0 /* SAVisualizedUtils.h in Headers */,
+				F277F5E425CFCE56009B5CE6 /* NSObject+DelegateProxy.h in Headers */,
 				881A41F4253D7B5000854F69 /* SAChannelMatchManager.h in Headers */,
 				4D9E5DBE25943BCE0095A0D0 /* SAClassDescription.h in Headers */,
 				4D9E5DC125943BCE0095A0D0 /* SAEnumDescription.h in Headers */,
 				453FC63D25EE3D6300591C47 /* SAGeneralGestureViewProcessor.h in Headers */,
 				A835227125E5FD75005D69D5 /* SAECCEncryptor.h in Headers */,
+				F277F5C325CF9A43009B5CE6 /* UIApplication+PushClick.h in Headers */,
 				4D4DB2E425B7D1F300938842 /* UIViewController+AutoTrack.h in Headers */,
 				4D9E5DBF25943BCE0095A0D0 /* SAVisualizedAbstractMessage.h in Headers */,
 				4D9E5DBC25943BCE0095A0D0 /* SAVisualizedAutoTrackObjectSerializer.h in Headers */,
@@ -1176,9 +1259,12 @@
 				4D2D539D2591EB2100805141 /* SAEventFlush.m in Sources */,
 				4D2D53A02591EB2100805141 /* SADatabase.m in Sources */,
 				453ECA1625DE4B0700E5DFB6 /* SAViewElementInfo.m in Sources */,
+				F277F5D625CFBF38009B5CE6 /* SAScrollViewDelegateProxy.m in Sources */,
 				4D4DB2CE25B7D19C00938842 /* SAClassHelper.m in Sources */,
 				881A4220253D7B5000854F69 /* SAFileStore.m in Sources */,
+				F277F5C625CF9A43009B5CE6 /* SAUNUserNotificationCenterDelegateProxy.m in Sources */,
 				4D4DB2EB25B7D1F300938842 /* UIView+AutoTrack.m in Sources */,
+				F277F5C125CF9A43009B5CE6 /* SANotificationUtil.m in Sources */,
 				4DA89BC125C2BC1E003ABA43 /* SANetwork.m in Sources */,
 				4D9E5DB125943BCD0095A0D0 /* SAObjectSerializerConfig.m in Sources */,
 				A835227A25E5FD75005D69D5 /* SAAbstractEncryptor.m in Sources */,
@@ -1188,7 +1274,7 @@
 				4D9E5DC525943BCE0095A0D0 /* SAObjectIdentityProvider.m in Sources */,
 				4D9E5DAA25943BCD0095A0D0 /* SAVisualizedObjectSerializerManger.m in Sources */,
 				4D9E5DA725943BCD0095A0D0 /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
-				4D4DB2CF25B7D19C00938842 /* NSObject+SACellClick.m in Sources */,
+				F277F5E325CFCE56009B5CE6 /* NSObject+DelegateProxy.m in Sources */,
 				4D2D53842591EB0600805141 /* SAFileLogger.m in Sources */,
 				881A41E4253D7B5000854F69 /* SAKeyChainItemWrapper.m in Sources */,
 				881A41AA253D7B4F00854F69 /* SAScriptMessageHandler.m in Sources */,
@@ -1205,6 +1291,7 @@
 				4D9E5DD625943BDF0095A0D0 /* UIView+SAElementPath.m in Sources */,
 				881A41FE253D7B5000854F69 /* SAConstants.m in Sources */,
 				4D9E5DC225943BCE0095A0D0 /* SAApplicationStateSerializer.m in Sources */,
+				F277F5CA25CF9A43009B5CE6 /* UIApplication+PushClick.m in Sources */,
 				881A4195253D7B4F00854F69 /* SAObject+SAConfigOptions.m in Sources */,
 				881A41F9253D7B5000854F69 /* SAConfigOptions.m in Sources */,
 				4D4DB2EF25B7D1F300938842 /* SAAutoTrackUtils.m in Sources */,
@@ -1220,6 +1307,7 @@
 				A8A87E512568EBD500E16895 /* SARemoteConfigModel.m in Sources */,
 				4D4DB2CC25B7D19C00938842 /* UIScrollView+AutoTrack.m in Sources */,
 				4D4DB2F025B7D1F300938842 /* UIViewController+AutoTrack.m in Sources */,
+				F277F5CB25CF9A43009B5CE6 /* SAAppPushConstants.m in Sources */,
 				A8A87E4E2568EBD500E16895 /* SARemoteConfigCheckOperator.m in Sources */,
 				453FC63E25EE3D6300591C47 /* SAGestureViewProcessorFactory.m in Sources */,
 				4D9E5DB225943BCD0095A0D0 /* SAVisualizedAbstractMessage.m in Sources */,
@@ -1229,16 +1317,20 @@
 				4D2D53A22591EB2100805141 /* SAEventRecord.m in Sources */,
 				4D2D53BB2591EB3A00805141 /* SAWeakPropertyContainer.m in Sources */,
 				881A4202253D7B5000854F69 /* SAModuleManager.m in Sources */,
+				F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
 				4D9E5DB725943BCD0095A0D0 /* SAAuxiliaryToolManager.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				4D9E5DB325943BCD0095A0D0 /* SAObjectSerializerContext.m in Sources */,
+				F277F5C225CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.m in Sources */,
 				4D9E5DA925943BCD0095A0D0 /* SAVisualizedConnection.m in Sources */,
 				A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */,
 				4D9E5DBA25943BCE0095A0D0 /* SAJSTouchEventView.m in Sources */,
 				4D9E5DC825943BCE0095A0D0 /* SAValueTransformers.m in Sources */,
 				881A4210253D7B5000854F69 /* SAIdentifier.m in Sources */,
 				4D9E5DC725943BCE0095A0D0 /* SAVisualizedUtils.m in Sources */,
+				F277F5BF25CF9A43009B5CE6 /* SAApplicationDelegateProxy.m in Sources */,
+				881A4209253D7B5000854F69 /* SAEncryptUtils.m in Sources */,
 				4D9E5DA825943BCD0095A0D0 /* NSInvocation+SAHelpers.m in Sources */,
 				453ECA2C25DE4C5B00E5DFB6 /* SAViewElementInfoFactory.m in Sources */,
 				881A41A1253D7B4F00854F69 /* SAAppExtensionDataManager.m in Sources */,
