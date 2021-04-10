@@ -24,6 +24,7 @@
 
 #import "SANetwork.h"
 #import "SAURLUtils.h"
+#import "SAModuleManager.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "NSString+HashCode.h"
@@ -57,67 +58,8 @@
 
 #pragma mark - build
 
-- (NSURL *)buildDebugModeCallbackURLWithParams:(NSDictionary<NSString *, NSString *> *)params {
-    NSURLComponents *urlComponents = nil;
-    NSString *sfPushCallbackUrl = params[@"sf_push_distinct_id"];
-    NSString *infoId = params[@"info_id"];
-    NSString *project = params[@"project"];
-    if (sfPushCallbackUrl.length > 0 && infoId.length > 0 && project.length > 0) {
-        NSURL *url = [NSURL URLWithString:sfPushCallbackUrl];
-        urlComponents = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-        urlComponents.queryItems = @[[[NSURLQueryItem alloc] initWithName:@"project" value:project], [[NSURLQueryItem alloc] initWithName:@"info_id" value:infoId]];
-        return urlComponents.URL;
-    }
-    urlComponents = [NSURLComponents componentsWithURL:self.serverURL resolvingAgainstBaseURL:NO];
-    NSString *queryString = [SAURLUtils urlQueryStringWithParams:params];
-    if (urlComponents.query.length) {
-        urlComponents.query = [NSString stringWithFormat:@"%@&%@", urlComponents.query, queryString];
-    } else {
-        urlComponents.query = queryString;
-    }
-    return urlComponents.URL;
-}
-
-- (NSURLRequest *)buildDebugModeCallbackRequestWithURL:(NSURL *)url distinctId:(NSString *)distinctId {
-    NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:url];
-    request.timeoutInterval = 30;
-    [request setHTTPMethod:@"POST"];
-    [request setValue:@"text/plain" forHTTPHeaderField:@"Content-Type"];
-    
-    NSDictionary *callData = @{@"distinct_id": distinctId};
-    NSData *jsonData = [SAJSONUtil JSONSerializeObject:callData];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-    [request setHTTPBody:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-    
-    return request;
-}
-
 #pragma mark - request
 
-- (NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, NSString *> *)params {
-    if (![self isValidServerURL]) {
-        SALogError(@"serverURL error，Please check the serverURL");
-        return nil;
-    }
-    NSURL *url = [self buildDebugModeCallbackURLWithParams:params];
-    if (!url) {
-        SALogError(@"callback url in debug mode was nil");
-        return nil;
-    }
-
-    NSURLRequest *request = [self buildDebugModeCallbackRequestWithURL:url distinctId:distinctId];
-
-    NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
-        NSInteger statusCode = response.statusCode;
-        if (statusCode == 200) {
-            SALogDebug(@"config debugMode CallBack success");
-        } else {
-            SALogError(@"config debugMode CallBack Faild statusCode：%ld，url：%@", (long)statusCode, url);
-        }
-    }];
-    [task resume];
-    return task;
-}
 
 @end
 
@@ -126,7 +68,7 @@
 
 - (NSURL *)serverURL {
     NSURL *serverURL = [NSURL URLWithString:SensorsAnalyticsSDK.sdkInstance.configOptions.serverURL];
-    if (self.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
+    if (SAModuleManager.sharedInstance.debugMode == SensorsAnalyticsDebugOff || serverURL == nil) {
         return serverURL;
     }
     NSURL *url = serverURL;

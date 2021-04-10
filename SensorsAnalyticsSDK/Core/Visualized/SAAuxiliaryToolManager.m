@@ -41,7 +41,7 @@
 }
 
 - (BOOL)canHandleURL:(NSURL *)URL {
-    return [self isHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL] || [self isDebugModeURL:URL];
+    return [self isHeatMapURL:URL] || [self isVisualizedAutoTrackURL:URL];
 }
 
 // 可视化全埋点 & 点击图 参数个接口判断
@@ -137,10 +137,6 @@
 
 - (BOOL)isVisualizedAutoTrackURL:(NSURL *)url {
     return [url.host isEqualToString:@"visualized"];
-}
-
-- (BOOL)isDebugModeURL:(NSURL *)url {
-     return [url.host isEqualToString:@"debugmode"];
 }
 
 /// 当前类型

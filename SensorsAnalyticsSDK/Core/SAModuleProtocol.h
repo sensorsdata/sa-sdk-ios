@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -72,6 +73,27 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
+@protocol SADebugModeModuleProtocol <NSObject>
+
+/// Debug Mode 属性，设置或获取 Debug 模式
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
+
+/// 设置在 Debug 模式下，是否弹窗显示错误信息
+/// @param isShow 是否显示
+- (void)setShowDebugAlertView:(BOOL)isShow;
+
+/// 设置 SDK 的 DebugMode 在 Debug 模式时弹窗警告
+/// @param mode Debug 模式
+- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode;
+
+/// Debug 模式下，弹窗显示错误信息
+/// @param message 错误信息
+- (void)showDebugModeWarning:(NSString *)message;
+
+@end
+
+#pragma mark -
+
 @protocol SAEncryptModuleProtocol <NSObject>
 
 @property (nonatomic, readonly) BOOL hasSecretKey;
@@ -101,6 +123,28 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param obj 控件元素
 /// @return 返回校验结果
 - (BOOL)isGestureVisualView:(id)obj;
+
+@end
+
+#pragma mark -
+
+@protocol SADeeplinkModuleProtocol <NSObject>
+
+/// DeepLink 回调函数
+/// @param linkHandlerCallback  callback 请求成功后的回调函数
+///     - params：创建渠道链接时填写的 App 内参数
+///     - succes：deeplink 唤起结果
+///     - appAwakePassedTime：获取渠道信息所用时间
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback;
+
+/// 最新的来源渠道信息
+@property (nonatomic, copy, nullable, readonly) NSDictionary *latestUtmProperties;
+
+/// 当前 DeepLink 启动时的来源渠道信息
+@property (nonatomic, copy, readonly) NSDictionary *utmProperties;
+
+/// 清除本次 DeepLink 解析到的 utm 信息
+- (void)clearUtmProperties;
 
 @end
 

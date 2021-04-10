@@ -134,7 +134,10 @@
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
     if ([cla respondsToSelector:sel]) {
-        return ((NSString * (*)(id, SEL))[cla methodForSelector:sel])(cla, sel);
+        NSString * (*idfaIMP)(id, SEL) = (NSString * (*)(id, SEL))[cla methodForSelector:sel];
+        if (idfaIMP) {
+            return idfaIMP(cla, sel);
+        }
     }
     return nil;
 }

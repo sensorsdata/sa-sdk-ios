@@ -25,11 +25,15 @@
 #import "SAModuleManager.h"
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
+static NSString * const kSADebugModeModuleName = @"DebugMode";
+static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
+static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAGestureModuleName = @"Gesture";
 
@@ -42,16 +46,19 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @implementation SAModuleManager
 
-+ (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
++ (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
     // 渠道联调诊断功能获取多渠道匹配开关
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeChannelMatch];
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
+    // 初始化 LinkHandler 处理 deepLink 相关操作
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+    // 初始化 Debug 模块
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
+    [SAModuleManager.sharedInstance handleDebugMode:debugMode];
     
     // 加密
-    if (configOptions.enableEncrypt) {
-        [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModuleType:SAModuleTypeEncrypt];
-    }
+    [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
     
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
@@ -69,11 +76,30 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     return manager;
 }
 
+#pragma mark - Private
+
+- (NSString *)moduleNameForType:(SAModuleType)type {
+    switch (type) {
+        case SAModuleTypeLocation:
+            return kSALocationModuleName;
+        case SAModuleTypeReactNative:
+            return kSAReactNativeModuleName;
+        case SAModuleTypeAppPush:
+            return kSANotificationModuleName;
+        default:
+            return nil;
+    }
+}
+
+- (NSString *)classNameForModule:(NSString *)moduleName {
+    return [NSString stringWithFormat:@"SA%@Manager", moduleName];
+}
+
 - (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
     if (self.modules[moduleName]) {
         self.modules[moduleName].enable = enable;
     } else if (enable) {
-        NSString *className = [NSString stringWithFormat:@"SA%@Manager", moduleName];
+        NSString *className = [self classNameForModule:moduleName];
         Class<SAModuleProtocol> cla = NSClassFromString(className);
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
         if ([cla conformsToProtocol:@protocol(SAModuleProtocol)]) {
@@ -87,6 +113,14 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     }
 }
 
+#pragma mark - Public
+
+- (BOOL)contains:(SAModuleType)type {
+    NSString *moduleName = [self moduleNameForType:type];
+    NSString *className = [self classNameForModule:moduleName];
+    return [NSClassFromString(className) conformsToProtocol:@protocol(SAModuleProtocol)];
+}
+
 - (id<SAModuleProtocol>)managerForModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     return self.modules[name];
@@ -95,21 +129,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     [self setEnable:enable forModule:name];
-}
-
-- (NSString *)moduleNameForType:(SAModuleType)type {
-    switch (type) {
-        case SAModuleTypeLocation:
-            return kSALocationModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
-        case SAModuleTypeAppPush:
-            return kSANotificationModuleName;
-        default:
-            return nil;
-    }
 }
 
 #pragma mark - Open URL
@@ -170,8 +189,38 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (ChannelMatch)
 
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeChannelMatch];
+    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
     [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (DebugMode)
+
+- (id<SADebugModeModuleProtocol>)debugModeManager {
+    return (id<SADebugModeModuleProtocol>)self.modules[kSADebugModeModuleName];
+}
+
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
+    self.debugModeManager.debugMode = debugMode;
+}
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return self.debugModeManager.debugMode;
+}
+
+- (void)setShowDebugAlertView:(BOOL)isShow {
+    [self.debugModeManager setShowDebugAlertView:isShow];
+}
+
+- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode {
+    [self.debugModeManager handleDebugMode:mode];
+}
+
+- (void)showDebugModeWarning:(NSString *)message {
+    [self.debugModeManager showDebugModeWarning:message];
 }
 
 @end
@@ -181,7 +230,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @implementation SAModuleManager (Encrypt)
 
 - (id<SAEncryptModuleProtocol>)encryptManager {
-    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeEncrypt];
+    id<SAEncryptModuleProtocol, SAModuleProtocol> manager = (id<SAEncryptModuleProtocol, SAModuleProtocol>)self.modules[kSAEncryptModuleName];
     return manager.isEnable ? manager : nil;
 }
 
@@ -219,6 +268,33 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (BOOL)isGestureVisualView:(id)obj {
     return [self.gestureManager isGestureVisualView:obj];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (Deeplink)
+
+- (id<SADeeplinkModuleProtocol>)deeplinkManager {
+    id<SADeeplinkModuleProtocol> manager = (id<SADeeplinkModuleProtocol>)self.modules[kSADeeplinkModuleName];
+    return manager;
+}
+
+- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback {
+    [self.deeplinkManager setLinkHandlerCallback:linkHandlerCallback];
+}
+
+- (NSDictionary *)latestUtmProperties {
+    return self.deeplinkManager.latestUtmProperties;
+}
+
+- (NSDictionary *)utmProperties {
+    return self.deeplinkManager.utmProperties;
+}
+
+- (void)clearUtmProperties {
+    [self.deeplinkManager clearUtmProperties];
 }
 
 @end

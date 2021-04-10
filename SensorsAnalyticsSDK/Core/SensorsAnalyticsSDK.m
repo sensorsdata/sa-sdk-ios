@@ -59,7 +59,6 @@
 #import "SAAuxiliaryToolManager.h"
 #import "SAWeakPropertyContainer.h"
 #import "SADateFormatter.h"
-#import "SALinkHandler.h"
 #import "SAFileStore.h"
 #import "SATrackTimer.h"
 #import "SAEventStore.h"
@@ -76,10 +75,9 @@
 #import "SAConsoleLogger.h"
 #import "SAVisualizedObjectSerializerManger.h"
 #import "SAModuleManager.h"
-#import "SAChannelMatchManager.h"
 #import "SAReferrerManager.h"
 
-#define VERSION @"2.5.3"
+#define VERSION @"2.5.4"
 
 static NSUInteger const SA_PROPERTY_LENGTH_LIMITATION = 8191;
 
@@ -211,9 +209,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @property (nonatomic, assign, getter=isLaunchedPassively) BOOL launchedPassively;
 @property (nonatomic, strong) NSMutableArray <UIViewController *> *launchedPassivelyControllers;
 
-/// DeepLink handler
-@property (nonatomic, strong) SALinkHandler *linkHandler;
-
 @property (nonatomic, strong) SAIdentifier *identifier;
 
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
@@ -225,10 +220,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 @end
 
 @implementation SensorsAnalyticsSDK {
-    SensorsAnalyticsDebugMode _debugMode;
     BOOL _appRelaunched;                // App 从后台恢复
-    BOOL _showDebugAlertView;
-    UInt8 _debugAlertViewHasShownNumber;
     //进入非活动状态，比如双击 home、系统授权弹框
     BOOL _applicationWillResignActive;
     SensorsAnalyticsNetworkType _networkTypePolicy;
@@ -244,7 +236,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
     });
 }
 
@@ -289,7 +281,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 SensorsAnalyticsNetworkTypeWIFI;
             
             _people = [[SensorsAnalyticsPeople alloc] init];
-            _debugMode = debugMode;
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -306,8 +297,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
 
             _appRelaunched = NO;
-            _showDebugAlertView = YES;
-            _debugAlertViewHasShownNumber = 0;
             _applicationWillResignActive = NO;
 
             _referrerManager =[[SAReferrerManager alloc] init];
@@ -330,10 +319,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _trackChannelEventNames = [[NSMutableSet alloc] init];
 
              _trackTimer = [[SATrackTimer alloc] init];
-            
-            // 初始化 LinkHandler 处理 deepLink 相关操作
-            _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:configOptions];
-            
+
             NSString *namePattern = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             _propertiesRegex = [NSRegularExpression regularExpressionWithPattern:namePattern options:NSRegularExpressionCaseInsensitive error:nil];
             _presetEventNames = [NSSet setWithObjects:
@@ -361,7 +347,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
                 // Install uncaught exception handlers first
                 [[SensorsAnalyticsExceptionHandler sharedHandler] addSensorsAnalyticsInstance:self];
             }
-            [self configServerURLWithDebugMode:_debugMode showDebugModeWarning:YES];
             
             if (_configOptions.enableLog) {
                 [self enableLog:YES];
@@ -550,136 +535,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)configServerURLWithDebugMode:(SensorsAnalyticsDebugMode)debugMode showDebugModeWarning:(BOOL)isShow {
-    _debugMode = debugMode;
-
-    self.network.debugMode = debugMode;
-    [self enableLog:debugMode != SensorsAnalyticsDebugOff];
-    
-    if (isShow) {
-        //SDK 初始化时默认 debugMode 为 DebugOff，SALog 不会打印日志
-        SALogDebug(@"%@ initialized the instance of Sensors Analytics SDK with debugMode: '%@'", self, [self debugModeToString:_debugMode]);
-
-        //打开debug模式，弹出提示
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            NSString *alertMessage = nil;
-            if (_debugMode == SensorsAnalyticsDebugOnly) {
-                alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-            } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-                alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
-            }
-            [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-        }
-#endif
-    }
-}
-
-- (NSString *)debugModeToString:(SensorsAnalyticsDebugMode)debugMode {
-    NSString *modeStr = nil;
-    switch (debugMode) {
-        case SensorsAnalyticsDebugOff:
-            modeStr = @"DebugOff";
-            break;
-        case SensorsAnalyticsDebugAndTrack:
-            modeStr = @"DebugAndTrack";
-            break;
-        case SensorsAnalyticsDebugOnly:
-            modeStr = @"DebugOnly";
-            break;
-        default:
-            modeStr = @"Unknown";
-            break;
-    }
-    return modeStr;
-}
-
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore {
-#ifndef SENSORS_ANALYTICS_DISABLE_DEBUG_WARNING
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-                return;
-            }
-            
-            if (self->_debugMode == SensorsAnalyticsDebugOff) {
-                return;
-            }
-            
-            if (!self->_showDebugAlertView) {
-                return;
-            }
-            
-            if (self->_debugAlertViewHasShownNumber >= 3) {
-                return;
-            }
-            self->_debugAlertViewHasShownNumber += 1;
-            NSString *alertTitle = @"SensorsData 重要提示";
-            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:message preferredStyle:SAAlertControllerStyleAlert];
-            [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
-                self->_debugAlertViewHasShownNumber -= 1;
-            }];
-            if (showNoMore) {
-                [alertController addActionWithTitle:@"不再显示" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                    self->_showDebugAlertView = NO;
-                }];
-            }
-            [alertController show];
-        } @catch (NSException *exception) {
-        } @finally {
-        }
-    });
-#endif
-}
-
-- (void)showDebugModeAlertWithParams:(NSDictionary<NSString *, NSString *> *)params {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            
-            dispatch_block_t alterViewBlock = ^{
-                
-                NSString *alterViewMessage = @"";
-                if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                    alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
-                } else if (self -> _debugMode == SensorsAnalyticsDebugOnly) {
-                    alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
-                } else {
-                    alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
-                }
-                SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"" message:alterViewMessage preferredStyle:SAAlertControllerStyleAlert];
-                [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
-                [alertController show];
-            };
-            
-            NSString *alertTitle = @"SDK 调试模式选择";
-            NSString *alertMessage = @"";
-            if (self->_debugMode == SensorsAnalyticsDebugAndTrack) {
-                alertMessage = @"当前为 调试模式（导入数据）";
-            } else if (self->_debugMode == SensorsAnalyticsDebugOnly) {
-                alertMessage = @"当前为 调试模式（不导入数据）";
-            } else {
-                alertMessage = @"调试模式已关闭";
-            }
-            SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
-            void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-                [self configServerURLWithDebugMode:debugMode showDebugModeWarning:NO];
-                alterViewBlock();
-                [self.network debugModeCallbackWithDistinctId:self.distinctId params:params];
-            };
-            [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                handler(SensorsAnalyticsDebugAndTrack);
-            }];
-            [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
-                handler(SensorsAnalyticsDebugOnly);
-            }];
-            [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
-            [alertController show];
-        } @catch (NSException *exception) {
-        } @finally {
-        }
-    });
-}
-
 - (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
     @synchronized (self) {
         _networkTypePolicy = networkType;
@@ -772,8 +627,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [[NSUserDefaults standardUserDefaults] synchronize];
     }
 
-    [_linkHandler acquireColdLaunchDeepLinkInfo];
-
     if ([self isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppStart]) {
         return;
     }
@@ -785,7 +638,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @NO;
         properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(isFirstStart);
         //添加 deeplink 相关渠道信息，可能不存在
-        [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+        [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
 
         [self trackAutoEvent:eventName properties:properties];
     });
@@ -886,7 +739,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)showDebugInfoView:(BOOL)show {
-    _showDebugAlertView = show;
+    [SAModuleManager.sharedInstance setShowDebugAlertView:show];
 }
 
 - (void)flush {
@@ -904,7 +757,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - HandleURL
 - (BOOL)canHandleURL:(NSURL *)url {
     return [[SAAuxiliaryToolManager sharedInstance] canHandleURL:url] ||
-    [_linkHandler canHandleURL:url] ||
     [SAModuleManager.sharedInstance canHandleURL:url] ||
     [[SARemoteConfigManager sharedInstance] canHandleURL:url];
 }
@@ -929,24 +781,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if ([[SAAuxiliaryToolManager sharedInstance] isVisualizedAutoTrackURL:url] || [[SAAuxiliaryToolManager sharedInstance] isHeatMapURL:url]) {
         //点击图 & 可视化全埋点
         return [self handleAutoTrackURL:url];
-    } else if ([[SAAuxiliaryToolManager sharedInstance] isDebugModeURL:url]) {//动态 debug 配置
-        // url query 解析
-        NSMutableDictionary *paramDic = [[SAURLUtils queryItemsWithURL:url] mutableCopy];
-
-        //如果没传 info_id，视为伪造二维码，不做处理
-        if (paramDic.allKeys.count &&  [paramDic.allKeys containsObject:@"info_id"]) {
-            [self showDebugModeAlertWithParams:paramDic];
-            return YES;
-        } else {
-            return NO;
-        }
     } else if ([[SARemoteConfigManager sharedInstance] isRemoteConfigURL:url]) {
         [self enableLog:YES];
         [[SARemoteConfigManager sharedInstance] cancelRequestRemoteConfig];
         [[SARemoteConfigManager sharedInstance] handleRemoteConfigURL:url];
-        return YES;
-    } else if ([_linkHandler canHandleURL:url]) {
-        [_linkHandler handleDeepLink:url];
         return YES;
     } else {
         return [SAModuleManager.sharedInstance handleURL:url];
@@ -1123,9 +961,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (itemType.length == 0 || ![self isValidName:itemType]) {
         NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
         SALogError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         return;
     }
 
@@ -1211,17 +1047,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (eventName == nil || [eventName length] == 0) {
         NSString *errMsg = @"Event name should not be empty or nil";
         SALogError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         return NO;
     }
     if (![self isValidName:eventName]) {
         NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
         SALogError(@"%@", errMsg);
-        if (_debugMode != SensorsAnalyticsDebugOff) {
-            [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-        }
+        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
         return NO;
     }
     return YES;
@@ -1230,7 +1062,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (NSMutableDictionary *)mergeDeepLinkInfoIntoProperties:(NSDictionary *)properties {
     NSMutableDictionary *deepLinkInfo = [NSMutableDictionary dictionary];
     // 添加 latest utms 属性。用户传入的属性优先级更高。
-    [deepLinkInfo addEntriesFromDictionary:[_linkHandler latestUtmProperties]];
+    [deepLinkInfo addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
     if ([SAValidator isValidDictionary:properties]) {
         [deepLinkInfo addEntriesFromDictionary:properties];
     }
@@ -1582,9 +1414,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
     NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
     SALogError(@"%@", errMsg);
-    if (_debugMode != SensorsAnalyticsDebugOff) {
-        [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-    }
+    [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
     return NO;
 }
 
@@ -1684,9 +1514,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![k isKindOfClass: [NSString class]]) {
             NSString *errMsg = @"Property Key should by NSString";
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return NO;
         }
 
@@ -1694,9 +1522,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         if (![self isValidName: k]) {
             NSString *errMsg = [NSString stringWithFormat:@"property name[%@] is not valid", k];
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
             return NO;
         }
 
@@ -1709,9 +1535,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
            ![propertyValue isKindOfClass:[NSDate class]]) {
             NSString * errMsg = [NSString stringWithFormat:@"%@ property values must be NSString, NSNumber, NSSet, NSArray or NSDate. got: %@ %@", self, [propertyValue class], propertyValue];
             SALogError(@"%@", errMsg);
-            if (_debugMode != SensorsAnalyticsDebugOff) {
-                [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-            }
+            [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
 
             if ([propertyValue isKindOfClass:[NSNull class]]) {
                 //NSNull 需要对数据做修复，remove 对应的 key
@@ -1725,15 +1549,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             }
         }
 
-        BOOL isDebugMode = _debugMode != SensorsAnalyticsDebugOff;
         NSString *(^verifyString)(NSString *, NSMutableDictionary **, id *) = ^NSString *(NSString *string, NSMutableDictionary **dic, id *objects) {
             // NSSet、NSArray 类型的属性中，每个元素必须是 NSString 类型
             if (![string isKindOfClass:[NSString class]]) {
                 NSString * errMsg = [NSString stringWithFormat:@"%@ value of NSSet、NSArray must be NSString. got: %@ %@", self, [string class], string];
                 SALogError(@"%@", errMsg);
-                if (isDebugMode) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return nil;
             }
             NSUInteger length = [string lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
@@ -1807,9 +1628,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![propertyValue isKindOfClass:[NSNumber class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_increment value must be NSNumber. got: %@ %@", self, [properties[k] class], propertyValue];
                 SALogError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return NO;
             }
         }
@@ -1819,9 +1638,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             if (![propertyValue isKindOfClass:[NSSet class]] && ![propertyValue isKindOfClass:[NSArray class]]) {
                 NSString *errMsg = [NSString stringWithFormat:@"%@ profile_append value must be NSSet、NSArray. got %@ %@", self, [propertyValue  class], propertyValue];
                 SALogError(@"%@", errMsg);
-                if (_debugMode != SensorsAnalyticsDebugOff) {
-                    [self showDebugModeWarning:errMsg withNoMoreButton:YES];
-                }
+                [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
                 return NO;
             }
         }
@@ -2006,7 +1823,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
-    return _debugMode;
+    return SAModuleManager.sharedInstance.debugMode;
 }
 
 - (void)trackViewAppClick:(UIView *)view {
@@ -2122,8 +1939,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (autoTrack) {
         // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
         // 只需要处理全埋点的页面浏览事件
-        [eventProperties addEntriesFromDictionary:[_linkHandler utmProperties]];
-        [_linkHandler clearUtmProperties];
+        [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
+        [SAModuleManager.sharedInstance clearUtmProperties];
     }
 
     if ([SAValidator isValidDictionary:properties]) {
@@ -2147,92 +1964,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-static inline void sa_methodExchange(const char *className, const char *originalMethodName, const char *replacementMethodName, IMP imp) {
-    @try {
-        Class cls = objc_getClass(className);//得到指定类的类定义
-        SEL oriSEL = sel_getUid(originalMethodName);//把originalMethodName注册到RunTime系统中
-        Method oriMethod = class_getInstanceMethod(cls, oriSEL);//获取实例方法
-        struct objc_method_description *desc = method_getDescription(oriMethod);//获得指定方法的描述
-        if (desc->types) {
-            SEL buSel = sel_registerName(replacementMethodName);//把replacementMethodName注册到RunTime系统中
-            if (class_addMethod(cls, buSel, imp, desc->types)) {//通过运行时，把方法动态添加到类中
-                Method buMethod  = class_getInstanceMethod(cls, buSel);//获取实例方法
-                method_exchangeImplementations(oriMethod, buMethod);//交换方法
-            }
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
-    }
-}
-
-static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactTag, BOOL blockNativeResponder) {
-    //先执行原来的方法
-    SEL oriSel = sel_getUid("sda_setJSResponder:blockNativeResponder:");
-    void (*setJSResponderWithBlockNativeResponder)(id, SEL, id, BOOL) = (void (*)(id, SEL, id, BOOL))[NSClassFromString(@"RCTUIManager") instanceMethodForSelector:oriSel];//函数指针
-    setJSResponderWithBlockNativeResponder(obj, cmd, reactTag, blockNativeResponder);
-    
-    dispatch_async(dispatch_get_main_queue(), ^{
-        @try {
-            //关闭 AutoTrack
-            if (![[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled]) {
-                return;
-            }
-            
-            //忽略 $AppClick 事件
-            if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
-                return;
-            }
-            
-            if ([[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[NSClassFromString(@"RNView") class]]) {
-                return;
-            }
-            
-            if ([obj isKindOfClass:NSClassFromString(@"RCTUIManager")]) {
-                SEL viewForReactTagSelector = NSSelectorFromString(@"viewForReactTag:");
-                UIView *uiView = ((UIView* (*)(id, SEL, NSNumber *))[obj methodForSelector:viewForReactTagSelector])(obj, viewForReactTagSelector, reactTag);
-                NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-                
-                if ([uiView isKindOfClass:[NSClassFromString(@"RCTSwitch") class]] || [uiView isKindOfClass:[NSClassFromString(@"RCTScrollView") class]]) {
-                    //好像跟 UISwitch 会重复
-                    return;
-                }
-                
-                [properties setValue:@"RNView" forKey:SA_EVENT_PROPERTY_ELEMENT_TYPE];
-                [properties setValue:[uiView.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]] forKey:SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-                
-                UIViewController *viewController = nil;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
-                if ([uiView respondsToSelector:NSSelectorFromString(@"reactViewController")]) {
-                    viewController = [uiView performSelector:NSSelectorFromString(@"reactViewController")];
-                }
-#pragma clang diagnostic pop
-                if (viewController) {
-                    //获取 Controller 名称($screen_name)
-                    NSString *screenName = NSStringFromClass([viewController class]);
-                    [properties setValue:screenName forKey:SA_EVENT_PROPERTY_SCREEN_NAME];
-                    
-                    NSString *controllerTitle = viewController.navigationItem.title;
-                    if (controllerTitle != nil) {
-                        [properties setValue:viewController.navigationItem.title forKey:SA_EVENT_PROPERTY_TITLE];
-                    }
-                    
-                    NSString *viewPath = [SAAutoTrackUtils viewSimilarPathForView:uiView atViewController:viewController shouldSimilarPath:NO];
-                    if (viewPath) {
-                        properties[SA_EVENT_PROPERTY_ELEMENT_PATH] = viewPath;
-                    }
-                }
-
-                [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
-            }
-        } @catch (NSException *exception) {
-            SALogError(@"%@ error: %@", [SensorsAnalyticsSDK sharedInstance], exception);
-        }
-    });
-}
-#endif
-
 - (void)_enableAutoTrack {    
     // 监听所有 UIViewController 显示事件
     static dispatch_once_t onceToken;
@@ -2255,14 +1986,10 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
         [NSObject sa_swizzleMethod:@selector(respondsToSelector:) withMethod:@selector(sensorsdata_respondsToSelector:) error:NULL];
         [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:selector error:NULL];
     });
-    
     //React Native
-#ifdef SENSORS_ANALYTICS_REACT_NATIVE
-    if (NSClassFromString(@"RCTUIManager")) {
-        //        [SASwizzler swizzleSelector:NSSelectorFromString(@"setJSResponder:blockNativeResponder:") onClass:NSClassFromString(@"RCTUIManager") withBlock:reactNativeAutoTrackBlock named:@"track_React_Native_AppClick"];
-        sa_methodExchange("RCTUIManager", "setJSResponder:blockNativeResponder:", "sda_setJSResponder:blockNativeResponder:", (IMP)sa_imp_setJSResponderBlockNativeResponder);
+    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
     }
-#endif
 }
 
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
@@ -2326,7 +2053,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
             NSMutableDictionary *properties = [NSMutableDictionary dictionary];
             properties[SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND] = @(YES);
             properties[SA_EVENT_PROPERTY_APP_FIRST_START] = @(NO);
-            [properties addEntriesFromDictionary:[_linkHandler utmProperties]];
+            [properties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
             [self trackAutoEvent:SA_EVENT_NAME_APP_START properties:properties];
         }
     }
@@ -2359,7 +2086,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     _applicationWillResignActive = NO;
 
     // 清除本次启动解析的来源渠道信息
-    [_linkHandler clearUtmProperties];
+    [SAModuleManager.sharedInstance clearUtmProperties];
     
     [self stopFlushTimer];
     
@@ -2546,7 +2273,8 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
     options.triggerEffectBlock = ^(BOOL isDisableSDK, BOOL isDisableDebugMode) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (isDisableDebugMode) {
-            [strongSelf configServerURLWithDebugMode:SensorsAnalyticsDebugOff showDebugModeWarning:NO];
+            SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
+            [strongSelf enableLog:NO];
         }
         
         isDisableSDK ? [strongSelf performDisableSDKTask] : [strongSelf performEnableSDKTask];
@@ -2658,7 +2386,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 @implementation SensorsAnalyticsSDK (Deeplink)
 
 - (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
-    _linkHandler.linkHandlerCallback = callback;
+    SAModuleManager.sharedInstance.linkHandlerCallback = callback;
 }
 
 @end
@@ -2748,7 +2476,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                 [propertiesDict removeObjectForKey:@"_nocache"];
 
                 // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
-                [propertiesDict addEntriesFromDictionary:[self.linkHandler latestUtmProperties]];
+                [propertiesDict addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
             }
 
             [eventDict removeObjectForKey:@"_nocache"];
@@ -2907,7 +2635,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:debugMode];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
     });
     return sharedInstance;
 }
@@ -2920,7 +2648,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
                                         andLaunchOptions:launchOptions
                                             andDebugMode:SensorsAnalyticsDebugOff];
         [sharedInstance initRemoteConfigManager];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
     });
     return sharedInstance;
 }
@@ -2970,7 +2698,7 @@ static void sa_imp_setJSResponderBlockNativeResponder(id obj, SEL cmd, id reactT
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    [self configServerURLWithDebugMode:debugMode  showDebugModeWarning:NO];
+    SAModuleManager.sharedInstance.debugMode = debugMode;
 }
 
 - (void)enableAutoTrack {

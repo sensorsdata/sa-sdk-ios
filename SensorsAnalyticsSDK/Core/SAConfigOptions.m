@@ -32,7 +32,7 @@
 @implementation SAConfigOptions
 
 #pragma mark - initialize
-- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(NSDictionary *)launchOptions {
+- (instancetype)initWithServerURL:(NSString *)serverURL launchOptions:(id)launchOptions {
     self = [super init];
     if (self) {
         _serverURL = serverURL;

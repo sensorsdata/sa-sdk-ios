@@ -33,6 +33,9 @@
         return nil;
     }
     id (*sharedManagerIMP)(id, SEL) = (id (*)(id, SEL))[ASIdentifierManagerClass methodForSelector:sharedManagerSelector];
+    if (!sharedManagerIMP) {
+        return nil;
+    }
     id sharedManager = sharedManagerIMP(ASIdentifierManagerClass, sharedManagerSelector);
     
     SEL advertisingIdentifierSelector = NSSelectorFromString(@"advertisingIdentifier");
@@ -40,6 +43,9 @@
         return nil;
     }
     NSUUID * (*advertisingIdentifierIMP)(id, SEL) = (NSUUID * (*)(id, SEL))[sharedManager methodForSelector:advertisingIdentifierSelector];
+    if (!advertisingIdentifierIMP) {
+        return nil;
+    }
     NSUUID *uuid = advertisingIdentifierIMP(sharedManager, advertisingIdentifierSelector);
     NSString *idfa = [uuid UUIDString];
     // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零

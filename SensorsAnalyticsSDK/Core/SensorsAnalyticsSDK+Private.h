@@ -65,9 +65,6 @@
 */
 - (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
 
-- (void)showDebugModeWarning:(NSString *)message withNoMoreButton:(BOOL)showNoMore;
-
-
 /**
  根据 viewController 判断，是否采集事件
 
@@ -113,7 +110,7 @@
 @property(atomic, copy) NSString *serverURL;
 
 /// App 启动的 launchOptions
-@property(nonatomic, copy) NSDictionary *launchOptions;
+@property(nonatomic, strong) id launchOptions;
 
 @end
 

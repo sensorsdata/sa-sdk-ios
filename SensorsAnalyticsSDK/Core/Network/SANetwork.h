@@ -50,15 +50,6 @@ typedef void(^SAURLSessionTaskCompletionHandler)(NSData * _Nullable data, NSHTTP
  */
 - (NSString *)cookieWithDecoded:(BOOL)decode;
 
-/**
- 设置 DebugMode 时回调请求方法
-
- @param distinctId 设备 ID 或 登录 ID
- @param params 扫码得到的参数
- @return request task
- */
-- (nullable NSURLSessionTask *)debugModeCallbackWithDistinctId:(NSString *)distinctId params:(NSDictionary<NSString *, NSString *> *)params;
-
 @end
 
 @interface SANetwork (ServerURL)
