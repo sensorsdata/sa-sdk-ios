@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants.h"
+#import <SystemConfiguration/SystemConfiguration.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
