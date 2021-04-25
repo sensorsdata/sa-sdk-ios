@@ -18,18 +18,17 @@
 //  limitations under the License.
 //
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-
-#import <Foundation/Foundation.h>
 #import <CoreMotion/CoreMotion.h>
-@interface SADeviceOrientationConfig : NSObject
-@property (nonatomic, strong) NSString *deviceOrientation;
-@property (nonatomic, assign) BOOL enableTrackScreenOrientation;//default is NO
+#import "SAModuleProtocol.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SADeviceOrientationManager : NSObject <SAPropertyModuleProtocol>
+
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
+
 @end
 
-@interface SADeviceOrientationManager : NSObject
-@property (nonatomic, strong) void(^deviceOrientationBlock)(NSString * deviceOrientation);
-- (void)startDeviceMotionUpdates;
-- (void)stopDeviceMotionUpdates;
-@end
-#endif
+NS_ASSUME_NONNULL_END

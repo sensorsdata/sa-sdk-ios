@@ -35,6 +35,8 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
 @property (nonatomic, strong) CLLocationManager *locationManager;
 @property (nonatomic, assign) BOOL isUpdatingLocation;
 
+@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
+
 @end
 
 @implementation SALocationManager
@@ -54,6 +56,10 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
         [self setupListeners];
     }
     return self;
+}
+
+- (void)dealloc {
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
 
 #pragma mark - SALocationManagerProtocol

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.5.4"
+  s.version      = "2.5.5"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -8,7 +8,7 @@ Pod::Spec.new do |s|
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.platform = :ios, "8.0"
   s.default_subspec = 'Core'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore', 'CoreMotion'
+  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Common' do |c|
@@ -46,17 +46,19 @@ Pod::Spec.new do |s|
 #    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
+  # 开启设备方向采集
+  s.subspec 'DeviceOrientation' do |f|
+    f.dependency 'SensorsAnalyticsSDK/Core'
+    f.source_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.{h,m}'
+    f.private_header_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.h'
+    f.frameworks = 'CoreMotion'
+  end
+
   # 推送点击
   s.subspec 'AppPush' do |f|
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
-  end
-
-  # 禁用设备方向采集
-  s.subspec 'DISABLE_TRACK_DEVICE_ORIENTATION' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION=1'}
   end
 
   # 使用 UIWebView 或者 WKWebView 进行打通

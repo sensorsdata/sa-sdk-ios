@@ -20,10 +20,6 @@
 
 #import <Foundation/Foundation.h>
 
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-@class SADeviceOrientationConfig;
-#endif
-
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const SAEventPresetPropertyDeviceID;
@@ -85,19 +81,7 @@ extern NSString * const SAEventPresetPropertyIsFirstDay;
 /// 当前的预置属性
 - (NSDictionary *)currentPresetProperties;
 
-/**
- track 类型特有的预置属性
-
- @param isLaunchedPassively 是否是被动启动
- @param orientationConfig 方向信息
-
- @return 当前的预置属性
-*/
-- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively
-#ifndef SENSORS_ANALYTICS_DISABLE_TRACK_DEVICE_ORIENTATION
-                            orientationConfig:(SADeviceOrientationConfig *)orientationConfig
-#endif
-;
+- (NSDictionary *)presetPropertiesOfTrackType:(BOOL)isLaunchedPassively;
 
 @end
 

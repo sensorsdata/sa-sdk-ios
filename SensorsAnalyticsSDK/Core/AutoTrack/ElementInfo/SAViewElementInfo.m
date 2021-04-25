@@ -90,10 +90,7 @@
 @implementation SAMenuElementInfo
 
 - (NSString *)elementType {
-    if (@available(iOS 13.0, *)) {
-        return NSStringFromClass(UIMenu.class);
-    }
-    return nil;
+    return @"UIMenu";
 }
 
 - (BOOL)isSupportElementPosition {

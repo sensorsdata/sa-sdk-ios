@@ -112,7 +112,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 // 记录冷启动的 DeepLink URL
 - (void)handleLaunchOptions:(id)options {
-#if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_13_0
+#if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
     if (@available(iOS 13.0, *)) {
         // 兼容 SceneDelegate 场景
         if ([options isKindOfClass:UISceneConnectionOptions.class]) {

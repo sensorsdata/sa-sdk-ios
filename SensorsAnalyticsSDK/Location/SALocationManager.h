@@ -29,11 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
-@property (nonatomic, assign) CLLocationCoordinate2D coordinate;
-
-- (void)startUpdatingLocation;
-- (void)stopUpdatingLocation;
-
 @end
 
 NS_ASSUME_NONNULL_END
