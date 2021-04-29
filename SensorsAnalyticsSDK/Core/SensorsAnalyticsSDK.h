@@ -34,6 +34,10 @@
 #import "SensorsAnalyticsSDK+WebView.h"
 #endif
 
+#if __has_include("SensorsAnalyticsSDK+Visualized.h")
+#import "SensorsAnalyticsSDK+Visualized.h"
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 /**

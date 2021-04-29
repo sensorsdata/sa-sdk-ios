@@ -22,11 +22,10 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SACommonUtility.h"
-#import "SAReachability.h"
-#import "SAConstants.h"
-#import "SALog.h"
+#import "SACommonUtility.h" 
 #import "SAValidator.h"
+#import <CommonCrypto/CommonDigest.h>
+#import <UIKit/UIDevice.h>
 
 @implementation SACommonUtility
 
@@ -64,6 +63,12 @@
     }
 }
 
++ (NSString *)simulateUserAgent {
+    NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+    NSString *model = UIDevice.currentDevice.model;
+    return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
+}
+
 + (NSString *)currentUserAgent {
     return [[NSUserDefaults standardUserDefaults] objectForKey:@"UserAgent"];
 }
@@ -76,6 +81,19 @@
     NSDictionary *dictionnary = [[NSDictionary alloc] initWithObjectsAndKeys:userAgent, @"UserAgent", nil];
     [[NSUserDefaults standardUserDefaults] registerDefaults:dictionnary];
     [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSString *)hashStringWithData:(NSData *)data {
+    if (!data) {
+        return nil;
+    }
+    
+    /* 先转成 Base64，再计算 hash，避免直接使用 hash
+     在 iOS 中 NSData 的 hash 实现，仅使用数据的前 80 个字节来计算哈希，参考：https://opensource.apple.com/source/CF/CF-635.21/CFData.c
+     */
+    NSString *base64String = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    NSUInteger hash = [base64String hash];
+    return [NSString stringWithFormat:@"%ld",hash];
 }
 
 @end

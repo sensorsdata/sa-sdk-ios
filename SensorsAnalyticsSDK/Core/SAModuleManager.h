@@ -19,12 +19,16 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
+    SAModuleTypeChannelMatch,
+    SAModuleTypeVisualized,
+    SAModuleTypeEncrypt,
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
     SAModuleTypeAppPush,
@@ -67,13 +71,18 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @end
 
 #pragma mark -
+@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
+
+/// 是否正在连接
+@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
+
+@end
 
 @interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
 
 @end
 
 #pragma mark -
-
 @interface SAModuleManager (Encrypt) <SAEncryptModuleProtocol>
 
 @property (nonatomic, strong, readonly) id<SAEncryptModuleProtocol> encryptManager;

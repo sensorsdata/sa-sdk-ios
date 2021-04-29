@@ -26,8 +26,6 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAVisualizedObjectSerializerManger.h"
-
 
 @interface SAScriptMessageHandler ()
 
@@ -91,8 +89,7 @@
              app_alert：H5 弹框信息，提示配置错误信息；
              page_info：H5 页面信息，包括 url 和 title
              */
-            WKWebView *webView = message.webView;
-            [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_VISUALIZED_H5_MESSAGE_NOTIFICATION object:message];
         } else if ([callType isEqualToString:@"abtest"]) {
             // 通知 SensorsABTest，接收到 H5 的请求数据
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_MESSAGE_NOTIFICATION object:message];

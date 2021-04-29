@@ -83,6 +83,28 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         if (content.length > 0) {
             [elementContent appendString:content];
         }
+    } else if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
+        /* 兼容输入框的元素采集
+         UITextField 本身是一个容器，包括 UITextField 的元素内容，文字是直接渲染到 view 的
+         层级结构如下
+         UITextField
+             _UITextFieldRoundedRectBackgroundViewNeue
+             UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
+                 _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
+             _UITextFieldClearButton (可能存在)
+         */
+        UITextField *textField = (UITextField *)[self nextResponder];
+        return [textField sensorsdata_elementContent];
+    } else if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
+
+        UITextField *textField = (UITextField *)[self nextResponder];
+        do {
+            if ([textField isKindOfClass:UITextField.class]) {
+                return [textField sensorsdata_elementContent];
+            }
+        } while ((textField = (UITextField *)[textField nextResponder]));
+
+        return nil;
     } else {
         NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
         for (UIView *subview in self.subviews) {
@@ -119,60 +141,10 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
 
     // 获取当前 controller 作为 screen_name
-    if (!viewController || [viewController isKindOfClass:UINavigationController.class] || [viewController isKindOfClass:UIAlertController.class]) {
+    if (!viewController || [viewController isKindOfClass:UIAlertController.class]) {
         viewController = [SAAutoTrackUtils currentViewController];
     }
     return viewController;
-}
-
-- (NSString *)sensorsdata_itemPath {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    /* 忽略路径
-     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-     */
-    if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
-        return nil;
-    }
-#endif
-
-    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    NSString *className = NSStringFromClass(self.class);
-    return index < 0 ? className : [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    // 是否支持限定元素位置功能
-    BOOL isCell = [self isKindOfClass:UITableViewCell.class] || [self isKindOfClass:UICollectionViewCell.class];
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-    BOOL isItem = [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"] || [NSStringFromClass(self.class) isEqualToString:@"UISegment"];
-#else
-    BOOL isItem = NO;
-#endif
-
-    BOOL enableSupportSimilarPath = isCell || isItem;
-    if (self.sensorsdata_elementPosition && enableSupportSimilarPath) {
-        NSString *similarPath = [NSString stringWithFormat:@"%@[-]",NSStringFromClass(self.class)];
-        return similarPath;
-    } else {
-        return self.sensorsdata_itemPath;
-    }
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        /* 忽略路径
-         UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-         */
-        if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"]) {
-            return nil;
-        }
-#endif
-
-    NSString *identifier = [SAAutoTrackUtils viewIdentifierForView:self];
-    if (identifier) {
-        return identifier;
-    }
-    return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
 }
 
 @end
@@ -199,11 +171,24 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 - (NSString *)sensorsdata_elementPosition {
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-        return index >= 0 ? [NSString stringWithFormat:@"%ld",(long)index] : [super sensorsdata_elementPosition];
+        return index > 0 ? [NSString stringWithFormat:@"%ld", (long)index] : @"0";
     }
     return [super sensorsdata_elementPosition];
 }
 #endif
+
+@end
+
+@implementation UITextField (AutoTrack)
+
+- (NSString *)sensorsdata_elementContent {
+    if (self.text) {
+        return self.text;
+    } else if (self.placeholder) {
+        return self.placeholder;
+    }
+    return super.sensorsdata_elementContent;
+}
 
 @end
 
@@ -219,51 +204,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
 - (NSString *)sensorsdata_elementContent {
     return self.text;
-}
-
-@end
-
-@implementation UITableViewHeaderFooterView (AutoTrack)
-
-- (NSString *)sensorsdata_itemPath {
-    UITableView *tableView = (UITableView *)self.superview;
-
-    while (![tableView isKindOfClass:UITableView.class]) {
-        tableView = (UITableView *)tableView.superview;
-        if (!tableView) {
-            return super.sensorsdata_itemPath;
-        }
-    }
-    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
-        if (self == [tableView headerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
-        }
-        if (self == [tableView footerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
-        }
-    }
-    return super.sensorsdata_itemPath;
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    UIView *currentTableView = self.superview;
-    while (![currentTableView isKindOfClass:UITableView.class]) {
-        currentTableView = currentTableView.superview;
-        if (!currentTableView) {
-            return super.sensorsdata_heatMapPath;
-        }
-    }
-
-    UITableView *tableView = (UITableView *)currentTableView;
-    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
-        if (self == [tableView headerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
-        }
-        if (self == [tableView footerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
-        }
-    }
-    return super.sensorsdata_heatMapPath;
 }
 
 @end
@@ -301,6 +241,9 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     // UITabBarItem
     if ([NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"]) {
         NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
+        if (index < 0) {
+            index = 0;
+        }
         return [NSString stringWithFormat:@"%ld", (long)index];
     }
 
@@ -352,24 +295,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     return self.selectedSegmentIndex == UISegmentedControlNoSegment ? [super sensorsdata_elementPosition] : [NSString stringWithFormat: @"%ld", (long)self.selectedSegmentIndex];
 }
 
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-- (NSString *)sensorsdata_itemPath {
-    // 支持单个 UISegment 创建事件。UISegment 是 UIImageView 的私有子类，表示UISegmentedControl 单个选项的显示区域
-    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    NSString *subPath = [NSString stringWithFormat:@"%@[-]", @"UISegment"];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    NSString *subPath = [NSString stringWithFormat:@"%@[%ld]", @"UISegment", (long)self.selectedSegmentIndex];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_heatMapPath, subPath];
-}
-#endif
-
 @end
 
 @implementation UIPageControl (AutoTrack)
@@ -396,100 +321,17 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
 @implementation UITableViewCell (AutoTrack)
 
-- (NSIndexPath *)sensorsdata_IndexPath {
-    UITableView *tableView = (UITableView *)[self superview];
-    do {
-        if ([tableView isKindOfClass:UITableView.class]) {
-            NSIndexPath *indexPath = [tableView indexPathForCell:self];
-            return indexPath;
-        }
-    } while ((tableView = (UITableView *)[tableView superview]));
-    return nil;
-}
 
-- (NSString *)sensorsdata_itemPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
-    }
-    return [super sensorsdata_itemPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:self.sensorsdata_IndexPath];
-    } else {
-        return self.sensorsdata_itemPath;
-    }
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
-    }
-    return [super sensorsdata_heatMapPath];
-}
-                
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
-}
-
-- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
-}
-
-- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
 }
 
 @end
 
 @implementation UICollectionViewCell (AutoTrack)
 
-- (NSIndexPath *)sensorsdata_IndexPath {
-    UICollectionView *collectionView = (UICollectionView *)[self superview];
-    if ([collectionView isKindOfClass:UICollectionView.class]) {
-        NSIndexPath *indexPath = [collectionView indexPathForCell:self];
-        return indexPath;
-    }
-    return nil;
-}
-
-- (NSString *)sensorsdata_itemPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
-    }
-    return [super sensorsdata_itemPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:self.sensorsdata_IndexPath];
-    } else {
-        return super.sensorsdata_similarPath;
-    }
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
-    }
-    return [super sensorsdata_heatMapPath];
-}
-
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat: @"%ld:%ld", (long)indexPath.section, (long)indexPath.item];
-}
-
-- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.item];
-}
-
-- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
-    if (!elementInfo.isSupportElementPosition) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
 }
 
 @end

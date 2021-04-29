@@ -22,6 +22,8 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
+#if __has_include("SAVisualizedAutoTrackObjectSerializer.h")
+
 #import "SAVisualizedAutoTrackObjectSerializer+WebView.h"
 #import <UIKit/UIKit.h>
 
@@ -32,3 +34,5 @@
 }
 
 @end
+
+#endif

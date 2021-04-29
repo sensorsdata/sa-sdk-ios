@@ -47,25 +47,4 @@
 #pragma mark -
 @protocol SAAutoTrackCellProperty <SAAutoTrackViewProperty>
 - (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath;
-- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath;
-
-- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath;
-/// 遍历查找 cell 所在的 indexPath
-@property (nonatomic, strong, readonly) NSIndexPath *sensorsdata_IndexPath;
-@end
-
-
-
-#pragma mark -
-@protocol SAAutoTrackViewPathProperty <NSObject>
-
-/// $AppClick 某个元素的相对路径，拼接 $element_path，用于可视化全埋点
-@property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
-
-/// $AppClick 某个元素的相对路径，拼接 $element_selector，用于点击图
-@property (nonatomic, copy, readonly) NSString *sensorsdata_heatMapPath;
-
-@optional
-/// 元素相似路径，可能包含 [-]
-@property (nonatomic, copy, readonly) NSString *sensorsdata_similarPath;
 @end

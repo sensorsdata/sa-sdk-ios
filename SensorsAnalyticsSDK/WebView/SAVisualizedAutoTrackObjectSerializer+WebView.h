@@ -18,6 +18,9 @@
 // limitations under the License.
 //
 
+// 如果集成了 WebView 模块，同时手动删除了可视化模块，增加预编译宏判断，防止编译报错问题
+#if __has_include("SAVisualizedAutoTrackObjectSerializer.h")
+
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -30,3 +33,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

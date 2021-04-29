@@ -102,6 +102,12 @@
               "key": "is_h5",
               "type": "BOOL",
               "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_isListView",
+              "key": "is_list_view",
+              "type": "BOOL",
+              "use_kvc": false
             }
           ]
         },

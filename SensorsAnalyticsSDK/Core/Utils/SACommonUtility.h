@@ -19,7 +19,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants.h"
 
 @interface SACommonUtility : NSObject
 
@@ -32,7 +31,12 @@
 /// 获取当前的 UserAgent
 + (NSString *)currentUserAgent;
 
+/// 按照 UserAgent 格式模拟的 UserAgent 值
++ (NSString *)simulateUserAgent;
+
 /// 保存 UserAgent
 + (void)saveUserAgent:(NSString *)userAgent;
 
+/// 计算 hash
++ (NSString *)hashStringWithData:(NSData *)data;
 @end

@@ -34,6 +34,7 @@
 #import "SANetwork.h"
 #import "SALog.h"
 #import <WebKit/WebKit.h>
+#import <objc/runtime.h>
 
 static NSString * const kSAJSGetAppInfoScheme = @"sensorsanalytics://getAppInfo";
 static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://trackEvent";
@@ -43,13 +44,70 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
 @property (atomic, copy) NSString *userAgent;
 @property (nonatomic, copy) NSString *addWebViewUserAgent;
 
-@property (nonatomic, strong) SANetwork *network;
+@property (nonatomic, strong) WKWebView *wkWebView;
+@property (nonatomic, strong) dispatch_group_t loadUAGroup;
 
-- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion;
+@property (nonatomic, strong) SANetwork *network;
 
 @end
 
 @implementation SensorsAnalyticsSDK (WKWebView)
+
+#pragma mark - setter/getter
+- (void)setWkWebView:(WKWebView *)wkWebView {
+    objc_setAssociatedObject(self, @"wkWebView", wkWebView, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (WKWebView *)wkWebView {
+    return objc_getAssociatedObject(self, @"wkWebView");
+}
+
+- (void)setLoadUAGroup:(dispatch_group_t)loadUAGroup {
+    objc_setAssociatedObject(self, @"loadUAGroup", loadUAGroup, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (dispatch_group_t)loadUAGroup {
+    return objc_getAssociatedObject(self, @"loadUAGroup");
+}
+
+#pragma mark -
+- (void)loadUserAgentWithCompletion:(void (^)(NSString *))completion {
+    if (self.userAgent) {
+        return completion(self.userAgent);
+    }
+
+    dispatch_async(dispatch_get_main_queue(), ^{
+        if (self.wkWebView) {
+            dispatch_group_notify(self.loadUAGroup, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+                completion(self.userAgent);
+            });
+        } else {
+            self.wkWebView = [[WKWebView alloc] initWithFrame:CGRectZero];
+            self.loadUAGroup = dispatch_group_create();
+            dispatch_group_enter(self.loadUAGroup);
+
+            __weak typeof(self) weakSelf = self;
+            [self.wkWebView evaluateJavaScript:@"navigator.userAgent" completionHandler:^(id _Nullable response, NSError *_Nullable error) {
+                __strong typeof(weakSelf) strongSelf = weakSelf;
+
+                if (error || !response) {
+                    SALogError(@"WKWebView evaluateJavaScript load UA error:%@", error);
+                    completion(nil);
+                } else {
+                    strongSelf.userAgent = response;
+                    completion(strongSelf.userAgent);
+                }
+
+                // 通过 wkWebView 控制 dispatch_group_leave 的次数
+                if (strongSelf.wkWebView) {
+                    dispatch_group_leave(strongSelf.loadUAGroup);
+                }
+
+                strongSelf.wkWebView = nil;
+            }];
+        }
+    });
+}
 
 - (void)addWebViewUserAgentSensorsDataFlag {
     [self addWebViewUserAgentSensorsDataFlag:YES];

@@ -23,7 +23,7 @@
 
 #pragma mark - UIView
 
-@interface UIView (AutoTrack) <SAAutoTrackViewProperty, SAAutoTrackViewPathProperty>
+@interface UIView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
 @interface UILabel (AutoTrack) <SAAutoTrackViewProperty>
@@ -32,13 +32,13 @@
 @interface UIImageView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
+@interface UITextField (AutoTrack) <SAAutoTrackViewProperty>
+@end
+
 @interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
 @interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UITableViewHeaderFooterView (AutoTrack) <SAAutoTrackViewPathProperty>
 @end
 
 #pragma mark - UIControl
@@ -63,8 +63,8 @@
 @end
 
 #pragma mark - Cell
-@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty, SAAutoTrackViewPathProperty>
+@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty>
 @end
 
-@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty, SAAutoTrackViewPathProperty>
+@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty>
 @end

@@ -26,6 +26,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "SAModuleManager.h"
 #import <objc/message.h>
 
 @implementation SAScrollViewDelegateProxy
@@ -55,7 +56,20 @@
     NSDictionary *dic = [SAAutoTrackUtils propertiesWithAutoTrackDelegate:scrollView didSelectedAtIndexPath:indexPath];
     [properties addEntriesFromDictionary:dic];
 
-    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+    // 解析 Cell
+    UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
+    if (!cell) {
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        return;
+    }
+
+    // 获取自定义属性
+    [SAModuleManager.sharedInstance visualPropertiesWithView:cell completionHandler:^(NSDictionary * _Nullable visualProperties) {
+        if (visualProperties) {
+            [properties addEntriesFromDictionary:visualProperties];
+        }
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+    }];
 }
 
 @end

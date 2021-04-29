@@ -19,7 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants.h"
+#import <UIKit/UIKit.h>
+#import "SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -42,6 +43,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAPropertyModuleProtocol <SAModuleProtocol>
 
+@optional
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
 @end
@@ -72,6 +74,31 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark -
+@protocol SAVisualizedModuleProtocol <NSObject>
+
+/// 是否正在连接
+@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
+
+/// 元素相关属性
+/// @param view 需要采集的 view
+- (nullable NSDictionary *)propertiesWithView:(UIView *)view;
+
+/// 指定页面开启可视化
+/// @param controllers  需要开启可视化 ViewController 的类名
+- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers;
+
+/// 判断某个页面是否开启可视化
+/// @param viewController 当前页面 viewController
+- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController;
+
+#pragma mark visualProperties
+
+/// 采集元素自定义属性
+/// @param view 触发事件的元素
+/// @param completionHandler 采集完成回调
+- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
+
+@end
 
 @protocol SADebugModeModuleProtocol <NSObject>
 

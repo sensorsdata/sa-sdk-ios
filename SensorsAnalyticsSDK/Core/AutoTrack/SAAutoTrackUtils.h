@@ -52,6 +52,18 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAAutoTrackUtils (Property)
 
 /**
+ 通过响应链找到 对象的序号
+
+ -2：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
+ -1：同级只存在一个同类元素，兼容 $element_selector 逻辑
+ >=0：元素序号
+
+ @param responder 响应链中的对象，可以是 UIView 或者 UIViewController
+ @return 序号
+ */
++ (NSInteger )itemIndexForResponder:(UIResponder *)responder;
+
+/**
  采集 ViewController 中的事件属性
 
  @param viewController 需要采集的 ViewController
@@ -88,72 +100,11 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 #pragma mark -
-@interface SAAutoTrackUtils (ViewPath)
-
-/**
- 自动采集时，是否忽略这个 viewController 对象
-
- @param viewController 需要判断的对象
- @return 是否忽略
- */
-+ (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController;
-
-/**
- 创建 view 的唯一标识符
-
- @param view 需要创建的对象
- @return 唯一标识符
- */
-+ (nullable NSString *)viewIdentifierForView:(UIView *)view;
-
-/**
-通过响应链找到 对象的点击图路径
-
-@param responder 响应链中的对象，可以是 UIView 或者 UIViewController
-@return 路径
-*/
-+ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder;
-
-/**
- 通过响应链找到 对象的序号
-
- @param responder 响应链中的对象，可以是 UIView 或者 UIViewController
- @return 路径
- */
-+ (NSInteger )itemIndexForResponder:(UIResponder *)responder;
-
-/**
- 找到 view 的路径数组
-
- @param view 需要获取路径的 view
- @return 路径数组
- */
-+ (NSArray<NSString *> *)viewPathsForView:(UIView *)view;
-
-/**
- 获取 view 的路径字符串
-
- @param view 需要获取路径的 view
- @param viewController view 所在的 viewController
- @return 路径字符串
- */
-+ (nullable NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
-
-/**
-获取 view 的模糊路径
-
-@param view 需要获取路径的 view
-@param viewController view 所在的 viewController
-@param shouldSimilarPath 是否需要取相似路径
-@return 路径字符串
-*/
-+ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath;
-@end
-
-#pragma mark -
 @interface SAAutoTrackUtils (IndexPath)
 
 + (nullable NSMutableDictionary<NSString *, NSString *> *)propertiesWithAutoTrackObject:(UIScrollView<SAAutoTrackViewProperty> *)object didSelectedAtIndexPath:(NSIndexPath *)indexPath;
+
++ (UIView *)cellWithScrollView:(UIScrollView *)scrollView selectedAtIndexPath:(NSIndexPath *)indexPath;
 
 + (NSDictionary *)propertiesWithAutoTrackDelegate:(UIScrollView *)scrollView didSelectedAtIndexPath:(NSIndexPath *)indexPath;
 @end

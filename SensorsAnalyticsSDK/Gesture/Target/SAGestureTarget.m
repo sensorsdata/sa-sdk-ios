@@ -28,6 +28,7 @@
 #import "SAConstants+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAModuleManager.h"
 
 @implementation SAGestureTarget
 
@@ -51,12 +52,17 @@
         return;
     }
     
-    NSDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:processor.trackableView];
-    if (!properties) {
+    NSMutableDictionary *properties = [[SAAutoTrackUtils propertiesWithAutoTrackObject:processor.trackableView] mutableCopy];
+    if (properties.count == 0) {
         return;
     }
     
-    [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+    [SAModuleManager.sharedInstance visualPropertiesWithView:processor.trackableView completionHandler:^(NSDictionary * _Nullable visualProperties) {
+        if (visualProperties) {
+            [properties addEntriesFromDictionary:visualProperties];
+        }
+        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+    }];
 }
 
 @end

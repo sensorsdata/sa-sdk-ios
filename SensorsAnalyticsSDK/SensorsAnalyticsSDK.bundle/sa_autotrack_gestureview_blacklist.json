@@ -1,6 +1,7 @@
 {
     "public": [
         "UIPageControl",
+        "UITextField",
         "UITextView",
         "UITabBar",
         "UICollectionView",

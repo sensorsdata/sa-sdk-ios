@@ -21,7 +21,7 @@
 #import <UIKit/UIKit.h>
 #import "SAAutoTrackProperty.h"
 
-@interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty, SAAutoTrackViewPathProperty>
+@interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty>
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated;
 

@@ -72,7 +72,6 @@
 }
 
 - (IBAction)segmentOnClick:(UISegmentedControl *)sender {
-    
 }
 
 - (IBAction)pageValueChanged:(UIPageControl *)sender {

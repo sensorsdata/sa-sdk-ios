@@ -30,7 +30,6 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
-#import "SAAutoTrackUtils.h"
 
 @implementation UIViewController (AutoTrack)
 
@@ -59,20 +58,6 @@
     return nil;
 }
 
-- (NSString *)sensorsdata_itemPath {
-    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    NSString *classString = NSStringFromClass(self.class);
-   
-    return index < 0 ? classString : [NSString stringWithFormat:@"%@[%ld]", classString, (long)index];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    return self.sensorsdata_itemPath;
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    return [SAAutoTrackUtils itemHeatMapPathForResponder:self];
-}
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     @try {
@@ -82,8 +67,7 @@
         if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppViewScreen] && instance.previousTrackViewController != self) {
 #ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
             UIViewController *viewController = (UIViewController *)self;
-            if (![viewController.parentViewController isKindOfClass:[UIViewController class]] ||
-                [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
+            if (!viewController.parentViewController || [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
                 [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
                 [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
                 [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {

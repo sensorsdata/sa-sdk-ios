@@ -30,6 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
+#import "SAModuleManager.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -86,6 +87,7 @@
     }
     
     NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:nil];
+
     if (!properties) {
         return;
     }
@@ -96,14 +98,28 @@
         [object isKindOfClass:[UIPageControl class]]) {
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+
+        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
+            if (visualProperties) {
+                [properties addEntriesFromDictionary:visualProperties];
+            }
+            [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        }];
+
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
         // 保存当前触发时间
         object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+
+        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
+            if (visualProperties) {
+                [properties addEntriesFromDictionary:visualProperties];
+            }
+            [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        }];
+
         return;
     }
 }

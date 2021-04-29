@@ -33,6 +33,9 @@ static NSString * const kSADeviceOrientationModuleName = @"DeviceOrientation";
 static NSString * const kSADebugModeModuleName = @"DebugMode";
 static NSString * const kSAReactNativeModuleName = @"ReactNative";
 static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
+/// 可视化相关（可视化全埋点和点击图）
+static NSString * const kSAVisualizedModuleName = @"Visualized";
+
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
@@ -40,7 +43,9 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 @interface SAModuleManager ()
 
+/// 已开启的模块
 @property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
@@ -57,10 +62,18 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     // 初始化 Debug 模块
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
-    
+
+    // 可视化全埋点和点击分析
+    if (configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAVisualizedModuleName];
+    } else if (NSClassFromString(@"SAVisualizedManager")) {
+        // 注册 handleURL
+        [SAModuleManager.sharedInstance setEnable:NO forModule:kSAVisualizedModuleName];
+    }
+
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
-    
+
     // 手势采集
     if (NSClassFromString(@"SAGestureManager")) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
@@ -89,6 +102,12 @@ static NSString * const kSAGestureModuleName = @"Gesture";
             return kSAReactNativeModuleName;
         case SAModuleTypeAppPush:
             return kSANotificationModuleName;
+        case SAModuleTypeChannelMatch:
+            return kSAChannelMatchModuleName;
+        case SAModuleTypeVisualized:
+            return kSAVisualizedModuleName;
+        case SAModuleTypeEncrypt:
+            return kSAEncryptModuleName;
         default:
             return nil;
     }
@@ -101,7 +120,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 - (void)setEnable:(BOOL)enable forModule:(NSString *)moduleName {
     if (self.modules[moduleName]) {
         self.modules[moduleName].enable = enable;
-    } else if (enable) {
+    } else {
         NSString *className = [self classNameForModule:moduleName];
         Class<SAModuleProtocol> cla = NSClassFromString(className);
         NSAssert(cla, @"\n您使用接口开启了 %@ 模块，但是并没有集成该模块。\n • 如果使用源码集成神策分析 iOS SDK，请检查是否包含名为 %@ 的文件？\n • 如果使用 CocoaPods 集成 SDK，请修改 Podfile 文件，增加 %@ 模块的 subspec，例如：pod 'SensorsAnalyticsSDK', :subspecs => ['%@']。\n", moduleName, className, moduleName, moduleName);
@@ -138,7 +157,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (BOOL)canHandleURL:(NSURL *)url {
     for (id<SAModuleProtocol> obj in self.modules.allValues) {
-        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)]) {
             continue;
         }
         id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
@@ -151,7 +170,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 
 - (BOOL)handleURL:(NSURL *)url {
     for (id<SAModuleProtocol> obj in self.modules.allValues) {
-        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)] || !obj.isEnable) {
+        if (![obj conformsToProtocol:@protocol(SAOpenURLProtocol)]) {
             continue;
         }
         id<SAOpenURLProtocol> manager = (id<SAOpenURLProtocol>)obj;
@@ -172,7 +191,7 @@ static NSString * const kSAGestureModuleName = @"Gesture";
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     // 兼容使用宏定义的方式源码集成 SDK
     [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
-        if (![obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] || !obj.isEnable) {
+        if (!([obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] && [obj respondsToSelector:@selector(properties)]) || !obj.isEnable) {
             return;
         }
         id<SAPropertyModuleProtocol> manager = (id<SAPropertyModuleProtocol>)obj;
@@ -207,6 +226,40 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @end
 
 #pragma mark -
+@implementation SAModuleManager (Visualized)
+
+- (BOOL)isConnecting {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    return manager.isConnecting;
+}
+
+- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    [manager addVisualizeWithViewControllers:controllers];
+}
+
+- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    return [manager isVisualizeWithViewController:viewController];
+}
+
+#pragma mark properties
+// 采集元素属性
+- (nullable NSDictionary *)propertiesWithView:(UIView *)view {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    return [manager propertiesWithView:view];
+}
+
+// 采集元素自定义属性
+- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    if (!manager) {
+        completionHandler(nil);
+    }
+    [manager visualPropertiesWithView:view completionHandler:completionHandler];
+}
+
+@end
 
 @implementation SAModuleManager (DebugMode)
 
@@ -237,7 +290,6 @@ static NSString * const kSAGestureModuleName = @"Gesture";
 @end
 
 #pragma mark -
-
 @implementation SAModuleManager (Encrypt)
 
 - (id<SAEncryptModuleProtocol>)encryptManager {

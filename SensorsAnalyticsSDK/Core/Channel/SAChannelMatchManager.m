@@ -30,6 +30,7 @@
 #import "SAAlertController.h"
 #import "SAURLUtils.h"
 #import "SAReachability.h"
+#import "SACommonUtility.h"
 #import "SALog.h"
 
 NSString * const SAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
@@ -137,15 +138,10 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
     eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
 
-    NSString *userAgent = eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT];
-    if (userAgent.length == 0) {
-        [[SensorsAnalyticsSDK sharedInstance] loadUserAgentWithCompletion:^(NSString *ua) {
-            eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = ua;
-            [self trackAppInstallEvent:event properties:eventProps];
-        }];
-    } else {
-        [self trackAppInstallEvent:event properties:eventProps];
+    if ([eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] length] == 0) {
+        eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = [SACommonUtility simulateUserAgent];
     }
+    [self trackAppInstallEvent:event properties:eventProps];
 }
 
 - (NSString *)appInstallSource {
