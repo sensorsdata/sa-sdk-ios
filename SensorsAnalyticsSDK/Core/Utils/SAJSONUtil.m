@@ -26,6 +26,7 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SADateFormatter.h"
+#import "SAValidator.h"
 
 @implementation SAJSONUtil
 
@@ -107,6 +108,25 @@
     // default to sending the object's description
     SALogWarn(@"property values should be valid json types, but current value: %@, with invalid type: %@", newObj, [newObj class]);
     return [newObj description];
+}
+
+/**
+ *  @abstract
+ *  把 JSON 字符串转成对象 Object
+ *
+ *  @param jsonStr  要转化的字符串
+ *
+ *  @return 转化后得到的对象 Object
+ */
++ (id)objectFromJSONString:(NSString *)jsonStr {
+    if (![SAValidator isValidString:jsonStr]) {
+        return nil;
+    }
+    NSData *data = [jsonStr dataUsingEncoding:NSUTF8StringEncoding];
+    if (!data) {
+        return nil;
+    }
+    return [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
 }
 
 @end

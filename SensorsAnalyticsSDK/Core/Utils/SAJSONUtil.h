@@ -32,4 +32,15 @@
  */
 + (NSData *)JSONSerializeObject:(id)obj;
 
+/**
+ *  @abstract
+ *  把 JSON 字符串转成对象 Object
+ *
+ *  @param jsonStr  要转化的字符串
+ *
+ *  @return 转化后得到的对象 Object
+ */
++ (id)objectFromJSONString:(NSString *)jsonStr;
+
+
 @end

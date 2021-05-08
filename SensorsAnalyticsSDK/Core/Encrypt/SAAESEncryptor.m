@@ -29,38 +29,38 @@
 
 @interface SAAESEncryptor ()
 
-@property (nonatomic, copy) NSData *secretKey;
+@property (nonatomic, copy, readwrite) NSData *key;
 
 @end
 
 @implementation SAAESEncryptor
-
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super initWithSecretKey:secretKey];
-    if (self) {
-        [self configWithSecretKey:secretKey];
-    }
-    return self;
-}
-
-- (void)configWithSecretKey:(id)secretKey {
-    if (![SAValidator isValidData:secretKey]) {
-        return;
-    }
-    self.secretKey = secretKey;
-}
-
 #pragma mark - Public Methods
 
-- (nullable NSString *)encryptObject:(NSData *)obj {
+- (NSData *)key {
+    if (!_key) {
+        // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
+        NSUInteger length = 16;
+        NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
+        NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+        for (NSUInteger i = 0; i < length; i++) {
+            [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+        }
+        _key = [randomString dataUsingEncoding:NSUTF8StringEncoding];
+    }
+    return _key;
+}
+
+- (NSString *)algorithm {
+    return kSAAlgorithmTypeAES;
+}
+
+- (nullable NSString *)encryptData:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogError(@"Enable AES encryption but the input obj is invalid!");
         return nil;
     }
-    
-    if (![SAValidator isValidData:self.secretKey]) {
+
+    if (![SAValidator isValidData:self.key]) {
         SALogError(@"Enable AES encryption but the secret key data is invalid!");
         return nil;
     }
@@ -78,7 +78,7 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
-                                          [self.secretKey bytes],
+                                          [self.key bytes],
                                           kCCBlockSizeAES128,
                                           [ivData bytes],
                                           [data bytes],
@@ -87,6 +87,7 @@
                                           bufferSize,
                                           &numBytesEncrypted);
     if (cryptStatus == kCCSuccess) {
+        // 获得加密内容后，在内容前添加 16 位随机字节，增加数据复杂度
         NSData *encryptData = [NSData dataWithBytes:buffer length:numBytesEncrypted];
         NSMutableData *ivEncryptData = [NSMutableData dataWithData:ivData];
         [ivEncryptData appendData:encryptData];

@@ -1,9 +1,9 @@
 //
-// SAAbstractEncryptor.m
+// SAEncryptor.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/14.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2021/4/23.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,26 +22,9 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAAbstractEncryptor.h"
+#import "SAAlgorithmProtocol.h"
 
-@implementation SAAbstractEncryptor
-
-- (instancetype)initWithSecretKey:(id)secretKey {
-    self = [super init];
-    if (self) {
-        // base implementation
-    }
-    return self;
-}
-
-- (nullable NSString *)encryptObject:(NSData *)obj {
-    // base implementation
-    return nil;
-}
-
-- (NSData *)random16ByteData {
-    // base implementation
-    return nil;
-}
-
-@end
+NSString * const kSAAlgorithmTypeAES = @"AES";
+NSString * const kSAAlgorithmTypeRSA = @"RSA";
+NSString * const kSAAlgorithmTypeECC = @"EC";
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";

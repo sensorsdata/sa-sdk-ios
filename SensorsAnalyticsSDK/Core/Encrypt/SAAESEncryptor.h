@@ -17,12 +17,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
-
-#import "SAAbstractEncryptor.h"
-
+#import <Foundation/Foundation.h>
+#import "SAAlgorithmProtocol.h"
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAESEncryptor : SAAbstractEncryptor
+
+@interface SAAESEncryptor : NSObject <SAAlgorithmProtocol>
+
+@property (nonatomic, copy, readonly) NSData *key;
 
 @end
 

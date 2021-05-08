@@ -177,9 +177,11 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
                         strongSelf.options.handleEncryptBlock(encryptConfig);
                     }
 
-                    // 远程配置
-                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-                    [strongSelf handleRemoteConfig:remoteConfig];
+                    // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                        [strongSelf handleRemoteConfig:remoteConfig];
+                    });
                 }
             } else {
                 if (index < strongSelf.requestRemoteConfigRetryMaxCount - 1) {

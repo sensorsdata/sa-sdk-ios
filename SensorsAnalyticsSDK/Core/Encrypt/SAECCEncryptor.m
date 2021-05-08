@@ -27,52 +27,34 @@
 #import "SALog.h"
 
 NSString * const kSAEncryptECCPrefix = @"EC:";
-NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
 
-@interface SAECCEncryptor ()
-
-/// 移除 EC: 前缀之后真正的公钥
-@property (nonatomic, copy) NSString *publicKey;
-
-@end
-
 @implementation SAECCEncryptor
 
-#pragma mark - Life Cycle
-
-- (instancetype)initWithSecretKey:(NSString *)secretKey {
-    self = [super initWithSecretKey:secretKey];
-    if (self) {
-        [self configWithSecretKey:secretKey];
-    }
-    return self;
-}
-
-- (void)configWithSecretKey:(id)secretKey {
-    if (![SAValidator isValidString:secretKey]) {
+- (void)setKey:(NSString *)key {
+    if (![SAValidator isValidString:key]) {
         SALogError(@"Enable ECC encryption but the secret key is invalid!");
         return;
     }
 
-    if (![secretKey hasPrefix:kSAEncryptECCPrefix]) {
+    if (![key hasPrefix:kSAEncryptECCPrefix]) {
         SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
         return;
     }
-
-    self.publicKey = [secretKey substringFromIndex:[kSAEncryptECCPrefix length]];
+    _key = [key substringFromIndex:[kSAEncryptECCPrefix length]];
 }
 
 #pragma mark - Public Methods
-
-- (nullable NSString *)encryptObject:(NSData *)obj {
+- (NSString *)encryptData:(NSData *)obj {
     if (![SAValidator isValidData:obj]) {
         SALogError(@"Enable ECC encryption but the input obj is invalid!");
         return nil;
     }
-    
-    if (![SAValidator isValidString:self.publicKey]) {
+
+    // 去除非对称秘钥公钥中的前缀内容，返回实际的非对称秘钥公钥内容
+    NSString *asymmetricKey = self.key;
+    if (![SAValidator isValidString:asymmetricKey]) {
         SALogError(@"Enable ECC encryption but the public key is invalid!");
         return nil;
     }
@@ -82,20 +64,14 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
     IMP methodIMP = [class methodForSelector:selector];
     if (methodIMP) {
         NSString *string = [[NSString alloc] initWithData:obj encoding:NSUTF8StringEncoding];
-        return ((SAEEncryptImplementation)methodIMP)(class, selector, string, self.publicKey);
+        return ((SAEEncryptImplementation)methodIMP)(class, selector, string, asymmetricKey);
     }
     
     return nil;
 }
 
-- (NSData *)random16ByteData {
-    NSUInteger length = 16;
-    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
-    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
-    for (NSUInteger i = 0; i < length; i++) {
-        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
-    }
-    return [randomString dataUsingEncoding:NSUTF8StringEncoding];
+- (NSString *)algorithm {
+    return kSAAlgorithmTypeECC;
 }
 
 @end

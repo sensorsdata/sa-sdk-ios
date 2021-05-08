@@ -1,9 +1,9 @@
 //
-// SAECCEncryptor.h
+// SASecretKeyFactory.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/2.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2021/4/20.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,13 +19,14 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAAlgorithmProtocol.h"
+
+@class SASecretKey;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
+@interface SASecretKeyFactory : NSObject
 
-@property (nonatomic, copy) NSString *key;
++ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig;
 
 @end
 

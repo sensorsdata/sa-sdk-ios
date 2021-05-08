@@ -1,9 +1,9 @@
 //
-// SAECCEncryptor.h
+// SAConfigOptions+Private.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/12/2.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2021/4/16.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,15 +18,23 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-#import "SAAlgorithmProtocol.h"
+#import "SAEncryptProtocol.h"
+#import "SAConfigOptions.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface SAConfigOptions (Private)
 
-@interface SAECCEncryptor : NSObject <SAAlgorithmProtocol>
+@property (nonatomic, copy, readonly) NSArray *encryptors;
 
-@property (nonatomic, copy) NSString *key;
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@interface SASecretKey (Private)
+
+/// 对称加密类型
+@property(nonatomic, copy) NSString *symmetricEncryptType;
+
+/// 非对称加密类型
+@property(nonatomic, copy) NSString *asymmetricEncryptType;
+
+@end
