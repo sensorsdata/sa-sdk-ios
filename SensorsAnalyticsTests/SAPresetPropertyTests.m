@@ -58,7 +58,7 @@
 
 - (void)testAppVersion {
     NSString *appVersion = _presetProperty.appVersion;
-    XCTAssertTrue(!appVersion || [appVersion isEqualToString:_presetProperty.automaticProperties[SAEventPresetPropertyAppVersion]]);
+    XCTAssertTrue(!appVersion || [appVersion isEqualToString:_presetProperty.automaticProperties[kSAEventPresetPropertyAppVersion]]);
 }
 
 @end

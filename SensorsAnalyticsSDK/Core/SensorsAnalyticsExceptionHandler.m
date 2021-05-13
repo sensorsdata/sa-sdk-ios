@@ -180,12 +180,14 @@ static void SAHandleException(NSException *exception) {
                     NSString *exceptionStack = [[NSThread callStackSymbols] componentsJoinedByString:@"\n"];
                     [properties setValue:[NSString stringWithFormat:@"%@ %@", [exception reason], exceptionStack] forKey:@"app_crashed_reason"];
                 }
-                [instance trackPresetEvent:SA_EVENT_NAME_APP_CRASHED properties:properties];
+                SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
+                [instance asyncTrackEventObject:object properties:properties];
             }
             if (![instance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppEnd]) {
                 [SACommonUtility performBlockOnMainThread:^{
                     if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
-                        [instance trackAutoEvent:SA_EVENT_NAME_APP_END properties:nil];
+                        SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppEnd];
+                        [instance asyncTrackEventObject:eventObject properties:nil];
                     }
                 }];
             }

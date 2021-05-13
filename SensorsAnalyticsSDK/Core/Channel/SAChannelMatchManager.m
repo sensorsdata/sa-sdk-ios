@@ -168,7 +168,8 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 - (void)trackAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
     // 先发送 track
     SensorsAnalyticsSDK *sdk = [SensorsAnalyticsSDK sharedInstance];
-    [sdk trackPresetEvent:event properties:properties];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
+    [sdk asyncTrackEventObject:object properties:properties];
 
     NSMutableDictionary *profileProps = [NSMutableDictionary dictionary];
     [profileProps addEntriesFromDictionary:properties];

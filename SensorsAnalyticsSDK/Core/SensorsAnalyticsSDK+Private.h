@@ -26,7 +26,7 @@
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
-
+#import "SATrackEventObject.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -45,25 +45,10 @@
 #pragma mark - method
 - (void)autoTrackViewScreen:(UIViewController *)viewController;
 
-/**
- * @abstract
- * 触发预置事件
- * @discussion
- * 调用此方法触发 SDK 除自动采集全埋点之外的所有预置事件。
- * 例如：AppCrashed、$AppInstall、$AppRemoteConfigChanged 等
-
-@param event 事件名
-@param properties 事件的属性
-*/
-- (void)trackPresetEvent:(NSString *)event properties:(NSDictionary *)properties;
-
-/**
-自动触发全埋点事件
-
-@param event 事件名
-@param properties 事件的属性
-*/
-- (void)trackAutoEvent:(NSString *)event properties:(NSDictionary *)properties;
+/// 事件采集: 切换到 serialQueue 中执行
+/// @param object 事件对象
+/// @param properties 事件属性
+- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
 /**
  根据 viewController 判断，是否采集事件

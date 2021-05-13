@@ -32,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isValidData:(NSData *)data;
 
+/// 检查事件名或参数名是否有效
++ (BOOL)isValidKey:(NSString *)key;
+
 @end
 
 NS_ASSUME_NONNULL_END

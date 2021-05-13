@@ -34,7 +34,7 @@
     self = [super initWithDictionary:dic];
     if (self) {
         NSString *eventName = eventInfo[@"event"];
-        if ([eventName isEqualToString:SA_EVENT_NAME_APP_CLICK]) {
+        if ([eventName isEqualToString:kSAEventNameAppClick]) {
             _eventType = SensorsAnalyticsEventTypeAppClick;
         } else {
             _eventType = SensorsAnalyticsEventTypeNone;

@@ -52,7 +52,7 @@
         _queue = queue;
         dispatch_async(_queue, ^{
             self.anonymousId = [self unarchiveAnonymousId];
-            self.loginId = [SAFileStore unarchiveWithFileName:SA_EVENT_LOGIN_ID];
+            self.loginId = [SAFileStore unarchiveWithFileName:kSAEventLoginId];
         });
     }
     return self;
@@ -79,7 +79,7 @@
 }
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
-    [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:anonymousId];
+    [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
@@ -119,14 +119,14 @@
 - (void)login:(NSString *)loginId {
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
-        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:loginId];
+        [SAFileStore archiveWithFileName:kSAEventLoginId value:loginId];
     });
 }
 
 - (void)logout {
     dispatch_async(self.queue, ^{
         self.loginId = nil;
-        [SAFileStore archiveWithFileName:SA_EVENT_LOGIN_ID value:nil];
+        [SAFileStore archiveWithFileName:kSAEventLoginId value:nil];
     });
 }
 
@@ -165,14 +165,14 @@
 #pragma mark – Private Methods
 
 - (NSString *)unarchiveAnonymousId {
-    NSString *anonymousId = [SAFileStore unarchiveWithFileName:SA_EVENT_DISTINCT_ID];
+    NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
 #ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
             // 保存 Archiver
-            [SAFileStore archiveWithFileName:SA_EVENT_DISTINCT_ID value:distinctIdInKeychain];
+            [SAFileStore archiveWithFileName:kSAEventDistinctId value:distinctIdInKeychain];
         }
         anonymousId = distinctIdInKeychain;
     } else {

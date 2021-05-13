@@ -188,36 +188,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
 
 /**
- * @property
- *
- * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面、元素点击
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
-
-/**
- * @abstract
- * 是否开启 AutoTrack
- *
- * @return YES: 开启 AutoTrack; NO: 关闭 AutoTrack
- */
-- (BOOL)isAutoTrackEnabled;
-
-/**
- * @abstract
- * 判断某个 AutoTrack 事件类型是否被忽略
- *
- * @param eventType SensorsAnalyticsAutoTrackEventType 要判断的 AutoTrack 事件类型
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType;
-
-/**
  * @abstract
  * 忽略某一类型的 View
  *
@@ -1103,27 +1073,6 @@ DeepLink 回调函数
  @param debugMode 调试模式
  */
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
-
-/**
- * @property
- *
- * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
- *
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
-
-/**
- * @abstract
- * 过滤掉 AutoTrack 的某个事件类型
- *
- * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
- */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
 
 /**
  * @abstract

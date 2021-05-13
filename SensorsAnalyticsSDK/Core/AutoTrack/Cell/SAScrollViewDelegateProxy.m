@@ -59,7 +59,8 @@
     // 解析 Cell
     UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
     if (!cell) {
-        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
         return;
     }
 
@@ -68,7 +69,8 @@
         if (visualProperties) {
             [properties addEntriesFromDictionary:visualProperties];
         }
-        [[SensorsAnalyticsSDK sharedInstance] trackAutoEvent:SA_EVENT_NAME_APP_CLICK properties:properties];
+        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
     }];
 }
 

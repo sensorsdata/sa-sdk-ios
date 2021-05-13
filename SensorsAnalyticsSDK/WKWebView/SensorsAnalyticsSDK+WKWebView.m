@@ -200,7 +200,7 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
                 }];
             } else if ([urlstr rangeOfString:kSAJSTrackEventNativeScheme].location != NSNotFound) {
                 if ([paramsDic count] > 0) {
-                    NSString *eventInfo = [paramsDic objectForKey:SA_EVENT_NAME];
+                    NSString *eventInfo = [paramsDic objectForKey:kSAEventName];
                     if (eventInfo != nil) {
                         NSString *encodedString = [eventInfo stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                         [self trackFromH5WithEvent:encodedString enableVerify:enableVerify];
@@ -237,12 +237,12 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
 
 - (NSDictionary *)webViewJavascriptBridgeCallbackInfo {
     NSMutableDictionary *libProperties = [[NSMutableDictionary alloc] init];
-    [libProperties setValue:@"iOS" forKey:SA_EVENT_TYPE];
+    [libProperties setValue:@"iOS" forKey:kSAEventType];
     if (self.loginId != nil) {
-        [libProperties setValue:self.loginId forKey:SA_EVENT_DISTINCT_ID];
+        [libProperties setValue:self.loginId forKey:kSAEventDistinctId];
         [libProperties setValue:[NSNumber numberWithBool:YES] forKey:@"is_login"];
     } else{
-        [libProperties setValue:self.anonymousId forKey:SA_EVENT_DISTINCT_ID];
+        [libProperties setValue:self.anonymousId forKey:kSAEventDistinctId];
         [libProperties setValue:[NSNumber numberWithBool:NO] forKey:@"is_login"];
     }
     return [libProperties copy];

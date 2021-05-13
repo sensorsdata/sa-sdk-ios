@@ -123,7 +123,7 @@
     if (eventConfigData) {
         eventConfigStr = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
     }
-    self.options.trackEventBlock(SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
+    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{SA_EVENT_PROPERTY_APP_REMOTE_CONFIG : eventConfigStr});
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {

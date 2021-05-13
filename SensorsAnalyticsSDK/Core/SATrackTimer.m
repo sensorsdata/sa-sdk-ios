@@ -34,8 +34,6 @@
 
 @implementation SATrackTimer
 
-static NSString *const kEventIdSuffix = @"_SATimer";
-
 #pragma mark - properties lazy load
 - (NSMutableDictionary *)eventNames {
     if (!_eventNames) {
@@ -57,11 +55,11 @@ static NSString *const kEventIdSuffix = @"_SATimer";
     if (eventId == nil || eventId.length == 0) {
         return eventId;
     }
-    if (![eventName hasSuffix:kEventIdSuffix]) {
+    if (![eventName hasSuffix:kSAEventIdSuffix]) {
         //生成计时事件的 eventId，结构为 {eventName}_{uuid}_SATimer
         //uuid 字符串中 ‘-’ 是不合法字符，替换为 ‘_’
         NSString *uuid = [NSUUID.UUID.UUIDString stringByReplacingOccurrencesOfString:@"-" withString:@"_"];
-        eventId = [NSString stringWithFormat:@"%@_%@%@", eventName, uuid, kEventIdSuffix];
+        eventId = [NSString stringWithFormat:@"%@_%@%@", eventName, uuid, kSAEventIdSuffix];
     }
     return eventId;
 }
@@ -104,7 +102,7 @@ static NSString *const kEventIdSuffix = @"_SATimer";
 }
 
 - (NSString *)eventNameFromEventId:(NSString *)eventId {
-    if (![eventId hasSuffix:kEventIdSuffix]) {
+    if (![eventId hasSuffix:kSAEventIdSuffix]) {
         return eventId;
     }
     //eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
@@ -221,7 +219,7 @@ static NSString *const kEventIdSuffix = @"_SATimer";
 - (void)handleAllEventsPause:(NSMutableDictionary *)mapping time:(UInt64)currentSystemUpTime {
     for (NSString *key in mapping.allKeys) {
         if (key != nil) {
-            if ([key isEqualToString:SA_EVENT_NAME_APP_END]) {
+            if ([key isEqualToString:kSAEventNameAppEnd]) {
                 continue;
             }
         }

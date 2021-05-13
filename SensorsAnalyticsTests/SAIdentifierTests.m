@@ -106,8 +106,8 @@
 }
 
 - (void)testLoginIdAfterLoginEmptyString {
-    [_identifier login:@""];
-    XCTAssertNil(_identifier.loginId);
+    BOOL result = [_identifier isValidLoginId:@""];
+    XCTAssertFalse(result);
 }
 
 - (void)testDistinctIdAfterLoginEmptyString {

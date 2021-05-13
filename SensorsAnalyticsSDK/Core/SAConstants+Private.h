@@ -21,20 +21,22 @@
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
 
+#pragma mark - Track Timer
+extern NSString  * const kSAEventIdSuffix;
 
 #pragma mark--evnet
-extern NSString * const SA_EVENT_TIME;
-extern NSString * const SA_EVENT_TRACK_ID;
-extern NSString * const SA_EVENT_NAME;
-extern NSString * const SA_EVENT_DISTINCT_ID;
-extern NSString * const SA_EVENT_PROPERTIES;
-extern NSString * const SA_EVENT_TYPE;
-extern NSString * const SA_EVENT_LIB;
-extern NSString * const SA_EVENT_PROJECT;
-extern NSString * const SA_EVENT_TOKEN;
-extern NSString * const SA_EVENT_HYBRID_H5;
-extern NSString * const SA_EVENT_LOGIN_ID;
-extern NSString * const SA_EVENT_ANONYMOUS_ID;
+extern NSString * const kSAEventTime;
+extern NSString * const kSAEventTrackId;
+extern NSString * const kSAEventName;
+extern NSString * const kSAEventDistinctId;
+extern NSString * const kSAEventProperties;
+extern NSString * const kSAEventType;
+extern NSString * const kSAEventLib;
+extern NSString * const kSAEventProject;
+extern NSString * const kSAEventToken;
+extern NSString * const kSAEventHybridH5;
+extern NSString * const kSAEventLoginId;
+extern NSString * const kSAEventAnonymousId;
 
 #pragma mark - Item
 extern NSString * const SA_EVENT_ITEM_TYPE;
@@ -45,21 +47,21 @@ extern NSString * const SA_EVENT_ITEM_DELETE;
 #pragma mark--evnet nanme
 
 // App 启动或激活
-extern NSString * const SA_EVENT_NAME_APP_START;
+extern NSString * const kSAEventNameAppStart;
 // App 退出或进入后台
-extern NSString * const SA_EVENT_NAME_APP_END;
+extern NSString * const kSAEventNameAppEnd;
 // App 浏览页面
-extern NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN;
+extern NSString * const kSAEventNameAppViewScreen;
 // App 元素点击
-extern NSString * const SA_EVENT_NAME_APP_CLICK;
+extern NSString * const kSAEventNameAppClick;
 // 自动追踪相关事件及属性
-extern NSString * const SA_EVENT_NAME_APP_START_PASSIVELY;
+extern NSString * const kSAEventNameAppStartPassively;
 
-extern NSString * const SA_EVENT_NAME_APP_SIGN_UP;
+extern NSString * const kSAEventNameSignUp;
 
-extern NSString * const SA_EVENT_NAME_APP_CRASHED;
+extern NSString * const kSAEventNameAppCrashed;
 
-extern NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED;
+extern NSString * const kSAEventNameAppRemoteConfigChanged;
 
 // 激活事件
 extern NSString * const kSAEventNameAppInstall;
@@ -71,10 +73,6 @@ extern NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
-// App 首次启动
-extern NSString * const SA_EVENT_PROPERTY_APP_FIRST_START;
-// App 是否从后台恢复
-extern NSString * const SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND;
 // App 浏览页面 Url
 extern NSString * const SA_EVENT_PROPERTY_SCREEN_URL;
 // App 浏览页面 Referrer Url
@@ -97,10 +95,10 @@ extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
 
 #pragma mark--common property
 //可选参数
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN;
-extern NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME;
-extern long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT;
+extern NSString * const kSAEventCommonOptionalPropertyProject;
+extern NSString * const kSAEventCommonOptionalPropertyToken;
+extern NSString * const kSAEventCommonOptionalPropertyTime;
+extern long long const kSAEventCommonOptionalPropertyTimeInt;
 
 #pragma mark--lib method
 extern NSString * const kSALibMethodAuto;
@@ -119,7 +117,6 @@ extern NSString * const SA_PROFILE_APPEND;
 extern NSString * const SA_PROFILE_INCREMENT;
 
 #pragma mark--others
-extern NSString * const SA_HAS_LAUNCHED_ONCE;
 extern NSString * const SA_HAS_TRACK_INSTALLATION;
 extern NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK;
 

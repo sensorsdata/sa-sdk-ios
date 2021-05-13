@@ -25,20 +25,22 @@
 #import "SAConstants.h"
 #import "SAConstants+Private.h"
 
+#pragma mark - Track Timer
+NSString *const kSAEventIdSuffix = @"_SATimer";
 
 #pragma mark - event
-NSString * const SA_EVENT_TIME = @"time";
-NSString * const SA_EVENT_TRACK_ID = @"_track_id";
-NSString * const SA_EVENT_NAME = @"event";
-NSString * const SA_EVENT_DISTINCT_ID = @"distinct_id";
-NSString * const SA_EVENT_PROPERTIES = @"properties";
-NSString * const SA_EVENT_TYPE = @"type";
-NSString * const SA_EVENT_LIB = @"lib";
-NSString * const SA_EVENT_PROJECT = @"project";
-NSString * const SA_EVENT_TOKEN = @"token";
-NSString * const SA_EVENT_HYBRID_H5 = @"_hybrid_h5";
-NSString * const SA_EVENT_LOGIN_ID = @"login_id";
-NSString * const SA_EVENT_ANONYMOUS_ID = @"anonymous_id";
+NSString * const kSAEventTime = @"time";
+NSString * const kSAEventTrackId = @"_track_id";
+NSString * const kSAEventName = @"event";
+NSString * const kSAEventDistinctId = @"distinct_id";
+NSString * const kSAEventProperties = @"properties";
+NSString * const kSAEventType = @"type";
+NSString * const kSAEventLib = @"lib";
+NSString * const kSAEventProject = @"project";
+NSString * const kSAEventToken = @"token";
+NSString * const kSAEventHybridH5 = @"_hybrid_h5";
+NSString * const kSAEventLoginId = @"login_id";
+NSString * const kSAEventAnonymousId = @"anonymous_id";
 
 #pragma mark - Item
 NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
@@ -48,21 +50,21 @@ NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
 
 #pragma mark - event name
 // App 启动或激活
-NSString * const SA_EVENT_NAME_APP_START = @"$AppStart";
+NSString * const kSAEventNameAppStart = @"$AppStart";
 // App 退出或进入后台
-NSString * const SA_EVENT_NAME_APP_END = @"$AppEnd";
+NSString * const kSAEventNameAppEnd = @"$AppEnd";
 // App 浏览页面
-NSString * const SA_EVENT_NAME_APP_VIEW_SCREEN = @"$AppViewScreen";
+NSString * const kSAEventNameAppViewScreen = @"$AppViewScreen";
 // App 元素点击
-NSString * const SA_EVENT_NAME_APP_CLICK = @"$AppClick";
+NSString * const kSAEventNameAppClick = @"$AppClick";
 // 自动追踪相关事件及属性
-NSString * const SA_EVENT_NAME_APP_START_PASSIVELY = @"$AppStartPassively";
+NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 
-NSString * const SA_EVENT_NAME_APP_SIGN_UP = @"$SignUp";
+NSString * const kSAEventNameSignUp = @"$SignUp";
 
-NSString * const SA_EVENT_NAME_APP_CRASHED = @"AppCrashed";
+NSString * const kSAEventNameAppCrashed = @"AppCrashed";
 // 远程控制配置变化
-NSString * const SA_EVENT_NAME_APP_REMOTE_CONFIG_CHANGED = @"$AppRemoteConfigChanged";
+NSString * const kSAEventNameAppRemoteConfigChanged = @"$AppRemoteConfigChanged";
 
 // 激活事件
 NSString * const kSAEventNameAppInstall = @"$AppInstall";
@@ -73,10 +75,6 @@ NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install
 NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
-// App 首次启动
-NSString * const SA_EVENT_PROPERTY_APP_FIRST_START = @"$is_first_time";
-// App 是否从后台恢复
-NSString * const SA_EVENT_PROPERTY_RESUME_FROM_BACKGROUND = @"$resume_from_background";
 // App 浏览页面 Url
 NSString * const SA_EVENT_PROPERTY_SCREEN_URL = @"$url";
 // App 浏览页面 Referrer Url
@@ -99,11 +97,11 @@ NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callba
 NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG = @"$app_remote_config";
 
 #pragma mark - common property
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_PROJECT = @"$project";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TOKEN = @"$token";
-NSString * const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME = @"$time";
+NSString * const kSAEventCommonOptionalPropertyProject = @"$project";
+NSString * const kSAEventCommonOptionalPropertyToken = @"$token";
+NSString * const kSAEventCommonOptionalPropertyTime = @"$time";
 //神策成立时间，2015-05-15 10:24:00.000，某些时间戳判断（毫秒）
-long long const SA_EVENT_COMMON_OPTIONAL_PROPERTY_TIME_INT = 1431656640000;
+long long const kSAEventCommonOptionalPropertyTimeInt = 1431656640000;
 
 #pragma mark--lib method
 NSString * const kSALibMethodAuto = @"autoTrack";
@@ -122,7 +120,6 @@ NSString * const SA_PROFILE_APPEND = @"profile_append";
 NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
 
 #pragma mark - NSUserDefaults
-NSString * const SA_HAS_LAUNCHED_ONCE = @"HasLaunchedOnce";
 NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
 NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 

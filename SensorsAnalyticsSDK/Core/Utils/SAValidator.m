@@ -23,6 +23,10 @@
 #endif
 
 #import "SAValidator.h"
+#import "SAConstants+Private.h"
+#import "SALog.h"
+
+static NSRegularExpression *regexForValidKey;
 
 @implementation SAValidator
 
@@ -40,6 +44,32 @@
 
 + (BOOL)isValidData:(NSData *)data {
     return ([data isKindOfClass:[NSData class]] && ([data length] > 0));
+}
+
++ (BOOL)isValidKey:(NSString *)key {
+    if (![self isValidString:key]) {
+        return NO;
+    }
+    @try {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+            NSString *name = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            regexForValidKey = [NSRegularExpression regularExpressionWithPattern:name options:NSRegularExpressionCaseInsensitive error:nil];
+        });
+        // 保留字段通过字符串直接比较，效率更高
+        NSSet *reservedProperties = sensorsdata_reserved_properties();
+        for (NSString *reservedProperty in reservedProperties) {
+            if ([reservedProperty caseInsensitiveCompare:key] == NSOrderedSame) {
+                return NO;
+            }
+        }
+        // 属性名通过正则表达式匹配，比使用谓词效率更高
+        NSRange range = NSMakeRange(0, key.length);
+        return ([regexForValidKey numberOfMatchesInString:key options:0 range:range] > 0);
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
+        return NO;
+    }
 }
 
 @end

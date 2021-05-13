@@ -23,13 +23,13 @@
 #endif
 
 #import <XCTest/XCTest.h>
-#import "SALinkHandler.h"
+#import "SADeeplinkManager.h"
 #import "SAConfigOptions.h"
 #import "SAFileStore.h"
 
 @interface SALinkHandlerTests : XCTestCase
 
-@property (nonatomic, strong) SALinkHandler *linkHandler;
+@property (nonatomic, strong) SADeeplinkManager *linkHandler;
 
 @end
 
@@ -42,7 +42,8 @@
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:launchOptions];
     options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"source", @"channel", @"device_id"];
-    _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
+    _linkHandler = [[SADeeplinkManager alloc] init];
+    _linkHandler.configOptions = options;
 }
 
 - (void)tearDown {
@@ -95,8 +96,7 @@
 - (void)testNormalURL {
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn?utm_content=2&utm_campaign=2&channel=2&key=value"];
     XCTAssertTrue([_linkHandler canHandleURL:url]);
-
-    [_linkHandler handleDeepLink:url];
+    [_linkHandler handleURL:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 3);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"2"]);
@@ -114,7 +114,7 @@
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn?utm_content=&utm_campaign=3&channel=&key=value"];
     XCTAssertTrue([_linkHandler canHandleURL:url]);
 
-    [_linkHandler handleDeepLink:url];
+    [_linkHandler handleURL:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 1);
     XCTAssertTrue([latest[@"$latest_utm_campaign"] isEqualToString:@"3"]);
@@ -128,7 +128,7 @@
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn?utm_content=&utm_campaign=&channel=&key=value"];
     XCTAssertTrue([_linkHandler canHandleURL:url]);
 
-    [_linkHandler handleDeepLink:url];
+    [_linkHandler handleURL:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 0);
 
@@ -140,7 +140,7 @@
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn"];
     XCTAssertFalse([_linkHandler canHandleURL:url]);
 
-    [_linkHandler handleDeepLink:url];
+    [_linkHandler handleURL:url];
 
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 7);
@@ -161,7 +161,8 @@
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
     options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"source", @"channel"];
-    _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
+    _linkHandler = [[SADeeplinkManager alloc] init];
+    _linkHandler.configOptions = options;
 
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 7);
@@ -183,7 +184,8 @@
     options.enableSaveDeepLinkInfo = YES;
     //升级版本修改 sourceChannels 后，会过滤本地获取到的自定义属性
     options.sourceChannels = @[@"version", @"channel"];
-    _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
+    _linkHandler = [[SADeeplinkManager alloc] init];
+    _linkHandler.configOptions = options;
 
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 6);
@@ -203,7 +205,7 @@
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn?utm_content=2&device_id=2"];
     XCTAssertTrue([_linkHandler canHandleURL:url]);
 
-    [_linkHandler handleDeepLink:url];
+    [_linkHandler handleURL:url];
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 1);
     XCTAssertTrue([latest[@"$latest_utm_content"] isEqualToString:@"2"]);
@@ -219,7 +221,8 @@
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
     options.enableSaveDeepLinkInfo = YES;
     options.sourceChannels = @[@"sourceChannel"];
-    _linkHandler = [[SALinkHandler alloc] initWithConfigOptions:options];
+    _linkHandler = [[SADeeplinkManager alloc] init];
+    _linkHandler.configOptions = options;
 
     NSDictionary *latest = [_linkHandler latestUtmProperties];
     XCTAssertTrue(latest.count == 5);

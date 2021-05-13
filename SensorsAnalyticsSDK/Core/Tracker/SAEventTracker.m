@@ -64,6 +64,10 @@
     [self trackEvent:event isSignUp:NO];
 }
 
+/// 事件入库
+/// ⚠️ 注意: SF 和 A/B Testing 会 Hook 该方法修改 distinct_id, 因此该方法不能被修改
+/// @param event 事件信息
+/// @param isSignUp 是否是用户关联事件, 用户关联事件会触发 flush
 - (void)trackEvent:(NSDictionary *)event isSignUp:(BOOL)isSignUp {
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
     // 尝试加密

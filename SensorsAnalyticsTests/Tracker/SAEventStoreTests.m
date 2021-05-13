@@ -42,39 +42,35 @@
     self.filePath = nil;
 }
 
-- (BOOL)insertHundredRecords {
-    NSMutableArray *records = [[NSMutableArray alloc] initWithCapacity:100];
+- (void)insertHundredRecords {
     for (int index = 0; index < 100; index++) {
-        SAEventRecord *record = [[SAEventRecord alloc] initWithContent:[NSString stringWithFormat:@"{\"index\":%d}", index] type:@"POST"];
-        [records addObject:record];
+        SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:@"1" content:[NSString stringWithFormat:@"{\"index\":%d}", index]];
+        record.type = @"POST";
+        [self.eventStore insertRecord:record];
     }
-    return [self.eventStore insertRecords:records];
 }
 
 - (void)testInsertRecordsWithHundredRecords {
-    BOOL success = [self insertHundredRecords];
-    XCTAssertTrue(success);
+    [self insertHundredRecords];
     XCTAssertEqual(self.eventStore.count, 100);
 }
 
 - (void)testInsertRecordWithRecord {
-    SAEventRecord *record = [[SAEventRecord alloc] initWithContent:@"{\"index\":111}" type:@"POST"];
+    SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:@"1" content:@"{\"index\":\"1\"}"];
     BOOL success = [self.eventStore insertRecord:record];
     XCTAssertTrue(success);
     XCTAssertEqual(self.eventStore.count, 1);
 }
 
 - (void)testSelsctRecordsWith50Record {
-    BOOL success = [self insertHundredRecords];
-    XCTAssertTrue(success);
+    [self insertHundredRecords];
 
     NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50];
     XCTAssertEqual(records.count, 50);
 }
 
 - (void)testDeleteRecords {
-    BOOL success = [self insertHundredRecords];
-    XCTAssertTrue(success);
+    [self insertHundredRecords];
 
     NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50];
     NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:50];
@@ -86,10 +82,8 @@
 }
 
 - (void)testDeleteAllRecords {
-    BOOL success = [self insertHundredRecords];
-    XCTAssertTrue(success);
-
-    success = [self.eventStore deleteAllRecords];
+    [self insertHundredRecords];
+    BOOL success = [self.eventStore deleteAllRecords];
     XCTAssertTrue(success);
     XCTAssertEqual(self.eventStore.count, 0);
 }
@@ -98,7 +92,8 @@
 
 - (void)insertHundredRecordsWithEventStore:(SAEventStore *)store {
     for (int index = 0; index < 100; index++) {
-        SAEventRecord *record = [[SAEventRecord alloc] initWithContent:[NSString stringWithFormat:@"{\"index\":%d}", index] type:@"POST"];
+        SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:@"1" content:[NSString stringWithFormat:@"{\"index\":%d}", index]];
+        record.type = @"POST";
         [store insertRecord:record];
     }
 }
