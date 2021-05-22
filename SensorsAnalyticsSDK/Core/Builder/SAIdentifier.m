@@ -69,6 +69,10 @@
     if ([anonymousId length] > 255) {
         SALogWarn(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
     }
+
+    if ([anonymousId isEqualToString:self.anonymousId]) {
+        return NO;
+    }
     
     // 异步任务设置匿名 ID
     dispatch_async(self.queue, ^{

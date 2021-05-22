@@ -157,7 +157,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 }
 
 - (void)showVersionCheckAlertWithCurrentVersion:(nullable NSString *)currentVersion urlVersion:(NSString *)urlVersion {
-    BOOL isEqual = [self currentVersion:currentVersion isEqualToURLVersion:urlVersion];
+    BOOL isEqual = [currentVersion isEqualToString:urlVersion];
     
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
     model.title = isEqual ? @"提示" : @"信息版本不一致";
@@ -180,26 +180,26 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 - (void)requestRemoteConfigWithURLVersion:(NSString *)urlVersion {
     [self showIndicator];
-    
+
     __weak typeof(self) weakSelf = self;
     [self requestRemoteConfigWithForceUpdate:YES completion:^(BOOL success, NSDictionary<NSString *,id> * _Nullable config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-
         [strongSelf hideIndicator];
+        dispatch_async(dispatch_get_main_queue(), ^{
+            @try {
+                SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
 
-        @try {
-            SALogDebug(@"【remote config】The request result: success is %d, config is %@", success, config);
-
-            if (success && config) {
-                // 远程配置
-                NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
-                [strongSelf handleRemoteConfig:remoteConfig withURLVersion:urlVersion];
-            } else {
-                [strongSelf showRequestRemoteConfigFailedAlert];
+                if (success && config) {
+                    // 远程配置
+                    NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];
+                    [strongSelf handleRemoteConfig:remoteConfig withURLVersion:urlVersion];
+                } else {
+                    [strongSelf showRequestRemoteConfigFailedAlert];
+                }
+            } @catch (NSException *exception) {
+                SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
             }
-        } @catch (NSException *exception) {
-            SALogError(@"【remote config】%@ error: %@", strongSelf, exception);
-        }
+        });
     }];
 }
 
@@ -208,41 +208,41 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
     [self showVersionCheckAlertWithCurrentVersion:currentVersion urlVersion:urlVersion];
 
-    if (![self currentVersion:currentVersion isEqualToURLVersion:urlVersion]) {
+    if (![currentVersion isEqualToString:urlVersion]) {
         return;
     }
 
     NSMutableDictionary<NSString *, id> *eventMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
     eventMDic[@"debug"] = @YES;
     [self trackAppRemoteConfigChanged:eventMDic];
-    
+
     NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
     enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
     [self enableRemoteConfig:enableMDic];
 }
 
-- (BOOL)currentVersion:(nullable NSString *)currentVersion isEqualToURLVersion:(NSString *)urlVersion {
-    return [currentVersion isEqualToString:urlVersion];
-}
-
 #pragma mark UI
 
 - (void)showIndicator {
-    _window = [self alertWindow];
-    _window.windowLevel = UIWindowLevelAlert + 1;
-    UIViewController *controller = [[SAAlertController alloc] init];
-    _window.rootViewController = controller;
-    _window.hidden = NO;
-    _indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
-    _indicator.center = CGPointMake(_window.center.x, _window.center.y);
-    [_window.rootViewController.view addSubview:_indicator];
-    [_indicator startAnimating];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self.window = [self alertWindow];
+        self.window.windowLevel = UIWindowLevelAlert + 1;
+        UIViewController *controller = [[SAAlertController alloc] init];
+        self.window.rootViewController = controller;
+        self.window.hidden = NO;
+        self.indicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
+        self.indicator.center = CGPointMake(self.window.center.x, self.window.center.y);
+        [self.window.rootViewController.view addSubview:self.indicator];
+        [self.indicator startAnimating];
+    });
 }
 
 - (void)hideIndicator {
-    [_indicator stopAnimating];
-    _indicator = nil;
-    _window = nil;
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [self.indicator stopAnimating];
+        self.indicator = nil;
+        self.window = nil;
+    });
 }
 
 - (UIWindow *)alertWindow {

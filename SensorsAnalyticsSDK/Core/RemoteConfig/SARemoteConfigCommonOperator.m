@@ -215,10 +215,15 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
-    [self updateLocalLibVersion];
-    [self trackAppRemoteConfigChanged:remoteConfig];
-    [self saveRemoteConfig:remoteConfig];
-    [self triggerRemoteConfigEffect:remoteConfig];
+    // 在接收到请求时会异步切换到主线程中，为了保证程序稳定，添加 try-catch 保护
+    @try {
+        [self updateLocalLibVersion];
+        [self trackAppRemoteConfigChanged:remoteConfig];
+        [self saveRemoteConfig:remoteConfig];
+        [self triggerRemoteConfigEffect:remoteConfig];
+    } @catch (NSException *exception) {
+        SALogError(@"【remote config】%@ error: %@", self, exception);
+    }
 }
 
 - (void)updateLocalLibVersion {

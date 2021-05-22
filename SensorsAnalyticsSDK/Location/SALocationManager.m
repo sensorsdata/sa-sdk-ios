@@ -27,8 +27,10 @@
 #import "SAConstants+Private.h"
 #import "SALog.h"
 
-static NSString * const SAEventPresetPropertyLatitude = @"$latitude";
-static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
+static NSString * const kSAEventPresetPropertyLatitude = @"$latitude";
+static NSString * const kSAEventPresetPropertyLongitude = @"$longitude";
+static NSString * const kSAEventPresetPropertyCoordinateSystem = @"$geo_coordinate_system";
+static NSString * const kSAAppleCoordinateSystem = @"WGS84";
 
 @interface SALocationManager() <CLLocationManagerDelegate>
 
@@ -80,7 +82,7 @@ static NSString * const SAEventPresetPropertyLongitude = @"$longitude";
     }
     NSInteger latitude = self.coordinate.latitude * pow(10, 6);
     NSInteger longitude = self.coordinate.longitude * pow(10, 6);
-    return @{SAEventPresetPropertyLatitude: @(latitude), SAEventPresetPropertyLongitude: @(longitude)};
+    return @{kSAEventPresetPropertyLatitude: @(latitude), kSAEventPresetPropertyLongitude: @(longitude), kSAEventPresetPropertyCoordinateSystem: kSAAppleCoordinateSystem};
 }
 
 #pragma mark - Listener
