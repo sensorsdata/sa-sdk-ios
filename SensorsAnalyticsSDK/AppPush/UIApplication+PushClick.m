@@ -1,5 +1,5 @@
 //
-// UIApplication+AutoTrack.m
+// UIApplication+PushClick.m
 // SensorsAnalyticsSDK
 //
 // Created by 陈玉国 on 2021/1/7.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "UIApplication+AutoTrack.h"
+#import "UIApplication+PushClick.h"
 #import "SAApplicationDelegateProxy.h"
 #import <objc/runtime.h>
 

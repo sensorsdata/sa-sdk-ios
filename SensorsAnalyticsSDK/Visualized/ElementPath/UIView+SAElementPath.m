@@ -364,7 +364,7 @@
     if ([self sensorsdata_clickableForRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 页面信息为空，则使用 Native 的
-        NSString *screenName = screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        NSString *screenName = screenProperties[kSAEventPropertyScreenName];
         if (screenName) {
             return screenName;
         }
@@ -373,7 +373,7 @@
     // 解析 Native 元素页面信息
     if (self.sensorsdata_viewController) {
         NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
-        return autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
+        return autoTrackScreenProperties[kSAEventPropertyScreenName];
     }
     return nil;
 }
@@ -383,15 +383,15 @@
     if ([self sensorsdata_clickableForRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 的 screenName 不存在，则判断页面信息不存在，即使用 Native 逻辑
-        if (screenProperties[SA_EVENT_PROPERTY_SCREEN_NAME]) {
-            return screenProperties[SA_EVENT_PROPERTY_TITLE];
+        if (screenProperties[kSAEventPropertyScreenName]) {
+            return screenProperties[kSAEventPropertyTitle];
         }
     }
 
     // 处理 Native 元素
     if (self.sensorsdata_viewController) {
         NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
-        return autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+        return autoTrackScreenProperties[kSAEventPropertyTitle];
     }
     return nil;
 }

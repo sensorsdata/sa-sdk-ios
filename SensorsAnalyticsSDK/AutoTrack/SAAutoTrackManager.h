@@ -20,14 +20,19 @@
 
 #import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
+#import "SAAppClickTracker.h"
+#import "SAAppViewScreenTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAutoTrackManager : NSObject <SAModuleProtocol>
+@interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAAppClickTracker *appClickTracker;
+@property (nonatomic, strong) SAAppViewScreenTracker *appViewScreenTracker;
 
 + (SAAutoTrackManager *)sharedInstance;
 
@@ -42,6 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 更新全埋点事件类型
 - (void)updateAutoTrackEventType;
+
+/// 校验可视化全埋点元素能否选中
+/// @param obj 控件元素
+/// @return 返回校验结果
+- (BOOL)isGestureVisualView:(id)obj;
 
 @end
 

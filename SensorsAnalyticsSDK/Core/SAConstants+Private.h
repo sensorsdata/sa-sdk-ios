@@ -74,17 +74,17 @@ extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
 // App 浏览页面 Url
-extern NSString * const SA_EVENT_PROPERTY_SCREEN_URL;
+extern NSString * const kSAEventPropertyScreenUrl;
 // App 浏览页面 Referrer Url
-extern NSString * const SA_EVENT_PROPERTY_SCREEN_REFERRER_URL;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_ID;
-extern NSString * const SA_EVENT_PROPERTY_SCREEN_NAME;
-extern NSString * const SA_EVENT_PROPERTY_TITLE;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_PATH;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT;
-extern NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE;
+extern NSString * const kSAEventPropertyScreenReferrerUrl;
+extern NSString * const kSAEventPropertyElementId;
+extern NSString * const kSAEventPropertyScreenName;
+extern NSString * const kSAEventPropertyTitle;
+extern NSString * const kSAEventPropertyElementPosition;
+extern NSString * const kSAEventPropertyElementSelector;
+extern NSString * const kSAEventPropertyElementPath;
+extern NSString * const kSAEventPropertyElementContent;
+extern NSString * const kSAEventPropertyElementType;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
 extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
 

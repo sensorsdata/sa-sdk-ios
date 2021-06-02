@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
 #import "SAViewElementInfoFactory.h"
+#import "SAAutoTrackManager.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -38,11 +39,8 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     if (self.isHidden || self.sensorsAnalyticsIgnoreView) {
         return YES;
     }
-    
-    BOOL isAutoTrackEnabled = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEnabled];
-    BOOL isAutoTrackEventTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick];
-    BOOL isViewTypeIgnored = [[SensorsAnalyticsSDK sharedInstance] isViewTypeIgnored:[self class]];
-    return !isAutoTrackEnabled || isAutoTrackEventTypeIgnored || isViewTypeIgnored;
+
+    return [SAAutoTrackManager.sharedInstance.appClickTracker isIgnoreEventWithView:self];
 }
 
 - (void)setSensorsdata_timeIntervalForLastAppClick:(NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {

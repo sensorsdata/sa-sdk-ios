@@ -27,6 +27,7 @@
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
 #import "SATrackEventObject.h"
+#import "SAAppLifecycle.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -43,21 +44,11 @@
 + (SensorsAnalyticsSDK *)sdkInstance;
 
 #pragma mark - method
-- (void)autoTrackViewScreen:(UIViewController *)viewController;
 
 /// 事件采集: 切换到 serialQueue 中执行
 /// @param object 事件对象
 /// @param properties 事件属性
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
-
-/**
- 根据 viewController 判断，是否采集事件
-
- @param controller 事件采集时的控制器
- @param type 事件类型
- @return 是否采集
- */
-- (BOOL)shouldTrackViewController:(UIViewController *)controller ofType:(SensorsAnalyticsAutoTrackEventType)type;
 
 /**
 向 WKWebView 注入 Message Handler
@@ -72,14 +63,9 @@
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
-
 @property (nonatomic, strong, readonly) SANetwork *network;
 
-@property (nonatomic, weak) UIViewController *previousTrackViewController;
-
 @end
-
-
 
 /**
  SAConfigOptions 实现

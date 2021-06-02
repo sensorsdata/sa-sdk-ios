@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.6.4"
+  s.version      = "2.6.5"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -13,15 +13,12 @@ Pod::Spec.new do |s|
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
-    auto_track_dir = "SensorsAnalyticsSDK/Core/AutoTrack/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", auto_track_dir + "SensorsAnalyticsSDK+SAAutoTrack.h" 
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h" 
     c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   
   s.subspec 'Core' do |c|
-    c.dependency 'SensorsAnalyticsSDK/Common'
-    c.dependency 'SensorsAnalyticsSDK/Gesture'
     c.dependency 'SensorsAnalyticsSDK/Visualized'
   end
 
@@ -32,16 +29,16 @@ Pod::Spec.new do |s|
     f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
   end
 
-  # 手势采集
-  s.subspec 'Gesture' do |g|
+  # 全埋点
+  s.subspec 'AutoTrack' do |g|
     g.dependency 'SensorsAnalyticsSDK/Common'
-    g.source_files = "SensorsAnalyticsSDK/Gesture/**/*.{h,m}"
-    g.private_header_files = 'SensorsAnalyticsSDK/Gesture/**/*.h'
+    g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
+    g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
   end
 
 # 可视化相关功能，包含可视化全埋点和点击图
   s.subspec 'Visualized' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Common'
+    f.dependency 'SensorsAnalyticsSDK/AutoTrack'
     f.source_files = "SensorsAnalyticsSDK/Visualized/**/*.{h,m}"
     f.public_header_files = 'SensorsAnalyticsSDK/Visualized/SensorsAnalyticsSDK+Visualized.h'
   end
@@ -82,18 +79,6 @@ Pod::Spec.new do |s|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
-  end
-
-  # 允许使用私有 API，v2.0.0 已废弃，待删除
-  s.subspec 'ENABLE_NO_PUBLIC_APIS' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_NO_PUBLICK_APIS=1'}
-  end
-
-  # 不采集 UITabBar 点击事件 
-  s.subspec 'DISABLE_AUTOTRACK_UITABBAR' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_UITABBAR=1'}
   end
 
   # 采集 crash slideAdress 信息，需要打开 enableTrackAppCrash 才生效

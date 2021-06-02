@@ -23,7 +23,7 @@
 #endif
 
 #import "SAViewElementInfo.h"
-#import "SAModuleManager.h"
+#import "SAAutoTrackManager.h"
 
 #pragma mark - View Element Type
 @implementation SAViewElementInfo
@@ -47,7 +47,7 @@
     if (!self.view.userInteractionEnabled || self.view.alpha <= 0.01 || self.view.isHidden) {
         return NO;
     }
-    return [SAModuleManager.sharedInstance isGestureVisualView:self.view];
+    return [SAAutoTrackManager.sharedInstance isGestureVisualView:self.view];
 }
 
 @end
@@ -78,10 +78,7 @@
 }
 
 - (BOOL)isVisualView {
-    if (SAModuleManager.sharedInstance.gestureManager) {
-        return YES;
-    }
-    return [super isVisualView];
+    return YES;
 }
 
 @end
@@ -102,10 +99,7 @@
     if ([self.view.superview isKindOfClass:UICollectionViewCell.class]) {
         return NO;
     }
-    if (SAModuleManager.sharedInstance.gestureManager) {
-        return YES;
-    }
-    return [super isVisualView];
+    return YES;
 }
 
 @end

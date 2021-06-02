@@ -300,7 +300,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         return YES;
     }
 
-    // 普通 view，非响应事假元素，一般继续遍历子元素
+    // 普通 view，非响应事件独立元素，一般继续遍历子元素
     if (![view isKindOfClass:UIControl.class]) {
         return NO;
     }

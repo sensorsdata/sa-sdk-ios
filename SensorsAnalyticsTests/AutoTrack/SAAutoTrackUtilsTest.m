@@ -25,7 +25,6 @@
 #import "SAAutoTrackUtils.h"
 #import "ElementViewController.h"
 #import "UIView+AutoTrack.h"
-//#import "UIViewController+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 
 @interface SAAutoTrackUtilsTest : XCTestCase

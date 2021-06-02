@@ -76,21 +76,21 @@ NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
 // App 浏览页面 Url
-NSString * const SA_EVENT_PROPERTY_SCREEN_URL = @"$url";
+NSString * const kSAEventPropertyScreenUrl = @"$url";
 // App 浏览页面 Referrer Url
-NSString * const SA_EVENT_PROPERTY_SCREEN_REFERRER_URL = @"$referrer";
-NSString * const SA_EVENT_PROPERTY_ELEMENT_ID = @"$element_id";
-NSString * const SA_EVENT_PROPERTY_SCREEN_NAME = @"$screen_name";
-NSString * const SA_EVENT_PROPERTY_TITLE = @"$title";
-NSString * const SA_EVENT_PROPERTY_ELEMENT_POSITION = @"$element_position";
-NSString * const SA_EVENT_PROPERTY_ELEMENT_SELECTOR = @"$element_selector";
+NSString * const kSAEventPropertyScreenReferrerUrl = @"$referrer";
+NSString * const kSAEventPropertyElementId = @"$element_id";
+NSString * const kSAEventPropertyScreenName = @"$screen_name";
+NSString * const kSAEventPropertyTitle = @"$title";
+NSString * const kSAEventPropertyElementPosition = @"$element_position";
+NSString * const kSAEventPropertyElementSelector = @"$element_selector";
 
 NSString * const kSAEeventPropertyReferrerTitle = @"$referrer_title";
 
 // 模糊路径
-NSString * const SA_EVENT_PROPERTY_ELEMENT_PATH = @"$element_path";
-NSString * const SA_EVENT_PROPERTY_ELEMENT_CONTENT = @"$element_content";
-NSString * const SA_EVENT_PROPERTY_ELEMENT_TYPE = @"$element_type";
+NSString * const kSAEventPropertyElementPath = @"$element_path";
+NSString * const kSAEventPropertyElementContent = @"$element_content";
+NSString * const kSAEventPropertyElementType = @"$element_type";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 // 远程控制配置信息

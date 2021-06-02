@@ -229,8 +229,8 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 + (NSDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[SA_EVENT_PROPERTY_SCREEN_NAME] = viewController.sensorsdata_screenName;
-    properties[SA_EVENT_PROPERTY_TITLE] = viewController.sensorsdata_title;
+    properties[kSAEventPropertyScreenName] = viewController.sensorsdata_screenName;
+    properties[kSAEventPropertyTitle] = viewController.sensorsdata_title;
     
     if ([viewController conformsToProtocol:@protocol(SAAutoTracker)] &&
         [viewController respondsToSelector:@selector(getTrackProperties)]) {
@@ -262,7 +262,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
     NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
     // ViewID
-    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
+    properties[kSAEventPropertyElementId] = object.sensorsdata_elementId;
 
     viewController = viewController ? : object.sensorsdata_viewController;
     if (!isCodeTrack && viewController.sensorsdata_isIgnored) {
@@ -272,9 +272,9 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
-    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
-    properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = object.sensorsdata_elementContent;
-    properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = object.sensorsdata_elementPosition;
+    properties[kSAEventPropertyElementType] = object.sensorsdata_elementType;
+    properties[kSAEventPropertyElementContent] = object.sensorsdata_elementContent;
+    properties[kSAEventPropertyElementPosition] = object.sensorsdata_elementPosition;
 
     UIView *view = (UIView *)object;
     //View Properties
@@ -310,7 +310,7 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     }
 
     // ViewID
-    properties[SA_EVENT_PROPERTY_ELEMENT_ID] = object.sensorsdata_elementId;
+    properties[kSAEventPropertyElementId] = object.sensorsdata_elementId;
 
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = object.sensorsdata_viewController;
     if (viewController.sensorsdata_isIgnored) {
@@ -320,9 +320,9 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     NSDictionary *dic = [self propertiesWithViewController:viewController];
     [properties addEntriesFromDictionary:dic];
 
-    properties[SA_EVENT_PROPERTY_ELEMENT_TYPE] = object.sensorsdata_elementType;
-    properties[SA_EVENT_PROPERTY_ELEMENT_CONTENT] = cell.sensorsdata_elementContent;
-    properties[SA_EVENT_PROPERTY_ELEMENT_POSITION] = [cell sensorsdata_elementPositionWithIndexPath:indexPath];
+    properties[kSAEventPropertyElementType] = object.sensorsdata_elementType;
+    properties[kSAEventPropertyElementContent] = cell.sensorsdata_elementContent;
+    properties[kSAEventPropertyElementPosition] = [cell sensorsdata_elementPositionWithIndexPath:indexPath];
 
     //View Properties
     NSDictionary *viewProperties = ((UIView *)object).sensorsAnalyticsViewProperties;

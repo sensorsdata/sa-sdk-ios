@@ -45,10 +45,10 @@
 
 + (NSDictionary *)eventIdentifierDicWithEventInfo:(NSDictionary *)eventInfo {
     NSMutableDictionary *eventInfoDic = [NSMutableDictionary dictionary];
-    eventInfoDic[@"element_path"] = eventInfo[@"properties"][SA_EVENT_PROPERTY_ELEMENT_PATH];
-    eventInfoDic[@"element_position"] = eventInfo[@"properties"][SA_EVENT_PROPERTY_ELEMENT_POSITION];
-    eventInfoDic[@"element_content"] = eventInfo[@"properties"][SA_EVENT_PROPERTY_ELEMENT_CONTENT];
-    eventInfoDic[@"screen_name"] = eventInfo[@"properties"][SA_EVENT_PROPERTY_SCREEN_NAME];
+    eventInfoDic[@"element_path"] = eventInfo[@"properties"][kSAEventPropertyElementPath];
+    eventInfoDic[@"element_position"] = eventInfo[@"properties"][kSAEventPropertyElementPosition];
+    eventInfoDic[@"element_content"] = eventInfo[@"properties"][kSAEventPropertyElementContent];
+    eventInfoDic[@"screen_name"] = eventInfo[@"properties"][kSAEventPropertyScreenName];
     return eventInfoDic;
 }
 @end

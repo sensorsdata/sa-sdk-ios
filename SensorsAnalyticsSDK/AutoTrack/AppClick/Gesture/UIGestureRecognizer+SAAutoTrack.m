@@ -35,14 +35,20 @@ static void *const kSAGestureTargetActionModelsKey = (void *)&kSAGestureTargetAc
 #pragma mark - Hook Method
 - (instancetype)sensorsdata_initWithTarget:(id)target action:(SEL)action {
     [self sensorsdata_initWithTarget:target action:action];
-    self.sensorsdata_gestureTarget = [SAGestureTarget targetWithGesture:self];
-    self.sensorsdata_targetActionModels = [NSMutableArray array];
     [self removeTarget:target action:action];
     [self addTarget:target action:action];
     return self;
 }
 
 - (void)sensorsdata_addTarget:(id)target action:(SEL)action {
+    // 在 iOS 12 及以下系统中, 从 StoryBoard 加载的手势不会调用 - initWithTarget:action: 方法;
+    // 1. 在 - addTarget:action 时对 sensorsdata_gestureTarget 和 sensorsdata_targetActionModels 进行初始化
+    // 2. sensorsdata_gestureTarget 可能会初始化为空值, 因此使用 sensorsdata_targetActionModels 判断是否初始化过.
+    if (!self.sensorsdata_targetActionModels) {
+        self.sensorsdata_targetActionModels = [NSMutableArray array];
+        self.sensorsdata_gestureTarget = [SAGestureTarget targetWithGesture:self];
+    }
+
     // Track 事件需要在原有事件之前触发(原有事件中更改页面内容,会导致部分内容获取不准确)
     if (self.sensorsdata_gestureTarget) {
         if (![SAGestureTargetActionModel containsObjectWithTarget:target andAction:action fromModels:self.sensorsdata_targetActionModels]) {

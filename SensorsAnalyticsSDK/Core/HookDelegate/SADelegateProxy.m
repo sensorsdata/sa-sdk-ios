@@ -26,7 +26,6 @@
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
 #import "SALog.h"
-#import "SAAutoTrackProperty.h"
 #import "NSObject+DelegateProxy.h"
 #import <objc/message.h>
 

@@ -1,5 +1,5 @@
 //
-// SAAppEndTracker.h
+// SAAppStartTracker.h
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2021/4/2.
@@ -19,16 +19,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAAppTrackerProtocol.h"
+#import "SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppEndTracker : NSObject <SAAppTrackerProtocol>
+@interface SAAppStartTracker : SAAppTracker
 
-@property (nonatomic, assign, getter=isIgnored) BOOL ignored;
-
-/// 开始退出事件计时
-- (void)trackTimerStartAppEnd;
+/// 触发全埋点启动事件
+/// @param properties 事件属性
+- (void)autoTrackEventWithProperties:(nullable NSDictionary *)properties;
 
 @end
 

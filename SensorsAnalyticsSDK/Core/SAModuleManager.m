@@ -39,7 +39,6 @@ static NSString * const kSAVisualizedModuleName = @"Visualized";
 static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
-static NSString * const kSAGestureModuleName = @"Gesture";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @interface SAModuleManager ()
@@ -75,15 +74,12 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
 
-    // 手势采集
-    if (NSClassFromString(@"SAGestureManager")) {
-        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAGestureModuleName];
-    }
-
     // 默认加载全埋点模块，没有判断是否开启全埋点，原因如下：
     // 1. 同之前的逻辑保持一致
     // 2. 保证添加对于生命周期的监听在生命周期类的实例化之前
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    if ([SAModuleManager.sharedInstance contains:SAModuleTypeAutoTrack] || configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
+        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+    }
 }
 
 + (instancetype)sharedInstance {
@@ -332,21 +328,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 #pragma mark -
 
-@implementation SAModuleManager (Gesture)
-
-- (id<SAGestureModuleProtocol>)gestureManager {
-    id<SAGestureModuleProtocol, SAModuleProtocol> manager = (id<SAGestureModuleProtocol, SAModuleProtocol>)self.modules[kSAGestureModuleName];
-    return manager.isEnable ? manager : nil;
-}
-
-- (BOOL)isGestureVisualView:(id)obj {
-    return [self.gestureManager isGestureVisualView:obj];
-}
-
-@end
-
-#pragma mark -
-
 @implementation SAModuleManager (Deeplink)
 
 - (id<SADeeplinkModuleProtocol>)deeplinkManager {
@@ -368,6 +349,21 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 - (void)clearUtmProperties {
     [self.deeplinkManager clearUtmProperties];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (AutoTrack)
+
+- (id<SAAutoTrackModuleProtocol>)autoTrackManager {
+    id<SAAutoTrackModuleProtocol, SAModuleProtocol> manager = (id<SAAutoTrackModuleProtocol, SAModuleProtocol>)self.modules[kSAAutoTrackModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (void)trackAppEndWhenCrashed {
+    [self.autoTrackManager trackAppEndWhenCrashed];
 }
 
 @end

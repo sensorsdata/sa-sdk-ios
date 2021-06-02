@@ -150,8 +150,9 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
          200：正常请求并正确返回配置
          304：如果本地配置和后端最新版本相同，则返回 304，同时配置为空
          205：配置不存在（未创建可视化全埋点事件或运维关闭自定义属性），此时配置为空，返回 205
+         404：当前环境未包含此接口，可能 SA 版本比较低，暂不支持自定义属性
          */
-        BOOL success = statusCode == 200 || statusCode == 304 || statusCode == 205;
+        BOOL success = statusCode == 200 || statusCode == 304 || statusCode == 205 || statusCode == 404;
         SAVisualPropertiesResponse *config = nil;
         
         if (statusCode == 200) {
@@ -181,12 +182,15 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 
             NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"配置不存在（当前项目未创建可视化全埋点事件或运维关闭自定义属性），statusCode = %ld", (long)statusCode]];
             SALogDebug(@"【request visualProperties config】%@", logMessage);
-        } else if (statusCode == 304) { // 未更新
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"可视化全埋点配置未更新，statusCode = %ld", (long)statusCode]];
-            SALogDebug(@"【request visualProperties config】%@", logMessage);
         } else if (statusCode > 200 && statusCode < 300) {
             NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置异常，statusCode = %ld",(long)statusCode]];
             SALogWarn(@"【request visualProperties config】%@", logMessage);
+        } else if (statusCode == 304) { // 未更新
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"可视化全埋点配置未更新，statusCode = %ld", (long)statusCode]];
+            SALogDebug(@"【request visualProperties config】%@", logMessage);
+        } else if (statusCode == 404) {
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置失败，当前环境可能暂不支持自定义属性，statusCode = %ld", (long)statusCode]];
+            SALogDebug(@"【request visualProperties config】%@", logMessage);
         } else {
             NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置出错，error: %@",error]];
             SALogError(@"【request visualProperties config】%@", logMessage);

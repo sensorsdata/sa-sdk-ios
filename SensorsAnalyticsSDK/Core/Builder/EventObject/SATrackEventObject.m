@@ -191,7 +191,7 @@ static NSSet *presetEventNames;
     BOOL isAppClick = [self.eventId isEqualToString:kSAEventNameAppClick];
     BOOL isViewScreen = [self.eventId isEqualToString:kSAEventNameAppViewScreen];
     if (isAppClick || isViewScreen) {
-        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[SA_EVENT_PROPERTY_SCREEN_NAME] ?: @""];
+        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[kSAEventPropertyScreenName] ?: @""];
     }
 }
 

@@ -29,6 +29,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedObjectSerializerManger.h"
+#import "SAAutoTrackManager.h"
 
 @implementation UIViewController (SAElementPath)
 
@@ -102,7 +103,7 @@
 }
 
 - (void)sensorsdata_readyEnterViewController {
-    if (![[SensorsAnalyticsSDK sharedInstance] shouldTrackViewController:self ofType:SensorsAnalyticsEventTypeAppViewScreen]) {
+    if (![[SAAutoTrackManager sharedInstance].appViewScreenTracker shouldTrackViewController:self]) {
         return;
     }
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览

@@ -26,6 +26,12 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 
+@interface SAAppEndTracker ()
+
+@property (nonatomic, copy) NSString *timerEventID;
+
+@end
+
 @implementation SAAppEndTracker
 
 #pragma mark - Life Cycle
@@ -33,30 +39,29 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ignored = NO;
+        _timerEventID = kSAEventNameAppEnd;
     }
     return self;
 }
 
-#pragma mark - Public Methods
+#pragma mark - Override
 
-- (void)trackTimerStartAppEnd {
-    [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
+- (NSString *)eventId {
+    return self.timerEventID;
 }
 
-#pragma mark - SAAppTrackerProtocol
+#pragma mark - Public Methods
 
-- (void)trackEventWithProperties:(NSDictionary *)properties {
-    if (self.ignored) {
+- (void)autoTrackEvent {
+    if (self.isIgnored) {
         return;
     }
 
-    SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppEnd];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:nil];
+    [self trackAutoTrackEventWithProperties:nil];
 }
 
-+ (NSString *)eventName {
-    return kSAEventNameAppEnd;
+- (void)trackTimerStartAppEnd {
+    self.timerEventID = [SensorsAnalyticsSDK.sharedInstance trackTimerStart:kSAEventNameAppEnd];
 }
 
 @end

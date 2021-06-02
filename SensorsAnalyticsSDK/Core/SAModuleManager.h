@@ -98,15 +98,13 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
-@interface SAModuleManager (Gesture) <SAGestureModuleProtocol>
-
-@property (nonatomic, strong, readonly) id<SAGestureModuleProtocol> gestureManager;
+@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 
 @end
 
 #pragma mark -
 
-@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
+@interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
 
 @end
 

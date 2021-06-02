@@ -30,7 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
-#import "SAModuleManager.h"
+#import "SAAutoTrackManager.h"
 
 @implementation UIApplication (AutoTrack)
 
@@ -81,46 +81,16 @@
     }
 
     NSObject<SAAutoTrackViewProperty> *object = (NSObject<SAAutoTrackViewProperty> *)from;
-    // 判断时间间隔
-    if (![SAAutoTrackUtils isValidAppClickForObject:object]) {
-        return;
-    }
-    
-    NSMutableDictionary *properties = [SAAutoTrackUtils propertiesWithAutoTrackObject:object viewController:nil];
-
-    if (!properties) {
-        return;
-    }
-
     if ([object isKindOfClass:[UISwitch class]] ||
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
-        // 保存当前触发时间
-        object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-
-        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
-            if (visualProperties) {
-                [properties addEntriesFromDictionary:visualProperties];
-            }
-            SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:properties];
-        }];
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
-        // 保存当前触发时间
-        object.sensorsdata_timeIntervalForLastAppClick = [[NSProcessInfo processInfo] systemUptime];
-
-        [SAModuleManager.sharedInstance visualPropertiesWithView:(UIView *)object completionHandler:^(NSDictionary * _Nullable visualProperties) {
-            if (visualProperties) {
-                [properties addEntriesFromDictionary:visualProperties];
-            }
-            SAAutoTrackEventObject *eventObject  = [[SAAutoTrackEventObject alloc] initWithEventId:kSAEventNameAppClick];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:eventObject properties:properties];
-        }];
-        return;
+        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object];
     }
 }
 

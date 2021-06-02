@@ -193,33 +193,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
 
-/**
- * @abstract
- * 忽略某一类型的 View
- *
- * @param aClass View 对应的 Class
- */
-- (void)ignoreViewType:(Class)aClass;
 
-/**
- * @abstract
- * 判断某个 View 类型是否被忽略
- *
- * @param aClass Class View 对应的 Class
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewTypeIgnored:(Class)aClass;
 
-/**
- * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewController UIViewController
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerIgnored:(UIViewController *)viewController;
+
+
+
 
 /**
  * @abstract
@@ -318,8 +296,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)clearTrackTimer;
 
-- (UIViewController *_Nullable)currentViewController;
-
 #pragma mark track event
 /**
  * @abstract
@@ -379,14 +355,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
- *
- * @param controllers   controller ‘字符串’数组
- */
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
-
-/**
- * @abstract
  * 获取 LastScreenUrl
  *
  * @return LastScreenUrl
@@ -408,32 +376,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSDictionary *)getLastScreenTrackProperties;
 
 - (SensorsAnalyticsDebugMode)debugMode;
-
-/**
- * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- */
-- (void)trackViewAppClick:(nonnull UIView *)view;
-
-/**
- * @abstract
- * 通过代码触发 UIViewController 的 $AppViewScreen 事件
- *
- * @param viewController 当前的 UIViewController
- */
-- (void)trackViewScreen:(UIViewController *)viewController;
-- (void)trackViewScreen:(UIViewController *)viewController properties:(nullable NSDictionary<NSString *,id> *)properties;
-
-/**
- * @abstract
- * 通过代码触发 UIView 的 $AppClick 事件
- *
- * @param view UIView
- * @param properties 自定义属性
- */
-- (void)trackViewAppClick:(nonnull UIView *)view withProperties:(nullable NSDictionary *)properties;
 
 /**
  @abstract
@@ -1082,16 +1024,6 @@ DeepLink 回调函数
 
 /**
  * @abstract
- * 判断某个 ViewController 是否被忽略
- *
- * @param viewControllerClassName UIViewController 类名
- *
- * @return YES:被忽略; NO:没有被忽略
- */
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName __attribute__((deprecated("已过时，请参考 -(BOOL)isViewControllerIgnored:(UIViewController *)viewController")));
-
-/**
- * @abstract
  * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
  *
  * @discussion
@@ -1170,15 +1102,6 @@ DeepLink 回调函数
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
-
-/**
- * @abstract
- * Track $AppViewScreen事件
- *
- * @param url 当前页面url
- * @param properties 用户扩展属性
- */
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
 
 @end
 

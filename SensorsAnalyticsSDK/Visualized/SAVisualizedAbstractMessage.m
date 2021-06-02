@@ -106,16 +106,16 @@
 
         // 解析页面信息
         NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:currentViewController];
-        screenName = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
-        pageName = autoTrackScreenProperties[SA_EVENT_PROPERTY_SCREEN_NAME];
-        title = autoTrackScreenProperties[SA_EVENT_PROPERTY_TITLE];
+        screenName = autoTrackScreenProperties[kSAEventPropertyScreenName];
+        pageName = autoTrackScreenProperties[kSAEventPropertyScreenName];
+        title = autoTrackScreenProperties[kSAEventPropertyTitle];
 
         // 获取 RN 页面信息
         NSDictionary <NSString *, NSString *> *RNScreenInfo = [SAVisualizedUtils currentRNScreenVisualizeProperties];
-        if (RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME]) {
-            pageName = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
-            screenName = RNScreenInfo[SA_EVENT_PROPERTY_SCREEN_NAME];
-            title = RNScreenInfo[SA_EVENT_PROPERTY_TITLE];
+        if (RNScreenInfo[kSAEventPropertyScreenName]) {
+            pageName = RNScreenInfo[kSAEventPropertyScreenName];
+            screenName = RNScreenInfo[kSAEventPropertyScreenName];
+            title = RNScreenInfo[kSAEventPropertyTitle];
         }
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);

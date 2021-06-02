@@ -144,17 +144,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@protocol SAGestureModuleProtocol <NSObject>
-
-/// 校验可视化全埋点元素能否选中
-/// @param obj 控件元素
-/// @return 返回校验结果
-- (BOOL)isGestureVisualView:(id)obj;
-
-@end
-
-#pragma mark -
-
 @protocol SADeeplinkModuleProtocol <NSObject>
 
 /// DeepLink 回调函数
@@ -172,6 +161,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 清除本次 DeepLink 解析到的 utm 信息
 - (void)clearUtmProperties;
+
+@end
+
+#pragma mark -
+
+@protocol SAAutoTrackModuleProtocol <NSObject>
+
+/// 触发 App 崩溃时的退出事件
+- (void)trackAppEndWhenCrashed;
 
 @end
 

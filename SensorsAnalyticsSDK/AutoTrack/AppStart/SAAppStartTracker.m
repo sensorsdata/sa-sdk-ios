@@ -23,8 +23,8 @@
 #endif
 
 #import "SAAppStartTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 // App 启动标记
 static NSString * const kSAHasLaunchedOnce = @"HasLaunchedOnce";
@@ -47,18 +47,21 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _ignored = NO;
-        _passively = NO;
         _relaunch = NO;
     }
     return self;
 }
 
-#pragma mark - SAAppTrackerProtocol
+#pragma mark - Override
 
-- (void)trackEventWithProperties:(NSDictionary *)properties {
+- (NSString *)eventId {
+    return self.isPassively ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
+}
+
+#pragma mark - Public Methods
+
+- (void)autoTrackEventWithProperties:(NSDictionary *)properties {
     if (!self.isIgnored) {
-        NSString *event = self.isPassively ? kSAEventNameAppStartPassively : kSAEventNameAppStart;
         NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
         if (self.isPassively) {
             eventProperties[kSAEventPropertyAppFirstStart] = @([self isFirstAppStart]);
@@ -70,8 +73,12 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
         //添加 deeplink 相关渠道信息，可能不存在
         [eventProperties addEntriesFromDictionary:properties];
 
-        SAAutoTrackEventObject *object  = [[SAAutoTrackEventObject alloc] initWithEventId:event];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+        [self trackAutoTrackEventWithProperties:eventProperties];
+
+        // 上报启动事件（包括冷启动和热启动）
+        if (!self.passively) {
+            [SensorsAnalyticsSDK.sharedInstance flush];
+        }
     }
 
     // 更新首次标记
@@ -79,10 +86,6 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 
     // 触发过启动事件，下次为热启动
     self.relaunch = YES;
-}
-
-+ (NSString *)eventName {
-    return kSAEventNameAppStart;
 }
 
 #pragma mark – Private Methods

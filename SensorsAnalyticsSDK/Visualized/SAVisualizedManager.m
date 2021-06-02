@@ -310,8 +310,8 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     NSString *elementPath = [SAVisualizedUtils viewSimilarPathForView:view atViewController:viewController shouldSimilarPath:YES];
     
     NSMutableDictionary *viewPthProperties = [NSMutableDictionary dictionary];
-    viewPthProperties[SA_EVENT_PROPERTY_ELEMENT_SELECTOR] = elementSelector;
-    viewPthProperties[SA_EVENT_PROPERTY_ELEMENT_PATH] = elementPath;
+    viewPthProperties[kSAEventPropertyElementSelector] = elementSelector;
+    viewPthProperties[kSAEventPropertyElementPath] = elementPath;
 
     return viewPthProperties.count > 0 ? viewPthProperties : nil;
 }

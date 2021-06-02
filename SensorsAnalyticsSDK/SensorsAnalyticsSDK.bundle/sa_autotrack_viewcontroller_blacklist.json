@@ -69,7 +69,10 @@
             "SFPasswordRemoteViewController",
             "UIWebRotatingAlertController",
             "UIEditUserWordController",
-            "_UIContextMenuActionsOnlyViewController"
+            "_UIContextMenuActionsOnlyViewController",
+            "UIPredictionViewController",
+            "UISystemInputAssistantViewController",
+            "UICandidateViewController"
         ]
     },
     "$AppClick": {

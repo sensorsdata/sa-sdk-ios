@@ -26,10 +26,8 @@
 #import "SAScrollViewDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
-#import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK+Private.h"
-
+#import "SAAutoTrackManager.h"
 
 @implementation UITableView (AutoTrack)
 
@@ -44,7 +42,7 @@
     }
     
     // 判断是否忽略 $AppClick 事件采集
-    if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+    if ([SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     
@@ -68,7 +66,7 @@
     }
     
     // 判断是否忽略 $AppClick 事件采集
-    if ([[SensorsAnalyticsSDK sharedInstance] isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+    if ([SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     
