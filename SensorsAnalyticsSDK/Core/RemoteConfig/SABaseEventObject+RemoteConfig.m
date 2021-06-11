@@ -1,8 +1,8 @@
 //
-// SAAppEndTracker.m
+// SABaseEventObject+RemoteConfig.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/4/2.
+// Created by wenquan on 2021/6/7.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,46 +22,24 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAAppEndTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
+#import "SABaseEventObject+RemoteConfig.h"
+#import "SARemoteConfigManager.h"
+#import "SALog.h"
 
-@interface SAAppEndTracker ()
+@implementation SABaseEventObject (RemoteConfig)
 
-@property (nonatomic, copy) NSString *timerEventID;
-
-@end
-
-@implementation SAAppEndTracker
-
-#pragma mark - Life Cycle
-
-- (instancetype)init {
-    self = [super init];
-    if (self) {
-        _timerEventID = kSAEventNameAppEnd;
-    }
-    return self;
-}
-
-#pragma mark - Override
-
-- (NSString *)eventId {
-    return self.timerEventID ?: kSAEventNameAppEnd;
-}
-
-#pragma mark - Public Methods
-
-- (void)autoTrackEvent {
-    if (self.isIgnored) {
-        return;
+- (BOOL)isIgnoredByRemoteConfig {
+    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
+        SALogDebug(@"【remote config】SDK is disabled");
+        return YES;
     }
 
-    [self trackAutoTrackEventWithProperties:nil];
-}
+    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:self.event]) {
+        SALogDebug(@"【remote config】 %@ is ignored by remote config", self.event);
+        return YES;
+    }
 
-- (void)trackTimerStartAppEnd {
-    self.timerEventID = [SensorsAnalyticsSDK.sdkInstance trackTimerStart:kSAEventNameAppEnd];
+    return NO;
 }
 
 @end

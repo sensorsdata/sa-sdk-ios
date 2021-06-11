@@ -91,7 +91,7 @@ extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
 extern NSString * const kSAEeventPropertyReferrerTitle;
 
 // 远程控制配置信息
-extern NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG;
+extern NSString * const kSAEventPropertyAppRemoteConfig;
 
 #pragma mark--common property
 //可选参数

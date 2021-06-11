@@ -183,6 +183,10 @@
 		884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */ = {isa = PBXBuildFile; fileRef = 884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		888D7A0D2567B3C30052FCF7 /* SADebugModeManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */; };
 		888D7A0E2567B3C30052FCF7 /* SADebugModeManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */; };
+		A8240137266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = A8240135266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.h */; };
+		A8240138266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = A8240136266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.m */; };
+		A82EF11F266F16DD005547EB /* SARemoteConfigEventObject.h in Headers */ = {isa = PBXBuildFile; fileRef = A82EF11D266F16DD005547EB /* SARemoteConfigEventObject.h */; };
+		A82EF120266F16DD005547EB /* SARemoteConfigEventObject.m in Sources */ = {isa = PBXBuildFile; fileRef = A82EF11E266F16DD005547EB /* SARemoteConfigEventObject.m */; };
 		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
 		A8356DBC2656459A00FD64AA /* SAAutoTrackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D882656459A00FD64AA /* SAAutoTrackManager.m */; };
 		A8356DBD2656459A00FD64AA /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D892656459A00FD64AA /* SAAutoTrackUtils.h */; };
@@ -498,6 +502,10 @@
 		884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+Public.h"; sourceTree = "<group>"; };
 		888D7A0B2567B3C30052FCF7 /* SADebugModeManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADebugModeManager.h; sourceTree = "<group>"; };
 		888D7A0C2567B3C30052FCF7 /* SADebugModeManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADebugModeManager.m; sourceTree = "<group>"; };
+		A8240135266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SABaseEventObject+RemoteConfig.h"; sourceTree = "<group>"; };
+		A8240136266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SABaseEventObject+RemoteConfig.m"; sourceTree = "<group>"; };
+		A82EF11D266F16DD005547EB /* SARemoteConfigEventObject.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigEventObject.h; sourceTree = "<group>"; };
+		A82EF11E266F16DD005547EB /* SARemoteConfigEventObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SARemoteConfigEventObject.m; sourceTree = "<group>"; };
 		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
 		A8356D882656459A00FD64AA /* SAAutoTrackManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackManager.m; sourceTree = "<group>"; };
 		A8356D892656459A00FD64AA /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
@@ -936,6 +944,10 @@
 		881A40F8253D7B4F00854F69 /* RemoteConfig */ = {
 			isa = PBXGroup;
 			children = (
+				A8240135266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.h */,
+				A8240136266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.m */,
+				A82EF11D266F16DD005547EB /* SARemoteConfigEventObject.h */,
+				A82EF11E266F16DD005547EB /* SARemoteConfigEventObject.m */,
 				A8A87E4A2568EBD500E16895 /* SARemoteConfigManager.h */,
 				A8A87E432568EBD500E16895 /* SARemoteConfigManager.m */,
 				A8A87E4B2568EBD500E16895 /* SARemoteConfigOperator.h */,
@@ -1325,6 +1337,7 @@
 				A8356DCA2656459A00FD64AA /* SAAutoTrackManager.h in Headers */,
 				884B423F25540DEE00416DB6 /* SensorsAnalyticsSDK+Public.h in Headers */,
 				A8356DD42656459A00FD64AA /* SAGestureTargetActionModel.h in Headers */,
+				A8240137266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.h in Headers */,
 				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
 				A8356DC72656459A00FD64AA /* UIScrollView+AutoTrack.h in Headers */,
 				881A41F1253D7B5000854F69 /* SensorsAnalyticsSDK.h in Headers */,
@@ -1357,6 +1370,7 @@
 				F277F5C825CF9A43009B5CE6 /* UNUserNotificationCenter+PushClick.h in Headers */,
 				A8A87E532568EBD500E16895 /* SARemoteConfigCommonOperator.h in Headers */,
 				4DD1282125F87225008C0B1E /* SAVisualizedViewPathProperty.h in Headers */,
+				A82EF11F266F16DD005547EB /* SARemoteConfigEventObject.h in Headers */,
 				4D79695A2609D8FE001B0A6C /* SAEventIdentifier.h in Headers */,
 				45A56562263C174300C9C41B /* SAEventBuildStrategyProtocol.h in Headers */,
 				45A56564263C174300C9C41B /* SATrackEventObject.h in Headers */,
@@ -1665,6 +1679,8 @@
 				4DA89BC425C2BC1E003ABA43 /* SAReachability.m in Sources */,
 				A8A87E512568EBD500E16895 /* SARemoteConfigModel.m in Sources */,
 				F277F5CB25CF9A43009B5CE6 /* SAAppPushConstants.m in Sources */,
+				A8240138266E4A2300C39F20 /* SABaseEventObject+RemoteConfig.m in Sources */,
+				A82EF120266F16DD005547EB /* SARemoteConfigEventObject.m in Sources */,
 				A8A87E4E2568EBD500E16895 /* SARemoteConfigCheckOperator.m in Sources */,
 				4DD1286325F872A4008C0B1E /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
 				881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */,

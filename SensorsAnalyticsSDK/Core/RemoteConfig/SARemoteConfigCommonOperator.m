@@ -25,6 +25,7 @@
 #import "SARemoteConfigCommonOperator.h"
 #import "SAReachability.h"
 #import "SALog.h"
+#import "SAValidator.h"
 
 typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     SARemoteConfigHandleRandomTimeTypeCreate, // 创建分散请求时间
@@ -217,10 +218,12 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)handleRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
     // 在接收到请求时会异步切换到主线程中，为了保证程序稳定，添加 try-catch 保护
     @try {
-        [self updateLocalLibVersion];
-        [self trackAppRemoteConfigChanged:remoteConfig];
-        [self saveRemoteConfig:remoteConfig];
-        [self triggerRemoteConfigEffect:remoteConfig];
+        if ([SAValidator isValidDictionary:remoteConfig]) {
+            [self updateLocalLibVersion];
+            [self trackAppRemoteConfigChanged:remoteConfig];
+            [self saveRemoteConfig:remoteConfig];
+            [self triggerRemoteConfigEffect:remoteConfig];
+        }
     } @catch (NSException *exception) {
         SALogError(@"【remote config】%@ error: %@", self, exception);
     }

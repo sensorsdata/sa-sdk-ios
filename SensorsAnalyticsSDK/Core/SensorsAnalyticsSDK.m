@@ -70,8 +70,10 @@
 #import "SATrackEventObject.h"
 #import "SAProfileEventObject.h"
 #import "SASuperProperty.h"
+#import "SARemoteConfigEventObject.h"
+#import "SABaseEventObject+RemoteConfig.h"
 
-#define VERSION @"2.6.5"
+#define VERSION @"2.6.6"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -708,13 +710,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     // 1. 远程控制校验
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return;
-    }
-
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:object.event]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", object.event);
+    if (object.isIgnoredByRemoteConfig) {
         return;
     }
 
@@ -1203,7 +1199,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
     options.trackEventBlock = ^(NSString * _Nonnull event, NSDictionary * _Nonnull properties) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
-        SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:event];
+        SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:event];
         [strongSelf asyncTrackEventObject:object properties:properties];
         // 触发 $AppRemoteConfigChanged 时 flush 一次
         [strongSelf flush];

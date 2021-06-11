@@ -94,7 +94,7 @@ NSString * const kSAEventPropertyElementType = @"$element_type";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
 NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 // 远程控制配置信息
-NSString * const SA_EVENT_PROPERTY_APP_REMOTE_CONFIG = @"$app_remote_config";
+NSString * const kSAEventPropertyAppRemoteConfig = @"$app_remote_config";
 
 #pragma mark - common property
 NSString * const kSAEventCommonOptionalPropertyProject = @"$project";
