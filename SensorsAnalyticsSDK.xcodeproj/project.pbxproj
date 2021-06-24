@@ -102,11 +102,11 @@
 		4DD1285725F872A4008C0B1E /* SAVisualizedManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283225F872A3008C0B1E /* SAVisualizedManager.h */; };
 		4DD1285825F872A4008C0B1E /* SAPropertyDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283325F872A3008C0B1E /* SAPropertyDescription.h */; };
 		4DD1285925F872A4008C0B1E /* SAEnumDescription.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283425F872A3008C0B1E /* SAEnumDescription.h */; };
-		4DD1285A25F872A4008C0B1E /* SAVisualizedObjectSerializerManger.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManger.h */; };
+		4DD1285A25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManager.h */; };
 		4DD1285B25F872A4008C0B1E /* SAValueTransformers.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1283625F872A3008C0B1E /* SAValueTransformers.m */; };
 		4DD1285C25F872A4008C0B1E /* SAObjectSerializerConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1283725F872A3008C0B1E /* SAObjectSerializerConfig.m */; };
 		4DD1285D25F872A4008C0B1E /* SAVisualizedConnection.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283825F872A3008C0B1E /* SAVisualizedConnection.h */; };
-		4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManger.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManger.m */; };
+		4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManager.m */; };
 		4DD1285F25F872A4008C0B1E /* SAVisualizedSnapshotMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283A25F872A3008C0B1E /* SAVisualizedSnapshotMessage.h */; };
 		4DD1286125F872A4008C0B1E /* SAPropertyDescription.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1283C25F872A3008C0B1E /* SAPropertyDescription.m */; };
 		4DD1286225F872A4008C0B1E /* SAVisualizedMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1283D25F872A3008C0B1E /* SAVisualizedMessage.h */; };
@@ -414,11 +414,11 @@
 		4DD1283225F872A3008C0B1E /* SAVisualizedManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedManager.h; sourceTree = "<group>"; };
 		4DD1283325F872A3008C0B1E /* SAPropertyDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAPropertyDescription.h; sourceTree = "<group>"; };
 		4DD1283425F872A3008C0B1E /* SAEnumDescription.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAEnumDescription.h; sourceTree = "<group>"; };
-		4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManger.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedObjectSerializerManger.h; sourceTree = "<group>"; };
+		4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedObjectSerializerManager.h; sourceTree = "<group>"; };
 		4DD1283625F872A3008C0B1E /* SAValueTransformers.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValueTransformers.m; sourceTree = "<group>"; };
 		4DD1283725F872A3008C0B1E /* SAObjectSerializerConfig.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAObjectSerializerConfig.m; sourceTree = "<group>"; };
 		4DD1283825F872A3008C0B1E /* SAVisualizedConnection.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedConnection.h; sourceTree = "<group>"; };
-		4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManger.m; sourceTree = "<group>"; };
+		4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedObjectSerializerManager.m; sourceTree = "<group>"; };
 		4DD1283A25F872A3008C0B1E /* SAVisualizedSnapshotMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedSnapshotMessage.h; sourceTree = "<group>"; };
 		4DD1283C25F872A3008C0B1E /* SAPropertyDescription.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAPropertyDescription.m; sourceTree = "<group>"; };
 		4DD1283D25F872A3008C0B1E /* SAVisualizedMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedMessage.h; sourceTree = "<group>"; };
@@ -713,8 +713,8 @@
 				4DD1283D25F872A3008C0B1E /* SAVisualizedMessage.h */,
 				4D14F13D25FC5BF200113EA2 /* SAVisualizedUtils.h */,
 				4D14F13C25FC5BF200113EA2 /* SAVisualizedUtils.m */,
-				4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManger.h */,
-				4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManger.m */,
+				4DD1283525F872A3008C0B1E /* SAVisualizedObjectSerializerManager.h */,
+				4DD1283925F872A3008C0B1E /* SAVisualizedObjectSerializerManager.m */,
 				4DD1283A25F872A3008C0B1E /* SAVisualizedSnapshotMessage.h */,
 				4DD1284A25F872A4008C0B1E /* SAVisualizedSnapshotMessage.m */,
 			);
@@ -1375,7 +1375,7 @@
 				45A56562263C174300C9C41B /* SAEventBuildStrategyProtocol.h in Headers */,
 				45A56564263C174300C9C41B /* SATrackEventObject.h in Headers */,
 				881A4214253D7B5000854F69 /* SAKeyChainItemWrapper.h in Headers */,
-				4DD1285A25F872A4008C0B1E /* SAVisualizedObjectSerializerManger.h in Headers */,
+				4DD1285A25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.h in Headers */,
 				881A4197253D7B4F00854F69 /* SASwizzle.h in Headers */,
 				4D2D537E2591EB0600805141 /* SALoggerPrePostFixFormatter.h in Headers */,
 				881A41FD253D7B5000854F69 /* SAObject+SAConfigOptions.h in Headers */,
@@ -1698,7 +1698,7 @@
 				A8A87E4D2568EBD500E16895 /* SARemoteConfigManager.m in Sources */,
 				4DD1285C25F872A4008C0B1E /* SAObjectSerializerConfig.m in Sources */,
 				45A5656D263C174300C9C41B /* SAPresetProperty.m in Sources */,
-				4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManger.m in Sources */,
+				4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.m in Sources */,
 				45A5655E263C174300C9C41B /* SASuperProperty.m in Sources */,
 				4DD1286D25F872A4008C0B1E /* SAVisualizedManager.m in Sources */,
 				4DD1286A25F872A4008C0B1E /* SAJSTouchEventView.m in Sources */,

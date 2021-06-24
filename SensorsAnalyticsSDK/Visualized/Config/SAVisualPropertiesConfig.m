@@ -27,6 +27,7 @@
 #import "SAVisualizedUtils.h"
 #import "UIView+AutoTrack.h"
 #import "SAValidator.h"
+#import "SAViewNode.h"
 
 static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (![SAValidator isValidDictionary:dic]) {
@@ -110,7 +111,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     }
     // 匹配元素位置
     if (self.limitPosition && ![self.elementPosition isEqualToString:viewIdentify.elementPosition]) {
-        return NO;;
+        return NO;
     }
     
     // 匹配元素内容

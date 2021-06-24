@@ -29,7 +29,7 @@
 #import "SALog.h"
 #import "UIViewController+AutoTrack.h"
 #import "SAAutoTrackUtils.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
 #import "SAVisualizedManager.h"
@@ -92,14 +92,14 @@
     jsonObject[@"os"] = @"iOS"; // 操作系统类型
     jsonObject[@"lib"] = @"iOS"; // SDK 类型
 
-    SAVisualizedObjectSerializerManger *serializerManger = [SAVisualizedObjectSerializerManger sharedInstance];
+    SAVisualizedObjectSerializerManager *serializerManager = [SAVisualizedObjectSerializerManager sharedInstance];
     NSString *screenName = nil;
     NSString *pageName = nil;
     NSString *title = nil;
 
     @try {
         // 获取当前页面
-        UIViewController *currentViewController = serializerManger.lastViewScreenController;
+        UIViewController *currentViewController = serializerManager.lastViewScreenController;
         if (!currentViewController) {
             currentViewController = [SAAutoTrackUtils currentViewController];
         }
@@ -126,18 +126,18 @@
     jsonObject[@"title"] = title;
     jsonObject[@"app_version"] = [[NSBundle mainBundle] infoDictionary][@"CFBundleShortVersionString"];
     jsonObject[@"feature_code"] = featureCode;
-    jsonObject[@"is_webview"] = @(serializerManger.isContainWebView);
+    jsonObject[@"is_webview"] = @(serializerManager.isContainWebView);
     // 增加 appId
     jsonObject[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
 
     // 添加前端弹框信息
-    if (serializerManger.alertInfos.count > 0) {
-        jsonObject[@"app_alert_infos"] = [serializerManger.alertInfos copy];
+    if (serializerManager.alertInfos.count > 0) {
+        jsonObject[@"app_alert_infos"] = [serializerManager.alertInfos copy];
     }
 
     // H5 页面信息
-    if (serializerManger.webPageInfo) {
-        SAVisualizedWebPageInfo *webPageInfo = serializerManger.webPageInfo;
+    if (serializerManager.webPageInfo) {
+        SAVisualizedWebPageInfo *webPageInfo = serializerManager.webPageInfo;
         jsonObject[@"h5_url"] = webPageInfo.url;
         jsonObject[@"h5_title"] = webPageInfo.title;
     }

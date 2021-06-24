@@ -29,6 +29,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype)initWithConfigSources:(SAVisualPropertiesConfigSources *)configSources;
 
+@property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
+
 /// 视图添加或移除
 - (void)didMoveToSuperviewWithView:(UIView *)view;
 
@@ -36,6 +38,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 // 添加子视图
 - (void)didAddSubview:(UIView *)subview;
+
+/// 成为 keyWindow
+- (void)becomeKeyWindow:(UIWindow *)window;
+
+/// 进入 RN 的自定义 viewController
+- (void)enterRNViewController:(UIViewController *)viewController;
 
 #pragma mark visualProperties
 

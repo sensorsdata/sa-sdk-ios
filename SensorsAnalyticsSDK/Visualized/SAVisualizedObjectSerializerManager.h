@@ -1,5 +1,5 @@
 //
-// SAVisualizedObjectSerializerManger.h
+// SAVisualizedObjectSerializerManager.h
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/4/23.
@@ -41,7 +41,7 @@
 
 
 /// 可视化全埋点 viewTree 外层数据管理
-@interface SAVisualizedObjectSerializerManger : NSObject
+@interface SAVisualizedObjectSerializerManager : NSObject
 
 /// 是否包含 webview
 @property (nonatomic, assign, readonly) BOOL isContainWebView;

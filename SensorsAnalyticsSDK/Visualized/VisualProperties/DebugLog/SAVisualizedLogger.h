@@ -45,8 +45,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 构建 log 日志
 /// @param title 日志标题
-/// @param message 日志详情
-+ (NSString *)buildLoggerMessageWithTitle:(NSString *)title message:(NSString *)message;
+/// @param format 日志详情拼接
++ (NSString *)buildLoggerMessageWithTitle:(NSString *)title message:(NSString *)format, ...;
 
 @end
 

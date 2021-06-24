@@ -64,44 +64,40 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
 }
 
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
-    @try {
-        
-        // 防止 tabbar 切换，可能漏采 $AppViewScreen 全埋点
-        if ([self isKindOfClass:UINavigationController.class]) {
-            UINavigationController *nav = (UINavigationController *)self;
-            nav.sensorsdata_previousViewController = nil;
-        }
-        
-        SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
-        
-        // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
-        if (self.navigationController && self.parentViewController == self.navigationController) {
-            // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
-            if (self.navigationController.sensorsdata_previousViewController == self) {
-                return;
-            }
-        }
-        
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
-        UIViewController *viewController = (UIViewController *)self;
-        if (!viewController.parentViewController ||
-            [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
-            [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
-            [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
-            [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-            [appViewScreenTracker autoTrackEventWithViewController:viewController];
-        }
-#else
-        [appViewScreenTracker autoTrackEventWithViewController:self];
-#endif
-        
-        // 标记 previousViewController
-        if (self.navigationController && self.parentViewController == self.navigationController) {
-            self.navigationController.sensorsdata_previousViewController = self;
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
+    // 防止 tabbar 切换，可能漏采 $AppViewScreen 全埋点
+    if ([self isKindOfClass:UINavigationController.class]) {
+        UINavigationController *nav = (UINavigationController *)self;
+        nav.sensorsdata_previousViewController = nil;
     }
+
+    SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
+
+    // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
+    if (self.navigationController && self.parentViewController == self.navigationController) {
+        // 全埋点中，忽略由于侧滑部分返回原页面，重复触发 $AppViewScreen 事件
+        if (self.navigationController.sensorsdata_previousViewController == self) {
+            return [self sa_autotrack_viewDidAppear:animated];
+        }
+    }
+
+#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
+    UIViewController *viewController = (UIViewController *)self;
+    if (!viewController.parentViewController ||
+        [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
+        [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
+        [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
+        [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
+        [appViewScreenTracker autoTrackEventWithViewController:viewController];
+    }
+#else
+    [appViewScreenTracker autoTrackEventWithViewController:self];
+#endif
+
+    // 标记 previousViewController
+    if (self.navigationController && self.parentViewController == self.navigationController) {
+        self.navigationController.sensorsdata_previousViewController = self;
+    }
+
     [self sa_autotrack_viewDidAppear:animated];
 }
 

@@ -36,7 +36,7 @@
 #import "UIView+SAElementPath.h"
 #import "SAAutoTrackProperty.h"
 #import "SAJSTouchEventView.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SAVisualizedManager.h"
 
 
@@ -253,7 +253,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 
 /// 添加弹框信息
 - (void)addNotWKWebViewAlertInfo {
-    [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:nil];
+    [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithWebInfo:nil];
 
     NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
     alertInfo[@"title"] = @"当前页面无法进行可视化全埋点";
@@ -265,21 +265,21 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
         alertInfo[@"message"] = @"此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
         alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-16286049.html";
     }
-    [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:@[alertInfo]];
+    [[SAVisualizedObjectSerializerManager sharedInstance] registWebAlertInfos:@[alertInfo]];
 }
 
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
-    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
 
     // H5 弹框信息
     if (webPageInfo.alertSources) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
+        [[SAVisualizedObjectSerializerManager sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
     }
 
     // H5 页面元素信息
     if (webPageInfo) {
-        [[SAVisualizedObjectSerializerManger sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+        [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
 
         // 如果包含 H5 页面信息，不需要动态通知和 JS SDK 检测
         return;
@@ -322,7 +322,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     // 延时检测是否集成 JS SDK
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 延迟判断是否存在 js 发送数据
-        SAVisualizedWebPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+        SAVisualizedWebPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
         // 注入了 bridge 但是未接收到数据
         if (!currentWebPageInfo) {
             NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
@@ -341,7 +341,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                             alertInfo[@"title"] = @"当前页面无法进行点击分析";
                         }
                         NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
-                        [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
+                        [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
                     }
                 }
             }];

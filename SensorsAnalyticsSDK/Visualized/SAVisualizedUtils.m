@@ -27,10 +27,11 @@
 #import "UIView+SAElementPath.h"
 #import "UIView+SAElementSelector.h"
 #import "SAVisualizedViewPathProperty.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAAutoTrackUtils.h"
+#import "UIView+AutoTrack.h"
 #import "SALog.h"
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
@@ -38,6 +39,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 
 @implementation SAVisualizedUtils
 
+#pragma mark Covered
 + (BOOL)isCoveredForView:(UIView *)view {
     NSArray <UIView *> *allOtherViews = [self findAllPossibleCoverViews:view hierarchyCount:kSAVisualizedFindMaxPageLevel];
 
@@ -142,8 +144,9 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return RCTView && [view isKindOfClass:RCTView];
 }
 
+#pragma mark WebElement
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
-    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManger sharedInstance] readWebPageInfoWithWebView:webView];
+    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
     NSArray *webPageDatas = webPageInfo.elementSources;
     if (webPageDatas.count == 0) {
         return nil;
@@ -187,6 +190,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return [touchViewArray copy];
 }
 
+#pragma mark RNUtils
 + (NSDictionary *)currentRNScreenVisualizeProperties {
     // 获取 RN 页面信息
     NSDictionary <NSString *, NSString *> *RNScreenInfo = nil;
@@ -205,6 +209,26 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return RNScreenInfo;
 }
 
++ (BOOL)isRNCustomViewController:(UIViewController *)viewController {
+    if (!viewController) {
+        return NO;
+    }
+    Class managerClass = NSClassFromString(@"SAReactNativeManager");
+    SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
+    if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+
+        // RN 框架中，部分弹出页面，是自定义的 ViewController，此时获取当前页面为 Native 页面名称
+        NSArray *rnScreenNames = @[@"RCTModalHostViewController", @"RCTRedBoxExtraDataViewController", @"RCTWrapperViewController", @"RCTVideoPlayerViewController"];
+        NSString *screenName = NSStringFromClass(viewController.class);
+        return [rnScreenNames containsObject:screenName];
+#pragma clang diagnostic pop
+    }
+    return NO;
+}
+
+#pragma mark keyWindow
 /// 获取当前有效的 keyWindow
 + (UIWindow *)currentValidKeyWindow {
     UIWindow *keyWindow = [self currentKeyWindow];
@@ -255,21 +279,26 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return keyWindow ?: [UIApplication sharedApplication].keyWindow;
 }
 
+#pragma mark viewTree
 + (BOOL)isAutoTrackAppClickWithControl:(UIControl *)control {
     // 部分控件，暂不支持  $AppClick 全埋点采集
     if ([control isKindOfClass:UIDatePicker.class]) {
+        return NO;
+    }
+    // 被忽略元素
+    if (control.sensorsdata_isIgnored) {
         return NO;
     }
     
     BOOL userInteractionEnabled = control.userInteractionEnabled;
     BOOL enabled = control.enabled;
     UIControlEvents appClickEvents = UIControlEventTouchUpInside | UIControlEventValueChanged;
-
+    
     // UISegmentedControl 只响应 UIControlEventValueChanged 和 UIControlEventPrimaryActionTriggered 全埋点
     if ([control isKindOfClass:UISegmentedControl.class]) {
         appClickEvents = UIControlEventValueChanged;
     }
-
+    
     if (@available(iOS 9.0, *)) {
         appClickEvents = appClickEvents | UIControlEventPrimaryActionTriggered;
     }
@@ -300,7 +329,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         return YES;
     }
 
-    // 普通 view，非响应事件独立元素，一般继续遍历子元素
+    // 一般作为普通 view 并添加点击事件，继续遍历子元素
     if (![view isKindOfClass:UIControl.class]) {
         return NO;
     }
@@ -450,7 +479,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     do {
         // 非 UIViewController，直接找 nextResponder
         if (![next isKindOfClass:UIViewController.class]) {
-            continue;;
+            continue;
         }
 
         UIViewController *vc = (UIViewController *)next;

@@ -94,7 +94,7 @@
     XCTAssertTrue(endEquele1);
 
     NSString *cnString = @"你好哇，继续测试234rwfss";
-    char *unicode = (char *)[cnString cStringUsingEncoding:NSUnicodeStringEncoding];;
+    char *unicode = (char *)[cnString cStringUsingEncoding:NSUnicodeStringEncoding];
     size_t cnLenth1 = strnlen(unicode, __INTMAX_MAX__);
     size_t cnLenth2 = strlen(unicode);
     BOOL cnEquele1 = cnLenth1 == cnLenth2;

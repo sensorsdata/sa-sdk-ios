@@ -35,6 +35,8 @@
 #import "SAConstants+Private.h"
 #import "SAModuleManager.h"
 
+static NSInteger kSAFlushMaxRepeatCount = 100;
+
 @interface SAEventTracker ()
 
 @property (nonatomic, strong) SAEventStore *eventStore;
@@ -121,17 +123,18 @@
     if (![self canFlush]) {
         return;
     }
-    BOOL isFlushed = [self flushRecordsWithSize:self.isDebugMode ? 1 : 50];
-    if (isFlushed) {
-        SALogInfo(@"Events flushed!");
-    }
+    [self flushRecordsWithSize:self.isDebugMode ? 1 : 50 repeatCount:kSAFlushMaxRepeatCount];
 }
 
-- (BOOL)flushRecordsWithSize:(NSUInteger)size {
+- (void)flushRecordsWithSize:(NSUInteger)size repeatCount:(NSInteger)repeatCount {
+    // 防止在数据量过大时, 递归 flush, 导致堆栈溢出崩溃; 因此需要限制递归次数
+    if (repeatCount <= 0) {
+        return;
+    }
     // 从数据库中查询数据
     NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:size];
     if (records.count == 0) {
-        return NO;
+        return;
     }
 
     // 尝试加密
@@ -157,7 +160,7 @@
             }
             // 5. 删除数据
             if ([strongSelf.eventStore deleteRecords:recordIDs]) {
-                [strongSelf flushRecordsWithSize:size];
+                [strongSelf flushRecordsWithSize:size repeatCount:repeatCount - 1];
             }
         };
         if (sensorsdata_is_same_queue(strongSelf.queue)) {
@@ -166,7 +169,6 @@
             dispatch_sync(strongSelf.queue, block);
         }
     }];
-    return YES;
 }
 
 @end

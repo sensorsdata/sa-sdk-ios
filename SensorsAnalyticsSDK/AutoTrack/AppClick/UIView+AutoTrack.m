@@ -57,70 +57,73 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementContent {
-    NSMutableString *elementContent = [NSMutableString string];
-
     if ([self isKindOfClass:NSClassFromString(@"RTLabel")]) {   // RTLabel:https://github.com/honcheng/RTLabel
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
             NSString *title = [self performSelector:NSSelectorFromString(@"text")];
             if (title.length > 0) {
-                [elementContent appendString:title];
+                return title;
             }
         }
-    } else if ([self isKindOfClass:NSClassFromString(@"YYLabel")]) {    // RTLabel:https://github.com/ibireme/YYKit
+        return nil;
+    }
+    if ([self isKindOfClass:NSClassFromString(@"YYLabel")]) {    // RTLabel:https://github.com/ibireme/YYKit
         if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
             NSString *title = [self performSelector:NSSelectorFromString(@"text")];
             if (title.length > 0) {
-                [elementContent appendString:title];
+                return title;
             }
         }
+        return nil;
 #pragma clang diagnostic pop
-    } else if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
+    }
+    if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
         NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
-            [elementContent appendString:content];
+            return content;
         }
-    } else if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
+    }
+    if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
         /* 兼容输入框的元素采集
          UITextField 本身是一个容器，包括 UITextField 的元素内容，文字是直接渲染到 view 的
          层级结构如下
          UITextField
-             _UITextFieldRoundedRectBackgroundViewNeue
-             UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
-                 _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
-             _UITextFieldClearButton (可能存在)
+            _UITextFieldRoundedRectBackgroundViewNeue
+            UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
+                _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
+            _UITextFieldClearButton (可能存在)
          */
         UITextField *textField = (UITextField *)[self nextResponder];
         return [textField sensorsdata_elementContent];
-    } else if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
-
+    }
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
+        
         UITextField *textField = (UITextField *)[self nextResponder];
         do {
             if ([textField isKindOfClass:UITextField.class]) {
                 return [textField sensorsdata_elementContent];
             }
         } while ((textField = (UITextField *)[textField nextResponder]));
-
+        
         return nil;
-    } else {
-        NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
-        for (UIView *subview in self.subviews) {
-            // 忽略隐藏控件
-            if (subview.isHidden || subview.sensorsAnalyticsIgnoreView) {
-                continue;
-            }
-            NSString *temp = subview.sensorsdata_elementContent;
-            if (temp.length > 0) {
-                [elementContentArray addObject:temp];
-            }
+    }
+    NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+    for (UIView *subview in self.subviews) {
+        // 忽略隐藏控件
+        if (subview.isHidden || subview.sensorsAnalyticsIgnoreView) {
+            continue;
         }
-        if (elementContentArray.count > 0) {
-            [elementContent appendString:[elementContentArray componentsJoinedByString:@"-"]];
+        NSString *temp = subview.sensorsdata_elementContent;
+        if (temp.length > 0) {
+            [elementContentArray addObject:temp];
         }
     }
-
-    return elementContent.length == 0 ? nil : [elementContent copy];
+    if (elementContentArray.count > 0) {
+        return [elementContentArray componentsJoinedByString:@"-"];
+    }
+    
+    return nil;
 }
 
 - (NSString *)sensorsdata_elementPosition {

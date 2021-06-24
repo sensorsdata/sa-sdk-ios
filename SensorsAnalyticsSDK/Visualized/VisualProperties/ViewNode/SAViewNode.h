@@ -64,6 +64,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 更新所有同级同类节点 index
 - (void)refreshBrotherNodeIndex;
 
+/// 更新子节点页面名称
+- (void)refreshSubNodeScreenName;
+
 /// 构建节点链接关系
 - (void)buildNodeRelation;
 
@@ -88,6 +91,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 处理 UITableViewCell & UICollectionViewCell
 @interface SACellNode : SAViewNode
+@end
+
+/// 处理 RN 页面元素节点
+@interface SARNViewNode : SAViewNode
 @end
 
 /// 需要忽略相对路径

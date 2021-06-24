@@ -33,7 +33,7 @@
 #import "SAViewElementInfoFactory.h"
 
 @interface SAViewNode()
-#pragma mark path
+
 @property (nonatomic, assign, readwrite) BOOL stopJoinPath;
 
 /// 元素相对路径
@@ -71,6 +71,7 @@
     return self;
 }
 
+#pragma mark - build
 /// 初始化配置计算
 - (void)configViewNode {
     // 单独处理 UIAlertController 路径信息
@@ -187,6 +188,23 @@
     }
 }
 
+/// 更新页面名称
+- (void)refreshScreenName {
+    [SACommonUtility performBlockOnMainThread:^{
+        self.screenName = [self.view sensorsdata_screenName];
+    }];
+}
+
+/// 更新子节点页面名称
+- (void)refreshSubNodeScreenName {
+    [self refreshScreenName];
+    
+    for (SAViewNode *subNode in self.subNodes) {
+        [subNode refreshSubNodeScreenName];
+    }
+}
+
+#pragma mark - path
 /* 实时获取 elementPosition
  因为 cell 刷新或重新，涉及 indexPath 重新计算，此时 cell 的子视图的 elementPosition 需要实时获取最新值
  */
@@ -249,7 +267,10 @@
 
 /// 日志打印
 - (NSString *)description {
-    NSMutableString *description = [NSMutableString stringWithString:self.viewName];
+    NSMutableString *description = [NSMutableString string];
+    if (self.viewName) {
+        [description appendString:self.viewName];
+    }
 
     NSString *content = self.elementContent;
     if (content.length > 12) {
@@ -259,7 +280,7 @@
         [description appendFormat:@", content: %@", content];
     }
     if (self.pageIndex >= 0) {
-        [description appendFormat:@", pageIndex: %ld", self.pageIndex];
+        [description appendFormat:@", pageIndex: %ld", (long)self.pageIndex];
     }
     [description appendFormat:@", %@: %@", self.screenName, self.elementPath];
     if (self.elementPosition) {
@@ -354,9 +375,8 @@
 - (NSString *)elementPosition {
     __block NSString *elementPosition = [super elementPosition];
     [SACommonUtility performBlockOnMainThread:^{
-        UISegmentedControl *segmentedControl = (UISegmentedControl *)self.view;
-        if (segmentedControl.selectedSegmentIndex == UISegmentedControlNoSegment) {
-            elementPosition = [NSString stringWithFormat: @"%ld", (long)segmentedControl.selectedSegmentIndex];
+        if (self.segmentedControl.selectedSegmentIndex != UISegmentedControlNoSegment) {
+            elementPosition = [NSString stringWithFormat: @"%ld", (long)self.segmentedControl.selectedSegmentIndex];
         }
     }];
     return elementPosition;
@@ -386,15 +406,6 @@
 
 - (NSString *)similarPath {
     return [NSString stringWithFormat:@"%@[-]", self.viewName];
-}
-
-- (NSString *)screenName {
-    // TabBar 点击涉及页面切换，需要实时获取最新页面
-    __block NSString *screenName = nil;
-    [SACommonUtility performBlockOnMainThread:^{
-        screenName = [self.view sensorsdata_screenName];
-    }];
-    return screenName;
 }
 
 @end
@@ -520,6 +531,19 @@
 }
 @end
 
+@implementation SARNViewNode
+- (instancetype)initWithView:(UIView *)view {
+    [SARNViewNode bindScreenNameWithClickableView:view];
+    self = [super initWithView:view];
+    return self;
+}
+
+/// 触发 RN 插件可点击元素的页面信息绑定，使得和上传页面信息逻辑一致
++ (void)bindScreenNameWithClickableView:(UIView *)rnView {
+    [rnView sensorsdata_clickableForRNView];
+}
+
+@end
 
 @implementation SAIgnorePathNode
 

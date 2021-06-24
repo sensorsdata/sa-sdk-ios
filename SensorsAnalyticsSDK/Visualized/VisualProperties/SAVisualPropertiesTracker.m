@@ -27,11 +27,14 @@
 #import "SAVisualPropertiesConfigSources.h"
 #import "SAVisualizedUtils.h"
 #import "UIView+AutoTrack.h"
+#import "UIView+SAElementPath.h"
 #import "SAViewNodeTree.h"
 #import "SACommonUtility.h"
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
 #import "SAAlertController.h"
+#import "SAAutoTrackUtils.h"
+#import "UIView+SAVisualProperties.h"
 #import "SALog.h"
 
 @interface SAVisualPropertiesTracker()
@@ -51,7 +54,7 @@
         _configSources = configSources;
         NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.SAVisualPropertiesTracker.%p", self];
         _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-        _viewNodeTree = [[SAViewNodeTree alloc] init];
+        _viewNodeTree = [[SAViewNodeTree alloc] initWithQueue:_serialQueue];
     }
     return self;
 }
@@ -61,36 +64,37 @@
     /*节点更新和属性遍历，共用同一个队列
      防止触发点击事件，同时进行页面跳转，尚未遍历结束节点元素就被移除了
      */
-    @try {
-        dispatch_async(self.serialQueue, ^{
-            [self.viewNodeTree didMoveToSuperviewWithView:view];
-        });
-    } @catch (NSException *exception) {
-        SALogWarn(@"%@", exception);
-    }
+    dispatch_async(self.serialQueue, ^{
+        [self.viewNodeTree didMoveToSuperviewWithView:view];
+    });
 }
 
 - (void)didMoveToWindowWithView:(UIView *)view {
     /*节点更新和属性遍历，共用同一个队列
      防止触发点击事件，同时进行页面跳转，尚未遍历结束节点元素就被移除了
      */
-    @try {
-        dispatch_async(self.serialQueue, ^{
-            [self.viewNodeTree didMoveToWindowWithView:view];
-        });
-    } @catch (NSException *exception) {
-        SALogWarn(@"%@", exception);
-    }
+    dispatch_async(self.serialQueue, ^{
+        [self.viewNodeTree didMoveToWindowWithView:view];
+    });
 }
 
 - (void)didAddSubview:(UIView *)subview {
-    @try {
-        dispatch_async(self.serialQueue, ^{
-            [self.viewNodeTree didAddSubview:subview];
-        });
-    } @catch (NSException *exception) {
-        SALogWarn(@"%@", exception);
+    dispatch_async(self.serialQueue, ^{
+        [self.viewNodeTree didAddSubview:subview];
+    });
+}
+
+- (void)becomeKeyWindow:(UIWindow *)window {
+    if (!window.isKeyWindow) {
+        return;
     }
+    dispatch_async(self.serialQueue, ^{
+        [self.viewNodeTree becomeKeyWindow:window];
+    });
+}
+
+- (void)enterRNViewController:(UIViewController *)viewController {
+    [self.viewNodeTree refreshRNViewScreenNameWithViewController:viewController];
 }
 
 #pragma mark visualProperties
@@ -119,7 +123,8 @@
         /* 查询事件配置
          因为涉及是否限定位置，一个 view 可能被定义多个事件
          */
-        NSArray <SAVisualPropertiesConfig *>*allEventConfigs = [self.configSources propertiesConfigsWithView:view];
+        SAViewNode *viewNode = view.sensorsdata_viewNode;
+        NSArray <SAVisualPropertiesConfig *>*allEventConfigs = [self.configSources propertiesConfigsWithViewNode:viewNode];
         NSMutableDictionary *allEventProperties = [NSMutableDictionary dictionary];
         
         for (SAVisualPropertiesConfig *config in allEventConfigs) {
@@ -147,7 +152,7 @@
     for (SAVisualPropertiesPropertyConfig *propertyConfig in config.properties) {
         // 合法性校验
         if (propertyConfig.regular.length == 0 || propertyConfig.name.length == 0 || propertyConfig.elementPath.length == 0) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"属性配置" message:[NSString stringWithFormat:@"属性 %@ 无效", propertyConfig]];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"属性配置" message:@"属性 %@ 无效", propertyConfig];
             SALogError(@"SAVisualPropertiesPropertyConfig error, %@", logMessage);
             continue;
         }
@@ -179,13 +184,14 @@
                 propertyConfig.clickElementPosition = clickPosition;
             }
         }
+
         // 页面序号，仅匹配当前页面元素
         propertyConfig.pageIndex = pageIndex;
 
         // 1. 获取属性元素
         UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
         if (!view) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:[NSString stringWithFormat:@"属性 %@ 未找到对应属性元素", propertyConfig.name]];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"属性 %@ 未找到对应属性元素", propertyConfig.name];
             SALogDebug(@"%@", logMessage);
             continue;
         }
@@ -207,7 +213,7 @@
         NSDecimalNumber *propertyNumber = [NSDecimalNumber decimalNumberWithString:propertyValue];
         // 判断转换后是否为 NAN
         if ([propertyNumber isEqualToNumber:NSDecimalNumber.notANumber]) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:[NSString stringWithFormat:@"属性 %@ 正则解析后为：%@，数值型转换失败，", propertyConfig.name, propertyValue]];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 正则解析后为：%@，数值型转换失败", propertyConfig.name, propertyValue];
             SALogWarn(@"%@", logMessage);
             continue;
         }
@@ -219,31 +225,34 @@
 
 /// 解析属性值
 - (NSString *)analysisPropertyWithView:(UIView *)view propertyConfig:(SAVisualPropertiesPropertyConfig *)config {
-
+    
     // 获取元素内容，主线程执行
     __block NSString *content = nil;
     dispatch_sync(dispatch_get_main_queue(), ^{
         content = view.sensorsdata_elementContent;
     });
-
+    
     if (content.length == 0) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:[NSString stringWithFormat:@"属性 %@ 获取元素内容失败, %@", config.name, view]];
-        SALogWarn(@"%@", logMessage);
+        // 打印 view 需要在主线程
+        dispatch_async(dispatch_get_main_queue(), ^{
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 获取元素内容失败, %@", config.name, view];
+            SALogWarn(@"%@", logMessage);
+        });
         return nil;
     }
-
+    
     // 根据正则解析属性
     NSError *error = NULL;
     NSRegularExpression *regex = [NSRegularExpression regularExpressionWithPattern:config.regular options:NSRegularExpressionDotMatchesLineSeparators error:&error];
-
+    
     // 仅取出第一条匹配记录
     NSTextCheckingResult *firstResult = [regex firstMatchInString:content options:0 range:NSMakeRange(0, [content length])];
     if (!firstResult) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:[NSString stringWithFormat:@"元素内容 %@ 正则解析属性失败，属性名：%@，正则为：%@", content,  config.name, config.regular]];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"元素内容 %@ 正则解析属性失败，属性名：%@，正则为：%@", content,  config.name, config.regular];
         SALogWarn(@"%@", logMessage);
         return nil;
     }
-
+    
     NSString *value = [content substringWithRange:firstResult.range];
     return value;
 }

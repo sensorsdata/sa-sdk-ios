@@ -28,7 +28,7 @@
 #import "SAVisualizedSnapshotMessage.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAVisualizedLogger.h"
@@ -104,7 +104,7 @@
         return;
     }
 
-    [[SAVisualizedObjectSerializerManger sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
+    [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
 }
 
 /// 开始计时
@@ -139,8 +139,8 @@
     }
 
     // 清空缓存的配置数据
-    [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
-    [[SAVisualizedObjectSerializerManger sharedInstance] cleanVisualizedWebPageInfoCache];
+    [[SAVisualizedObjectSerializerManager sharedInstance] resetObjectSerializer];
+    [[SAVisualizedObjectSerializerManager sharedInstance] cleanVisualizedWebPageInfoCache];
 
     // 关闭埋点校验
     [SAVisualizedManager.sharedInstance enableEventCheck:NO];
@@ -208,7 +208,7 @@
         
         [SAVisualizedManager.sharedInstance.configSources setupConfigWithDictionary:nil disableConfig:YES];
     } else if (configDic.count > 0) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"轮询接口更新可视化全埋点配置，%@", configDic]];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"轮询接口更新可视化全埋点配置，%@", configDic];
         SALogInfo(@"%@", logMessage);
         
         [SAVisualizedManager.sharedInstance.configSources setupConfigWithDictionary:configDic disableConfig:NO];

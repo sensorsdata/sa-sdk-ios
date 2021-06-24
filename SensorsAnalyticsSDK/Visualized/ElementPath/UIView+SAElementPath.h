@@ -30,6 +30,9 @@ NS_ASSUME_NONNULL_BEGIN
 #pragma mark - UIView
 @interface UIView (SAElementPath)<SAVisualizedViewPathProperty, SAVisualizedExtensionProperty, SAAutoTrackViewPathProperty>
 
+/// 判断 ReactNative 元素是否可点击
+- (BOOL)sensorsdata_clickableForRNView;
+
 /// 判断一个 view 是否显示
 - (BOOL)sensorsdata_isVisible;
 

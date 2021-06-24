@@ -159,7 +159,12 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 // 判断是否为 RN 元素
 + (BOOL)isKindOfRNView:(UIView *)view {
-    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo"];
+    NSString *className = NSStringFromClass(view.class);
+    if ([className isEqualToString:@"UISegment"]) {
+        // 针对 UISegment，可能是 RCTSegmentedControl 或 RNCSegmentedControl 内嵌元素，使用父视图判断是否为 RN 元素
+        view = [view superview];
+    }
+    NSArray <NSString *> *classNames = @[@"RCTSurfaceView", @"RCTSurfaceHostingView", @"RCTFPSGraph", @"RCTModalHostView", @"RCTView", @"RCTTextView", @"RCTRootView",  @"RCTInputAccessoryView", @"RCTInputAccessoryViewContent", @"RNSScreenContainerView", @"RNSScreen", @"RCTVideo", @"RCTSwitch", @"RCTSlider", @"RCTSegmentedControl", @"RNGestureHandlerButton", @"RNCSlider", @"RNCSegmentedControl"];
     for (NSString *className in classNames) {
         Class class = NSClassFromString(className);
         if (class && [view isKindOfClass:class]) {

@@ -1,5 +1,5 @@
 //
-// SAVisualizedObjectSerializerManger.m
+// SAVisualizedObjectSerializerManager.m
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/4/23.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAVisualizedManager.h"
@@ -33,7 +33,7 @@
 @end
 
 
-@interface SAVisualizedObjectSerializerManger()
+@interface SAVisualizedObjectSerializerManager()
 
 /// 是否包含 webview
 @property (nonatomic, assign, readwrite) BOOL isContainWebView;
@@ -62,13 +62,13 @@
 
 @end
 
-@implementation SAVisualizedObjectSerializerManger
+@implementation SAVisualizedObjectSerializerManager
 
 + (instancetype)sharedInstance {
-    static SAVisualizedObjectSerializerManger *manager = nil;
+    static SAVisualizedObjectSerializerManager *manager = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        manager = [[SAVisualizedObjectSerializerManger alloc] init];
+        manager = [[SAVisualizedObjectSerializerManager alloc] init];
     });
     return manager;
 }

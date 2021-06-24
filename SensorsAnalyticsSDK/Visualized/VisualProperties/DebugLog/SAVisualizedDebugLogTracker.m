@@ -96,7 +96,7 @@
     // 主线程获取 keyWindow
     dispatch_async(dispatch_get_main_queue(), ^{
         UIWindow *keyWindow = [SAVisualizedUtils currentValidKeyWindow];
-        SAViewNode *rootNode = keyWindow.sensorsdata_viewNode;
+        SAViewNode *rootNode = keyWindow.sensorsdata_viewNode.nextNode;
 
         // 异步递归遍历
         dispatch_async(self.serialQueue, ^{
@@ -106,7 +106,7 @@
                 NSMutableDictionary *eventLogInfo = [self.debugLogInfos lastObject];
                 eventLogInfo[@"objects"] = nodeMessage;
             } @catch (NSException *exception) {
-                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"诊断信息" message:[NSString stringWithFormat:@"log node tree error: %@", exception]];
+                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"诊断信息" message:@"log node tree error: %@", exception];
                 SALogWarn(@"%@", logMessage);
             }
         });
@@ -117,7 +117,7 @@
 - (NSString *)showViewHierarchy:(SAViewNode *)node level:(NSInteger)level {
     NSMutableString *description = [NSMutableString string];
 
-    NSMutableString *indent = [NSMutableString stringWithFormat:@"%ld",self.nodeRowIndex];
+    NSMutableString *indent = [NSMutableString stringWithFormat:@"%ld",(long)self.nodeRowIndex];
     // 不同位数字后空格数不同，保证对齐
     NSInteger log =  self.nodeRowIndex > 0 ? log10(self.nodeRowIndex) : 0;
     NSInteger spaceCount = log > 3 ? 0 : 3 - log;

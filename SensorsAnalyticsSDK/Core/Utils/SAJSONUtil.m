@@ -105,6 +105,9 @@
         NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
         return [dateFormatter stringFromDate:newObj];
     }
+    if ([newObj isKindOfClass:[NSNull class]]) {
+        return [newObj description];
+    }
     // default to sending the object's description
     SALogWarn(@"property values should be valid json types, but current value: %@, with invalid type: %@", newObj, [newObj class]);
     return [newObj description];

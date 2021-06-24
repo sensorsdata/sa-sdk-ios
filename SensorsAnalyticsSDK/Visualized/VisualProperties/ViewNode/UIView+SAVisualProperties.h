@@ -55,3 +55,14 @@
 - (void)sensorsdata_visualize_prepareForReuse;
 
 @end
+
+@interface UIWindow (SAVisualProperties)
+
+- (void)sensorsdata_visualize_becomeKeyWindow;
+
+@end
+
+
+@interface UITabBar (SAVisualProperties)
+- (void)sensorsdata_visualize_setSelectedItem:(UITabBarItem *)selectedItem;
+@end

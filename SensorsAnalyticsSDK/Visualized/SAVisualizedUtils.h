@@ -39,6 +39,9 @@ NS_ASSUME_NONNULL_BEGIN
 ///  获取 RN 当前页面信息
 + (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
 
+/// 是否为 RN 内的原生页面
++ (BOOL)isRNCustomViewController:(UIViewController *)viewController;
+
 /// 获取当前有效的 keyWindow
 + (UIWindow *)currentValidKeyWindow;
 

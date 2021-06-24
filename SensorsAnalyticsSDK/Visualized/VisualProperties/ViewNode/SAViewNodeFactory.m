@@ -24,6 +24,7 @@
 
 #import "SAViewNodeFactory.h"
 #import "SAVisualizedUtils.h"
+#import "SAAutoTrackUtils.h"
 #import "SAViewNode.h"
 
 @implementation SAViewNodeFactory
@@ -40,16 +41,18 @@
     } else if ([NSStringFromClass(view.class) isEqualToString:@"UITabBarButton"]) {
         // UITabBarItem 点击事件，支持限定元素位置
         return [[SATabBarButtonNode alloc] initWithView:view];
+    } else if ([SAAutoTrackUtils isKindOfRNView:view]) {
+        return [[SARNViewNode alloc] initWithView:view];
     } else if ([SAVisualizedUtils isIgnoredItemPathWithView:view]) {
         /* 忽略路径
          1. UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-
+         
          2. _UITextFieldCanvasView 和 _UISearchBarFieldEditor 都是 UISearchBar 内部私有 view
          在输入状态下层级关系为：  ...UISearchBarTextField/_UISearchBarFieldEditor/_UITextFieldCanvasView
          非输入状态下层级关系为： .../UISearchBarTextField/_UITextFieldCanvasView
          并且 _UITextFieldCanvasView 是个私有 view,无法获取元素内容。_UISearchBarFieldEditor 是私有 UITextField，可以获取内容
          不论是否输入都准确标识，为方便路径统一，所以忽略 _UISearchBarFieldEditor 路径
-
+         
          3.  UIFieldEditor 是 UITextField 内，只有编辑状态才包含的一层 view，路径忽略，方便统一（自定义属性一般圈选的为 _UITextFieldCanvasView）
          */
         return [[SAIgnorePathNode alloc] initWithView:view];

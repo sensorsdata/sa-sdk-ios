@@ -31,7 +31,7 @@
 #import "SAVisualizedConnection.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
-#import "SAVisualizedObjectSerializerManger.h"
+#import "SAVisualizedObjectSerializerManager.h"
 #import "SACommonUtility.h"
 
 #pragma mark -- Snapshot Request
@@ -85,11 +85,11 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                 snapshotMessage.screenshot = image;
 
                 // imageHash 不变即截图相同，页面不变，则不再解析页面元素信息
-                if ([[SAVisualizedObjectSerializerManger sharedInstance].lastImageHash isEqualToString:snapshotMessage.imageHash]) {
+                if ([[SAVisualizedObjectSerializerManager sharedInstance].lastImageHash isEqualToString:snapshotMessage.imageHash]) {
                     [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
                 } else {
                     // 清空页面配置信息
-                    [[SAVisualizedObjectSerializerManger sharedInstance] resetObjectSerializer];
+                    [[SAVisualizedObjectSerializerManager sharedInstance] resetObjectSerializer];
 
                     // 解析页面信息
                     NSDictionary *serializedObjects = [serializer objectHierarchyForRootObject];
@@ -98,7 +98,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                 }
 
                 // 重置截图 hash 信息
-                [[SAVisualizedObjectSerializerManger sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
+                [[SAVisualizedObjectSerializerManager sharedInstance] resetLastImageHash:snapshotMessage.imageHash];
             }];
         });
     }];
@@ -128,8 +128,8 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
     }
 
     // 如果包含其他数据，拼接到 imageHash，防止前端数据未刷新
-    if ([SAVisualizedObjectSerializerManger sharedInstance].jointPayloadHash) {
-        imageHash = [imageHash stringByAppendingString:[SAVisualizedObjectSerializerManger sharedInstance].jointPayloadHash];
+    if ([SAVisualizedObjectSerializerManager sharedInstance].jointPayloadHash) {
+        imageHash = [imageHash stringByAppendingString:[SAVisualizedObjectSerializerManager sharedInstance].jointPayloadHash];
     }
 
     self.imageHash = imageHash;
@@ -143,7 +143,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
     }
     
     // 更新 imageHash
-    [[SAVisualizedObjectSerializerManger sharedInstance] refreshPayloadHashWithData:debugEvents];
+    [[SAVisualizedObjectSerializerManager sharedInstance] refreshPayloadHashWithData:debugEvents];
     
     [self setPayloadObject:debugEvents forKey:@"event_debug"];
 }
@@ -153,7 +153,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
         return;
     }
     // 更新 imageHash
-    [[SAVisualizedObjectSerializerManger sharedInstance] refreshPayloadHashWithData:logInfos];
+    [[SAVisualizedObjectSerializerManager sharedInstance] refreshPayloadHashWithData:logInfos];
 
     [self setPayloadObject:logInfos forKey:@"log_info"];
 }

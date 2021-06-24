@@ -33,6 +33,9 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAViewElementInfoFactory.h"
 
+typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
+
+
 #pragma mark - UIView
 @implementation UIView (SAElementPath)
 
@@ -84,17 +87,15 @@
     Class managerClass = NSClassFromString(@"SAReactNativeManager");
     SEL sharedInstanceSEL = NSSelectorFromString(@"sharedInstance");
     if (managerClass && [managerClass respondsToSelector:sharedInstanceSEL]) {
-    #pragma clang diagnostic push
-    #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         id manager = [managerClass performSelector:sharedInstanceSEL];
+#pragma clang diagnostic pop
         SEL clickableSEL = NSSelectorFromString(@"clickableForView:");
-        if ([manager respondsToSelector:clickableSEL]) {
-            BOOL clickable = (BOOL)[manager performSelector:clickableSEL withObject:self];
-            if (clickable) {
-                return YES;
-            }
+        IMP clickableImp = [manager methodForSelector:clickableSEL];
+        if (clickableImp) {
+            return ((SAClickableImplementation)clickableImp)(manager, clickableSEL, self);
         }
-    #pragma clang diagnostic pop
     }
     return NO;
 }
@@ -104,6 +105,12 @@
     SEL screenPropertiesSEL = NSSelectorFromString(@"sa_reactnative_screenProperties");
     // 获取 RN 元素所在页面信息
     if ([self respondsToSelector:screenPropertiesSEL]) {
+        /* 处理说明
+         在 RN 项目中，如果当前页面为 RN 页面，页面名称为 "Home"，如果弹出某些页面，其实是 Native 的自定义 UIViewController（比如 RCTModalHostViewController），会触发 Native 的 $AppViewScreen 事件。
+         弹出页面的上的元素，依然为 RN 元素。按照目前 RN 插件的逻辑，这些元素触发 $AppClick 全埋点中的 $screen_name 为 "Home"。
+         为了确保可视化全埋点上传页面信息中可点击元素获取页面名称（screenName）和 $AppClick 全埋点中的 $screen_name 保持一致，事件正确匹配。所以针对 RN 针对可点击元素，使用扩展属性绑定元素所在页面信息。
+         详见 RNSensorsAnalyticsModule 实现：https://github.com/sensorsdata/react-native-sensors-analytics/tree/master/ios
+         */
         #pragma clang diagnostic push
         #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
         NSDictionary *screenProperties = (NSDictionary *)[self performSelector:screenPropertiesSEL];
@@ -111,11 +118,9 @@
             return screenProperties;
         }
         #pragma clang diagnostic pop
-    } else {
-        // 获取 RN 页面信息
-        return [SAVisualizedUtils currentRNScreenVisualizeProperties];
     }
-    return nil;
+        // 获取 RN 页面信息
+    return [SAVisualizedUtils currentRNScreenVisualizeProperties];
 }
 
 // 判断一个 view 是否会触发全埋点事件
@@ -129,10 +134,14 @@
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
-        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
-            return [SAVisualizedUtils isAutoTrackAppClickWithControl:segmentedControl];
+        if (![segmentedControl isKindOfClass:UISegmentedControl.class]) {
+            return NO;
         }
-        return NO;
+        // 可能是 RN 框架 中 RCTSegmentedControl 内嵌 UISegment，再执行一次 RN 的可点击判断
+        BOOL clickable = [SAVisualizedUtils isAutoTrackAppClickWithControl:segmentedControl];
+        if (clickable){
+            return YES;
+        }
     }
 #endif
 
@@ -140,6 +149,10 @@
         return YES;
     }
 
+    // Native 全埋点被忽略元素，不可圈选，RN 全埋点事件由插件触发，不经过此判断
+    if (self.sensorsdata_isIgnored) {
+        return NO;
+    }
     if ([self isKindOfClass:UIControl.class]) {
         // UISegmentedControl 高亮渲染内部嵌套的 UISegment
         if ([self isKindOfClass:UISegmentedControl.class]) {
@@ -246,6 +259,13 @@
 }
 
 - (NSString *)sensorsdata_elementValidContent {
+    /*
+     针对 RN 元素，上传页面信息中的元素内容，和 RN 插件触发全埋点一致，不遍历子视图元素内容
+     获取 RN 元素自定义属性，会尝试遍历子视图
+     */
+    if ([SAAutoTrackUtils isKindOfRNView:self]) {
+        return [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+    }
     return self.sensorsdata_elementContent;
 }
 
@@ -361,7 +381,7 @@
 
 - (NSString *)sensorsdata_screenName {
     // 解析 ReactNative 元素页面名称
-    if ([self sensorsdata_clickableForRNView]) {
+    if ([SAAutoTrackUtils isKindOfRNView:self]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 页面信息为空，则使用 Native 的
         NSString *screenName = screenProperties[kSAEventPropertyScreenName];
@@ -380,7 +400,7 @@
 
 - (NSString *)sensorsdata_title {
     // 处理 ReactNative 元素
-    if ([self sensorsdata_clickableForRNView]) {
+    if ([SAAutoTrackUtils isKindOfRNView:self]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 的 screenName 不存在，则判断页面信息不存在，即使用 Native 逻辑
         if (screenProperties[kSAEventPropertyScreenName]) {

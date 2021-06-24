@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SAVisualPropertiesConfig.h"
 #import "SAEventIdentifier.h"
+#import "SAViewNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -66,8 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 更新配置（切换 serverURL）
 - (void)reloadConfig;
 
-/// 查询 view 配置
-- (nullable NSArray <SAVisualPropertiesConfig *> *)propertiesConfigsWithView:(UIView *)view;
+/// 查询元素对应事件配置
+- (nullable NSArray <SAVisualPropertiesConfig *> *)propertiesConfigsWithViewNode:(SAViewNode *)viewNode;
 
 /// 根据事件信息查询配置
 - (nullable NSArray <SAVisualPropertiesConfig *> *)propertiesConfigsWithEventIdentifier:(SAEventIdentifier *)eventIdentifier;

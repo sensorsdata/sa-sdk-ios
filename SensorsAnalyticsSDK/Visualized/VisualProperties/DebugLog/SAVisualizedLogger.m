@@ -88,12 +88,28 @@ static NSString * const kSAVisualizedLoggerSeparatedChar = @"：";
 #pragma mark -
 @implementation SAVisualizedLogger (Build)
 
-+ (NSString *)buildLoggerMessageWithTitle:(NSString *)title message:(NSString *)message {
++ (NSString *)buildLoggerMessageWithTitle:(NSString *)title message:(NSString *)format, ... {
     NSMutableString *logMessage = [NSMutableString stringWithString:kSAVisualizedLoggerPrefix];
     if (title) { // 拼接标题
         [logMessage appendString:title];
         [logMessage appendString:kSAVisualizedLoggerSeparatedChar];
     }
+
+    //in iOS10, initWithFormat: arguments: crashed when format string contain special char "%" but no escaped, like "%2434343%rfrfrfrf%".
+#ifndef DEBUG
+    if ([[[UIDevice currentDevice] systemVersion] integerValue] == 10) {
+        return title;
+    }
+#endif
+    if (!format) {
+        return title;
+    }
+    
+    va_list args;
+    va_start(args, format);
+    NSString *message = [[NSString alloc] initWithFormat:format arguments:args];
+    va_end(args);
+
     if (message) { // 拼接内容
         [logMessage appendString:message];
     }
