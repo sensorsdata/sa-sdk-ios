@@ -35,7 +35,6 @@
 
 typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
-
 #pragma mark - UIView
 @implementation UIView (SAElementPath)
 
@@ -360,25 +359,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     return NO;
 }
 
-- (CGRect)sensorsdata_frame {
-    CGRect showRect = [self convertRect:self.bounds toView:nil];
-    if (self.superview) {
-        // 计算可见区域
-        CGRect visibleFrame = self.superview.sensorsdata_visibleFrame;
-        return CGRectIntersection(showRect, visibleFrame);
-    }
-    return showRect;
-}
-
-- (CGRect)sensorsdata_visibleFrame {
-    CGRect visibleFrame = [UIApplication sharedApplication].keyWindow.frame;
-    if (self.superview) {
-        CGRect superViewVisibleFrame = [self.superview sensorsdata_visibleFrame];
-        visibleFrame = CGRectIntersection(visibleFrame, superViewVisibleFrame);
-    }
-    return visibleFrame;
-}
-
 - (NSString *)sensorsdata_screenName {
     // 解析 ReactNative 元素页面名称
     if ([SAAutoTrackUtils isKindOfRNView:self]) {
@@ -415,6 +395,27 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     }
     return nil;
 }
+
+#pragma mark SAVisualizedExtensionProperty
+- (CGRect)sensorsdata_frame {
+    CGRect showRect = [self convertRect:self.bounds toView:nil];
+    if (self.superview) {
+        // 计算可见区域
+        CGRect visibleFrame = self.superview.sensorsdata_visibleFrame;
+        return CGRectIntersection(showRect, visibleFrame);
+    }
+    return showRect;
+}
+
+- (CGRect)sensorsdata_visibleFrame {
+    CGRect visibleFrame = [UIApplication sharedApplication].keyWindow.frame;
+    if (self.superview) {
+        CGRect superViewVisibleFrame = [self.superview sensorsdata_visibleFrame];
+        visibleFrame = CGRectIntersection(visibleFrame, superViewVisibleFrame);
+    }
+    return visibleFrame;
+}
+
 @end
 
 

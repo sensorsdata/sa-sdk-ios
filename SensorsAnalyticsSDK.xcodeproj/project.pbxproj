@@ -451,12 +451,7 @@
 		880F37D924AC34A4005AC8A0 /* SAEventStoreTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventStoreTests.m; sourceTree = "<group>"; };
 		881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecurityPolicy.m; sourceTree = "<group>"; };
 		881A40D4253D7B4F00854F69 /* NSString+HashCode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+HashCode.m"; sourceTree = "<group>"; };
-		881A40D6253D7B4F00854F69 /* SALogMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALogMessage.h; sourceTree = "<group>"; };
-		881A40DA253D7B4F00854F69 /* SALog.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SALog.h; sourceTree = "<group>"; };
-		881A40E1253D7B4F00854F69 /* SALog.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALog.m; sourceTree = "<group>"; };
-		881A40E2253D7B4F00854F69 /* SAConsoleLogger.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAConsoleLogger.m; sourceTree = "<group>"; };
 		881A40E5253D7B4F00854F69 /* SADeeplinkManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SADeeplinkManager.h; sourceTree = "<group>"; };
-		881A40E6253D7B4F00854F69 /* SANetwork.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetwork.m; sourceTree = "<group>"; };
 		881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsSDK.m; sourceTree = "<group>"; };
 		881A40E8253D7B4F00854F69 /* SATrackTimer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SATrackTimer.m; sourceTree = "<group>"; };
 		881A40E9253D7B4F00854F69 /* SAObject+SAConfigOptions.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "SAObject+SAConfigOptions.m"; sourceTree = "<group>"; };
@@ -839,18 +834,6 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
-		88064A8C25EC838900F2BF71 /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				881A40D6253D7B4F00854F69 /* SALogMessage.h */,
-				881A40DA253D7B4F00854F69 /* SALog.h */,
-				881A40E1253D7B4F00854F69 /* SALog.m */,
-				881A40E2253D7B4F00854F69 /* SAConsoleLogger.m */,
-				881A40E6253D7B4F00854F69 /* SANetwork.m */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		880F37D824AC31A6005AC8A0 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
@@ -1168,7 +1151,6 @@
 				CB6EBAE4228551EC003CFBA8 /* SensorsAnalyticsTests */,
 				CB30BD5522840CA40004061D /* Products */,
 				4D8CE4C522E872B400829B29 /* Frameworks */,
-				88064A8C25EC838900F2BF71 /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};

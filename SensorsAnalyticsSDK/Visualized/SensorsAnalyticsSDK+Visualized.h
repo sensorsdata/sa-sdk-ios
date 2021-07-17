@@ -33,16 +33,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  指定哪些页面开启 可视化全埋点 分析，
- 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viwPath。
+ 如果指定了页面，只有这些页面的 $AppClick 事件会采集控件的 viewPath。
 
  @param controllers 指定的页面的类名数组
  */
 - (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 
 /**
- 当前页面是否开启 可视化全埋点 分析。
+ 某个页面是否开启 可视化全埋点 分析。
 
- @param viewController 当前页面 viewController
+ @param viewController 页面 viewController
  @return YES/NO
  */
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
@@ -58,7 +58,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  指定哪些页面开启 HeatMap，如果指定了页面
- 只有这些页面的 $AppClick 事件会采集控件的 viwPath
+ 只有这些页面的 $AppClick 事件会采集控件的 viewPath
 
  @param controllers 需要开启点击图的 ViewController 的类名
  */

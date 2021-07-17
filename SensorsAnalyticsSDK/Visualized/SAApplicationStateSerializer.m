@@ -80,7 +80,7 @@
         return;
     }
     if (validWindows.count == 1) {
-        UIImage *image = [self screenshotWithView:validWindows.firstObject afterScreenUpdates:NO];
+        UIImage *image = [SAVisualizedUtils screenshotWithView:validWindows.firstObject];
         // 单张图片
         completionHandler(image);
         return;
@@ -92,7 +92,7 @@
     UIImage *screenshotImage = nil;
     UIGraphicsBeginImageContext(newSize);
     for (UIWindow *window in validWindows) {
-        UIImage *image = [self screenshotWithView:window afterScreenUpdates:NO];
+        UIImage *image = [SAVisualizedUtils screenshotWithView:window];
         if (image) {
             CGPoint windowPoint = window.frame.origin;
             [image drawInRect:CGRectMake(windowPoint.x * scale, windowPoint.y * scale, image.size.width * scale, image.size.height * scale)];
@@ -104,27 +104,6 @@
     // 绘制操作完成
     completionHandler(screenshotImage);
 }
-
-// 对 view 截图
-- (UIImage *)screenshotWithView:(UIView *)currentView afterScreenUpdates:(BOOL)afterUpdates {
-    if (!currentView || ![currentView isKindOfClass:UIView.class]) {
-        return nil;
-    }
-    UIImage *screenshotImage = nil;
-    @try {
-        CGSize size = currentView.bounds.size;
-        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
-        CGRect rect = currentView.bounds;
-        //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
-        [currentView drawViewHierarchyInRect:rect afterScreenUpdates:afterUpdates];
-        screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
-        UIGraphicsEndImageContext();
-    } @catch (NSException *exception) {
-        SALogError(@"screenshot fail，error %@: %@", self, exception);
-    }
-    return screenshotImage;
-}
-
 
 - (NSDictionary *)objectHierarchyForRootObject {
     // 从 keyWindow 开始遍历

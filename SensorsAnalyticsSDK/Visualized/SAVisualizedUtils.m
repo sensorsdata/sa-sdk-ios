@@ -343,6 +343,27 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return NO;
 }
 
+#pragma mark Utils
+// 对 view 截图
++ (UIImage *)screenshotWithView:(UIView *)view {
+    if (![view isKindOfClass:UIView.class]) {
+        return nil;
+    }
+    UIImage *screenshotImage = nil;
+    @try {
+        CGSize size = view.bounds.size;
+        UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+        CGRect rect = view.bounds;
+        //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
+        // afterUpdates 参数表示是否在所有效果应用在视图上了以后再获取快照
+        [view drawViewHierarchyInRect:rect afterScreenUpdates:NO];
+        screenshotImage = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+    } @catch (NSException *exception) {
+        SALogError(@"screenshot fail，error %@: %@", self, exception);
+    }
+    return screenshotImage;
+}
 @end
 
 

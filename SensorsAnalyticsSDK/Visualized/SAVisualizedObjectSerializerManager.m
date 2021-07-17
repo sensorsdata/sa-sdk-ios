@@ -42,10 +42,10 @@
 @property (nonatomic, strong, readwrite) SAVisualizedWebPageInfo *webPageInfo;
 
 /// payload 新增内容对应 hash，如果存在，则添加到 image_hash 后缀
-@property (nonatomic, copy, readwrite) NSString *jointPayloadHash;
+@property (nonatomic, copy) NSString *jointPayloadHash;
 
-/// 上次截图 hash
-@property (nonatomic, copy, readwrite) NSString *lastImageHash;
+/// 上次数据包标识 hash
+@property (nonatomic, copy, readwrite) NSString *lastPayloadHash;
 
 /// 记录当前栈中的 controller，不会持有
 @property (nonatomic, strong) NSPointerArray *controllersStack;
@@ -101,35 +101,12 @@
     [self.alertInfos removeAllObjects];
 }
 
+#pragma mark WebInfo
 - (void)cleanVisualizedWebPageInfoCache {
     [self.webPageInfoCache removeAllObjects];
 
     self.jointPayloadHash = nil;
-    self.lastImageHash = nil;
-}
-
-/// 刷新截图 imageHash 信息
-- (void)refreshPayloadHashWithData:(id)obj {
-    /*
-     App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
-     等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
-     所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面数据 hash 值，使得前端重新加载页面信息
-     */
-    if (!obj) {
-        return;
-    }
-    
-    NSData *jsonData = nil;
-    @try {
-        jsonData = [SAJSONUtil JSONSerializeObject:obj];
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-
-    if (jsonData) {
-        // 计算 hash
-        self.jointPayloadHash = [SACommonUtility hashStringWithData:jsonData];
-    }
+    self.lastPayloadHash = nil;
 }
 
 /// 缓存可视化全埋点相关 web 信息
@@ -230,6 +207,32 @@
     }
 }
 
+- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
+    if (infos.count == 0) {
+        return;
+    }
+    // 通过 Dictionary 构造所有不同 message 的弹框集合
+    NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
+    for (NSDictionary *alertInfo in self.alertInfos) {
+        NSString *message = alertInfo[@"message"];
+        if (message) {
+            alertMessageInfoDic[message] = alertInfo;
+        }
+    }
+
+    // 只添加 message 不重复的弹框信息
+    for (NSDictionary *alertInfo in infos) {
+        NSString *message = alertInfo[@"message"];
+        if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
+            [self.alertInfos addObject:alertInfo];
+        }
+    }
+
+    // 强制刷新数据
+    [self refreshPayloadHashWithData:infos];
+}
+
+#pragma mark viewScreenController
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
     [self removeAllNullInControllersStack];
@@ -267,33 +270,45 @@
     [self.controllersStack compact];
 }
 
-- (void)resetLastImageHash:(NSString *)imageHash {
-    self.lastImageHash = imageHash;
-    self.jointPayloadHash = nil;
+#pragma mark payloadHash
+/// 根据截图 hash 获取完整 PayloadHash
+- (NSString *)fetchPayloadHashWithImageHash:(NSString *)imageHash {
+    if (self.jointPayloadHash.length == 0) {
+        return imageHash;
+    }
+    if (imageHash.length == 0) {
+        return self.jointPayloadHash;
+    }
+    return [imageHash stringByAppendingString:self.jointPayloadHash];
 }
 
-- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
-    if (infos.count == 0) {
+- (void)resetLastPayloadHash:(NSString *)payloadHash {
+    self.jointPayloadHash = nil;
+    self.lastPayloadHash = payloadHash;
+}
+
+/// 刷新截图 imageHash 信息
+- (void)refreshPayloadHashWithData:(id)obj {
+    /*
+     App 内嵌 H5 的可视化全埋点，可能页面加载完成，但是未及时接收到 Html 页面信息。
+     等接收到 JS SDK 发送的页面信息，由于页面截图不变，前端页面未重新加载解析 viewTree 信息，导致无法圈选。
+     所以，接收到 JS 的页面信息，在原有 imageHash 基础上拼接 html 页面数据 hash 值，使得前端重新加载页面信息
+     */
+    if (!obj) {
         return;
     }
-    // 通过 Dictionary 构造所有不同 message 的弹框集合
-    NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
-    for (NSDictionary *alertInfo in self.alertInfos) {
-        NSString *message = alertInfo[@"message"];
-        if (message) {
-            alertMessageInfoDic[message] = alertInfo;
-        }
+
+    NSData *jsonData = nil;
+    @try {
+        jsonData = [SAJSONUtil JSONSerializeObject:obj];
+    } @catch (NSException *exception) {
+        SALogError(@"%@: %@", self, exception);
     }
 
-    // 只添加 message 不重复的弹框信息
-    for (NSDictionary *alertInfo in infos) {
-        NSString *message = alertInfo[@"message"];
-        if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
-            [self.alertInfos addObject:alertInfo];
-        }
+    if (jsonData) {
+        // 计算 hash
+        self.jointPayloadHash = [SACommonUtility hashStringWithData:jsonData];
     }
-
-    // 强制刷新数据
-    [self refreshPayloadHashWithData:infos];
 }
+
 @end

@@ -49,11 +49,8 @@
 /// 获取最后一次页面浏览所在的 controller
 @property (nonatomic, strong, readonly) UIViewController *lastViewScreenController;
 
-/// payload 新增内容对应 hash，如果存在，则添加到 image_hash 后缀
-@property (nonatomic, copy, readonly) NSString *jointPayloadHash;
-
-/// 上次截图 hash
-@property (nonatomic, copy, readonly) NSString *lastImageHash;
+/// 上次完整数据包的 hash 标识（默认为截图 hash，可能包含 H5 页面元素信息、event_debug、log_info 等）
+@property (nonatomic, copy, readonly) NSString *lastPayloadHash;
 
 /// 当前 App 内嵌 H5 页面信息
 @property (nonatomic, strong, readonly) SAVisualizedWebPageInfo *webPageInfo;
@@ -74,6 +71,7 @@
 /// 重置解析配置
 - (void)resetObjectSerializer;
 
+#pragma mark webInfo
 /// 清除 web 页面信息缓存
 - (void)cleanVisualizedWebPageInfoCache;
 
@@ -86,16 +84,21 @@
 /// 进入 web 页面
 - (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo;
 
+/// 添加 web 弹框
+- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos;
+
+#pragma mark viewController
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController;
 
-/// 重置最后截图 hash
-- (void)resetLastImageHash:(NSString *)imageHash;
+#pragma mark payloadHash
+/// 根据截图 hash 获取完整 payloadHash
+- (NSString *)fetchPayloadHashWithImageHash:(NSString *)imageHash;
 
-/// 添加弹框
-- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos;
+/// 重置最后 payloadHash
+- (void)resetLastPayloadHash:(NSString *)payloadHash;
 
-/// 更新 payload hash
+/// 更新 payloadHash
 - (void)refreshPayloadHashWithData:(id)obj;
 
 @end

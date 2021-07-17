@@ -52,6 +52,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否忽略子元素遍历
 /// @param view 当前视图
 + (BOOL)isIgnoreSubviewsWithView:(UIView *)view;
+
+
+/// view 截图
+/// @param view 需要截图的 view
++ (UIImage *)screenshotWithView:(UIView *)view;
 @end
 
 #pragma mark -
