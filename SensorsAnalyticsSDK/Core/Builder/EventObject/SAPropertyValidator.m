@@ -66,7 +66,8 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 @implementation NSDate (SAProperty)
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
-    return self;
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:kSAEventDateFormatter];
+    return [dateFormatter stringFromDate:self];
 }
 
 @end

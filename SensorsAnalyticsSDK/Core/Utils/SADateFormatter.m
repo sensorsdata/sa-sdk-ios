@@ -24,6 +24,8 @@
 
 #import "SADateFormatter.h"
 
+NSString * const kSAEventDateFormatter = @"yyyy-MM-dd HH:mm:ss.SSS";
+
 @implementation SADateFormatter
 
 + (NSDateFormatter *)dateFormatterFromString:(NSString *)string {

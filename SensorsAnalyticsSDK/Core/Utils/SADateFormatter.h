@@ -26,6 +26,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+extern NSString * const kSAEventDateFormatter;
+
 @interface SADateFormatter : NSObject
 
 /**

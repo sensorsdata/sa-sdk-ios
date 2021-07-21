@@ -102,7 +102,7 @@
     }
     // some common cases
     if ([newObj isKindOfClass:[NSDate class]]) {
-        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss.SSS"];
+        NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:kSAEventDateFormatter];
         return [dateFormatter stringFromDate:newObj];
     }
     if ([newObj isKindOfClass:[NSNull class]]) {

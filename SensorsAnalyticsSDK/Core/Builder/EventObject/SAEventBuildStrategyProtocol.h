@@ -52,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param duration 事件时长
 - (void)addDurationProperty:(NSNumber *)duration;
 
+/// 修正 $device_id
+/// @param deviceID device id
+- (void)correctDeviceID:(NSString *)deviceID;
+
 @end
 
 NS_ASSUME_NONNULL_END
