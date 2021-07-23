@@ -40,6 +40,10 @@
 }
 
 + (void)proxyDelegate:(id)delegate selectors:(NSSet<NSString *> *)selectors {
+    if (object_isClass(delegate)) {
+        return;
+    }
+
     if (selectors.count < 1) {
         return;
     }
@@ -157,6 +161,10 @@
 }
 
 + (void)resolveOptionalSelectorsForDelegate:(id)delegate {
+    if (object_isClass(delegate)) {
+        return;
+    }
+
     NSSet *currentOptionalSelectors = ((NSObject *)delegate).sensorsdata_optionalSelectors;
     NSMutableSet *optionalSelectors = [[NSMutableSet alloc] init];
     if (currentOptionalSelectors) {
