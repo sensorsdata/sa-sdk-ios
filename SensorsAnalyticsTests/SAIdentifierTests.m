@@ -117,7 +117,7 @@
 
 - (void)testResetAnonymousId {
     [_identifier resetAnonymousId];
-    XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier uniqueHardwareId]]);
+    XCTAssertTrue([_identifier.anonymousId isEqualToString:[SAIdentifier hardwareID]]);
 }
 
 - (void)testLogout {

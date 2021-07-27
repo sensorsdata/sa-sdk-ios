@@ -54,10 +54,9 @@ static long recordIndex = 0;
     if (self = [super init]) {
         _recordID = recordID;
 
-        NSData *jsonData = [content dataUsingEncoding:NSUTF8StringEncoding];
-        if (jsonData) {
-            _event = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-
+        NSMutableDictionary *eventDic = [SAJSONUtil JSONObjectWithString:content options:NSJSONReadingMutableContainers];
+        if (eventDic) {
+            _event = eventDic;
             _encrypted = _event[SAEncryptRecordKeyEKey] != nil;
         }
     }
@@ -65,8 +64,7 @@ static long recordIndex = 0;
 }
 
 - (NSString *)content {
-    NSData *data = [SAJSONUtil JSONSerializeObject:self.event];
-    return [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
+    return [SAJSONUtil stringWithJSONObject:self.event];
 }
 
 - (BOOL)isValid {

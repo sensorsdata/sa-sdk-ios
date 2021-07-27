@@ -1,9 +1,9 @@
 //
-// SAChannelMatchManager.h
+// SAExceptionManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2020/8/29.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 张敏超🍎 on 2021/6/4.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,24 +18,14 @@
 // limitations under the License.
 //
 
-#import "SAConfigOptions.h"
+#import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAChannelMatchManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAChannelMatchModuleProtocol>
+@interface SAExceptionManager : NSObject <SAPropertyModuleProtocol>
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @param event  event 的名称
- * @param properties     event 的属性
- * @param disableCallback     是否关闭这次渠道匹配的回调请求
-*/
-- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
 @end
 

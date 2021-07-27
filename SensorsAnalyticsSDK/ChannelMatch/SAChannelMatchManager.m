@@ -30,20 +30,38 @@
 #import "SAAlertController.h"
 #import "SAURLUtils.h"
 #import "SAReachability.h"
-#import "SACommonUtility.h"
 #import "SALog.h"
+#import "SAFileStore.h"
+#import "SAJSONUtil.h"
 
-NSString * const SAIsValidForChannelDebugKey = @"com.sensorsdata.channeldebug.flag";
-NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
+NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
+NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
+NSString * const kSAEventPropertyChannelDeviceInfo = @"$channel_device_info";
+NSString * const kSAEventPropertyUserAgent = @"$user_agent";
+NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_event";
 
 @interface SAChannelMatchManager ()
 
 @property (nonatomic, strong) UIWindow *window;
 @property (nonatomic, strong) UIActivityIndicatorView *indicator;
+@property (nonatomic, strong) NSMutableSet<NSString *> *trackChannelEventNames;
 
 @end
 
 @implementation SAChannelMatchManager
+
+#pragma mark -
+
+- (NSMutableSet<NSString *> *)trackChannelEventNames {
+    if (!_trackChannelEventNames) {
+        _trackChannelEventNames = [[NSMutableSet alloc] init];
+        NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:kSAEventPropertyChannelDeviceInfo];
+        if (trackChannelEvents) {
+            [_trackChannelEventNames unionSet:trackChannelEvents];
+        }
+    }
+    return _trackChannelEventNames;
+}
 
 #pragma mark - indicator view
 - (void)showIndicator {
@@ -95,7 +113,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         // 当未触发过激活事件时，可以使用联调诊断功能
         return YES;
     }
-    return [[NSUserDefaults standardUserDefaults] boolForKey:SAIsValidForChannelDebugKey];
+    return [[NSUserDefaults standardUserDefaults] boolForKey:kSAChannelDebugFlagKey];
 }
 
 /// 当前获取到的设备 ID 为有效值
@@ -114,7 +132,7 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     }
 
     // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-    [userDefault setBool:[self isValidOfDeviceInfo] forKey:SAIsValidForChannelDebugKey];
+    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
     [userDefault setBool:YES forKey:userDefaultsKey];
@@ -131,15 +149,15 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 }
 
 - (void)trackChannelDebugInstallEvent {
-    [self handleAppInstallEvent:SAChannelDebugInstallEventName properties:nil];
+    [self handleAppInstallEvent:kSAChannelDebugInstallEventName properties:nil];
 }
 
 - (void)handleAppInstallEvent:(NSString *)event properties:(NSDictionary *)properties {
     NSMutableDictionary *eventProps = [NSMutableDictionary dictionaryWithDictionary:properties];
     eventProps[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
 
-    if ([eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] length] == 0) {
-        eventProps[SA_EVENT_PROPERTY_APP_USER_AGENT] = [SACommonUtility simulateUserAgent];
+    if ([eventProps[kSAEventPropertyUserAgent] length] == 0) {
+        eventProps[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
     [self trackAppInstallEvent:event properties:eventProps];
 }
@@ -183,6 +201,57 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
         [sdk setOnce:profileProps];
     }
     [sdk flush];
+}
+
+#pragma mark - 附加渠道信息
+- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(nullable NSDictionary *)propertyDict {
+    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+        return [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:propertyDict];
+    }
+    NSMutableDictionary *properties = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
+    // ua
+    if ([propertyDict[kSAEventPropertyUserAgent] length] == 0) {
+        properties[kSAEventPropertyUserAgent] = [self simulateUserAgent];
+    }
+    // idfa
+    NSString *idfa = [SAIdentifier idfa];
+    if (idfa) {
+        [properties setValue:[NSString stringWithFormat:@"idfa=%@", idfa] forKey:kSAEventPropertyChannelDeviceInfo];
+    } else {
+        [properties setValue:@"" forKey:kSAEventPropertyChannelDeviceInfo];
+    }
+    // callback
+    [properties addEntriesFromDictionary:[self channelPropertiesWithEvent:obj.event]];
+
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:properties];
+}
+
+- (NSDictionary *)channelPropertiesWithEvent:(NSString *)event {
+    BOOL isNotContains = ![self.trackChannelEventNames containsObject:event];
+    if (isNotContains && event) {
+        [self.trackChannelEventNames addObject:event];
+        [self archiveTrackChannelEventNames];
+    }
+    return @{kSAEventPropertyChannelCallbackEvent : @(isNotContains)};
+}
+
+- (void)archiveTrackChannelEventNames {
+    [SAFileStore archiveWithFileName:kSAEventPropertyChannelDeviceInfo value:self.trackChannelEventNames];
+}
+
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event {
+    if (self.configOptions.enableAutoAddChannelCallbackEvent) {
+        NSMutableDictionary *channelInfo = [NSMutableDictionary dictionaryWithDictionary:[self channelPropertiesWithEvent:event]];
+        channelInfo[kSAEventPropertyChannelDeviceInfo] = @"1";
+        return channelInfo;
+    }
+    return nil;
+}
+
+- (NSString *)simulateUserAgent {
+    NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
+    NSString *model = UIDevice.currentDevice.model;
+    return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
 }
 
 #pragma mark - handle URL
@@ -279,13 +348,13 @@ NSString * const SAChannelDebugInstallEventName = @"$ChannelDebugInstall";
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstalled]);
     params[@"device_code"] = [self appInstallSource];
-    request.HTTPBody = [NSJSONSerialization dataWithJSONObject:params options:NSJSONWritingPrettyPrinted error:nil];
+    request.HTTPBody = [SAJSONUtil dataWithJSONObject:params];
 
     [self showIndicator];
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSDictionary *dict;
         if (data) {
-            dict = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            dict = [SAJSONUtil JSONObjectWithData:data];
         }
         NSInteger code = [dict[@"code"] integerValue];
         dispatch_async(dispatch_get_main_queue(), ^{

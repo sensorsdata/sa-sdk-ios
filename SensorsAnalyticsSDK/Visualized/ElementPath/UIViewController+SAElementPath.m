@@ -89,18 +89,14 @@
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated {
     [self sensorsdata_visualize_viewDidAppear:animated];
 
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
-    UIViewController *viewController = (UIViewController *)self;
-    if (!viewController.parentViewController ||
-        [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
-        [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
-        [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
-        [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
+    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
+        !self.parentViewController ||
+        [self.parentViewController isKindOfClass:[UITabBarController class]] ||
+        [self.parentViewController isKindOfClass:[UINavigationController class]] ||
+        [self.parentViewController isKindOfClass:[UIPageViewController class]] ||
+        [self.parentViewController isKindOfClass:[UISplitViewController class]]) {
         [self sensorsdata_readyEnterViewController];
     }
-#else
-    [self sensorsdata_readyEnterViewController];
-#endif
 
     // 跳转进入 RN 自定义页面，需更新节点的页面名称
     if ([SAVisualizedUtils isRNCustomViewController:self]) {
@@ -162,15 +158,11 @@
             if (self.isViewLoaded && self.tabBar.sensorsdata_isVisible) {
                 [subElements addObject:self.tabBar];
             }
-        }
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
+        } else if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
             if (self.selectedViewController) {
                 [subElements addObject:self.selectedViewController];
             }
-        }
-#endif
-        else if (view.sensorsdata_isVisible) {
+        } else if (view.sensorsdata_isVisible) {
             [subElements addObject:view];
         }
     }
@@ -202,16 +194,11 @@
             if (self.isViewLoaded && self.navigationBar.sensorsdata_isVisible) {
                 [subElements addObject:self.navigationBar];
             }
-        }
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
+        } else if ([NSStringFromClass(view.class) isEqualToString:@"UINavigationTransitionView"]) {
             if (self.topViewController) {
                 [subElements addObject:self.topViewController];
             }
-        }
-#endif
-
-        else if (view.sensorsdata_isVisible) {
+        } else if (view.sensorsdata_isVisible) {
             [subElements addObject:view];
         }
     }
@@ -237,16 +224,13 @@
             - Others
      */
     for (UIView *view in self.view.subviews) {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
         if ([NSStringFromClass(view.class) isEqualToString:@"_UIQueuingScrollView"]) {
             if (self.viewControllers.count > 0) {
                 [subElements addObjectsFromArray:self.viewControllers];
             }
-        } else
-#endif
-            if (view.sensorsdata_isVisible) {
-                [subElements addObject:view];
-            }
+        } else if (view.sensorsdata_isVisible) {
+            [subElements addObject:view];
+        }
     }
     return subElements;
 }

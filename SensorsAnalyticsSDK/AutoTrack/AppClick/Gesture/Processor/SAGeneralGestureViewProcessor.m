@@ -26,6 +26,7 @@
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
+#import "SAJSONUtil.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {
     NSMutableArray *subViews = [NSMutableArray array];
@@ -80,7 +81,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         if (jsonData) {
-            info = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+            info = [SAJSONUtil JSONObjectWithData:jsonData];
         }
     });
     if (![info isKindOfClass:NSDictionary.class]) {

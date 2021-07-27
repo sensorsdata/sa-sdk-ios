@@ -1,5 +1,5 @@
 //
-// SAConfigOptions+Private.h
+// SAConfigOptions+Encrypt.h
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2021/4/16.
@@ -18,10 +18,11 @@
 // limitations under the License.
 //
 
-#import "SAEncryptProtocol.h"
 #import "SAConfigOptions.h"
+#import "SAEncryptProtocol.h"
+#import "SASecretKey.h"
 
-@interface SAConfigOptions (Private)
+@interface SAConfigOptions (Encrypt)
 
 @property (nonatomic, copy, readonly) NSArray *encryptors;
 
@@ -32,9 +33,9 @@
 @interface SASecretKey (Private)
 
 /// 对称加密类型
-@property(nonatomic, copy) NSString *symmetricEncryptType;
+@property (nonatomic, copy) NSString *symmetricEncryptType;
 
 /// 非对称加密类型
-@property(nonatomic, copy) NSString *asymmetricEncryptType;
+@property (nonatomic, copy) NSString *asymmetricEncryptType;
 
 @end

@@ -23,10 +23,7 @@
 #endif
 
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SARSAPluginEncryptor.h"
-#import "SAECCPluginEncryptor.h"
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -42,8 +39,8 @@
     if (self) {
         _serverURL = serverURL;
         _launchOptions = launchOptions;
-
         _autoTrackEventType = SensorsAnalyticsEventTypeNone;
+        
         _flushInterval = 15 * 1000;
         _flushBulkSize = 100;
         _maxCacheSize = 10000;
@@ -52,6 +49,10 @@
         _maxRequestHourInterval = 48;
 
         _flushBeforeEnterBackground = YES;
+
+#ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
+        _enableAutoTrackChildViewScreen = YES;
+#endif
     }
     return self;
 }
@@ -61,39 +62,43 @@
     SAConfigOptions *options = [[[self class] allocWithZone:zone] init];
     options.serverURL = self.serverURL;
     options.launchOptions = self.launchOptions;
-
-    options.autoTrackEventType = self.autoTrackEventType;
     options.enableJavaScriptBridge = self.enableJavaScriptBridge;
-    options.enableTrackAppCrash = self.enableTrackAppCrash;
     options.flushInterval = self.flushInterval;
     options.flushBulkSize = self.flushBulkSize;
     options.maxCacheSize = self.maxCacheSize;
-    options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
-    options.sourceChannels = self.sourceChannels;
-    options.remoteConfigURL = self.remoteConfigURL;
+    options.enableLog = self.enableLog;
+    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
 
-    options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
-    
+#if TARGET_OS_IOS
+    // 支持 https 自签证书
+    options.securityPolicy = [self.securityPolicy copy];
+
+    // 远程控制
     options.minRequestHourInterval = self.minRequestHourInterval;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
-    options.enableLog = self.enableLog;
-    options.enableHeatMap = self.enableHeatMap;
-    options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
-    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
-
-    options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
-    options.securityPolicy = [self.securityPolicy copy];
-    
+    options.remoteConfigURL = self.remoteConfigURL;
+    options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
+    // 加密
+    options.encryptors = self.encryptors;
     options.enableEncrypt = self.enableEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
-    
-    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
-
+    // 全埋点
+    options.autoTrackEventType = self.autoTrackEventType;
+    options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
     options.enableReferrerTitle = self.enableReferrerTitle;
+    options.enableHeatMap = self.enableHeatMap;
+    options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
+    // Crash 采集
+    options.enableTrackAppCrash = self.enableTrackAppCrash;
+    // 渠道相关
+    options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
+    options.sourceChannels = self.sourceChannels;
+    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
+    options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+    // 推送点击
     options.enableTrackPush = self.enableTrackPush;
-
-    options.encryptors = self.encryptors;
+#endif
     
     return options;
 }
@@ -124,74 +129,7 @@
     }
 }
 
-- (void)setEnableEncrypt:(BOOL)enableEncrypt {
-    _enableEncrypt = enableEncrypt;
-    if (enableEncrypt) {
-        [self registerEncryptor:[[SAECCPluginEncryptor alloc] init]];
-        [self registerEncryptor:[[SARSAPluginEncryptor alloc] init]];
-    }
-}
-
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor {
-    if (![self isValidEncryptor:encryptor]) {
-        NSString *format = @"\n 您使用了自定义加密插件 [ %@ ]，但是并没有实现加密协议相关方法。请正确实现自定义加密插件相关功能后再运行项目。\n";
-        NSString *message = [NSString stringWithFormat:format, NSStringFromClass(encryptor.class)];
-        NSAssert(NO, message);
-        return;
-    }
-    if (!self.encryptors) {
-        self.encryptors = [[NSMutableArray alloc] init];
-    }
-    [self.encryptors addObject:encryptor];
-}
-
-- (BOOL)isValidEncryptor:(id<SAEncryptProtocol>)encryptor {
-    if (![encryptor respondsToSelector:@selector(symmetricEncryptType)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(asymmetricEncryptType)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptEvent:)]) {
-        return NO;
-    }
-    if (![encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]) {
-        return NO;
-    }
-    return YES;
-}
-
 @end
 
-@interface SASecretKey ()
 
-/// 对称加密类型
-@property(nonatomic, copy, readwrite) NSString *symmetricEncryptType;
-
-/// 非对称加密类型
-@property(nonatomic, copy, readwrite) NSString *asymmetricEncryptType;
-
-@end
-
-@implementation SASecretKey
-
-- (void)encodeWithCoder:(NSCoder *)coder {
-    [coder encodeInteger:self.version forKey:@"version"];
-    [coder encodeObject:self.key forKey:@"key"];
-    [coder encodeObject:self.symmetricEncryptType forKey:@"symmetricEncryptType"];
-    [coder encodeObject:self.asymmetricEncryptType forKey:@"asymmetricEncryptType"];
-}
-
-- (instancetype)initWithCoder:(NSCoder *)coder {
-    self = [super init];
-    if (self) {
-        self.version = [coder decodeIntegerForKey:@"version"];
-        self.key = [coder decodeObjectForKey:@"key"];
-        self.symmetricEncryptType = [coder decodeObjectForKey:@"symmetricEncryptType"];
-        self.asymmetricEncryptType = [coder decodeObjectForKey:@"asymmetricEncryptType"];
-    }
-    return self;
-}
-
-@end
 

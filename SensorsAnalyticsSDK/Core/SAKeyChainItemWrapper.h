@@ -23,6 +23,7 @@
 extern  NSString * const kSAService;
 extern  NSString * const kSAUdidAccount;
 
+NS_CLASS_AVAILABLE_IOS(8_0)
 @interface SAKeyChainItemWrapper : NSObject
 
 + (NSString *)saUdid;

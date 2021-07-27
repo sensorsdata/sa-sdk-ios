@@ -1,8 +1,8 @@
 //
-// SABaseEventObject+RemoteConfig.h
+// SASecretKey.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/6/7.
+// Created by wenquan on 2021/6/26.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,14 +18,18 @@
 // limitations under the License.
 //
 
-#import "SABaseEventObject.h"
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SABaseEventObject (RemoteConfig)
+/// 密钥信息
+@interface SASecretKey : NSObject <NSCoding>
 
-/// 是否被远程配置忽略
-@property (nonatomic, assign, readonly, getter=isIgnoredByRemoteConfig) BOOL ignoredByRemoteConfig;
+/// 密钥版本
+@property (nonatomic, assign) NSInteger version;
+
+/// 密钥值
+@property (nonatomic, copy) NSString *key;
 
 @end
 

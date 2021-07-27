@@ -18,9 +18,14 @@
 //  limitations under the License.
 //
 
+#import <Foundation/Foundation.h>
+
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
+
 
 typedef NS_ENUM(NSUInteger, SAAlertActionStyle) {
     SAAlertActionStyleDefault,
@@ -45,16 +50,17 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 
 @end
 
+#if TARGET_OS_IOS
 /**
  神策弹框的 SAAlertController，添加到黑名单。
  防止 $AppViewScreen 事件误采
- 当系统版本低于8.0时，会使用 UIAlertView 或者 UIActionSheet，此时最多支持 4 个其他按钮
+ 内部使用 UIAlertController 实现
  */
 @interface SAAlertController : UIViewController
 
 
 /**
- SAAlertController 初始化
+ SAAlertController 初始化，⚠️ 注意 ActionSheet 样式不支持 iPad❗️❗️❗️
 
  @param title 标题
  @param message 提示信息
@@ -80,5 +86,7 @@ typedef NS_ENUM(NSUInteger, SAAlertControllerStyle) {
 - (void)show;
 
 @end
+
+#endif
 
 NS_ASSUME_NONNULL_END

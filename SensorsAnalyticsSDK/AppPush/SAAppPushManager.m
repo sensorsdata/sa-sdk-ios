@@ -27,6 +27,7 @@
 #import "SASwizzle.h"
 #import "SALog.h"
 #import "UIApplication+PushClick.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import "SAUNUserNotificationCenterDelegateProxy.h"
@@ -41,8 +42,10 @@
     }
 }
 
-- (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    [UIApplication sharedApplication].sensorsdata_launchOptions = launchOptions;
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+
+    [UIApplication sharedApplication].sensorsdata_launchOptions = configOptions.launchOptions;
 }
 
 - (void)proxyNotifications {

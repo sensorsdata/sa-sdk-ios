@@ -179,7 +179,7 @@ static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://track
         if (propertyDict) {
             [properties addEntriesFromDictionary:propertyDict];
         }
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:properties];
+        NSData *jsonData = [SAJSONUtil dataWithJSONObject:properties];
         NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
 
         NSString *js = [NSString stringWithFormat:@"sensorsdata_app_js_bridge_call_js('%@')", jsonString];

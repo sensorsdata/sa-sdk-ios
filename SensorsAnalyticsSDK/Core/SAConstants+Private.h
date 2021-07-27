@@ -63,13 +63,9 @@ extern NSString * const kSAEventNameAppCrashed;
 
 extern NSString * const kSAEventNameAppRemoteConfigChanged;
 
-// 激活事件
-extern NSString * const kSAEventNameAppInstall;
-
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
-extern NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT;
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
 
 #pragma mark--autoTrack property
@@ -85,9 +81,6 @@ extern NSString * const kSAEventPropertyElementSelector;
 extern NSString * const kSAEventPropertyElementPath;
 extern NSString * const kSAEventPropertyElementContent;
 extern NSString * const kSAEventPropertyElementType;
-extern NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO;
-extern NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT;
-
 extern NSString * const kSAEeventPropertyReferrerTitle;
 
 // 远程控制配置信息
@@ -130,9 +123,6 @@ NSSet* sensorsdata_reserved_properties(void);
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
-
-#pragma mark - Scheme Host
-extern NSString * const kSASchemeHostRemoteConfig;
 
 #pragma mark - SF related notifications
 extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;

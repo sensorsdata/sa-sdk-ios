@@ -24,7 +24,7 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
+#import "SAConfigOptions+Encrypt.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
 #import "SAECCEncryptor.h"
@@ -41,7 +41,7 @@
     if ([SAValidator isValidString:customContent]) {
         // 当自定义插件秘钥字段存在时，不再使用其他加密插件
         // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-        NSDictionary *config = [SAJSONUtil objectFromJSONString:customContent];
+        NSDictionary *config = [SAJSONUtil JSONObjectWithString:customContent];
         SASecretKey *secretKey = [self createCustomSecretKey:config];
         return secretKey;
     }
@@ -50,7 +50,7 @@
     if (eccContent && NSClassFromString(kSAEncryptECCClassName)) {
         // 当 key_ec 存在且加密库存在时，使用 ECC 加密插件
         // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-        NSDictionary *config = [SAJSONUtil objectFromJSONString:eccContent];
+        NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
         SASecretKey *secretKey = [self createECCSecretKey:config];
         return secretKey;
     }

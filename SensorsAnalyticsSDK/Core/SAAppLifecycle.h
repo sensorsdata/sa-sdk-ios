@@ -18,7 +18,6 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -45,9 +44,7 @@ extern NSString * const kSAAppLifecycleNewStateKey;
 /// 在状态改变通知回调中，获取之前的状态
 extern NSString * const kSAAppLifecycleOldStateKey;
 
-@interface SAAppLifecycle : NSObject <SAModuleProtocol>
-
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
+@interface SAAppLifecycle : NSObject
 
 @property (nonatomic, assign, readonly) SAAppLifecycleState state;
 

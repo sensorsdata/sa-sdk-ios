@@ -57,8 +57,13 @@
 }
 
 - (BOOL)enableEncrypt {
+#if TARGET_OS_IOS
     return [SensorsAnalyticsSDK sdkInstance].configOptions.enableEncrypt;
+#else
+    return NO;
+#endif
 }
+
 
 - (NSString *)cookie {
     return [[SensorsAnalyticsSDK sdkInstance].network cookieWithDecoded:NO];

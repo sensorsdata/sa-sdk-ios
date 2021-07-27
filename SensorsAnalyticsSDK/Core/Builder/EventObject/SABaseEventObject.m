@@ -37,6 +37,8 @@
         _trackId = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
+        
+        _ignoreRemoteConfig = NO;
     }
     return self;
 }

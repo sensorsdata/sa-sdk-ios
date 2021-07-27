@@ -25,10 +25,8 @@
 #import "SACommonUtility.h" 
 #import "SAValidator.h"
 #import <CommonCrypto/CommonDigest.h>
-#import <UIKit/UIDevice.h>
 
 @implementation SACommonUtility
-
 
 ///按字节截取指定长度字符，包括汉字
 + (NSString *)subByteString:(NSString *)string byteLength:(NSInteger )length {
@@ -61,12 +59,6 @@
     } else {
         dispatch_sync(dispatch_get_main_queue(), block);
     }
-}
-
-+ (NSString *)simulateUserAgent {
-    NSString *version = [UIDevice.currentDevice.systemVersion stringByReplacingOccurrencesOfString:@"." withString:@"_"];
-    NSString *model = UIDevice.currentDevice.model;
-    return [NSString stringWithFormat:@"Mozilla/5.0 (%@; CPU OS %@ like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile", model, version];
 }
 
 + (NSString *)currentUserAgent {

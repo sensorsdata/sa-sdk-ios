@@ -1,29 +1,34 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "2.6.11"
+  s.version      = "3.0.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
-  s.platform = :ios, "8.0"
+  s.ios.deployment_target = '8.0'
+  s.osx.deployment_target = '10.10'
   s.default_subspec = 'Core'
-  s.frameworks = 'UIKit', 'Foundation', 'SystemConfiguration', 'CoreTelephony', 'CoreGraphics', 'QuartzCore'
+  s.frameworks = 'Foundation', 'SystemConfiguration', 'CoreTelephony'
   s.libraries = 'icucore', 'sqlite3', 'z'
 
   s.subspec 'Common' do |c|
     core_dir = "SensorsAnalyticsSDK/Core/"
     c.source_files = core_dir + "**/*.{h,m}"
-    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h" 
-    c.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+    c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
+    c.ios.source_files = "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/ChannelMatch/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
+    c.ios.public_header_files = "SensorsAnalyticsSDK/Encrypt/SASecretKey.h", "SensorsAnalyticsSDK/ChannelMatch/SensorsAnalyticsSDK+SAChannelMatch.h"
+    c.ios.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
   end
   
   s.subspec 'Core' do |c|
-    c.dependency 'SensorsAnalyticsSDK/Visualized'
+    c.ios.dependency 'SensorsAnalyticsSDK/Visualized'
+    c.osx.dependency 'SensorsAnalyticsSDK/Common'
   end
 
   # 支持 CAID 渠道匹配
   s.subspec 'CAID' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
@@ -31,13 +36,16 @@ Pod::Spec.new do |s|
 
   # 全埋点
   s.subspec 'AutoTrack' do |g|
+    g.ios.deployment_target = '8.0'
     g.dependency 'SensorsAnalyticsSDK/Common'
     g.source_files = "SensorsAnalyticsSDK/AutoTrack/**/*.{h,m}"
     g.public_header_files = 'SensorsAnalyticsSDK/AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h'
+    g.frameworks = 'UIKit'
   end
 
 # 可视化相关功能，包含可视化全埋点和点击图
   s.subspec 'Visualized' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/AutoTrack'
     f.source_files = "SensorsAnalyticsSDK/Visualized/**/*.{h,m}"
     f.public_header_files = 'SensorsAnalyticsSDK/Visualized/SensorsAnalyticsSDK+Visualized.h'
@@ -45,15 +53,16 @@ Pod::Spec.new do |s|
 
   # 开启 GPS 定位采集
   s.subspec 'Location' do |f|
+    f.ios.deployment_target = '8.0'
     f.frameworks = 'CoreLocation'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/Location/**/*.h'
-#    f.exclude_files = "SensorsAnalyticsSDK/Location/**/*.{h,m}"
   end
 
   # 开启设备方向采集
   s.subspec 'DeviceOrientation' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.{h,m}'
     f.private_header_files = 'SensorsAnalyticsSDK/DeviceOrientation/**/*.h'
@@ -62,59 +71,34 @@ Pod::Spec.new do |s|
 
   # 推送点击
   s.subspec 'AppPush' do |f|
+    f.ios.deployment_target = '8.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
     f.source_files = "SensorsAnalyticsSDK/AppPush/**/*.{h,m}"
     f.private_header_files = 'SensorsAnalyticsSDK/AppPush/**/*.h'
   end
 
-  # 使用 UIWebView 或者 WKWebView 进行打通
+  # 使用崩溃事件采集
+  s.subspec 'Exception' do |e|
+    e.ios.deployment_target = '8.0'
+    e.dependency 'SensorsAnalyticsSDK/Common'
+    e.source_files  =  "SensorsAnalyticsSDK/Exception/**/*.{h,m}"
+    e.private_header_files = 'SensorsAnalyticsSDK/Exception/**/*.h'
+  end
+
+  # 基于 UA，使用 UIWebView 或者 WKWebView 进行打通
   s.subspec 'WebView' do |w|
+    w.ios.deployment_target = '8.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WebView/SensorsAnalyticsSDK+WebView.h'
   end
 
-  # 使用 WKWebView 进行打通
+  # 基于 UA，使用 WKWebView 进行打通
   s.subspec 'WKWebView' do |w|
+    w.ios.deployment_target = '8.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
   end
-
-  # 采集 crash slideAdress 信息，需要打开 enableTrackAppCrash 才生效
-  s.subspec 'CRASH_SLIDEADDRESS' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_CRASH_SLIDEADDRESS=1'}
-  end
-
-  # 不采集 $device_id
-  s.subspec 'DISABLE_AUTOTRACK_DEVICEID' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_AUTOTRACK_DEVICEID=1'}
-  end
-
-   # 禁用 keychain
-   # 卸载重装会重新触发激活事件并且匿名 Id 可能会被重置
-  s.subspec 'DISABLE_KEYCHAIN' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_KEYCHAIN=1'}
-  end
-
-  # 支持自动采集 UIViewController 子页面的 $AppViewScreen
-  s.subspec 'ENABLE_CHILD_VIEWSCREEN' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN=1'}
-  end
-
-  # 禁用 UIWebView，已废弃，会在后续版本中删除
-  s.subspec 'DISABLE_UIWEBVIEW' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-  end
-
-  # 禁用私有 API，可视化全埋点模块存在私有类名字符串判断
-  s.subspec 'DISABLE_PRIVATE_APIS' do |f|
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.pod_target_xcconfig = { 'GCC_PREPROCESSOR_DEFINITIONS' => 'SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS=1'}
-  end 
 
 end

@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 #import "SAConstants.h"
 
 @class SensorsAnalyticsPeople;
@@ -121,7 +121,7 @@ NS_ASSUME_NONNULL_BEGIN
 * @param serverUrl 当前的 serverUrl
 * @param isRequestRemoteConfig 是否请求远程配置
 */
-- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig;
+- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos);
 
 #pragma mark--cache and flush
 
@@ -191,13 +191,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @abstract
  * 自动收集 App Crash 日志，该功能默认是关闭的
  */
-- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash")));
-
-
-
-
-
-
+- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -208,7 +202,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param show             是否显示
  */
-- (void)showDebugInfoView:(BOOL)show;
+- (void)showDebugInfoView:(BOOL)show API_UNAVAILABLE(macos);
 
 /**
  @abstract
@@ -321,21 +315,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)track:(NSString *)event;
 
 /**
- 调用 track 接口并附加渠道信息
-
- @param event event 的名称
- */
-- (void)trackChannelEvent:(NSString *)event;
-
-/**
-调用 track 接口并附加渠道信息
-
- @param event event 的名称
- @param propertyDict event 的属性
- */
-- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict;
-
-/**
  * @abstract
  * 设置 Cookie
  *
@@ -359,13 +338,13 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return LastScreenUrl
  */
-- (NSString *)getLastScreenUrl;
+- (NSString *)getLastScreenUrl API_UNAVAILABLE(macos);
 
 /**
  * @abstract
  * App 退出或进到后台时清空 referrer，默认情况下不清空
  */
-- (void)clearReferrerWhenAppEnd;
+- (void)clearReferrerWhenAppEnd API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -373,7 +352,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @return LastScreenTrackProperties
  */
-- (NSDictionary *)getLastScreenTrackProperties;
+- (NSDictionary *)getLastScreenTrackProperties API_UNAVAILABLE(macos);
 
 - (SensorsAnalyticsDebugMode)debugMode;
 
@@ -505,7 +484,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param url 打开的 URL
  * @return YES/NO
  */
-- (BOOL)canHandleURL:(NSURL *)url;
+- (BOOL)canHandleURL:(NSURL *)url API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -513,7 +492,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param url 打开本 app 的回调的 url
  */
-- (BOOL)handleSchemeUrl:(NSURL *)url;
+- (BOOL)handleSchemeUrl:(NSURL *)url API_UNAVAILABLE(macos);
 
 #pragma mark - profile
 /**
@@ -666,7 +645,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param enable YES/NO
  */
-- (void)enableTrackScreenOrientation:(BOOL)enable;
+- (void)enableTrackScreenOrientation:(BOOL)enable API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -678,103 +657,17 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param enable YES/NO
  */
-- (void)enableTrackGPSLocation:(BOOL)enable;
+- (void)enableTrackGPSLocation:(BOOL)enable API_UNAVAILABLE(macos);
 
 /**
  * @abstract
  * 清除 keychain 缓存数据
  *
  * @discussion
- * 注意：清除 keychain 中 kSAService 名下的数据，包括 distinct_id 和 AppInstall 标记。
- *          清除后 AppInstall 可以再次触发，造成 AppInstall 事件统计不准确。
+ * 注意：清除 keychain 中 kSAService 名下的数据，包括 distinct_id 标记。
  *
  */
-- (void)clearKeychainData;
-
-@end
-
-#pragma mark - $AppInstall
-@interface SensorsAnalyticsSDK (AppInstall)
-
-#pragma mark trackInstallation
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- *
- * @discussion
- * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
- */
-- (void)trackAppInstall;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- *
- * @discussion
- * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
- *
- * @param properties 激活事件的属性
- */
-- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- *
- * @discussion
- * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。 
- *
- * @param properties 激活事件的属性
- * @param disableCallback  是否关闭这次渠道匹配的回调请求
- */
-- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中
- * 使用该接口
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- */
-- (void)trackInstallation:(NSString *)event;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- * @param propertyDict     event 的属性
- */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
-
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @discussion
- * propertyDict 是一个 Map。
- * 其中的 key 是 Property 的名称，必须是 NSString
- * value 则是 Property 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- *
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: https://sensorsdata.cn/manual/track_installation.html，并在必要时联系我们的技术支持人员。
- *
- * @param event             event 的名称
- * @param propertyDict     event 的属性
- * @param disableCallback     是否关闭这次渠道匹配的回调请求
- */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
+- (void)clearKeychainData API_UNAVAILABLE(macos);
 
 @end
 
@@ -788,7 +681,7 @@ DeepLink 回调函数
   succes：deeplink 唤起结果
   appAwakePassedTime：获取渠道信息所用时间
 */
-- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback;
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback API_UNAVAILABLE(macos);
 
 @end
 
@@ -988,7 +881,7 @@ DeepLink 回调函数
  * @return 返回的单例
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -1002,7 +895,7 @@ DeepLink 回调函数
  */
 + (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
                                     andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
+                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
 /**
  * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
@@ -1020,7 +913,7 @@ DeepLink 回调函数
  目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  @param debugMode 调试模式
  */
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式")));
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract

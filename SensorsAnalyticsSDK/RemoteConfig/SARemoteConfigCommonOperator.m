@@ -26,6 +26,7 @@
 #import "SAReachability.h"
 #import "SALog.h"
 #import "SAValidator.h"
+#import "SAModuleManager.h"
 
 typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     SARemoteConfigHandleRandomTimeTypeCreate, // 创建分散请求时间
@@ -48,8 +49,8 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
-    self = [super initWithRemoteConfigOptions:options];
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(SARemoteConfigModel *)model {
+    self = [super initWithConfigOptions:configOptions remoteConfigModel:model];
     if (self) {
         _requestRemoteConfigRetryMaxCount = 3;
         [self enableLocalRemoteConfig];
@@ -67,14 +68,14 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (void)tryToRequestRemoteConfig {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
-    if (self.options.configOptions.disableRandomTimeRequestRemoteConfig || self.options.configOptions.maxRequestHourInterval < self.options.configOptions.minRequestHourInterval) {
+    if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeRemove isForceUpdate:NO];
         SALogDebug(@"【remote config】Request remote config because disableRandomTimeRequestRemoteConfig or minHourInterval greater than maxHourInterval");
         return;
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
-    if (self.options.configOptions.enableEncrypt && !self.options.createEncryptorResultBlock()) {
+    if (self.configOptions.enableEncrypt && !SAModuleManager.sharedInstance.hasSecretKey) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"【remote config】Request remote config because encrypt builder is nil");
         return;
@@ -130,10 +131,10 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
     // 计算实际间隔时间（此时只需要考虑 minRequestHourInterval <= maxRequestHourInterval 的情况）
-    double realIntervalTime = self.options.configOptions.minRequestHourInterval * 60 * 60;
-    if (self.options.configOptions.maxRequestHourInterval > self.options.configOptions.minRequestHourInterval) {
+    double realIntervalTime = self.configOptions.minRequestHourInterval * 60 * 60;
+    if (self.configOptions.maxRequestHourInterval > self.configOptions.minRequestHourInterval) {
         // 转换成 秒 再取随机时间
-        double durationSecond = (self.options.configOptions.maxRequestHourInterval - self.options.configOptions.minRequestHourInterval) * 60 * 60;
+        double durationSecond = (self.configOptions.maxRequestHourInterval - self.configOptions.minRequestHourInterval) * 60 * 60;
         
         // arc4random_uniform 的取值范围，是左闭右开，所以 +1
         realIntervalTime += arc4random_uniform(durationSecond + 1);
@@ -173,9 +174,9 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
             if (success) {
                 if(config != nil) {
                     // 加密
-                    if (strongSelf.options.configOptions.enableEncrypt) {
+                    if (strongSelf.configOptions.enableEncrypt) {
                         NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
-                        strongSelf.options.handleEncryptBlock(encryptConfig);
+                        [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
                     }
 
                     // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
@@ -230,7 +231,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)updateLocalLibVersion {
-    self.model.localLibVersion = self.options.currentLibVersion;
+    self.model.localLibVersion = SensorsAnalyticsSDK.sdkInstance.libVersion;
 }
 
 - (void)saveRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
@@ -248,7 +249,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 - (NSDictionary<NSString *, id> *)addLibVersionToRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
     // 手动添加当前 SDK 版本号
     NSMutableDictionary *result = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    result[@"localLibVersion"] = self.options.currentLibVersion;
+    result[@"localLibVersion"] = SensorsAnalyticsSDK.sdkInstance.libVersion;
     return result;
 }
 

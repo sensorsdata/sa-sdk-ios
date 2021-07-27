@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#import <Foundation/Foundation.h>
 
 @interface NSString (HashCode)
 - (int)sensorsdata_hashCode;

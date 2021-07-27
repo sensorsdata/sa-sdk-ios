@@ -136,6 +136,20 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     }
 }
 
+#pragma mark -
+- (NSString *)javaScriptSource {
+    if (!self.enable) {
+        return nil;
+    }
+    // App 内嵌 H5 数据交互
+    NSMutableString *javaScriptSource = [NSMutableString string];
+    [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
+    if (self.visualizedConnection.isVisualizedConnecting) {
+        [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+    }
+    return javaScriptSource;
+}
+
 #pragma mark - handle URL
 - (BOOL)canHandleURL:(NSURL *)url {
     return [self isHeatMapURL:url] || [self isVisualizedAutoTrackURL:url];
@@ -250,9 +264,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 
 #pragma mark - Visualize
-- (BOOL)isConnecting {
-    return self.visualizedConnection.isVisualizedConnecting;
-}
 
 - (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
     if (![controllers isKindOfClass:[NSArray class]] || controllers.count == 0) {
@@ -318,7 +329,7 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
     if (!self.visualPropertiesTracker) {
-        completionHandler(nil);
+        return completionHandler(nil);
     }
 
     @try {

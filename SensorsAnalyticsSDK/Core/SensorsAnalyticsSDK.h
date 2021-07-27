@@ -18,13 +18,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
-#import <UIKit/UIApplication.h>
 
 #import "SensorsAnalyticsSDK+Public.h"
 #import "SASecurityPolicy.h"
 #import "SAConfigOptions.h"
 #import "SAConstants.h"
+
+#if __has_include("SensorsAnalyticsSDK+SAChannelMatch.h")
+#import "SensorsAnalyticsSDK+SAChannelMatch.h"
+#endif
 
 #if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
@@ -40,4 +42,8 @@
 
 #if __has_include("SensorsAnalyticsSDK+Visualized.h")
 #import "SensorsAnalyticsSDK+Visualized.h"
+#endif
+
+#if __has_include("SASecretKey.h")
+#import "SASecretKey.h"
 #endif

@@ -298,13 +298,7 @@
         return;
     }
 
-    NSData *jsonData = nil;
-    @try {
-        jsonData = [SAJSONUtil JSONSerializeObject:obj];
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-    }
-
+    NSData *jsonData = [SAJSONUtil dataWithJSONObject:obj];
     if (jsonData) {
         // 计算 hash
         self.jointPayloadHash = [SACommonUtility hashStringWithData:jsonData];

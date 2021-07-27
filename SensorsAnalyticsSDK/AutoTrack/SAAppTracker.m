@@ -27,6 +27,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
+#import "SAJSONUtil.h"
 #import "SAValidator.h"
 
 @implementation SAAppTracker
@@ -95,11 +96,7 @@
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        @try {
-            allClasses = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingAllowFragments error:nil];
-        } @catch(NSException *exception) {  // json加载和解析可能失败
-            SALogError(@"%@ error: %@", self, exception);
-        }
+        allClasses = [SAJSONUtil JSONObjectWithData:jsonData];
     });
     return allClasses;
 }

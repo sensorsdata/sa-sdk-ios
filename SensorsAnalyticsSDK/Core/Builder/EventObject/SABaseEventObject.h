@@ -72,6 +72,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 用于记录动态公共属性, 动态公共属性需要在 serialQueue 队列外获取
 @property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
 
+/// 忽略远程控制，强制上报，默认为 NO
+@property (nonatomic, assign, getter=isIgnoreRemoteConfig) BOOL ignoreRemoteConfig;
+
 /// 校验事件名称
 /// @param error 错误信息
 - (void)validateEventWithError:(NSError **)error;

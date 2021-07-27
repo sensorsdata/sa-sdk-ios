@@ -80,21 +80,21 @@ NS_ASSUME_NONNULL_BEGIN
 
  @return idfa
  */
-+ (NSString *)idfa;
++ (NSString *)idfa API_UNAVAILABLE(macos);
 
 /**
  获取设备的 IDFV
 
  @return idfv
  */
-+ (NSString *)idfv;
++ (NSString *)idfv API_UNAVAILABLE(macos);
 
 /**
  生成匿名 Id（设备 Id）：IDFA -> IDFV -> UUID
 
  @return 匿名 Id（设备 Id）
  */
-+ (NSString *)uniqueHardwareId;
++ (NSString *)hardwareID;
 
 @end
 

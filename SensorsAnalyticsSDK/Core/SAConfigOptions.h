@@ -56,13 +56,18 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
+@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType API_UNAVAILABLE(macos);
+
+/// 是否自动采集子页面的页面浏览事件
+///
+/// 开启页面浏览事件采集时，有效。默认为不采集
+@property (nonatomic) BOOL enableAutoTrackChildViewScreen API_UNAVAILABLE(macos);
 
 /// 是否开启 WKWebView 的 H5 打通功能，该功能默认是关闭的
 @property (nonatomic) BOOL enableJavaScriptBridge;
 
 /// 是否自动收集 App Crash 日志，该功能默认是关闭的
-@property (nonatomic) BOOL enableTrackAppCrash;
+@property (nonatomic) BOOL enableTrackAppCrash API_UNAVAILABLE(macos);
 
 /**
  @abstract
@@ -71,7 +76,7 @@ NS_ASSUME_NONNULL_BEGIN
  @discussion
  默认使用 defaultPolicy
  */
-@property (nonatomic, strong) SASecurityPolicy *securityPolicy;
+@property (nonatomic, strong) SASecurityPolicy *securityPolicy API_UNAVAILABLE(macos);
 
 /**
  * @property
@@ -115,65 +120,53 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL enableLog;
 
 /// 开启点击图
-@property (nonatomic, assign) BOOL enableHeatMap;
+@property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);
 
 /// 开启可视化全埋点
-@property (nonatomic, assign) BOOL enableVisualizedAutoTrack;
+@property (nonatomic, assign) BOOL enableVisualizedAutoTrack API_UNAVAILABLE(macos);
 
 #pragma mark - 请求远程配置策略
 /// 请求远程配置地址，默认从 serverURL 解析
-@property (nonatomic, copy) NSString *remoteConfigURL;
+@property (nonatomic, copy) NSString *remoteConfigURL API_UNAVAILABLE(macos);
 
 /// 禁用随机时间请求远程配置
-@property (nonatomic, assign) BOOL disableRandomTimeRequestRemoteConfig;
+@property (nonatomic, assign) BOOL disableRandomTimeRequestRemoteConfig API_UNAVAILABLE(macos);
 
 /// 最小间隔时长，单位：小时，默认 24
-@property (nonatomic, assign) NSInteger minRequestHourInterval;
+@property (nonatomic, assign) NSInteger minRequestHourInterval API_UNAVAILABLE(macos);
 
 /// 最大间隔时长，单位：小时，默认 48
-@property (nonatomic, assign) NSInteger maxRequestHourInterval;
+@property (nonatomic, assign) NSInteger maxRequestHourInterval API_UNAVAILABLE(macos);
 
 /// DeepLink 中解析出来的参数是否需要保存到本地
-@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo;
+@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo API_UNAVAILABLE(macos);
 
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
-@property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
+@property (nonatomic, copy) NSArray<NSString *> *sourceChannels API_UNAVAILABLE(macos);
 
 /// 是否在手动埋点事件中自动添加渠道匹配信息
-@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
+@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
 
 /// 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics，默认为 YES
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
 /// 是否开启加密
-@property (nonatomic, assign) BOOL enableEncrypt;
+@property (nonatomic, assign) BOOL enableEncrypt API_UNAVAILABLE(macos);
 
 /// 存储公钥的回调。务必保存秘钥所有字段信息
-@property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
+@property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey) API_UNAVAILABLE(macos);
 
 /// 获取公钥的回调。务必回传秘钥所有字段信息
-@property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
+@property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void) API_UNAVAILABLE(macos);
 
 /// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
-@property (nonatomic, assign) BOOL enableMultipleChannelMatch;
+@property (nonatomic, assign) BOOL enableMultipleChannelMatch API_UNAVAILABLE(macos);
 
 /// 开启前向页面标题采集功能，默认不开启
-@property (nonatomic, assign) BOOL enableReferrerTitle;
+@property (nonatomic, assign) BOOL enableReferrerTitle API_UNAVAILABLE(macos);
 
 ///开启自动采集通知
-@property (nonatomic, assign) BOOL enableTrackPush;
-
-@end
-
-
-/// 密钥信息
-@interface SASecretKey : NSObject <NSCoding>
-
-/// 密钥版本
-@property(nonatomic, assign) NSInteger version;
-
-/// 密钥值
-@property(nonatomic, copy) NSString *key;
+@property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos);
 
 @end
 

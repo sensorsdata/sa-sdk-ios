@@ -29,6 +29,7 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedObjectSerializerManager.h"
+#import "SAJSONUtil.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAVisualizedLogger.h"
@@ -92,13 +93,7 @@
         return;
     }
 
-    NSData *messageData = [message.body dataUsingEncoding:NSUTF8StringEncoding];
-    if (!messageData) {
-        SALogError(@"Message body is invalid from JS SDK");
-        return;
-    }
-
-    NSDictionary *messageDic = [NSJSONSerialization JSONObjectWithData:messageData options:0 error:nil];
+    NSDictionary *messageDic = [SAJSONUtil JSONObjectWithString:message.body];
     if (![messageDic isKindOfClass:[NSDictionary class]]) {
         SALogError(@"Message body is formatted failure from JS SDK");
         return;
@@ -172,13 +167,12 @@
         NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
             NSString *urlResponseContent = [[NSString alloc] initWithData:data encoding:NSUTF8StringEncoding];
             if (response.statusCode == 200) {
-                NSData *jsonData = [urlResponseContent dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
+                NSDictionary *dict = [SAJSONUtil JSONObjectWithString:urlResponseContent];
                 int delay = [dict[@"delay"] intValue];
                 if (delay < 0) {
                     [self close];
                 }
-
+                
                 // 切到主线程，和 SAVisualizedManager 中调用一致
                 dispatch_async(dispatch_get_main_queue(), ^{
                     [self analysisDebugMessage:dict];
@@ -220,24 +214,15 @@
 }
 
 
-- (id <SAVisualizedMessage>)designerMessageForMessage:(id)message {
-    if (![message isKindOfClass:[NSString class]] && ![message isKindOfClass:[NSData class]]) {
+- (id <SAVisualizedMessage>)designerMessageForMessage:(NSString *)message {
+    if (![message isKindOfClass:[NSString class]]) {
         SALogError(@"message type error:%@",message);
         return nil;
     }
 
-    NSData *jsonData = [message isKindOfClass:[NSString class]] ? [(NSString *)message dataUsingEncoding:NSUTF8StringEncoding] : message;
-    NSError *error = nil;
-    id jsonObject = nil;
-
-    @try {
-        jsonObject = [NSJSONSerialization JSONObjectWithData:jsonData options:0 error:&error];
-    } @catch (NSException *exception) {
-        SALogError(@"Badly formed socket message error: %@", exception);
-    }
-
+    id jsonObject = [SAJSONUtil JSONObjectWithString:message];
     if (![jsonObject isKindOfClass:[NSDictionary class]]) {
-        SALogError(@"Badly formed socket message expected JSON dictionary: %@", error);
+        SALogError(@"Badly formed socket message expected JSON dictionary: %@", message);
         return nil;
     }
 
@@ -252,7 +237,7 @@
 
 #pragma mark -  Methods
 
-- (void)startVisualizedTimer:(id)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
+- (void)startVisualizedTimer:(NSString *)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
     _featureCode = featureCode;
     _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
     _designerMessage = [self designerMessageForMessage:message];

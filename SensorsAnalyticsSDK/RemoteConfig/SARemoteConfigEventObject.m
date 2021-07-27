@@ -1,8 +1,8 @@
 //
-// SABaseEventObject+RemoteConfig.m
+// SARemoteConfigEventObject.m
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/6/7.
+// Created by wenquan on 2021/6/8.
 // Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -22,24 +22,16 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SABaseEventObject+RemoteConfig.h"
-#import "SARemoteConfigManager.h"
-#import "SALog.h"
+#import "SARemoteConfigEventObject.h"
 
-@implementation SABaseEventObject (RemoteConfig)
+@implementation SARemoteConfigEventObject
 
-- (BOOL)isIgnoredByRemoteConfig {
-    if ([SARemoteConfigManager sharedInstance].isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
-        return YES;
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
+    if (self) {
+        self.ignoreRemoteConfig = YES;
     }
-
-    if ([[SARemoteConfigManager sharedInstance] isBlackListContainsEvent:self.event]) {
-        SALogDebug(@"【remote config】 %@ is ignored by remote config", self.event);
-        return YES;
-    }
-
-    return NO;
+    return self;
 }
 
 @end

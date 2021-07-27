@@ -24,6 +24,7 @@
 
 #import "SANotificationUtil.h"
 #import "SAAppPushConstants.h"
+#import "SAJSONUtil.h"
 #import "SALog.h"
 
 @implementation SANotificationUtil
@@ -44,20 +45,10 @@
     NSString *sfDataString = userInfo[kSAPushServiceKeySF];
     
     if ([sfDataString isKindOfClass:[NSString class]]) {
-        NSData *sfData = [userInfo[kSAPushServiceKeySF] dataUsingEncoding:NSUTF8StringEncoding];
-        NSError *error;
-        NSDictionary *sfProperties;
-        if (sfData) {
-            @try {
-                sfProperties = [NSJSONSerialization JSONObjectWithData:sfData options:0 error:&error];
-            } @catch (NSException *exception) {
-                SALogError(@"%@", exception);
-            } @finally {
-                if (!error && [sfProperties isKindOfClass:[NSDictionary class]]) {
-                    [properties addEntriesFromDictionary:[self propertiesFromSFData:sfProperties]];
-                }
-            }
-            
+
+        NSDictionary *sfProperties = [SAJSONUtil JSONObjectWithString:sfDataString];
+        if ([sfProperties isKindOfClass:[NSDictionary class]]) {
+            [properties addEntriesFromDictionary:[self propertiesFromSFData:sfProperties]];
         }
     }
     

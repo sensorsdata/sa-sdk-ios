@@ -40,6 +40,10 @@ static NSString * const kSAEncryptModuleName = @"Encrypt";
 static NSString * const kSADeeplinkModuleName = @"Deeplink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
+static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
+
+static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
+static NSString * const kSAExceptionModuleName = @"Exception";
 
 @interface SAModuleManager ()
 
@@ -55,10 +59,23 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
 
+    // H5 打通模块
+    if (configOptions.enableJavaScriptBridge) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
+    }
+
+#if TARGET_OS_IOS
+    // 推送点击模块
+    if (configOptions.enableTrackPush) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSANotificationModuleName];
+    }
+
     // 渠道联调诊断功能获取多渠道匹配开关
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSAChannelMatchModuleName];
+
     // 初始化 LinkHandler 处理 deepLink 相关操作
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADeeplinkModuleName];
+
     // 初始化 Debug 模块
     [SAModuleManager.sharedInstance setEnable:YES forModule:kSADebugModeModuleName];
     [SAModuleManager.sharedInstance handleDebugMode:debugMode];
@@ -69,10 +86,11 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
     if ([SAModuleManager.sharedInstance contains:SAModuleTypeAutoTrack] || configOptions.autoTrackEventType != SensorsAnalyticsEventTypeNone) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
     }
-    
+
     // 可视化全埋点和点击分析
     if (configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack) {
         [SAModuleManager.sharedInstance setEnable:YES forModule:kSAVisualizedModuleName];
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAJavaScriptBridgeModuleName];
     } else if ([SAModuleManager.sharedInstance contains:SAModuleTypeVisualized]) {
         // 注册 handleURL
         [SAModuleManager.sharedInstance setEnable:NO forModule:kSAVisualizedModuleName];
@@ -80,6 +98,17 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
     // 加密
     [SAModuleManager.sharedInstance setEnable:configOptions.enableEncrypt forModule:kSAEncryptModuleName];
+
+    // crash 采集
+    if (configOptions.enableTrackAppCrash) {
+        [SAModuleManager.sharedInstance setEnable:YES forModule:kSAExceptionModuleName];
+    }
+
+    // 开启远程配置模块（因为部分模块依赖于远程配置，所以远程配置模块的初始化放到最后）
+    [SAModuleManager.sharedInstance setEnable:YES forModule:kSARemoteConfigModuleName];
+
+#endif
+
 }
 
 + (instancetype)sharedInstance {
@@ -106,12 +135,14 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
             return kSANotificationModuleName;
         case SAModuleTypeAutoTrack:
             return kSAAutoTrackModuleName;
-        case SAModuleTypeChannelMatch:
-            return kSAChannelMatchModuleName;
         case SAModuleTypeVisualized:
             return kSAVisualizedModuleName;
-        case SAModuleTypeEncrypt:
-            return kSAEncryptModuleName;
+        case SAModuleTypeJavaScriptBridge:
+            return kSAJavaScriptBridgeModuleName;
+        case SAModuleTypeRemoteConfig:
+            return kSARemoteConfigModuleName;
+        case SAModuleTypeException:
+            return kSAExceptionModuleName;
         default:
             return nil;
     }
@@ -224,48 +255,26 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 @implementation SAModuleManager (ChannelMatch)
 
+- (id<SAChannelMatchModuleProtocol>)channelMatchManager {
+    id<SAChannelMatchModuleProtocol, SAModuleProtocol> manager = (id<SAChannelMatchModuleProtocol, SAModuleProtocol>)self.modules[kSAChannelMatchModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
 - (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    id<SAChannelMatchModuleProtocol> manager = (id<SAChannelMatchModuleProtocol>)self.modules[kSAChannelMatchModuleName];
-    [manager trackAppInstall:event properties:properties disableCallback:disableCallback];
+    [self.channelMatchManager trackAppInstall:event properties:properties disableCallback:disableCallback];
+}
+
+- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(NSDictionary *)properties {
+    [self.channelMatchManager trackChannelWithEventObject:obj properties:properties];
+}
+
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event {
+    return [self.channelMatchManager channelInfoWithEvent:event];
 }
 
 @end
 
 #pragma mark -
-@implementation SAModuleManager (Visualized)
-
-- (BOOL)isConnecting {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return manager.isConnecting;
-}
-
-- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    [manager addVisualizeWithViewControllers:controllers];
-}
-
-- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return [manager isVisualizeWithViewController:viewController];
-}
-
-#pragma mark properties
-// 采集元素属性
-- (nullable NSDictionary *)propertiesWithView:(UIView *)view {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    return [manager propertiesWithView:view];
-}
-
-// 采集元素自定义属性
-- (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
-    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
-    if (!manager) {
-        completionHandler(nil);
-    }
-    [manager visualPropertiesWithView:view completionHandler:completionHandler];
-}
-
-@end
 
 @implementation SAModuleManager (DebugMode)
 
@@ -319,17 +328,6 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 #pragma mark -
 
-@implementation SAModuleManager (PushClick)
-
-- (void)setLaunchOptions:(NSDictionary *)launchOptions {
-    id<SAAppPushModuleProtocol> manager = (id<SAAppPushModuleProtocol>)[[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeAppPush];
-    [manager setLaunchOptions:launchOptions];
-}
-
-@end
-
-#pragma mark -
-
 @implementation SAModuleManager (Deeplink)
 
 - (id<SADeeplinkModuleProtocol>)deeplinkManager {
@@ -366,6 +364,49 @@ static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 
 - (void)trackAppEndWhenCrashed {
     [self.autoTrackManager trackAppEndWhenCrashed];
+}
+
+@end
+
+#pragma mark -
+
+@implementation SAModuleManager (JavaScriptBridge)
+
+- (NSString *)javaScriptSource {
+    NSMutableString *source = [NSMutableString string];
+    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
+    NSDictionary *dictionary = [self.modules copy];
+    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
+            return;
+        }
+        NSString *javaScriptSource = [(id<SAJavaScriptBridgeModuleProtocol>)obj javaScriptSource];
+        if (javaScriptSource.length > 0) {
+            [source appendString:javaScriptSource];
+        }
+    }];
+    return source;
+}
+
+@end
+
+@implementation SAModuleManager (RemoteConfig)
+
+- (id<SARemoteConfigModuleProtocol>)remoteConfigManager {
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
+    return manager.isEnable ? manager : nil;
+}
+
+- (void)retryRequestRemoteConfigWithForceUpdateFlag:(BOOL)isForceUpdate {
+    [self.remoteConfigManager retryRequestRemoteConfigWithForceUpdateFlag:isForceUpdate];
+}
+
+- (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj {
+    return [self.remoteConfigManager isIgnoreEventObject:obj];
+}
+
+- (BOOL)isDisableSDK {
+    return [self.remoteConfigManager isDisableSDK];
 }
 
 @end

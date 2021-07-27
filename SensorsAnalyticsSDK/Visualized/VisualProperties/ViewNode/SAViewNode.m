@@ -289,6 +289,13 @@
     return [description copy];
 }
 
+- (void)dealloc {
+    // 释放绑定在 view 上的子节点
+    for (SAViewNode *node in self.subNodes) {
+        node.view.sensorsdata_viewNode = nil;
+    }
+}
+
 @end
 
 @implementation SASegmentNode

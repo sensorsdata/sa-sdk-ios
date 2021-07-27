@@ -24,7 +24,7 @@
 
 #import "SASwizzle.h"
 
-#if TARGET_OS_IPHONE
+#if TARGET_OS_IOS
 	#import <objc/runtime.h>
 	#import <objc/message.h>
 #else
@@ -51,21 +51,13 @@
 + (BOOL)sa_swizzleMethod:(SEL)origSel_  withClass:(Class)altCla_ withMethod:(SEL)altSel_ error:(NSError **)error_ {
     Method origMethod = class_getInstanceMethod(self, origSel_);
     if (!origMethod) {
-#if TARGET_OS_IPHONE
         SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self class]);
-#else
-        SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self className]);
-#endif
         return NO;
     }
 
     Method altMethod = class_getInstanceMethod(altCla_, altSel_);
     if (!altMethod) {
-#if TARGET_OS_IPHONE
         SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [altCla_ class]);
-#else
-        SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [altCla_ className]);
-#endif
         return NO;
     }
 
@@ -93,21 +85,13 @@
 #if OBJC_API_VERSION >= 2
 	Method origMethod = class_getInstanceMethod(self, origSel_);
 	if (!origMethod) {
-#if TARGET_OS_IPHONE
 		SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self class]);
-#else
-		SetNSError(error_, @"original method %@ not found for class %@", NSStringFromSelector(origSel_), [self className]);
-#endif
 		return NO;
 	}
 	
 	Method altMethod = class_getInstanceMethod(self, altSel_);
 	if (!altMethod) {
-#if TARGET_OS_IPHONE
 		SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [self class]);
-#else
-		SetNSError(error_, @"alternate method %@ not found for class %@", NSStringFromSelector(altSel_), [self className]);
-#endif
 		return NO;
 	}
 	

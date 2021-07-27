@@ -43,37 +43,25 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 处理远程配置的 URL
 /// @param url 远程配置的 URL
-- (void)handleRemoteConfigURL:(NSURL *)url;
-
-@end
-
-/// 远程配置处理需要的参数
-@interface SARemoteConfigOptions : NSObject
-
-@property (nonatomic, strong) SAConfigOptions *configOptions; // SensorsAnalyticsSDK 初始化配置
-@property (nonatomic, copy) NSString *currentLibVersion; // 当前 SDK 版本
-@property (nonatomic, strong) SANetwork *network; // 网络相关类
-@property (nonatomic, copy) BOOL (^createEncryptorResultBlock)(void); // 加密构造器创建结果的回调
-@property (nonatomic, copy) void (^handleEncryptBlock)(NSDictionary *encryptConfig); // 处理加密的回调
-@property (nonatomic, copy) void (^trackEventBlock)(NSString *event, NSDictionary *properties); // 触发事件的回调
-@property (nonatomic, copy) void (^triggerEffectBlock)(BOOL isDisableSDK, BOOL isDisableDebugMode); // 触发远程配置生效的回调
+- (BOOL)handleRemoteConfigURL:(NSURL *)url;
 
 @end
 
 /// 远程配置处理基类
 @interface SARemoteConfigOperator : NSObject <SARemoteConfigOperatorProtocol>
 
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (atomic, strong) SARemoteConfigModel *model;
-@property (nonatomic, strong) SARemoteConfigOptions *options;
 @property (nonatomic, assign, readonly) BOOL isDisableSDK;
 /// 控制 AutoTrack 采集方式（-1 表示不修改现有的 AutoTrack 方式；0 代表禁用所有的 AutoTrack；其他 1～15 为合法数据）
 @property (nonatomic, assign, readonly) NSInteger autoTrackMode;
 @property (nonatomic, copy, readonly) NSString *project;
 
 /// 初始化远程配置处理基类
-/// @param options 输入的远程配置参数
+/// @param configOptions 初始化 SDK 的配置参数
+/// @param model 输入的远程配置模型
 /// @return 远程配置处理基类的实例
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(nullable SARemoteConfigModel *)model;
 
 /// 是否在事件黑名单中
 /// @param event 输入的事件名

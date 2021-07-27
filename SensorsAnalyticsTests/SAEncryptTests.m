@@ -29,7 +29,7 @@
 #import "SAAESEncryptor.h"
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Private.h"
+#import "SAConfigOptions+Encrypt.h"
 #import "SARSAPluginEncryptor.h"
 #import "SAECCPluginEncryptor.h"
 

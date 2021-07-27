@@ -56,7 +56,6 @@
 @implementation SAAlertElementInfo
 
 - (NSString *)elementType {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     UIWindow *window = self.view.window;
     if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
         CGFloat actionHeight = self.view.bounds.size.height;
@@ -68,9 +67,6 @@
     } else {
         return NSStringFromClass(UIAlertController.class);
     }
-#else
-    return NSStringFromClass(UIAlertController.class);
-#endif
 }
 
 - (BOOL)isSupportElementPosition {

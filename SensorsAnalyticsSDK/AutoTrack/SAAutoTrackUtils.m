@@ -30,7 +30,7 @@
 #import "SALog.h"
 #import "SAAlertController.h"
 #import "SAValidator.h"
-#import "SAModuleManager.h"
+#import "SAModuleManager+Visualized.h"
 
 /// 一个元素 $AppClick 全埋点最小时间间隔，100 毫秒
 static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;

@@ -69,30 +69,20 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 @implementation SARemoteConfigCheckOperator
 
-#pragma mark - Life Cycle
-
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model {
-    self = [super initWithRemoteConfigOptions:options];
-    if (self) {
-        self.model = model;
-    }
-    return self;
-}
-
 #pragma mark - Protocol
 
-- (void)handleRemoteConfigURL:(NSURL *)url {
+- (BOOL)handleRemoteConfigURL:(NSURL *)url {
     SALogDebug(@"【remote config】The input QR url is: %@", url);
     
     if (![SAReachability sharedInstance].isReachable) {
         [self showNetworkErrorAlert];
-        return;
+        return NO;
     }
     
     NSDictionary *components = [SAURLUtils queryItemsWithURL:url];
     if (!components) {
         SALogError(@"【remote config】The QR url format is invalid");
-        return;
+        return NO;
     }
     
     NSString *urlProject = components[@"project"] ?: @"default";
@@ -120,8 +110,9 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
         isCheckPassed = YES;
         message = @"开始获取采集控制信息";
     }
-    
     [self showURLCheckAlertWithMessage:message isCheckPassed:isCheckPassed urlVersion:urlVersion];
+
+    return YES;
 }
 
 #pragma mark - Private
@@ -217,7 +208,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     [self trackAppRemoteConfigChanged:eventMDic];
 
     NSMutableDictionary<NSString *, id> *enableMDic = [NSMutableDictionary dictionaryWithDictionary:remoteConfig];
-    enableMDic[@"localLibVersion"] = self.options.currentLibVersion;
+    enableMDic[@"localLibVersion"] = SensorsAnalyticsSDK.sdkInstance.libVersion;
     [self enableRemoteConfig:enableMDic];
 }
 

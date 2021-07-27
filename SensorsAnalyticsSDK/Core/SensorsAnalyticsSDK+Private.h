@@ -22,12 +22,12 @@
 #define SensorsAnalyticsSDK_Private_h
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
 #import "SANetwork.h"
 #import "SAHTTPSession.h"
 #import "SATrackEventObject.h"
 #import "SAAppLifecycle.h"
+#import "SASuperProperty.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -50,12 +50,10 @@
 /// @param properties 事件属性
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
-/**
-向 WKWebView 注入 Message Handler
-
-@param webView 需要注入的 wkwebView
-*/
-- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
+/// 触发事件
+/// @param object 事件对象
+/// @param properties 事件属性
+- (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
 /// 开启可视化模块
 - (void)enableVisualize;
@@ -64,6 +62,8 @@
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
+@property (nonatomic, strong, readonly) SASuperProperty *superProperty;
+@property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 
 @end
 

@@ -34,7 +34,9 @@ typedef NS_ENUM(NSInteger, SARemoteConfigEffectMode) {
 
 @property (nonatomic, copy) NSString *originalVersion; // 远程配置的老版本号（对应通过运维修改的配置）
 @property (nonatomic, copy) NSString *latestVersion; // 远程配置的新版本号（对应通过远程配置页面修改的配置）
+/// ⚠️ 注意：存在 KVC 获取，不要修改属性名称❗️❗️❗️
 @property (nonatomic, assign) BOOL disableSDK;
+/// ⚠️ 注意：存在 KVC 获取，不要修改属性名称❗️❗️❗️
 @property (nonatomic, assign) BOOL disableDebugMode;
 @property (nonatomic, assign) NSInteger autoTrackMode; // -1, 0, 1~15
 @property (nonatomic, copy) NSArray<NSString *> *eventBlackList;

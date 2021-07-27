@@ -23,6 +23,7 @@
 #endif
 
 #import "SAVisualizedLogger.h"
+#import <UIKit/UIKit.h>
 
 /// 日志过滤前缀
 static NSString * const kSAVisualizedLoggerPrefix = @"SAVisualizedDebugLoggerPrefix:";

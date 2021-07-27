@@ -58,22 +58,21 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
     @try {
         NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
         CFTypeRef queryResults = NULL;
+#if TARGET_OS_IOS
         CFErrorRef error = NULL;
-
-        if (@available(iOS 8.0, *) ) {
-            SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-            if (error) {
-                return NO;
-            }
-            [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
-            CFRelease(secAccessControl);
-        } else {
-            @try {
-                [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
-            } @catch (NSException *e) {
-                SALogError(@"%@", e);
-            }
+        SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+        if (error) {
+            return NO;
         }
+        [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
+        CFRelease(secAccessControl);
+#else
+        @try {
+            [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+        } @catch (NSException *e) {
+            SALogError(@"%@", e);
+        }
+#endif
 
         [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
         [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
@@ -127,17 +126,16 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
             [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
             [query removeObjectForKey:(__bridge id)kSecReturnAttributes];
             [query removeObjectForKey:(__bridge id)kSecReturnData];
-
-            if (@available(iOS 8.0, *) ) {
-                [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
-            } else {
-                @try {
-                    [query removeObjectForKey:(__bridge id)kSecAttrAccessible];
-                } @catch (NSException *e) {
-                    SALogError(@"%@", e);
-                }
+#if TARGET_OS_IOS
+            [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
+#else
+            @try {
+                [query removeObjectForKey:(__bridge id)kSecAttrAccessible];
+            } @catch (NSException *e) {
+                SALogError(@"%@", e);
             }
 
+#endif
             status= SecItemAdd((__bridge CFDictionaryRef)query, &queryResults);
             NSAssert( status == noErr || status == errSecDuplicateItem, @"Couldn't add the Keychain Item." );
             SALogDebug(@"SecItemAdd result = %d", status);
@@ -153,22 +151,22 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
     @try {
         NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
         CFTypeRef queryResults = NULL;
+#if TARGET_OS_IOS
         CFErrorRef error = NULL;
-        if (@available(iOS 8.0, *) ) {
-            SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
-            if (error) {
-                return nil;
-            }
-            [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
-            CFRelease(secAccessControl);
-        } else {
-            @try {
-                [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
-            } @catch (NSException *e) {
-                SALogError(@"%@", e);
-            }
+        SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
+        if (error) {
+            return nil;
         }
-        
+        [query setObject:(__bridge id)secAccessControl forKey:(__bridge id)kSecAttrAccessControl];
+        CFRelease(secAccessControl);
+#else
+        @try {
+            [query setObject:(__bridge id) kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
+        } @catch (NSException *e) {
+            SALogError(@"%@", e);
+        }
+
+#endif
         [query setObject:(__bridge id)kSecClassGenericPassword forKey:(__bridge id)kSecClass];
         [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnData];
         [query setObject:(__bridge id)kCFBooleanTrue forKey:(__bridge id)kSecReturnAttributes];

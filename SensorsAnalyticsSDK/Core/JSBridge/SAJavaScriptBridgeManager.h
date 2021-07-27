@@ -1,9 +1,9 @@
 //
-// SANotificationManager.h
+// SAJavaScriptBridgeManager.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2021/1/18.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Created by wenquan on 2020/3/18.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,15 +19,20 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <WebKit/WebKit.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAppPushManager : NSObject <SAModuleProtocol>
+@interface SAJavaScriptBridgeManager : NSObject <WKScriptMessageHandler, SAModuleProtocol, SAJavaScriptBridgeModuleProtocol>
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
+
++ (instancetype)sharedInstance;
+
+- (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 
 @end
 

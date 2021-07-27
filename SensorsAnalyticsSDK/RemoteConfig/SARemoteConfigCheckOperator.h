@@ -1,9 +1,9 @@
 //
-// SARemoteConfigEventObject.m
+// SARemoteConfigCheckOperator.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/6/8.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Created by wenquan on 2020/11/1.
+// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,16 +18,13 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
+#import "SARemoteConfigOperator.h"
 
-#import "SARemoteConfigEventObject.h"
+NS_ASSUME_NONNULL_BEGIN
 
-@implementation SARemoteConfigEventObject
-
-- (BOOL)isIgnoredByRemoteConfig {
-    return NO;
-}
+/// 远程配置校验模式处理类
+@interface SARemoteConfigCheckOperator : SARemoteConfigOperator
 
 @end
+
+NS_ASSUME_NONNULL_END

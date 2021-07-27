@@ -1,8 +1,8 @@
 //
-// SARemoteConfigCommonOperator.h
+// SAChannelMatchManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/7/20.
+// Created by 彭远洋 on 2020/8/29.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,17 +18,16 @@
 // limitations under the License.
 //
 
-#import "SARemoteConfigOperator.h"
+#import "SAConfigOptions.h"
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// 远程配置普通模式处理类
-@interface SARemoteConfigCommonOperator : SARemoteConfigOperator
+@interface SAChannelMatchManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAChannelMatchModuleProtocol>
 
-/// 初始化远程配置普通模式处理类
-/// @param options 输入的远程配置参数
-/// @return 远程配置普通模式处理类的实例
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

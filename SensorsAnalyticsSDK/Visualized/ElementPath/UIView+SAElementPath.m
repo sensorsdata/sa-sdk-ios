@@ -40,7 +40,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isVisible {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 忽略部分 view
      _UIAlertControllerTextFieldViewCollectionCell，包含 UIAlertController 中输入框，忽略采集
      */
@@ -57,8 +56,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             return YES;
         }
     }
-
-#endif
 
     if (!(self.window && self.superview) || ![SAVisualizedUtils isVisibleForView:self]) {
         return NO;
@@ -129,7 +126,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
         return NO;
     }
     
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
@@ -142,7 +138,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             return YES;
         }
     }
-#endif
 
     if ([self sensorsdata_clickableForRNView]) {
         return YES;
@@ -191,7 +186,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 #pragma mark SAAutoTrackViewPathProperty
 - (NSString *)sensorsdata_itemPath {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 忽略路径
      UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
      _UITextFieldCanvasView 和 _UISearchBarFieldEditor 都是 UISearchBar 内部私有 view
@@ -202,7 +196,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     if ([SAVisualizedUtils isIgnoredItemPathWithView:self]) {
         return nil;
     }
-#endif
 
     NSString *className = NSStringFromClass(self.class);
     NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
@@ -217,14 +210,12 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 }
 
 - (NSString *)sensorsdata_heatMapPath {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
-        /* 忽略路径
-         UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-         */
-        if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-            return nil;
-        }
-#endif
+    /* 忽略路径
+     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
+     */
+    if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
+        return nil;
+    }
 
     NSString *identifier = [SAVisualizedUtils viewIdentifierForView:self];
     if (identifier) {
@@ -235,12 +226,7 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 - (NSString *)sensorsdata_similarPath {
     // 是否支持限定元素位置功能
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     BOOL enableSupportSimilarPath = [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
-#else
-    BOOL enableSupportSimilarPath = NO;
-#endif
-
     if (self.sensorsdata_elementPosition && enableSupportSimilarPath) {
         NSString *similarPath = [NSString stringWithFormat:@"%@[-]",NSStringFromClass(self.class)];
         return similarPath;
@@ -275,7 +261,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
         return nil;
     }
     
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，
      在 controller2 添加 UITabBarController 或 UINavigationController 作为 childViewController 场景兼容
@@ -286,7 +271,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             return controller.sensorsdata_subElements;
         }
     }
-#endif
 
     NSMutableArray *newSubViews = [NSMutableArray array];
     for (UIView *view in self.subviews) {
@@ -299,7 +283,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 - (NSString *)sensorsdata_elementPath {
     // 处理特殊控件
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
@@ -307,14 +290,12 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             return [SAVisualizedUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController shouldSimilarPath:YES];
         }
     }
-#endif
     // 支持自定义属性，可见元素均上传 elementPath
     return [SAVisualizedUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
 }
 
 - (NSString *)sensorsdata_elementSelector {
     // 处理特殊控件
-    #ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
@@ -337,7 +318,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             return newElementSelector;
         }
     }
-    #endif
     if (self.sensorsdata_enableAppClick) {
         return [SAVisualizedUtils viewPathForView:self atViewController:self.sensorsdata_viewController];
     } else {
@@ -350,12 +330,10 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 }
 
 - (BOOL)sensorsdata_isListView {
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"] || [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"]) {
         return YES;
     }
-#endif
     return NO;
 }
 
@@ -466,11 +444,9 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
             /*
              keyWindow 设置 rootViewController 后，视图层级为 UIWindow -> UITransitionView -> UIDropShadowView -> rootViewController.view
              */
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
             if ([NSStringFromClass(view.class) isEqualToString:@"UITransitionView"]) {
                 continue;
             }
-#endif
             [subElements addObject:view];
 
             CGRect rect = [view convertRect:view.bounds toView:nil];
@@ -537,7 +513,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 @implementation UISegmentedControl (SAElementPath)
 
-#ifndef SENSORS_ANALYTICS_DISABLE_PRIVATE_APIS
 - (NSString *)sensorsdata_itemPath {
     // 支持单个 UISegment 创建事件。UISegment 是 UIImageView 的私有子类，表示UISegmentedControl 单个选项的显示区域
     NSString *subPath = [NSString stringWithFormat:@"UISegment[%ld]", (long)self.selectedSegmentIndex];
@@ -552,7 +527,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     NSString *subPath = [NSString stringWithFormat:@"UISegment[%ld]", (long)self.selectedSegmentIndex];
     return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_heatMapPath, subPath];
 }
-#endif
 
 @end
 

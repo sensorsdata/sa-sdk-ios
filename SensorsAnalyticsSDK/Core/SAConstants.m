@@ -66,13 +66,9 @@ NSString * const kSAEventNameAppCrashed = @"AppCrashed";
 // 远程控制配置变化
 NSString * const kSAEventNameAppRemoteConfigChanged = @"$AppRemoteConfigChanged";
 
-// 激活事件
-NSString * const kSAEventNameAppInstall = @"$AppInstall";
-
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install_disable_callback";
-NSString * const SA_EVENT_PROPERTY_APP_USER_AGENT = @"$user_agent";
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
 #pragma mark - autoTrack property
 // App 浏览页面 Url
@@ -91,8 +87,6 @@ NSString * const kSAEeventPropertyReferrerTitle = @"$referrer_title";
 NSString * const kSAEventPropertyElementPath = @"$element_path";
 NSString * const kSAEventPropertyElementContent = @"$element_content";
 NSString * const kSAEventPropertyElementType = @"$element_type";
-NSString * const SA_EVENT_PROPERTY_CHANNEL_INFO = @"$channel_device_info";
-NSString * const SA_EVENT_PROPERTY_CHANNEL_CALLBACK_EVENT = @"$is_channel_callback_event";
 // 远程控制配置信息
 NSString * const kSAEventPropertyAppRemoteConfig = @"$app_remote_config";
 
@@ -141,9 +135,6 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
         dispatch_sync(queue, block);
     }
 }
-
-#pragma mark - Scheme Host
-NSString * const kSASchemeHostRemoteConfig = @"sensorsdataremoteconfig";
 
 #pragma mark - SF related notifications
 NSNotificationName const SA_TRACK_EVENT_NOTIFICATION = @"SensorsAnalyticsTrackEventNotification";

@@ -32,6 +32,7 @@
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
+#import "SAJSONUtil.h"
 #import "SAVisualizedManager.h"
 
 @interface SAVisualizedAbstractMessage ()
@@ -134,42 +135,35 @@
     if (serializerManager.alertInfos.count > 0) {
         jsonObject[@"app_alert_infos"] = [serializerManager.alertInfos copy];
     }
-
+    
     // H5 页面信息
     if (serializerManager.webPageInfo) {
         SAVisualizedWebPageInfo *webPageInfo = serializerManager.webPageInfo;
         jsonObject[@"h5_url"] = webPageInfo.url;
         jsonObject[@"h5_title"] = webPageInfo.title;
     }
-
+    
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
-
     // 可视化全埋点配置版本号
     jsonObject[@"config_version"] = [SAVisualizedManager sharedInstance].configSources.configVersion;
 
-    // 使用 GZip 压缩
-    if (_payload.count > 0) {
-        // 1. 序列化 Payload
-        NSData *jsonDataPayload = [NSJSONSerialization dataWithJSONObject:[_payload copy] options:0 error:NULL];
-        NSString *jsonString = [[NSString alloc] initWithData:jsonDataPayload encoding:NSUTF8StringEncoding];
-
-        // 2. 使用 GZip 进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-
-        // 3. Base64 Encode
-        NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-
-        jsonObject[@"gzip_payload"] = b64String;
+    if (_payload.count == 0) {
+        return [SAJSONUtil dataWithJSONObject:jsonObject];
     }
-
-    NSError *error = nil;
-    NSData *jsonData = [NSJSONSerialization dataWithJSONObject:jsonObject options:0 error:&error];
-    if (!jsonData && error) {
-        SALogError(@"Failed to serialize test designer message: %@", error);
-    }
-
-    return jsonData;
+    // 如果使用 GZip 压缩
+    // 1. 序列化 Payload
+    NSData *jsonData = [SAJSONUtil dataWithJSONObject:_payload];
+    
+    // 2. 使用 GZip 进行压缩
+    NSData *zippedData = [SAGzipUtility gzipData:jsonData];
+    
+    // 3. Base64 Encode
+    NSString *b64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    
+    jsonObject[@"gzip_payload"] = b64String;
+    
+    return [SAJSONUtil dataWithJSONObject:jsonObject];
 }
 
 - (NSString *)debugDescription {

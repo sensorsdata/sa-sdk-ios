@@ -22,15 +22,15 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import <UIKit/UIKit.h>
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
 #import "SAFileStore.h"
 #import "SAValidator.h"
 #import "SALog.h"
 
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
-    #import "SAKeyChainItemWrapper.h"
+#if TARGET_OS_IOS
+#import "SAKeyChainItemWrapper.h"
+#import <UIKit/UIKit.h>
 #endif
 
 @interface SAIdentifier ()
@@ -84,14 +84,14 @@
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+#if TARGET_OS_IOS
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
 }
 
 - (void)resetAnonymousId {
     dispatch_async(self.queue, ^{
-        NSString *anonymousId = [SAIdentifier uniqueHardwareId];
+        NSString *anonymousId = [SAIdentifier hardwareID];
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
     });
@@ -134,6 +134,8 @@
     });
 }
 
+
+#if TARGET_OS_IOS
 + (NSString *)idfa {
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
@@ -149,16 +151,38 @@
 + (NSString *)idfv {
     return [UIDevice currentDevice].identifierForVendor.UUIDString;
 }
+#elif TARGET_OS_OSX
+/// mac SerialNumber（序列号）作为设备标识
++ (NSString *)serialNumber {
+    io_service_t platformExpert = IOServiceGetMatchingService(kIOMasterPortDefault,IOServiceMatching("IOPlatformExpertDevice"));
+    CFStringRef serialNumberRef = NULL;
+    if (platformExpert) {
+        serialNumberRef = IORegistryEntryCreateCFProperty(platformExpert,CFSTR(kIOPlatformSerialNumberKey),kCFAllocatorDefault, 0);
+        IOObjectRelease(platformExpert);
+    }
+    NSString *serialNumberString = nil;
+    if (serialNumberRef) {
+        serialNumberString = [NSString stringWithString:(__bridge NSString *)serialNumberRef];
+        CFRelease(serialNumberRef);
+    }
+    return serialNumberString;
+}
+#endif
 
-+ (NSString *)uniqueHardwareId {
-    NSString *distinctId = [self idfa];
 
++ (NSString *)hardwareID {
+    NSString *distinctId = nil;
+#if TARGET_OS_IOS
+    distinctId = [self idfa];
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
         distinctId = [self idfv];
     }
+#elif TARGET_OS_OSX
+    distinctId = [self serialNumber];
+#endif
 
-    // 没有IDFV，则使用UUID
+    // 如果都没取到，则使用UUID
     if (!distinctId) {
         SALogDebug(@"%@ error getting device identifier: falling back to uuid", self);
         distinctId = [NSUUID UUID].UUIDString;
@@ -171,7 +195,7 @@
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
 
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
+#if TARGET_OS_IOS
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
@@ -180,17 +204,21 @@
         }
         anonymousId = distinctIdInKeychain;
     } else {
-#endif
         if (anonymousId.length == 0) {
-            anonymousId = [SAIdentifier uniqueHardwareId];
+            anonymousId = [SAIdentifier hardwareID];
             [self archiveAnonymousId:anonymousId];
         } else {
-#ifndef SENSORS_ANALYTICS_DISABLE_KEYCHAIN
             //保存 KeyChain
             [SAKeyChainItemWrapper saveUdid:anonymousId];
         }
-#endif
     }
+#else
+    if (anonymousId.length == 0) {
+        anonymousId = [SAIdentifier hardwareID];
+        [self archiveAnonymousId:anonymousId];
+    }
+#endif
+
     return anonymousId;
 }
 

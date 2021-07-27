@@ -1,8 +1,8 @@
 //
-// SAScriptMessageHandler.h
+// SARemoteConfigCommonOperator.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/3/18.
+// Created by wenquan on 2020/7/20.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,12 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
-
-#import <WebKit/WebKit.h>
+#import "SARemoteConfigOperator.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAScriptMessageHandler : NSObject <WKScriptMessageHandler>
-
-+ (instancetype)sharedInstance;
+/// 远程配置普通模式处理类
+@interface SARemoteConfigCommonOperator : SARemoteConfigOperator
 
 @end
 

@@ -130,9 +130,8 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
             SALogWarn(@"设备尚未打开定位服务");
             return;
         }
-        if (@available(iOS 8.0, *)) {
-            [self.locationManager requestWhenInUseAuthorization];
-        }
+
+        [self.locationManager requestWhenInUseAuthorization];
         [self.locationManager startUpdatingLocation];
         self.isUpdatingLocation = YES;
     } @catch (NSException *e) {

@@ -19,20 +19,20 @@
 //
 
 #import <Foundation/Foundation.h>
-#import <UIKit/UIKit.h>
 #import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 typedef NS_ENUM(NSUInteger, SAModuleType) {
     SAModuleTypeLocation,
-    SAModuleTypeChannelMatch,
     SAModuleTypeVisualized,
-    SAModuleTypeEncrypt,
     SAModuleTypeDeviceOrientation,
     SAModuleTypeReactNative,
     SAModuleTypeAppPush,
     SAModuleTypeAutoTrack,
+    SAModuleTypeJavaScriptBridge,
+    SAModuleTypeRemoteConfig,
+    SAModuleTypeException,
 };
 
 @interface SAModuleManager : NSObject <SAOpenURLProtocol>
@@ -72,12 +72,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 @end
 
 #pragma mark -
-@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
-
-/// 是否正在连接
-@property (nonatomic, assign, readonly, getter=isConnecting) BOOL connecting;
-
-@end
 
 @interface SAModuleManager (DebugMode) <SADebugModeModuleProtocol>
 
@@ -92,12 +86,6 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
-@interface SAModuleManager (PushClick) <SAAppPushModuleProtocol>
-
-@end
-
-#pragma mark -
-
 @interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
 
 @end
@@ -105,6 +93,16 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 #pragma mark -
 
 @interface SAModuleManager (AutoTrack) <SAAutoTrackModuleProtocol>
+
+@end
+
+#pragma mark -
+
+@interface SAModuleManager (JavaScriptBridge) <SAJavaScriptBridgeModuleProtocol>
+
+@end
+
+@interface SAModuleManager (RemoteConfig) <SARemoteConfigModuleProtocol>
 
 @end
 

@@ -66,13 +66,15 @@ static SAReachabilityStatus SAReachabilityStatusForFlags(SCNetworkReachabilityFl
             returnValue = SAReachabilityStatusViaWiFi;
         }
     }
-
+    
+#if TARGET_OS_IOS
     if ((flags & kSCNetworkReachabilityFlagsIsWWAN) == kSCNetworkReachabilityFlagsIsWWAN) {
         /*
          ... but WWAN connections are OK if the calling application is using the CFNetwork APIs.
          */
         returnValue = SAReachabilityStatusViaWWAN;
     }
+#endif
 
     return returnValue;
 }

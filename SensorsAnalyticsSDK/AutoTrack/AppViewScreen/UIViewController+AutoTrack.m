@@ -25,10 +25,8 @@
 
 #import "UIViewController+AutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
-#import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SALog.h"
-#import "SensorsAnalyticsSDK+Private.h"
 #import "UIView+AutoTrack.h"
 #import "SAAutoTrackManager.h"
 #import "SAWeakPropertyContainer.h"
@@ -80,18 +78,14 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
         }
     }
 
-#ifndef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
-    UIViewController *viewController = (UIViewController *)self;
-    if (!viewController.parentViewController ||
-        [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
-        [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
-        [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
-        [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
-        [appViewScreenTracker autoTrackEventWithViewController:viewController];
+    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
+        !self.parentViewController ||
+        [self.parentViewController isKindOfClass:[UITabBarController class]] ||
+        [self.parentViewController isKindOfClass:[UINavigationController class]] ||
+        [self.parentViewController isKindOfClass:[UIPageViewController class]] ||
+        [self.parentViewController isKindOfClass:[UISplitViewController class]]) {
+        [appViewScreenTracker autoTrackEventWithViewController:self];
     }
-#else
-    [appViewScreenTracker autoTrackEventWithViewController:self];
-#endif
 
     // 标记 previousViewController
     if (self.navigationController && self.parentViewController == self.navigationController) {

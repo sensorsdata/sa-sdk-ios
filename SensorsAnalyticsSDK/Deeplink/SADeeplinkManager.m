@@ -28,6 +28,7 @@
 #import "SAURLUtils.h"
 #import "SAFileStore.h"
 #import "SALog.h"
+#import "SAJSONUtil.h"
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
@@ -341,7 +342,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
         NSString *errorMsg;
         BOOL success  = NO;
         if (response.statusCode == 200 && data) {
-            result = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableContainers error:nil];
+            result = [SAJSONUtil JSONObjectWithData:data];
             errorMsg = result[@"errorMsg"];
             success = errorMsg.length <= 0;
             self.latestUtms = [self acquireLatestUtmProperties:result[@"channel_params"]];

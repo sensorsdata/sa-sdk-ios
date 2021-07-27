@@ -1,8 +1,8 @@
 //
-// SARemoteConfigCheckOperator.h
+// SARemoteConfigManager.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2020/11/1.
+// Created by wenquan on 2020/11/5.
 // Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,18 +18,18 @@
 // limitations under the License.
 //
 
-#import "SARemoteConfigOperator.h"
+#import <Foundation/Foundation.h>
+#import "SARemoteConfigCommonOperator.h"
+#import "SARemoteConfigCheckOperator.h"
+#import "SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-/// 远程配置校验模式处理类
-@interface SARemoteConfigCheckOperator : SARemoteConfigOperator
+@interface SARemoteConfigManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SARemoteConfigModuleProtocol>
 
-/// 初始化远程配置校验模式处理类
-/// @param options 输入的远程配置参数
-/// @param model 输入的远程配置模型
-/// @return 远程配置校验模式处理类的实例
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options remoteConfigModel:(SARemoteConfigModel *)model;
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

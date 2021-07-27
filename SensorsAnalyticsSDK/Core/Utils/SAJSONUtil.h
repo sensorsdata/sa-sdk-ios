@@ -22,25 +22,37 @@
 
 @interface SAJSONUtil : NSObject
 
-/**
- *  @abstract
- *  把一个Object转成Json字符串
- *
- *  @param obj 要转化的对象Object
- *
- *  @return 转化后得到的字符串
- */
-+ (NSData *)JSONSerializeObject:(id)obj;
+/// 把一个 Object 序列化成 jsonData
+/// @param obj 要转化的对象 Object
+///  @return 序列化后的 jsonData
++ (NSData *)dataWithJSONObject:(id)obj;
 
-/**
- *  @abstract
- *  把 JSON 字符串转成对象 Object
- *
- *  @param jsonStr  要转化的字符串
- *
- *  @return 转化后得到的对象 Object
- */
-+ (id)objectFromJSONString:(NSString *)jsonStr;
 
+/// 把一个 Object 序列化成 jsonString
+/// @param obj 要转化的对象 Object
+///  @return 序列化后的 jsonString
++ (NSString *)stringWithJSONObject:(id)obj;
+
+/// jsonData 数据解析
+/// @param data 需要解析的 jsonData
+///  @return 解析后的对象 Object
++ (id)JSONObjectWithData:(NSData *)data;
+
+/// jsonString 数据解析
+/// @param string 需要解析的 jsonString
+///  @return 解析后的对象 Object
++ (id)JSONObjectWithString:(NSString *)string;
+
+/// jsonString 数据解析
+/// @param string 需要解析的 jsonString
+/// @param options NSJSONReadingOptions 配置
+/// @return 解析后的对象 Object
++ (id)JSONObjectWithString:(NSString *)string options:(NSJSONReadingOptions)options;
+
+/// jsonData 数据解析
+/// @param data 需要解析的 jsonData
+/// @param options NSJSONReadingOptions 配置
+/// @return 解析后的对象 Object
++ (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)options;
 
 @end

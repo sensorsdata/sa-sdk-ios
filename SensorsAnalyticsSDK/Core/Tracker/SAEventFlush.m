@@ -29,6 +29,7 @@
 #import "SAObject+SAConfigOptions.h"
 #import "SANetwork.h"
 #import "SALog.h"
+#import "SAJSONUtil.h"
 
 @interface SAEventFlush ()
 
@@ -142,14 +143,8 @@
                 }
             }
 
-            SALogDebug(@"==========================================================================");
-            @try {
-                NSData *jsonData = [jsonString dataUsingEncoding:NSUTF8StringEncoding];
-                NSDictionary *dict = [NSJSONSerialization JSONObjectWithData:jsonData options:NSJSONReadingMutableContainers error:nil];
-                SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
-            } @catch (NSException *exception) {
-                SALogError(@"%@: %@", self, exception);
-            }
+            NSDictionary *dict = [SAJSONUtil JSONObjectWithString:jsonString];
+            SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
 
             if (statusCode != 200) {
                 SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);

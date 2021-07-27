@@ -33,7 +33,11 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+#if TARGET_OS_IOS
         _lib = @"iOS";
+#elif TARGET_OS_OSX
+        _lib = @"macOS";
+#endif
         _method = kSALibMethodCode;
         _version = [SensorsAnalyticsSDK.sharedInstance libVersion];
         _appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];

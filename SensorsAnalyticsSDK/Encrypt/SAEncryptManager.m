@@ -32,7 +32,7 @@
 #import "SALog.h"
 #import "SARSAPluginEncryptor.h"
 #import "SAECCPluginEncryptor.h"
-#import "SAConfigOptions+Private.h"
+#import "SAConfigOptions+Encrypt.h"
 #import "SASecretKeyFactory.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
@@ -56,10 +56,22 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 #pragma mark - SAModuleProtocol
 
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+
+    if (enable) {
+        [self updateEncryptor];
+    }
+}
+
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     _configOptions = configOptions;
-    self.encryptors = configOptions.encryptors;
-    [self updateEncryptor];
+
+    NSMutableArray *encryptors = [NSMutableArray array];
+    [encryptors addObject:[[SAECCPluginEncryptor alloc] init]];
+    [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
+    [encryptors addObjectsFromArray:configOptions.encryptors];
+    self.encryptors = encryptors;
 }
 
 #pragma mark - SAOpenURLProtocol
@@ -125,10 +137,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
 
         // 使用 gzip 进行压缩
-        NSData *jsonData = [SAJSONUtil JSONSerializeObject:obj];
-        NSString *encodingString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
-        NSData *encodingData = [encodingString dataUsingEncoding:NSUTF8StringEncoding];
-        NSData *zippedData = [SAGzipUtility gzipData:encodingData];
+        NSData *jsonData = [SAJSONUtil dataWithJSONObject:obj];
+        NSData *zippedData = [SAGzipUtility gzipData:jsonData];
 
         // 加密数据
         NSString *encryptedString =  [self.encryptor encryptEvent:zippedData];

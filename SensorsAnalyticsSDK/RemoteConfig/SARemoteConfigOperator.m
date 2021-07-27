@@ -28,9 +28,9 @@
 #import "SAConstants+Private.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
-
-@implementation SARemoteConfigOptions
-@end
+#import "SAModuleManager.h"
+#import "SARemoteConfigEventObject.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @interface SARemoteConfigOperator ()
 
@@ -47,10 +47,11 @@
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithRemoteConfigOptions:(SARemoteConfigOptions *)options {
+- (instancetype)initWithConfigOptions:(SAConfigOptions *)configOptions remoteConfigModel:(SARemoteConfigModel *)model {
     self = [super init];
     if (self) {
-        _options = options;
+        _configOptions = configOptions;
+        _model = model;
     }
     return self;
 }
@@ -85,13 +86,8 @@
             NSInteger statusCode = response.statusCode;
             BOOL success = statusCode == 200 || statusCode == 304;
             NSDictionary<NSString *, id> *config = nil;
-            @try{
-                if (statusCode == 200 && data.length) {
-                    config = [NSJSONSerialization JSONObjectWithData:data options:NSJSONReadingMutableLeaves error:nil];
-                }
-            } @catch (NSException *e) {
-                SALogError(@"【remote config】%@ error: %@", self, e);
-                success = NO;
+            if (statusCode == 200 && data.length) {
+                config = [SAJSONUtil JSONObjectWithData:data];
             }
             
             completion(success, config);
@@ -123,39 +119,34 @@
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
-    NSString *eventConfigString = nil;
-    NSData *eventConfigData = [SAJSONUtil JSONSerializeObject:remoteConfig];
-    if (eventConfigData) {
-        eventConfigString = [[NSString alloc] initWithData:eventConfigData encoding:NSUTF8StringEncoding];
-    }
-    self.options.trackEventBlock(kSAEventNameAppRemoteConfigChanged, @{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""});
+    NSString *eventConfigString = [SAJSONUtil stringWithJSONObject:remoteConfig];
+    SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:kSAEventNameAppRemoteConfigChanged];
+    [SensorsAnalyticsSDK.sdkInstance asyncTrackEventObject:object properties:@{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""}];
+    // 触发 $AppRemoteConfigChanged 时 flush 一次
+    [SensorsAnalyticsSDK.sdkInstance flush];
 }
 
 - (void)enableRemoteConfig:(NSDictionary *)config {
     self.model = [[SARemoteConfigModel alloc] initWithDictionary:config];
     
-    // 发送远程配置模块 Model 变化通知
+    /* 发送远程配置模块 Model 变化通知
+     定位和设备方向采集（Location 和 DeviceOrientation 模块），依赖这个通知，如果使用相关功能，必须开启远程控制功能
+    */
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:self.model];
-    
-    BOOL isDisableSDK = self.isDisableSDK;
-    BOOL isDisableDebugMode = self.isDisableDebugMode;
-    self.options.triggerEffectBlock(isDisableSDK, isDisableDebugMode);
 }
-
-#pragma mark - Private
 
 #pragma mark Network
 
 - (BOOL)isLibVersionUnchanged {
-    return [self.model.localLibVersion isEqualToString:self.options.currentLibVersion];
+    return [self.model.localLibVersion isEqualToString:SensorsAnalyticsSDK.sdkInstance.libVersion];
 }
 
 - (BOOL)shouldAddVersionOnEnableEncrypt {
-    if (!self.options.configOptions.enableEncrypt) {
+    if (!self.configOptions.enableEncrypt) {
         return YES;
     }
-    
-    return self.options.createEncryptorResultBlock();
+
+    return SAModuleManager.sharedInstance.hasSecretKey;
 }
 
 - (NSURLRequest *)buildURLRequestWithOriginalVersion:(nullable NSString *)originalVersion latestVersion:(nullable NSString *)latestVersion {
@@ -199,10 +190,6 @@
     return self.model.disableSDK;
 }
 
-- (NSInteger)autoTrackMode {
-    return self.model.autoTrackMode;
-}
-
 - (NSArray<NSString *> *)eventBlackList {
     return self.model.eventBlackList;
 }
@@ -220,11 +207,11 @@
 }
 
 - (NSURL *)remoteConfigURL {
-    return [NSURL URLWithString:self.options.configOptions.remoteConfigURL];
+    return [NSURL URLWithString:self.configOptions.remoteConfigURL];
 }
 
 - (NSURL *)serverURL {
-    return [NSURL URLWithString:self.options.configOptions.serverURL];
+    return [NSURL URLWithString:self.configOptions.serverURL];
 }
 
 - (NSString *)project {

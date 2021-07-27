@@ -21,7 +21,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SAModuleProtocol.h"
+#import "SAModuleManager+Visualized.h"
 #import "SAVisualPropertiesTracker.h"
 #import "SAVisualizedEventCheck.h"
 
@@ -33,7 +33,7 @@ typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAVisualizedManager : NSObject<SAModuleProtocol, SAOpenURLProtocol, SAVisualizedModuleProtocol>
+@interface SAVisualizedManager : NSObject<SAModuleProtocol, SAOpenURLProtocol, SAVisualizedModuleProtocol, SAJavaScriptBridgeModuleProtocol>
 
 @property (class,nonatomic, strong, readonly)SAVisualizedManager *sharedInstance;
 
@@ -55,6 +55,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否开启埋点校验
 - (void)enableEventCheck:(BOOL)enable;
+
+/// 指定页面开启可视化
+/// @param controllers  需要开启可视化 ViewController 的类名
+- (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers;
+
+/// 判断某个页面是否开启可视化
+/// @param viewController 当前页面 viewController
+- (BOOL)isVisualizeWithViewController:(UIViewController *)viewController;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -142,6 +142,9 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
     if (!isSwitchTab) {
         return;
     }
+    if (!SAVisualizedManager.sharedInstance.visualPropertiesTracker) {
+        return;
+    }
 
     SAViewNode *tabBarNode = self.sensorsdata_viewNode;
     NSString *itemIndex = [NSString stringWithFormat:@"%lu", (unsigned long)[self.items indexOfObject:selectedItem]];
