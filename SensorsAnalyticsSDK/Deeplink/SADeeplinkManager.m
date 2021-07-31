@@ -28,12 +28,33 @@
 #import "SAURLUtils.h"
 #import "SAFileStore.h"
 #import "SALog.h"
+#import "SAIdentifier.h"
 #import "SAJSONUtil.h"
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
+static NSString *const kSAEventPropertyDeepLinkURL = @"$deeplink_url";
 
 static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
+
+@interface SADeepLinkLaunchEventObject : SAPresetEventObject
+
+- (instancetype)init;
+
+@end
+
+@implementation SADeepLinkLaunchEventObject
+
+- (instancetype)init {
+    self = [super initWithEventId:kSAAppDeeplinkLaunchEvent];
+    return self;
+}
+
+// 手动调用接口采集 $AppDeeplinkLaunch 事件, 不需要添加 $latest_utm_xxx 属性
+- (void)addLatestUtmProperties:(NSDictionary *)properties {
+}
+
+@end
 
 @interface SADeeplinkManager ()
 
@@ -189,7 +210,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     [self clearLatestUtmProperties];
     // 删除本地保存的 DeepLink 信息
     [self saveDeepLinkInfo:nil];
-    self.utms[@"$deeplink_url"] = url.absoluteString;
+    self.utms[kSAEventPropertyDeepLinkURL] = url.absoluteString;
 }
 
 #pragma mark - save latest utms in local file
@@ -244,15 +265,37 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
     if ([self isValidURLForServerMode:url]) {
         // ServerMode 先触发 Launch 事件再请求接口，Launch 事件中只新增 $deeplink_url 属性
-        [self trackAppDeepLinkLaunchEvent:url];
+        SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+        [properties addEntriesFromDictionary:self.utms];
+        [properties addEntriesFromDictionary:self.latestUtms];
+        properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
         [self requestDeepLinkInfo:url];
     } else {
         // LocalMode 先解析 Query 参数后再触发 Launch 事件，Launch 事件中有 utm_* 属性信息
         NSDictionary *dictionary = [SAURLUtils queryItemsWithURL:url];
         [self acquireCurrentDeepLinkInfo:dictionary];
-        [self trackAppDeepLinkLaunchEvent:url];
+        SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
+        NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+        [properties addEntriesFromDictionary:self.utms];
+        [properties addEntriesFromDictionary:self.latestUtms];
+        properties[kSAEventPropertyDeepLinkURL] = url.absoluteString;
+        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
     }
     return YES;
+}
+
+- (NSString *)appInstallSource {
+    NSMutableDictionary <NSString *, NSString *>*sources = [NSMutableDictionary dictionary];
+    sources[@"idfa"] = [SAIdentifier idfa];
+    sources[@"idfv"] = [SAIdentifier idfv];
+    NSMutableArray <NSString *>*result = [NSMutableArray array];
+    [sources enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSString * _Nonnull obj, BOOL * _Nonnull stop) {
+        [result addObject:[NSString stringWithFormat:@"%@=%@", key, obj]];
+    }];
+    return result.count > 0 ? [result componentsJoinedByString:@"##"] : @"";
 }
 
 /// 通过 URL 的 Query 获取本次的 utm_* 属性
@@ -359,12 +402,18 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 #pragma mark - deeplink event
-- (void)trackAppDeepLinkLaunchEvent:(NSURL *)url {
-    NSMutableDictionary *props = [NSMutableDictionary dictionary];
-    [props addEntriesFromDictionary:self.utms];
-    [props addEntriesFromDictionary:self.latestUtms];
-    props[@"$deeplink_url"] = url.absoluteString;
-    [[SensorsAnalyticsSDK sharedInstance] track:kSAAppDeeplinkLaunchEvent withProperties:props];
+/// 对外接口, 用于客户手动调用采集 $AppDeeplinkLaunch 事件
+/// @param url $deeplink_url
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    if (url && ![url isKindOfClass:NSString.class]) {
+        SALogError(@"deeplink url must be NSString. got: %@ %@", url.class, url);
+        return;
+    }
+    SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] init];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    properties[kSAEventPropertyDeepLinkURL] = url;
+    properties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 }
 
 - (void)trackDeeplinkMatchedResult:(NSURL *)url result:(NSDictionary *)result interval:(NSTimeInterval)interval errorMsg:(NSString *)errorMsg {
@@ -372,10 +421,11 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     props[@"$event_duration"] = [NSString stringWithFormat:@"%.3f", interval];
     props[@"$deeplink_options"] = result[@"page_params"];
     props[@"$deeplink_match_fail_reason"] = errorMsg.length ? errorMsg : nil;
-    props[@"$deeplink_url"] = url.absoluteString;
+    props[kSAEventPropertyDeepLinkURL] = url.absoluteString;
     NSDictionary *utms = [self acquireUtmProperties:result[@"channel_params"]];
     [props addEntriesFromDictionary:utms];
-    [[SensorsAnalyticsSDK sharedInstance] track:kSADeeplinkMatchedResultEvent withProperties:props];
+    SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSADeeplinkMatchedResultEvent];
+    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:props];
 }
 
 @end

@@ -60,6 +60,10 @@ static NSSet *presetEventNames;
     [self.properties addEntriesFromDictionary:properties];
 }
 
+- (void)addLatestUtmProperties:(NSDictionary *)properties {
+    [self.properties addEntriesFromDictionary:properties];
+}
+
 - (void)addModuleProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
 }

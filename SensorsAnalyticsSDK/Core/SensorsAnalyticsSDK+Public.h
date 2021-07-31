@@ -683,6 +683,12 @@ DeepLink 回调函数
 */
 - (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback API_UNAVAILABLE(macos);
 
+/**
+触发 $AppDeepLinkLaunch 事件
+@param url 唤起 App 的 DeepLink url
+*/
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
+
 @end
 
 #pragma mark - JSCall

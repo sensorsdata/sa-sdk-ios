@@ -146,6 +146,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 清除本次 DeepLink 解析到的 utm 信息
 - (void)clearUtmProperties;
 
+/// 触发 $AppDeepLinkLaunch 事件
+/// @param url 唤起 App 的 DeepLink url
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
+
 @end
 
 #pragma mark -

@@ -28,6 +28,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 事件属性
 - (void)addEventProperties:(NSDictionary *)properties;
 
+/// 添加 $latest_utm_xxx 属性
+/// @param properties $latest_utm_xxx 属性
+- (void)addLatestUtmProperties:(NSDictionary *)properties;
+
 /// 添加渠道信息
 /// @param properties 渠道信息
 - (void)addChannelProperties:(NSDictionary *)properties;

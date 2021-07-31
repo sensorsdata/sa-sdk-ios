@@ -351,6 +351,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.deeplinkManager clearUtmProperties];
 }
 
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
+    [self.deeplinkManager trackDeepLinkLaunchWithURL:url];
+}
+
 @end
 
 #pragma mark -

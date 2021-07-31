@@ -79,6 +79,9 @@
 - (void)addEventProperties:(NSDictionary *)properties {
 }
 
+- (void)addLatestUtmProperties:(NSDictionary *)properties {
+}
+
 - (void)addChannelProperties:(NSDictionary *)properties {
 }
 
