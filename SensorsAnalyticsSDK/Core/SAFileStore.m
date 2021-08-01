@@ -71,7 +71,13 @@
 
 #pragma mark - file path
 + (NSString *)filePath:(NSString *)key {
+#if TARGET_OS_OSX
+    // 兼容老版 mac SDK 的本地数据
+    NSString *filename = [NSString stringWithFormat:@"com.sensorsdata.analytics.mini.SensorsAnalyticsSDK.%@.plist", key];
+#else
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", key];
+#endif
+
     NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
             stringByAppendingPathComponent:filename];
     SALogDebug(@"filepath for %@ is %@", key, filepath);
