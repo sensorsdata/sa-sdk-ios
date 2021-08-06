@@ -34,9 +34,15 @@
         return NO;
     }
     NSString *filePath = [SAFileStore filePath:fileName];
+#if TARGET_OS_IOS
     /* 为filePath文件设置保护等级 */
     NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
                                                            forKey:NSFileProtectionKey];
+#elif TARGET_OS_OSX
+// macOS10.13 不包含 NSFileProtectionComplete
+    NSDictionary *protection = [NSDictionary dictionary];
+#endif
+    
     [[NSFileManager defaultManager] setAttributes:protection
                                      ofItemAtPath:filePath
                                             error:nil];

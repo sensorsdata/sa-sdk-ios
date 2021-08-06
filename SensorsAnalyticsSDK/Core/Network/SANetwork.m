@@ -33,7 +33,10 @@
 #import "SAJSONUtil.h"
 #import "SAHTTPSession.h"
 #import "SAReachability.h"
+
+#if TARGET_OS_IOS
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#endif
 
 @interface SANetwork ()
 
@@ -164,7 +167,8 @@
     return networkTypeString;
 }
 
-+ (SensorsAnalyticsNetworkType)networkTypeWWANOptionsWithString:(NSString *)networkTypeString API_UNAVAILABLE(macos) {
+#if TARGET_OS_IOS
++ (SensorsAnalyticsNetworkType)networkTypeWWANOptionsWithString:(NSString *)networkTypeString {
     if ([@"2G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType2G;
     } else if ([@"3G" isEqualToString:networkTypeString]) {
@@ -181,7 +185,7 @@
     return SensorsAnalyticsNetworkTypeNONE;
 }
 
-+ (NSString *)networkTypeWWANString API_UNAVAILABLE(macos) {
++ (NSString *)networkTypeWWANString {
     if (![SAReachability sharedInstance].isReachableViaWWAN) {
         return @"NULL";
     }
@@ -206,7 +210,7 @@
     return [SANetwork networkStatusWithRadioAccessTechnology:currentRadioAccessTechnology];
 }
 
-+ (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value API_UNAVAILABLE(macos) {
++ (NSString *)networkStatusWithRadioAccessTechnology:(NSString *)value {
     if ([value isEqualToString:CTRadioAccessTechnologyGPRS] ||
         [value isEqualToString:CTRadioAccessTechnologyEdge]
         ) {
@@ -225,7 +229,6 @@
         return @"4G";
     }
 
-#if TARGET_OS_IOS
 #ifdef __IPHONE_14_1
     else if (@available(iOS 14.1, *)) {
         if ([value isEqualToString:CTRadioAccessTechnologyNRNSA] ||
@@ -235,8 +238,8 @@
         }
     }
 #endif
-#endif
     return @"UNKNOWN";
 }
+#endif
 
 @end

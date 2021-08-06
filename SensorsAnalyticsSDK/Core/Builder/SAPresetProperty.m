@@ -23,9 +23,6 @@
 #endif
 
 #include <sys/sysctl.h>
-#import <CoreTelephony/CTCarrier.h>
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-
 #import "SAPresetProperty.h"
 #import "SAConstants+Private.h"
 #import "SAIdentifier.h"
@@ -38,6 +35,11 @@
 #import "SAValidator.h"
 #import "SAModuleManager.h"
 #import "SAJSONUtil.h"
+
+#if TARGET_OS_IOS
+#import <CoreTelephony/CTTelephonyNetworkInfo.h>
+#import <CoreTelephony/CTCarrier.h>
+#endif
 
 //中国运营商 mcc 标识
 static NSString* const SACarrierChinaMCC = @"460";
@@ -198,6 +200,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     return result;
 }
 
+#if TARGET_OS_IOS
 + (NSString *)carrierName API_UNAVAILABLE(macos) {
     NSString *carrierName = nil;
 
@@ -262,6 +265,7 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     }
     return carrierName;
 }
+#endif
 
 + (NSString *)appName {
     NSString *displayName = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"];

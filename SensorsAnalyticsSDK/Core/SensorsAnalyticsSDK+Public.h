@@ -687,7 +687,7 @@ DeepLink 回调函数
 触发 $AppDeepLinkLaunch 事件
 @param url 唤起 App 的 DeepLink url
 */
-- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url API_UNAVAILABLE(macos);
 
 @end
 

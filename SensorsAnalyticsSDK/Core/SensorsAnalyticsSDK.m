@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"3.0.2"
+#define VERSION @"3.0.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -253,7 +253,18 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
+#if TARGET_OS_OSX
+    if (serverUrl && ![serverUrl isKindOfClass:[NSString class]]) {
+        SALogError(@"%@ serverUrl must be NSString, please check the value!", self);
+        return;
+    }
+    // macOS 暂不支持远程控制，即不支持 setServerUrl: isRequestRemoteConfig: 接口
+    dispatch_async(self.serialQueue, ^{
+        self.configOptions.serverURL = serverUrl;
+    });
+#else
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
+#endif
 }
 
 - (NSString *)serverUrl {
@@ -624,12 +635,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
-    if (!self.trackEventCallback || !obj.eventId) {
+    NSString *eventName = obj.event;
+    if (!self.trackEventCallback || !eventName) {
         return YES;
     }
-    BOOL willEnque = self.trackEventCallback(obj.eventId, obj.properties);
+    BOOL willEnque = self.trackEventCallback(eventName, obj.properties);
     if (!willEnque) {
-        SALogDebug(@"\n【track event】: %@ can not enter database.", obj.eventId);
+        SALogDebug(@"\n【track event】: %@ can not enter database.", eventName);
         return NO;
     }
     // 校验 properties
