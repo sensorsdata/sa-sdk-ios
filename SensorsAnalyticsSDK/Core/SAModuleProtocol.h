@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
+- (void)updateServerURL:(NSString *)serverURL;
+
 @end
 
 #pragma mark -

@@ -184,7 +184,7 @@
 		A82E894E267D918100475757 /* SASecretKeyFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893D267D918100475757 /* SASecretKeyFactory.m */; };
 		A82E894F267D918100475757 /* SAEncryptManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893E267D918100475757 /* SAEncryptManager.m */; };
 		A82E8950267D918100475757 /* SAAESEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E893F267D918100475757 /* SAAESEncryptor.h */; };
-		A82E8951267D918100475757 /* SAEncryptProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E8940267D918100475757 /* SAEncryptProtocol.h */; };
+		A82E8951267D918100475757 /* SAEncryptProtocol.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E8940267D918100475757 /* SAEncryptProtocol.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A82E8952267D918100475757 /* SAECCPluginEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E8941267D918100475757 /* SAECCPluginEncryptor.h */; };
 		A82E8953267D918100475757 /* SAECCEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E8942267D918100475757 /* SAECCEncryptor.h */; };
 		A82E8954267D918100475757 /* SARSAEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E8943267D918100475757 /* SARSAEncryptor.m */; };
@@ -284,7 +284,7 @@
 		F277F5E425CFCE56009B5CE6 /* NSObject+DelegateProxy.h in Headers */ = {isa = PBXBuildFile; fileRef = F277F5E225CFCE56009B5CE6 /* NSObject+DelegateProxy.h */; };
 		F2E9723125E637820009A2B9 /* SAAppPushManager.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E9722F25E637820009A2B9 /* SAAppPushManager.h */; };
 		F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E9723025E637820009A2B9 /* SAAppPushManager.m */; };
-		FC002920262C189E00A18FE3 /* SAConfigOptions+Encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = FC0028EF2629756400A18FE3 /* SAConfigOptions+Encrypt.h */; };
+		FC002920262C189E00A18FE3 /* SAConfigOptions+Encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = FC0028EF2629756400A18FE3 /* SAConfigOptions+Encrypt.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
 		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
 		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };

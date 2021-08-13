@@ -41,6 +41,11 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 + (instancetype)sharedInstance;
 
+- (BOOL)isDisableSDK;
+
+/// 关闭所有的模块功能
+- (void)disableAllModules;
+
 /// 当前 SDK 中是否包含特定类型的模块
 /// @param type 需要判断的模块类型
 /// @return 是否包含
@@ -56,6 +61,9 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 /// @param type 模块类型
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type;
 
+/// 更新数据接收地址
+/// @param serverURL 新的数据接收地址
+- (void)updateServerURL:(NSString *)serverURL;
 @end
 
 #pragma mark -

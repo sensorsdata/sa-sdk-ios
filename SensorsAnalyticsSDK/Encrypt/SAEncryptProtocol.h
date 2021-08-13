@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+#import <Foundation/Foundation.h>
+
 @protocol SAEncryptProtocol <NSObject>
 
 /// 返回对称加密的类型，例如 AES

@@ -24,83 +24,95 @@
 
 #import "SASecretKeyFactory.h"
 #import "SAConfigOptions.h"
-#import "SAConfigOptions+Encrypt.h"
+#import "SASecretKey.h"
 #import "SAValidator.h"
 #import "SAJSONUtil.h"
-#import "SAECCEncryptor.h"
-#import "SAAESEncryptor.h"
-#import "SARSAEncryptor.h"
+#import "SAAlgorithmProtocol.h"
+#import "SAECCPluginEncryptor.h"
+
+static NSString *const kSAEncryptVersion = @"pkv";
+static NSString *const kSAEncryptPublicKey = @"public_key";
+static NSString *const kSAEncryptType = @"type";
+static NSString *const kSAEncryptTypeSeparate = @"+";
 
 @implementation SASecretKeyFactory
 
-+ (SASecretKey *)generateSecretKeyWithRemoteConfig:(NSDictionary *)remoteConfig {
-    if (!remoteConfig) {
+#pragma mark - Encryptor Plugin 2.0
++ (SASecretKey *)createSecretKeyByVersion2:(NSDictionary *)version2 {
+    // key_v2 不存在时直接跳过 2.0 逻辑
+    if (!version2) {
         return nil;
     }
-    NSString *customContent = remoteConfig[@"key_custom_placeholder"];
-    if ([SAValidator isValidString:customContent]) {
-        // 当自定义插件秘钥字段存在时，不再使用其他加密插件
-        // 不论秘钥是否创建成功，都不再切换使用其他加密插件
-        NSDictionary *config = [SAJSONUtil JSONObjectWithString:customContent];
-        SASecretKey *secretKey = [self createCustomSecretKey:config];
-        return secretKey;
+
+    NSNumber *pkv = version2[kSAEncryptVersion];
+    NSString *type = version2[kSAEncryptType];
+    NSString *publicKey = version2[kSAEncryptPublicKey];
+
+    // 检查相关参数是否有效
+    if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
+        return nil;
     }
 
-    NSString *eccContent = remoteConfig[@"key_ec"];
-    if (eccContent && NSClassFromString(kSAEncryptECCClassName)) {
-        // 当 key_ec 存在且加密库存在时，使用 ECC 加密插件
-        // 不论秘钥是否创建成功，都不再切换使用其他加密插件
+    NSArray *types = [type componentsSeparatedByString:kSAEncryptTypeSeparate];
+    // 当 type 分隔数组个数小于 2 时 type 不合法，不处理秘钥信息
+    if (types.count < 2) {
+        return nil;
+    }
+
+    // 非对称加密类型，例如: SM2
+    NSString *asymmetricType = types[0];
+
+    // 对称加密类型，例如: SM4
+    NSString *symmetricType = types[1];
+
+    return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] asymmetricEncryptType:asymmetricType symmetricEncryptType:symmetricType];
+}
+
++ (SASecretKey *)createSecretKeyByVersion1:(NSDictionary *)version1 {
+    if (!version1) {
+        return nil;
+    }
+    // 1.0 历史版本逻辑，只处理 key 字段中内容
+    NSString *eccContent = version1[@"key_ec"];
+
+    // 当 key_ec 存在且加密库存在时，使用 EC 加密插件
+    // 不论秘钥是否创建成功，都不再切换使用其他加密插件
+
+    // 这里为了检查 ECC 插件是否存在，手动生成 ECC 模拟秘钥
+    if (eccContent && [SAECCPluginEncryptor isAvaliable]) {
         NSDictionary *config = [SAJSONUtil JSONObjectWithString:eccContent];
-        SASecretKey *secretKey = [self createECCSecretKey:config];
-        return secretKey;
+        return [SASecretKeyFactory createECCSecretKey:config];
     }
 
-    // 当远程配置不包含自定义秘钥且 ECC 不可用时，使用 RSA 秘钥
-    return [self createRSASecretKey:remoteConfig];
+    // 当远程配置不包含自定义秘钥且 EC 不可用时，使用 RSA 秘钥
+    return [SASecretKeyFactory createRSASecretKey:version1];
 }
 
-+ (SASecretKey *)createCustomSecretKey:(NSDictionary *)config {
-    if (![SAValidator isValidDictionary:config]) {
-        return nil;
-    }
-    // 暂不支持自定义秘钥类型
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    return secretKey;
-}
-
+#pragma mark - Encryptor Plugin 1.0
 + (SASecretKey *)createECCSecretKey:(NSDictionary *)config {
     if (![SAValidator isValidDictionary:config]) {
         return nil;
     }
-    NSNumber *pkv = config[@"pkv"];
-    NSString *publicKey = config[@"public_key"];
-    NSString *type = config[@"type"];
+    NSNumber *pkv = config[kSAEncryptVersion];
+    NSString *publicKey = config[kSAEncryptPublicKey];
+    NSString *type = config[kSAEncryptType];
     if (!pkv || ![SAValidator isValidString:type] || ![SAValidator isValidString:publicKey]) {
         return nil;
     }
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    secretKey.version = [pkv integerValue];
-    secretKey.asymmetricEncryptType = type;
-    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
-    secretKey.key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
-    return secretKey;
+    NSString *key = [NSString stringWithFormat:@"%@:%@", type, publicKey];
+    return [[SASecretKey alloc] initWithKey:key version:[pkv integerValue] asymmetricEncryptType:type symmetricEncryptType:kSAAlgorithmTypeAES];
 }
 
 + (SASecretKey *)createRSASecretKey:(NSDictionary *)config {
     if (![SAValidator isValidDictionary:config]) {
         return nil;
     }
-    NSNumber *pkv = config[@"pkv"];
-    NSString *publicKey = config[@"public_key"];
+    NSNumber *pkv = config[kSAEncryptVersion];
+    NSString *publicKey = config[kSAEncryptPublicKey];
     if (!pkv || ![SAValidator isValidString:publicKey]) {
         return nil;
     }
-    SASecretKey *secretKey = [[SASecretKey alloc] init];
-    secretKey.version = [pkv integerValue];
-    secretKey.key = publicKey;
-    secretKey.asymmetricEncryptType = kSAAlgorithmTypeRSA;
-    secretKey.symmetricEncryptType = kSAAlgorithmTypeAES;
-    return secretKey;
+    return [[SASecretKey alloc] initWithKey:publicKey version:[pkv integerValue] asymmetricEncryptType:kSAAlgorithmTypeRSA symmetricEncryptType:kSAAlgorithmTypeAES];
 }
 
 @end

@@ -79,6 +79,15 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) SASecurityPolicy *securityPolicy API_UNAVAILABLE(macos);
 
 /**
+ * @abstract
+ * 设置 flush 时网络发送策略
+ *
+ * @discussion
+ * 默认 3G、4G、WI-FI 环境下都会尝试 flush
+ */
+@property (nonatomic) SensorsAnalyticsNetworkType flushNetworkPolicy;
+
+/**
  * @property
  *
  * @abstract
@@ -118,6 +127,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 开启 log 打印
 @property (nonatomic, assign) BOOL enableLog;
+
+/// 禁用 SDK，默认为 NO
+///
+/// 禁用后，SDK 将不会触发事件，也不会发送网络请求
+@property (nonatomic, assign) BOOL disableSDK;
 
 /// 开启点击图
 @property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);

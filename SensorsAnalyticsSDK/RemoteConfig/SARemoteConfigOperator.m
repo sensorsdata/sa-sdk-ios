@@ -101,10 +101,18 @@
 
 - (NSDictionary<NSString *, id> *)extractRemoteConfig:(NSDictionary<NSString *, id> *)config {
     @try {
-        NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionaryWithDictionary:config[@"configs"]];
-        [configs removeObjectForKey:@"key"];
+        // 只读取远程配置信息中的开关状态，不处理加密等其他逻辑字段
+        NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionary];
+        configs[@"disableDebugMode"] = config[@"configs"][@"disableDebugMode"];
+        configs[@"disableSDK"] = config[@"configs"][@"disableSDK"];
+        configs[@"autoTrackMode"] = config[@"configs"][@"autoTrackMode"];
+        configs[@"event_blacklist"] = config[@"configs"][@"event_blacklist"];
+        configs[@"effect_mode"] = config[@"configs"][@"effect_mode"];
+        configs[@"nv"] = config[@"configs"][@"nv"];
 
-        NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionaryWithDictionary:config];
+        // 读取远程配置信息中的版本信息
+        NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionary];
+        remoteConfig[@"v"] = config[@"v"];
         remoteConfig[@"configs"] = configs;
 
         return remoteConfig;
@@ -115,7 +123,8 @@
 }
 
 - (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    return config[@"configs"][@"key"];
+    // 远程配置中新增 key_v2，传递给加密模块时不做处理直接传递整个远程配置信息
+    return [config[@"configs"] copy];
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {

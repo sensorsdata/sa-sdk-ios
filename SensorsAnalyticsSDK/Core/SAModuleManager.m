@@ -58,6 +58,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.configOptions = configOptions;
+    // 禁止 SDK 时，不开启其他模块
+    if (configOptions.disableSDK) {
+        return;
+    }
 
     // H5 打通模块
     if (configOptions.enableJavaScriptBridge) {
@@ -172,6 +176,27 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 #pragma mark - Public
 
+- (BOOL)isDisableSDK {
+    if (self.configOptions.disableSDK) {
+        return YES;
+    }
+    id<SARemoteConfigModuleProtocol, SAModuleProtocol> manager = (id<SARemoteConfigModuleProtocol, SAModuleProtocol>)self.modules[kSARemoteConfigModuleName];
+    return manager.isEnable ? manager.isDisableSDK : NO;
+}
+
+- (void)disableAllModules {
+    NSArray<NSString *> *allKeys = self.modules.allKeys;
+    for (NSString *key in allKeys) {
+        // 这两个模块是使用接口开启，所以在 SAConfigOptions 中不存在标记，无法重新开启
+        // 当定位弹窗出现时，如果关闭了定位模块，会导致弹窗消失
+        if (![key isEqualToString:kSALocationModuleName] &&
+            ![key isEqualToString:kSADeviceOrientationModuleName] &&
+            ![key isEqualToString:kSADebugModeModuleName]) {
+            [self.modules removeObjectForKey:key];
+        }
+    }
+}
+
 - (BOOL)contains:(SAModuleType)type {
     NSString *moduleName = [self moduleNameForType:type];
     NSString *className = [self classNameForModule:moduleName];
@@ -186,6 +211,15 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 - (void)setEnable:(BOOL)enable forModuleType:(SAModuleType)type {
     NSString *name = [self moduleNameForType:type];
     [self setEnable:enable forModule:name];
+}
+
+- (void)updateServerURL:(NSString *)serverURL {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+        if (!([obj conformsToProtocol:@protocol(SAModuleProtocol)] && [obj respondsToSelector:@selector(updateServerURL:)]) || !obj.isEnable) {
+            return;
+        }
+        [obj updateServerURL:serverURL];
+    }];
 }
 
 #pragma mark - Open URL
@@ -407,10 +441,6 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (BOOL)isIgnoreEventObject:(SABaseEventObject *)obj {
     return [self.remoteConfigManager isIgnoreEventObject:obj];
-}
-
-- (BOOL)isDisableSDK {
-    return [self.remoteConfigManager isDisableSDK];
 }
 
 @end

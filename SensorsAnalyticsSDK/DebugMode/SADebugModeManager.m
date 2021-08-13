@@ -70,6 +70,9 @@
 #pragma mark - SADebugModeModuleProtocol
 
 - (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode {
+    if (_debugMode == mode) {
+        return;
+    }
     _debugMode = mode;
 
     if (_debugMode == SensorsAnalyticsDebugOff) {

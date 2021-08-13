@@ -27,7 +27,7 @@
 
 @interface SAConfigOptions ()<NSCopying>
 
-@property (nonatomic, strong, readwrite) NSMutableArray *encryptors;
+@property (atomic, strong, readwrite) NSMutableArray *encryptors;
 
 @end
 
@@ -53,6 +53,16 @@
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
         _enableAutoTrackChildViewScreen = YES;
 #endif
+
+        _flushNetworkPolicy =
+#if TARGET_OS_IOS
+        SensorsAnalyticsNetworkType3G |
+        SensorsAnalyticsNetworkType4G |
+#ifdef __IPHONE_14_1
+        SensorsAnalyticsNetworkType5G |
+#endif
+#endif
+        SensorsAnalyticsNetworkTypeWIFI;
     }
     return self;
 }
@@ -68,6 +78,8 @@
     options.maxCacheSize = self.maxCacheSize;
     options.enableLog = self.enableLog;
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
+    options.flushNetworkPolicy = self.flushNetworkPolicy;
+    options.disableSDK = self.disableSDK;
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书

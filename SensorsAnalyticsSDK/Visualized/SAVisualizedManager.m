@@ -25,12 +25,8 @@
 #import "SAVisualizedManager.h"
 #import "SAVisualizedConnection.h"
 #import "SAAlertController.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SensorsAnalyticsSDK+Visualized.h"
 #import "UIViewController+SAElementPath.h"
-#import "SAVisualPropertiesConfigSources.h"
 #import "SAConstants+Private.h"
-#import "UIView+SAElementPath.h"
 #import "UIView+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAModuleManager.h"
@@ -39,9 +35,6 @@
 #import "SAURLUtils.h"
 #import "SASwizzle.h"
 #import "SALog.h"
-
-static void * const kSAVisualizeContext = (void*)&kSAVisualizeContext;
-static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 
 @interface SAVisualizedManager()<SAConfigChangesDelegate>
 
@@ -83,10 +76,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     return self;
 }
 
-- (void)dealloc {
-    [self.configOptions removeObserver:self forKeyPath:kSAVisualizeObserverKeyPath context:kSAVisualizeContext];
-}
-
 #pragma mark SAConfigChangesDelegate
 - (void)configChangedWithValid:(BOOL)valid {
     if (valid){
@@ -122,11 +111,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
         if (error) {
             SALogError(@"Failed to swizzle on UIViewController. Details: %@", error);
         }
-
-        // 监听 configOptions 中 serverURL 变化，更新属性配置
-        if (self.configOptions.enableVisualizedAutoTrack) {
-            [self.configOptions addObserver:self forKeyPath:kSAVisualizeObserverKeyPath options:(NSKeyValueObservingOptionNew|NSKeyValueObservingOptionOld) context:kSAVisualizeContext];
-        }
     });
 
     if (!self.configSources && self.configOptions.enableVisualizedAutoTrack) {
@@ -134,6 +118,14 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
         self.configSources = [[SAVisualPropertiesConfigSources alloc] initWithDelegate:self];
         [self.configSources loadConfig];
     }
+}
+
+-(void)updateServerURL:(NSString *)serverURL {
+    if (![SAValidator isValidString:serverURL] || ![self.configOptions.serverURL isEqualToString:serverURL]) {
+        return;
+    }
+    // 刷新自定义属性配置
+    [self.configSources loadConfig];
 }
 
 #pragma mark -
@@ -262,7 +254,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     return self.visualizedType;
 }
 
-
 #pragma mark - Visualize
 
 - (void)addVisualizeWithViewControllers:(NSArray<NSString *> *)controllers {
@@ -286,24 +277,6 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
 }
 
 #pragma mark - Property
-
-- (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context {
-    if (context != kSAVisualizeContext) {
-        return [super observeValueForKeyPath:keyPath ofObject:object change:change context:context];
-    }
-
-    NSString *newValue = change[NSKeyValueChangeNewKey];
-    if (![SAValidator isValidString:newValue]) {
-        return;
-    }
-    if (![keyPath isEqualToString:kSAVisualizeObserverKeyPath] || [newValue isEqualToString:change[NSKeyValueChangeOldKey]]) {
-        return;
-    }
-    // 更新配置信息
-    [self.configSources reloadConfig];
-}
-
-
 - (nullable NSDictionary *)propertiesWithView:(UIView *)view {
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = view.sensorsdata_viewController;
     if (!viewController) {
@@ -352,6 +325,11 @@ static NSString * const kSAVisualizeObserverKeyPath = @"serverURL";
     if (!self.eventCheck && self.configSources.isValid) {
         self.eventCheck = [[SAVisualizedEventCheck alloc] initWithConfigSources:self.configSources];
     }
+}
+
+- (void)dealloc {
+    // 断开连接，防止 visualizedConnection 内 timer 导致无法释放
+    [self.visualizedConnection close];
 }
 
 @end

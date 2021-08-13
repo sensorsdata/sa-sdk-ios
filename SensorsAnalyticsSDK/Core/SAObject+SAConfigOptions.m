@@ -81,7 +81,7 @@
 }
 
 - (SensorsAnalyticsNetworkType)networkTypePolicy {
-    return [[SensorsAnalyticsSDK.sdkInstance valueForKey:@"networkTypePolicy"] integerValue];
+    return SensorsAnalyticsSDK.sdkInstance.configOptions.flushNetworkPolicy;
 }
 
 - (NSInteger)flushBulkSize {

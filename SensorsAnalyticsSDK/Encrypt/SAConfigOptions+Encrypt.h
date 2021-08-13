@@ -18,24 +18,15 @@
 // limitations under the License.
 //
 
-#import "SAConfigOptions.h"
 #import "SAEncryptProtocol.h"
-#import "SASecretKey.h"
+#import "SAConfigOptions.h"
+
+NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (Encrypt)
 
-@property (nonatomic, copy, readonly) NSArray *encryptors;
-
-- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor;
+- (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor API_UNAVAILABLE(macos);
 
 @end
 
-@interface SASecretKey (Private)
-
-/// 对称加密类型
-@property (nonatomic, copy) NSString *symmetricEncryptType;
-
-/// 非对称加密类型
-@property (nonatomic, copy) NSString *asymmetricEncryptType;
-
-@end
+NS_ASSUME_NONNULL_END

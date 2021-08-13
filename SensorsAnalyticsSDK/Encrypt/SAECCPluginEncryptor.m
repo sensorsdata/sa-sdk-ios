@@ -35,6 +35,10 @@
 
 @implementation SAECCPluginEncryptor
 
++ (BOOL)isAvaliable {
+    return NSClassFromString(kSAEncryptECCClassName) != nil;
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -57,7 +61,9 @@
 }
 
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey {
-    _eccEncryptor.key = publicKey;
+    if (![_eccEncryptor.key isEqualToString:publicKey]) {
+        _eccEncryptor.key = publicKey;
+    }
     return [_eccEncryptor encryptData:_aesEncryptor.key];
 }
 

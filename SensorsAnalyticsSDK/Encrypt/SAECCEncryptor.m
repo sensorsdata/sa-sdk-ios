@@ -26,6 +26,7 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
+NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 NSString * const kSAEncryptECCPrefix = @"EC:";
 
 typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *);
@@ -38,11 +39,12 @@ typedef NSString* (*SAEEncryptImplementation)(Class, SEL, NSString *, NSString *
         return;
     }
 
-    if (![key hasPrefix:kSAEncryptECCPrefix]) {
-        SALogError(@"Enable ECC encryption but the secret key is not ECC key!");
-        return;
+    // 兼容老版本逻辑，当前缀包含 EC: 时删除前缀信息
+    if ([key hasPrefix:kSAEncryptECCPrefix]) {
+        _key = [key substringFromIndex:[kSAEncryptECCPrefix length]];
+    } else {
+        _key = key;
     }
-    _key = [key substringFromIndex:[kSAEncryptECCPrefix length]];
 }
 
 #pragma mark - Public Methods

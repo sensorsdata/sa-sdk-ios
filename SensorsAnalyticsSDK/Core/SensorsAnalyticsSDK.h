@@ -47,3 +47,7 @@
 #if __has_include("SASecretKey.h")
 #import "SASecretKey.h"
 #endif
+
+#if __has_include("SAConfigOptions+Encrypt.h")
+#import "SAConfigOptions+Encrypt.h"
+#endif

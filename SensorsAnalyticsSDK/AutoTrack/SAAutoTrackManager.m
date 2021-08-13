@@ -156,7 +156,7 @@
 
 - (BOOL)isAutoTrackEnabled {
     if (self.isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"SDK is disabled");
         return NO;
     }
 
@@ -176,7 +176,7 @@
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
     if (self.isDisableSDK) {
-        SALogDebug(@"【remote config】SDK is disabled");
+        SALogDebug(@"SDK is disabled");
         return YES;
     }
 

@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "3.0.3"
+  s.version      = "3.1.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -18,7 +18,7 @@ Pod::Spec.new do |s|
     c.source_files = core_dir + "**/*.{h,m}"
     c.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     c.ios.source_files = "SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}", "SensorsAnalyticsSDK/ChannelMatch/**/*.{h,m}", "SensorsAnalyticsSDK/Encrypt/**/*.{h,m}", "SensorsAnalyticsSDK/Deeplink/**/*.{h,m}", "SensorsAnalyticsSDK/DebugMode/**/*.{h,m}"
-    c.ios.public_header_files = "SensorsAnalyticsSDK/Encrypt/SASecretKey.h", "SensorsAnalyticsSDK/ChannelMatch/SensorsAnalyticsSDK+SAChannelMatch.h"
+    c.ios.public_header_files = "SensorsAnalyticsSDK/Encrypt/SAConfigOptions+Encrypt.h", "SensorsAnalyticsSDK/Encrypt/SAEncryptProtocol.h", "SensorsAnalyticsSDK/Encrypt/SASecretKey.h", "SensorsAnalyticsSDK/ChannelMatch/SensorsAnalyticsSDK+SAChannelMatch.h"
     c.ios.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
     c.ios.frameworks = 'CoreTelephony'
   end

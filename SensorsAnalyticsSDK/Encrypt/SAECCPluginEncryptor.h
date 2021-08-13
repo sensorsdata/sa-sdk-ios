@@ -26,6 +26,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAECCPluginEncryptor : NSObject <SAEncryptProtocol>
 
++ (BOOL)isAvaliable;
+
 @end
 
 NS_ASSUME_NONNULL_END

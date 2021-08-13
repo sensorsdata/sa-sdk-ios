@@ -88,6 +88,12 @@ NS_ASSUME_NONNULL_BEGIN
  */
 + (SensorsAnalyticsSDK * _Nullable)sharedInstance;
 
+/// 禁用 SDK。调用后，SDK 将不采集事件，不发送网络请求
++ (void)disableSDK;
+
+/// 开启 SDK。如果之前 SDK 是禁止状态，调用后将恢复数据采集功能
++ (void)enableSDK;
+
 /**
  * @abstract
  * 返回预置的属性
@@ -124,28 +130,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos);
 
 #pragma mark--cache and flush
-
-/**
- * @abstract
- * 设置本地缓存最多事件条数
- *
- * @discussion
- * 默认为 10000 条事件
- *
- */
-@property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
-- (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
-
-/**
- * @abstract
- * 设置 flush 时网络发送策略
- *
- * @discussion
- * 默认 3G、4G、WI-FI 环境下都会尝试 flush
- *
- * @param networkType SensorsAnalyticsNetworkType
- */
-- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType;
 
 /**
  * @abstract
@@ -186,12 +170,6 @@ NS_ASSUME_NONNULL_BEGIN
  * 重置默认匿名 id
  */
 - (void)resetAnonymousId;
-
-/**
- * @abstract
- * 自动收集 App Crash 日志，该功能默认是关闭的
- */
-- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
@@ -870,6 +848,28 @@ DeepLink 回调函数
 
 /**
  * @abstract
+ * 设置本地缓存最多事件条数
+ *
+ * @discussion
+ * 默认为 10000 条事件
+ *
+ */
+@property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+- (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+
+/**
+ * @abstract
+ * 设置 flush 时网络发送策略
+ *
+ * @discussion
+ * 默认 3G、4G、WI-FI 环境下都会尝试 flush
+ *
+ * @param networkType SensorsAnalyticsNetworkType
+ */
+- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushNetworkPolicy")));
+
+/**
+ * @abstract
  * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
  *
  @param configOptions 参数配置
@@ -920,6 +920,12 @@ DeepLink 回调函数
  @param debugMode 调试模式
  */
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos);
+
+/**
+ * @abstract
+ * 自动收集 App Crash 日志，该功能默认是关闭的
+ */
+- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash"))) API_UNAVAILABLE(macos);
 
 /**
  * @abstract
