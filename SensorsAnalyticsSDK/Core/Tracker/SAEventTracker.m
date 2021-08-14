@@ -99,10 +99,10 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
     return YES;
 }
 
+/// 筛选加密数据，并对未加密的数据尝试加密
+/// 即使未开启加密，也可以进行筛选，可能存在加密开关的情况
+/// @param records 数据
 - (NSArray<SAEventRecord *> *)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
-    if (!SAModuleManager.sharedInstance.encryptManager) {
-        return records;
-    }
     NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         if (record.isEncrypted) {
@@ -137,7 +137,7 @@ static NSInteger kSAFlushMaxRepeatCount = 100;
         return;
     }
 
-    // 尝试加密
+    // 尝试加密，筛选加密数据
     NSArray<SAEventRecord *> *encryptRecords = [self encryptEventRecords:records];
 
     // 获取查询到的数据的 id

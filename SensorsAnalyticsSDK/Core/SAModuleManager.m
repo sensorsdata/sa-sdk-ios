@@ -191,7 +191,9 @@ static NSString * const kSAExceptionModuleName = @"Exception";
         // 当定位弹窗出现时，如果关闭了定位模块，会导致弹窗消失
         if (![key isEqualToString:kSALocationModuleName] &&
             ![key isEqualToString:kSADeviceOrientationModuleName] &&
-            ![key isEqualToString:kSADebugModeModuleName]) {
+            ![key isEqualToString:kSADebugModeModuleName] &&
+            ![key isEqualToString:kSAEncryptModuleName]
+            ) {
             [self.modules removeObjectForKey:key];
         }
     }
