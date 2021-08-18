@@ -227,9 +227,8 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 - (NSString *)sensorsdata_similarPath {
     // 是否支持限定元素位置功能
     BOOL enableSupportSimilarPath = [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
-    if (self.sensorsdata_elementPosition && enableSupportSimilarPath) {
-        NSString *similarPath = [NSString stringWithFormat:@"%@[-]",NSStringFromClass(self.class)];
-        return similarPath;
+    if (enableSupportSimilarPath && self.sensorsdata_elementPosition) {
+        return [NSString stringWithFormat:@"%@[-]",NSStringFromClass(self.class)];
     } else {
         return self.sensorsdata_itemPath;
     }
@@ -650,22 +649,25 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 #pragma mark SAAutoTrackViewPathProperty
 
 - (NSString *)sensorsdata_itemPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [super sensorsdata_itemPath];
 }
 
 - (NSString *)sensorsdata_similarPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_similarPathWithIndexPath:indexPath];
     }
     return self.sensorsdata_itemPath;
 }
 
 - (NSString *)sensorsdata_heatMapPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [super sensorsdata_heatMapPath];
 }
@@ -680,8 +682,9 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 #pragma mark SAAutoTrackViewProperty
 - (NSString *)sensorsdata_elementPosition {
-    if (self.sensorsdata_IndexPath) {
-        return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.row];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [NSString stringWithFormat:@"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
     }
     return nil;
 }
@@ -705,23 +708,26 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 #pragma mark SAAutoTrackViewPathProperty
 - (NSString *)sensorsdata_itemPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [super sensorsdata_itemPath];
 }
 
 - (NSString *)sensorsdata_similarPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_similarPathWithIndexPath:indexPath];
     } else {
         return super.sensorsdata_similarPath;
     }
 }
 
 - (NSString *)sensorsdata_heatMapPath {
-    if (self.sensorsdata_IndexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:self.sensorsdata_IndexPath];
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [self sensorsdata_itemPathWithIndexPath:indexPath];
     }
     return [super sensorsdata_heatMapPath];
 }
@@ -744,9 +750,10 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     if (!elementInfo.isSupportElementPosition) {
         return nil;
     }
-
-    if (self.sensorsdata_IndexPath) {
-        return [[NSString alloc] initWithFormat:@"%ld:%ld", (long)self.sensorsdata_IndexPath.section, (long)self.sensorsdata_IndexPath.item];
+    
+    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
+    if (indexPath) {
+        return [NSString stringWithFormat:@"%ld:%ld", (long)indexPath.section, (long)indexPath.item];
     }
     return nil;
 }

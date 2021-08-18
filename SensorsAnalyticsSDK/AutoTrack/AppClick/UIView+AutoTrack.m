@@ -127,11 +127,11 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 }
 
 - (NSString *)sensorsdata_elementPosition {
-    UIView *superview = self.superview;
-    if (superview && superview.sensorsdata_elementPosition) {
-        return superview.sensorsdata_elementPosition;
+    UIView *superView = self.superview;
+    if (!superView) {
+        return nil;
     }
-    return nil;
+    return superView.sensorsdata_elementPosition;
 }
 
 - (NSString *)sensorsdata_elementId {
