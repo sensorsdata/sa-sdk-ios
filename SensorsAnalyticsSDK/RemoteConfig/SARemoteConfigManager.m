@@ -55,6 +55,7 @@
 
     if (enable) {
         self.operator = [[SARemoteConfigCommonOperator alloc] initWithConfigOptions:self.configOptions remoteConfigModel:nil];
+        [self tryToRequestRemoteConfig];
     } else {
         self.operator = nil;
     }
@@ -70,12 +71,6 @@
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
-
-    // 冷启动
-    if (oldState == SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
-        [self tryToRequestRemoteConfig];
-        return;
-    }
 
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {

@@ -161,7 +161,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否在手动埋点事件中自动添加渠道匹配信息
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
 
-/// 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics，默认为 YES
+/// App 进入后台时是否等待数据发送结果。默认 YES，会等待数据发送结果；设置 NO，不会等待数据发送结果
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
 /// 是否开启加密

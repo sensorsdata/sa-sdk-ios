@@ -111,7 +111,16 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
             NSString *decodeKey = [urlKey hasPrefix:kSAEncryptECCPrefix] ? [urlKey substringFromIndex:kSAEncryptECCPrefix.length] : urlKey;
 
             if ([loadVersion isEqualToString:urlVersion] && [currentKey isEqualToString:decodeKey]) {
-                message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+                NSString *asymmetricType = [paramDic[@"asymmetricEncryptType"] stringByRemovingPercentEncoding];
+                NSString *symmetricType = [paramDic[@"symmetricEncryptType"] stringByRemovingPercentEncoding];
+                BOOL typeMatched = [secretKey.asymmetricEncryptType isEqualToString:asymmetricType] &&
+                [secretKey.symmetricEncryptType isEqualToString:symmetricType];
+                // 这里为了兼容老版本 SA 未下发秘钥类型，当某一个类型不存在时即当做老版本 SA 处理
+                if (!asymmetricType || !symmetricType || typeMatched) {
+                    message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+                } else {
+                    message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥对称算法类型:%@，非对称算法类型:%@, App 端对称算法类型:%@, 非对称算法类型:%@", symmetricType, asymmetricType, secretKey.symmetricEncryptType, secretKey.asymmetricEncryptType];
+                }
             } else if (![SAValidator isValidString:currentKey]) {
                 message = @"密钥验证不通过，App 端密钥为空";
             } else {

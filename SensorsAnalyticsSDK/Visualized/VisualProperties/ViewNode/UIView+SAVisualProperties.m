@@ -77,6 +77,10 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 }
 
 - (SAViewNode *)sensorsdata_viewNode {
+    // 自定义属性被关闭，就不再操作 viewNode
+    if (!SAVisualizedManager.sharedInstance.visualPropertiesTracker) {
+        return nil;
+    }
     return objc_getAssociatedObject(self, kSAViewNodePropertyName);
 }
 

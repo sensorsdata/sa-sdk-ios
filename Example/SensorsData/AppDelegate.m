@@ -34,6 +34,7 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
 
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:Sa_Default_ServerURL launchOptions:launchOptions];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
+    options.flushNetworkPolicy = SensorsAnalyticsNetworkTypeALL;
     options.enableTrackAppCrash = YES;
 //    options.flushInterval = 10 * 1000;
 //    options.flushBulkSize = 100;
@@ -60,7 +61,6 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     [[SensorsAnalyticsSDK sharedInstance] trackAppInstallWithProperties:@{@"testValue" : @"testKey"}];
     //[[SensorsAnalyticsSDK sharedInstance] addHeatMapViewControllers:[NSArray arrayWithObject:@"DemoController"]];
 
-    [[SensorsAnalyticsSDK sharedInstance] setFlushNetworkPolicy:SensorsAnalyticsNetworkTypeALL];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackScreenOrientation:YES];
     [[SensorsAnalyticsSDK sharedInstance] enableTrackGPSLocation:YES];
 
