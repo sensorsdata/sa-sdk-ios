@@ -31,7 +31,6 @@
 #import "UIApplication+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
 #import "SASwizzle.h"
-#import "NSObject+DelegateProxy.h"
 #import "SAAppStartTracker.h"
 #import "SAAppEndTracker.h"
 #import "SAConstants+Private.h"
@@ -275,9 +274,6 @@
     [UITableView sa_swizzleMethod:@selector(setDelegate:)
                        withMethod:selector
                             error:NULL];
-    [NSObject sa_swizzleMethod:@selector(respondsToSelector:)
-                    withMethod:@selector(sensorsdata_respondsToSelector:)
-                         error:NULL];
     [UICollectionView sa_swizzleMethod:@selector(setDelegate:)
                             withMethod:selector
                                  error:NULL];

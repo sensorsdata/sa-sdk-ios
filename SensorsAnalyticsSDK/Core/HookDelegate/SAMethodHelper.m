@@ -25,6 +25,8 @@
 #import "SAMethodHelper.h"
 #import <objc/runtime.h>
 #import "SALog.h"
+#import "SASwizzle.h"
+#import "NSObject+DelegateProxy.h"
 
 @implementation SAMethodHelper
 
@@ -69,6 +71,15 @@
     IMP methodIMP = method_getImplementation(method);
     const char *types = method_getTypeEncoding(method);
     return class_replaceMethod(toClass, destinationSelector, methodIMP, types);
+}
+
++ (void)swizzleRespondsToSelector {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [NSObject sa_swizzleMethod:@selector(respondsToSelector:)
+                        withMethod:@selector(sensorsdata_respondsToSelector:)
+                             error:NULL];
+    });
 }
 
 @end

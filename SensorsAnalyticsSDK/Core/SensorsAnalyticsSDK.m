@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"3.1.3"
+#define VERSION @"3.1.4"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -331,13 +331,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
-    if (![self.identifier isValidLoginId:loginId]) {
-        return;
-    }
-
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
+        if (![self.identifier isValidLoginId:loginId]) {
+            return;
+        }
         [self.identifier login:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
         [self trackEventObject:object properties:properties];
