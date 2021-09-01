@@ -160,6 +160,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 触发 App 崩溃时的退出事件
 - (void)trackAppEndWhenCrashed;
+- (void)trackPageLeaveWhenCrashed;
 
 @end
 

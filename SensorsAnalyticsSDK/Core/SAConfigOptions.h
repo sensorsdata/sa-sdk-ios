@@ -182,6 +182,10 @@ NS_ASSUME_NONNULL_BEGIN
 ///开启自动采集通知
 @property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos);
 
+///开启自动采集页面浏览时长
+@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
+
+
 @end
 
 NS_ASSUME_NONNULL_END

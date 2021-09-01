@@ -22,6 +22,7 @@
 #import "SAModuleProtocol.h"
 #import "SAAppClickTracker.h"
 #import "SAAppViewScreenTracker.h"
+#import "SAAppPageLeaveTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,6 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong) SAAppClickTracker *appClickTracker;
 @property (nonatomic, strong) SAAppViewScreenTracker *appViewScreenTracker;
+@property (nonatomic, strong) SAAppPageLeaveTracker *appPageLeaveTracker;
 
 + (SAAutoTrackManager *)sharedInstance;
 

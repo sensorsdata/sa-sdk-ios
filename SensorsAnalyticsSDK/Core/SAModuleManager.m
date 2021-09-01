@@ -406,6 +406,10 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     [self.autoTrackManager trackAppEndWhenCrashed];
 }
 
+- (void)trackPageLeaveWhenCrashed {
+    [self.autoTrackManager trackPageLeaveWhenCrashed];
+}
+
 @end
 
 #pragma mark -

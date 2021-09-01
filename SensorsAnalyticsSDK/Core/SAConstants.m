@@ -155,3 +155,9 @@ NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sens
 
 // App 内嵌 H5 接收可视化相关 H5 页面元素信息
 NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsVisualizedMessageFromH5Notification";
+
+//page leave
+NSString * const kSAPageLeaveTimestamp = @"timestamp";
+NSString * const kSAPageLeaveAutoTrackProperties = @"properties";
+NSString * const kSAEventDurationProperty = @"event_duration";
+NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";

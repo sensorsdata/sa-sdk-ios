@@ -140,6 +140,9 @@ static void SAHandleException(NSException *exception) {
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
         [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 
+        //触发页面浏览时长事件
+        [[SAModuleManager sharedInstance] trackPageLeaveWhenCrashed];
+
         // 触发退出事件
         [SAModuleManager.sharedInstance trackAppEndWhenCrashed];
 

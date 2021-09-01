@@ -143,3 +143,10 @@ extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
 extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
 
 extern NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION;
+
+
+//page leave
+extern NSString * const kSAPageLeaveTimestamp;
+extern NSString * const kSAPageLeaveAutoTrackProperties;
+extern NSString * const kSAEventDurationProperty;
+extern NSString * const kSAEventNameAppPageLeave;

@@ -110,6 +110,8 @@
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
     // 推送点击
     options.enableTrackPush = self.enableTrackPush;
+    // 页面浏览时长
+    options.enableTrackPageLeave = self.enableTrackPageLeave;
 #endif
     
     return options;

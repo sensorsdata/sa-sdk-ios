@@ -37,6 +37,7 @@
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewProcessorFactory.h"
 #import "SACommonUtility.h"
+#import "UIViewController+SAPageView.h"
 
 @interface SAAutoTrackManager ()
 
@@ -59,6 +60,7 @@
         _appEndTracker = [[SAAppEndTracker alloc] init];
         _appViewScreenTracker = [[SAAppViewScreenTracker alloc] init];
         _appClickTracker = [[SAAppClickTracker alloc] init];
+        _appPageLeaveTracker = [[SAAppPageLeaveTracker alloc] init];
 
         _disableSDK = NO;
         _autoTrackMode = kSAAutoTrackModeDefault;
@@ -98,6 +100,17 @@
     [SACommonUtility performBlockOnMainThread:^{
         if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
             [self.appEndTracker autoTrackEvent];
+        }
+    }];
+}
+
+- (void)trackPageLeaveWhenCrashed {
+    if (!self.configOptions.enableTrackPageLeave) {
+        return;
+    }
+    [SACommonUtility performBlockOnMainThread:^{
+        if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
+            [self.appPageLeaveTracker trackEvents];
         }
     }];
 }
@@ -249,6 +262,7 @@
         [self enableAppViewScreenAutoTrack];
         [self enableAppClickAutoTrack];
         [self enableReactNativeAutoTrack];
+        [self enableAppPageLeave];
     });
 }
 
@@ -295,6 +309,14 @@
     if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
         [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
     }
+}
+
+- (void)enableAppPageLeave {
+    if (!self.configOptions.enableTrackPageLeave) {
+        return;
+    }
+    [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_pageLeave_viewDidAppear:) error:NULL];
+    [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_pageLeave_viewDidDisappear:) error:NULL];
 }
 
 @end
