@@ -52,10 +52,9 @@
 - (NSString *)buildFlushJSONStringWithEventRecords:(NSArray<SAEventRecord *> *)records {
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
-        if ([record isValid]) {
-            // 需要先添加 flush time，再进行 json 拼接
-            [record addFlushTime];
-            [contents addObject:record.content];
+        NSString *flushContent = [record flushContent];
+        if (flushContent) {
+            [contents addObject:flushContent];
         }
     }
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];

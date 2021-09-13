@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"3.1.5"
+#define VERSION @"3.1.6"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 

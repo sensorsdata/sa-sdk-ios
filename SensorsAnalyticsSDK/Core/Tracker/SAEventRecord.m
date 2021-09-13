@@ -71,9 +71,16 @@ static long recordIndex = 0;
     return self.event.count > 0;
 }
 
-- (void)addFlushTime {
+- (NSString *)flushContent {
+    if (![self isValid]) {
+        return nil;
+    }
+
+    // 需要先添加 flush time，再进行 json 拼接
     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
     _event[self.encrypted ? @"flush_time" : @"_flush_time"] = @(time);
+    
+    return self.content;
 }
 
 - (NSString *)ekey {
