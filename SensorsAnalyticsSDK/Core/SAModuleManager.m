@@ -26,6 +26,7 @@
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAThreadSafeDictionary.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";
@@ -48,7 +49,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 @interface SAModuleManager ()
 
 /// 已开启的模块
-@property (atomic, strong) NSMutableDictionary<NSString *, id<SAModuleProtocol>> *modules;
+@property (nonatomic, strong) SAThreadSafeDictionary<NSString *, id<SAModuleProtocol>> *modules;
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
@@ -120,7 +121,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     static SAModuleManager *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[SAModuleManager alloc] init];
-        manager.modules = [NSMutableDictionary dictionary];
+        manager.modules = [SAThreadSafeDictionary dictionary];
     });
     return manager;
 }
@@ -260,10 +261,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSDictionary *)properties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
-    NSDictionary *dictionary = [self.modules copy];
     // 兼容使用宏定义的方式源码集成 SDK
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAPropertyModuleProtocol)] && [obj respondsToSelector:@selector(properties)]) || !obj.isEnable) {
             return;
         }
@@ -418,9 +417,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSString *)javaScriptSource {
     NSMutableString *source = [NSMutableString string];
-    // 这里需要做一次 copy 操作，避免多线程中同时操作 modules 导致崩溃
-    NSDictionary *dictionary = [self.modules copy];
-    [dictionary enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
+    [self.modules enumerateKeysAndObjectsUsingBlock:^(NSString *key, id<SAModuleProtocol> obj, BOOL *stop) {
         if (!([obj conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [obj respondsToSelector:@selector(javaScriptSource)]) || !obj.isEnable) {
             return;
         }

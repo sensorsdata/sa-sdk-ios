@@ -30,6 +30,8 @@
 		45A565BD263C17E400C9C41B /* SAReferrerManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A565B9263C17E400C9C41B /* SAReferrerManager.m */; };
 		45A565BE263C17E400C9C41B /* SAAppLifecycle.m in Sources */ = {isa = PBXBuildFile; fileRef = 45A565BA263C17E400C9C41B /* SAAppLifecycle.m */; };
 		45A565BF263C17E400C9C41B /* SAAppLifecycle.h in Headers */ = {isa = PBXBuildFile; fileRef = 45A565BB263C17E400C9C41B /* SAAppLifecycle.h */; };
+		45BD80CE26F0B49700DCC759 /* SAThreadSafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */; };
+		45BD80CF26F0B49700DCC759 /* SAThreadSafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */; };
 		4D14F13E25FC5BF200113EA2 /* SAVisualizedUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D14F13C25FC5BF200113EA2 /* SAVisualizedUtils.m */; };
 		4D14F13F25FC5BF200113EA2 /* SAVisualizedUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D14F13D25FC5BF200113EA2 /* SAVisualizedUtils.h */; };
 		4D14F16C25FC646A00113EA2 /* SAViewNodeTree.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D14F16A25FC646A00113EA2 /* SAViewNodeTree.h */; };
@@ -329,6 +331,8 @@
 		45A565B9263C17E400C9C41B /* SAReferrerManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReferrerManager.m; sourceTree = "<group>"; };
 		45A565BA263C17E400C9C41B /* SAAppLifecycle.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppLifecycle.m; sourceTree = "<group>"; };
 		45A565BB263C17E400C9C41B /* SAAppLifecycle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppLifecycle.h; sourceTree = "<group>"; };
+		45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAThreadSafeDictionary.h; sourceTree = "<group>"; };
+		45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAThreadSafeDictionary.m; sourceTree = "<group>"; };
 		4D14F13C25FC5BF200113EA2 /* SAVisualizedUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedUtils.m; sourceTree = "<group>"; };
 		4D14F13D25FC5BF200113EA2 /* SAVisualizedUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedUtils.h; sourceTree = "<group>"; };
 		4D14F16A25FC646A00113EA2 /* SAViewNodeTree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAViewNodeTree.h; sourceTree = "<group>"; };
@@ -961,6 +965,8 @@
 				4D2D53B12591EB3900805141 /* SAValidator.m */,
 				4D2D53A92591EB3900805141 /* SAWeakPropertyContainer.h */,
 				4D2D53AB2591EB3900805141 /* SAWeakPropertyContainer.m */,
+				45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */,
+				45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1419,8 +1425,8 @@
 				4DD1296A25F8E451008C0B1E /* SAViewNode.h in Headers */,
 				A8356DC52656459A00FD64AA /* SAAppTracker.h in Headers */,
 				883BAAB02669CD18008105D2 /* SAExceptionManager.h in Headers */,
+				45BD80CE26F0B49700DCC759 /* SAThreadSafeDictionary.h in Headers */,
 				F22E1B1B26A55C8A0033A748 /* SAAppPageLeaveTracker.h in Headers */,
-				881A41FF253D7B5000854F69 /* SATrackTimer.h in Headers */,
 				4DD1285925F872A4008C0B1E /* SAEnumDescription.h in Headers */,
 				4DD1285D25F872A4008C0B1E /* SAVisualizedConnection.h in Headers */,
 				A8356DCF2656459A00FD64AA /* SAGestureViewProcessorFactory.h in Headers */,
@@ -1715,6 +1721,7 @@
 				4DA89BC425C2BC1E003ABA43 /* SAReachability.m in Sources */,
 				F277F5CB25CF9A43009B5CE6 /* SAAppPushConstants.m in Sources */,
 				4DD1286325F872A4008C0B1E /* SAVisualizedAutoTrackObjectSerializer.m in Sources */,
+				45BD80CF26F0B49700DCC759 /* SAThreadSafeDictionary.m in Sources */,
 				881A4193253D7B4F00854F69 /* SensorsAnalyticsSDK.m in Sources */,
 				4D2D53C62591EB3A00805141 /* SACommonUtility.m in Sources */,
 				4D2D53A22591EB2100805141 /* SAEventRecord.m in Sources */,
