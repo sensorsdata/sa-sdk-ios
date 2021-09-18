@@ -26,8 +26,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 事件标识
 @interface SAEventIdentifier : SAViewIdentifier
 
-/// 事件类型，目前只支持 AppClick 事件
-@property (nonatomic, assign) SensorsAnalyticsAutoTrackEventType eventType;
+/// 事件名
+@property (nonatomic, copy) NSString *eventName;
+@property (nonatomic, strong) NSMutableDictionary *properties;
 
 - (instancetype)initWithEventInfo:(NSDictionary *)eventInfo;
 

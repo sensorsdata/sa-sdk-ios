@@ -33,22 +33,18 @@
     NSDictionary *dic = [SAEventIdentifier eventIdentifierDicWithEventInfo:eventInfo];
     self = [super initWithDictionary:dic];
     if (self) {
-        NSString *eventName = eventInfo[@"event"];
-        if ([eventName isEqualToString:kSAEventNameAppClick]) {
-            _eventType = SensorsAnalyticsEventTypeAppClick;
-        } else {
-            _eventType = SensorsAnalyticsEventTypeNone;
-        }
+        _eventName = eventInfo[@"event"];
+        _properties = [eventInfo[kSAEventProperties] mutableCopy];
     }
     return self;
 }
 
 + (NSDictionary *)eventIdentifierDicWithEventInfo:(NSDictionary *)eventInfo {
     NSMutableDictionary *eventInfoDic = [NSMutableDictionary dictionary];
-    eventInfoDic[@"element_path"] = eventInfo[@"properties"][kSAEventPropertyElementPath];
-    eventInfoDic[@"element_position"] = eventInfo[@"properties"][kSAEventPropertyElementPosition];
-    eventInfoDic[@"element_content"] = eventInfo[@"properties"][kSAEventPropertyElementContent];
-    eventInfoDic[@"screen_name"] = eventInfo[@"properties"][kSAEventPropertyScreenName];
+    eventInfoDic[@"element_path"] = eventInfo[kSAEventProperties][kSAEventPropertyElementPath];
+    eventInfoDic[@"element_position"] = eventInfo[kSAEventProperties][kSAEventPropertyElementPosition];
+    eventInfoDic[@"element_content"] = eventInfo[kSAEventProperties][kSAEventPropertyElementContent];
+    eventInfoDic[@"screen_name"] = eventInfo[kSAEventProperties][kSAEventPropertyScreenName];
     return eventInfoDic;
 }
 @end

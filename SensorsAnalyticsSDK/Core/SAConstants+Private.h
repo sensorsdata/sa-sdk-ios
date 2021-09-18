@@ -54,6 +54,8 @@ extern NSString * const kSAEventNameAppEnd;
 extern NSString * const kSAEventNameAppViewScreen;
 // App 元素点击
 extern NSString * const kSAEventNameAppClick;
+/// Web 元素点击
+extern NSString * const kSAEventNameWebClick;
 // 自动追踪相关事件及属性
 extern NSString * const kSAEventNameAppStartPassively;
 

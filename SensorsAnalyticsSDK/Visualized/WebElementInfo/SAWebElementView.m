@@ -1,5 +1,5 @@
 //
-// SAJSTouchEventView.m
+// SAWebElementView.m
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/2/20.
@@ -22,12 +22,12 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "SAJSTouchEventView.h"
+#import "SAWebElementView.h"
 
-@interface SAJSTouchEventView()
+@interface SAWebElementView()
 @end
 
-@implementation SAJSTouchEventView
+@implementation SAWebElementView
 
 - (instancetype)initWithWebView:(WKWebView *)webView webElementInfo:(NSDictionary *)elementInfo {
     self = [super init];
@@ -46,8 +46,6 @@
         CGFloat scrollX = [elementInfo[@"scrollX"] floatValue] * zoomScale;
         CGFloat scrollY = [elementInfo[@"scrollY"] floatValue] * zoomScale;
         BOOL visibility = [elementInfo[@"visibility"] boolValue];
-        NSArray <NSString *> *subelements = elementInfo[@"subelements"];
-
         if (height <= 0 || !visibility) {
             return nil;
         }
@@ -66,6 +64,9 @@
         [self setFrame:validFrame];
 
         self.userInteractionEnabled = YES;
+
+        NSArray <NSString *> *subelements = elementInfo[@"subelements"];
+        _jsSubElementIds = subelements;
         _elementContent = elementInfo[@"$element_content"];
         _elementSelector = elementInfo[@"$element_selector"];
         _visibility = visibility;
@@ -74,9 +75,48 @@
         _title = elementInfo[@"$title"];
         _isFromH5 = YES;
         _jsElementId = elementInfo[@"id"];
-        _jsSubElementIds = subelements;
+        _enableAppClick = [elementInfo[@"enable_click"] boolValue];
+        _isListView = [elementInfo[@"is_list_view"] boolValue];
+        _elementPath = elementInfo[@"$element_path"];
+
+        NSNumber *position = elementInfo[@"$element_position"];
+        if ([position isKindOfClass:NSNumber.class]) {
+            _elementPosition = [position stringValue];
+        } else {
+            _elementPosition = nil;
+        }
+
+        _level = [elementInfo[@"level"] integerValue];
+        _listSelector = elementInfo[@"list_selector"];
+        _webLibVersion = elementInfo[@"lib_version"];
     }
     return self;
 }
 
+- (NSString *)description {
+    NSMutableString *description = [NSMutableString stringWithString:NSStringFromClass(self.class)];
+    if (self.elementContent) {
+        [description appendFormat:@", elementContent:%@", self.elementContent];
+    }
+    if (self.level > 0) {
+        [description appendFormat:@", level:%ld", (long)self.level];
+    }
+    if (self.elementPath) {
+        [description appendFormat:@", elementPath:%@", self.elementPath];
+    }
+    if (self.elementPosition) {
+        [description appendFormat:@", elementPosition:%@", self.elementPosition];
+    }
+    if (self.listSelector) {
+        [description appendFormat:@", listSelector:%@", self.listSelector];
+    }
+    if (self.url) {
+        [description appendFormat:@", url:%@", self.url];
+    }
+    if (self.jsSubviews) {
+        [description appendFormat:@", jsSubviews:%@", self.jsSubviews];
+    }
+
+    return [description copy];
+}
 @end

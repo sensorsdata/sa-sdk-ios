@@ -164,12 +164,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@protocol SAVisualizedModuleProtocol <NSObject>
+
+/// 元素相关属性
+/// @param view 需要采集的 view
+- (nullable NSDictionary *)propertiesWithView:(id)view;
+
+#pragma mark visualProperties
+
+/// 采集元素自定义属性
+/// @param view 触发事件的元素
+/// @param completionHandler 采集完成回调
+- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
+
+/// 根据配置，采集属性
+/// @param propertyConfigs 自定义属性配置
+/// @param completionHandler 采集完成回调
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler;
+
+@end
+
 #pragma mark -
 
 @protocol SAJavaScriptBridgeModuleProtocol <NSObject>
 
 - (nullable NSString *)javaScriptSource;
-
 @end
 
 @protocol SARemoteConfigModuleProtocol <NSObject>

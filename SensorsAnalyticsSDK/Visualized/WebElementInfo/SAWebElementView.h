@@ -1,5 +1,5 @@
 //
-// SAJSTouchEventView.h
+// SAWebElementView.h
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/2/20.
@@ -25,7 +25,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// H5 页面元素构造
-@interface SAJSTouchEventView : UIView
+@interface SAWebElementView : UIView
 
 /// 根据 web 页面元素信息构造对象
 - (instancetype)initWithWebView:(WKWebView *)webView webElementInfo:(NSDictionary *)elementInfo;
@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否为 H5 元素
 @property (nonatomic, assign) BOOL isFromH5;
 
-/// 元素选择器
+/// 元素选择器，老版使用
 @property (nonatomic, copy) NSString *elementSelector;
 
 /// 元素内容
@@ -47,17 +47,37 @@ NS_ASSUME_NONNULL_BEGIN
 /// 元素所在页面 url
 @property (nonatomic, copy) NSString *url;
 
-/// html 页面标题
+/// H5 页面标题
 @property (nonatomic, copy) NSString *title;
 
-/// js 生成的 html 元素 id
+/// js 生成的 H5 元素 id
 @property (nonatomic, copy) NSString *jsElementId;
 
-/// js 解析的 html 子元素 id
+/// js 解析的 H5 子元素 id
 @property (nonatomic, copy) NSArray<NSString *> *jsSubElementIds;
 
-/// js 解析的 html 子元素
-@property (nonatomic, copy) NSArray<SAJSTouchEventView *> *jsSubviews;
+/// js 解析的 H5 子元素
+@property (nonatomic, copy) NSArray<SAWebElementView *> *jsSubviews;
+
+/// 是否可点击
+@property (nonatomic, assign) BOOL enableAppClick;
+
+/// 是否为列表
+@property (nonatomic, assign) BOOL isListView;
+
+/// 元素路径，新版使用
+@property (nonatomic, copy) NSString *elementPath;
+
+/// 元素位置
+@property (nonatomic, copy) NSString *elementPosition;
+
+/// 元素在列表内的相对位置，列表元素才会有
+@property (nonatomic, copy) NSString *listSelector;
+
+/// Web JS SDK 版本号
+@property (nonatomic, copy) NSString *webLibVersion;
+
+@property (nonatomic, assign) NSInteger level;
 @end
 
 NS_ASSUME_NONNULL_END

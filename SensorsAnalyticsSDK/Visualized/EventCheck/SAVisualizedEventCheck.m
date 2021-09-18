@@ -27,6 +27,8 @@
 #import "SAEventIdentifier.h"
 #import "SALog.h"
 
+NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
+
 @interface SAVisualizedEventCheck()
 @property (nonatomic, strong) SAVisualPropertiesConfigSources *configSources;
 
@@ -51,18 +53,19 @@
 - (void)setupListeners {
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
     [notificationCenter addObserver:self selector:@selector(trackEvent:) name:SA_TRACK_EVENT_NOTIFICATION object:nil];
+    [notificationCenter addObserver:self selector:@selector(trackEventFromH5:) name:SA_TRACK_EVENT_H5_NOTIFICATION object:nil];
 }
 
 - (void)trackEvent:(NSNotification *)notification {
-    NSMutableDictionary *trackEventInfo = [notification.userInfo mutableCopy];
-    if (trackEventInfo.count == 0) {
+    if (![notification.userInfo isKindOfClass:NSDictionary.class]) {
         return;
     }
 
+    NSDictionary *trackEventInfo = [notification.userInfo copy];
     // 构造事件标识
     SAEventIdentifier *eventIdentifier = [[SAEventIdentifier alloc] initWithEventInfo:trackEventInfo];
-    // 埋点校验，暂时只支持 $AppClick 事件
-    if (eventIdentifier.eventType != SensorsAnalyticsEventTypeAppClick) {
+    // App 埋点校验，只支持 $AppClick 可视化全埋点事件
+    if (![eventIdentifier.eventName isEqualToString:kSAEventNameAppClick]) {
         return;
     }
 
@@ -77,17 +80,52 @@
             continue;
         }
         SALogDebug(@"调试模式，匹配到可视化全埋点事件 %@", config.eventName);
-
-        // 保存当前事件
-        NSMutableArray *eventInfos = self.eventCheckCache[config.eventName];
-        if (!eventInfos) {
-            eventInfos = [NSMutableArray array];
-            self.eventCheckCache[config.eventName] = eventInfos;
-        }
-
-        trackEventInfo[@"event_name"] = config.eventName;
-        [eventInfos addObject:trackEventInfo];
+        [self cacheVisualEvent:config.eventName eventInfo:trackEventInfo];
     }
+}
+
+- (void)trackEventFromH5:(NSNotification *)notification {
+    if (![notification.userInfo isKindOfClass:NSDictionary.class]) {
+        return;
+    }
+
+    NSDictionary *trackEventInfo = notification.userInfo;
+    // 构造事件标识
+    SAEventIdentifier *eventIdentifier = [[SAEventIdentifier alloc] initWithEventInfo:trackEventInfo];
+    //App 内嵌 H5 埋点校验，只支持 $WebClick 可视化全埋点事件
+    if (![eventIdentifier.eventName isEqualToString:kSAEventNameWebClick]) {
+        return;
+    }
+
+    // 针对 $WebClick 可视化全埋点事件，Web JS SDK 已做标记
+    NSArray *webVisualEventNames = trackEventInfo[kSAEventProperties][kSAWebVisualEventName];
+    if (!webVisualEventNames) {
+        return;
+    }
+    // 移除标记
+    eventIdentifier.properties[kSAWebVisualEventName] = nil;
+
+    // 缓存 H5 可视化全埋点事件
+    for (NSString *eventName in webVisualEventNames) {
+        [self cacheVisualEvent:eventName eventInfo:trackEventInfo];
+    }
+}
+
+/// 缓存可视化全埋点事件
+- (void)cacheVisualEvent:(NSString *)eventName eventInfo:(NSDictionary *)eventInfo {
+    if (!eventName) {
+        return;
+    }
+    // 保存当前事件
+    NSMutableArray *eventInfos = self.eventCheckCache[eventName];
+    if (!eventInfos) {
+        eventInfos = [NSMutableArray array];
+        self.eventCheckCache[eventName] = eventInfos;
+    }
+
+    NSMutableDictionary *visualEventInfo = [eventInfo mutableCopy];
+    visualEventInfo[@"event_name"] = eventName;
+    [eventInfos addObject:visualEventInfo];
 }
 
 - (NSArray<NSDictionary *> *)eventCheckResult {

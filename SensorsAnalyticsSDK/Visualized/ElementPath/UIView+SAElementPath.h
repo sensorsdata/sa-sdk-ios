@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
-#import "SAJSTouchEventView.h"
+#import "SAWebElementView.h"
 #import "SAAutoTrackProperty.h"
 #import "SAVisualizedViewPathProperty.h"
 
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIWindow (SAElementPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface SAJSTouchEventView (SAElementPath)<SAVisualizedViewPathProperty>
+@interface SAWebElementView (SAElementPath)<SAVisualizedViewPathProperty>
 @end
 
 #pragma mark - UIControl

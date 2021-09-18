@@ -413,6 +413,38 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 #pragma mark -
 
+@implementation SAModuleManager (Visualized)
+
+#pragma mark properties
+// 采集元素属性
+- (nullable NSDictionary *)propertiesWithView:(id)view {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    return [manager propertiesWithView:view];
+}
+
+#pragma mark visualProperties
+// 采集元素自定义属性
+- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable))completionHandler {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    if (!manager) {
+        return completionHandler(nil);
+    }
+    [manager visualPropertiesWithView:view completionHandler:completionHandler];
+}
+
+// 根据属性配置，采集 App 属性值
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler {
+    id<SAVisualizedModuleProtocol> manager = (id<SAVisualizedModuleProtocol>)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeVisualized];
+    if (!manager) {
+        return completionHandler(nil);
+    }
+    [manager queryVisualPropertiesWithConfigs:propertyConfigs completionHandler:completionHandler];
+}
+
+@end
+
+#pragma mark -
+
 @implementation SAModuleManager (JavaScriptBridge)
 
 - (NSString *)javaScriptSource {

@@ -144,6 +144,7 @@
         return nil;
     }
 
+    // key 校验
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
     if (*error) {
         return nil;

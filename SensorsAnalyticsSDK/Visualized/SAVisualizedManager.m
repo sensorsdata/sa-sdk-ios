@@ -30,9 +30,11 @@
 #import "UIView+AutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAModuleManager.h"
+#import "SAJavaScriptBridgeManager.h"
 #import "SAReachability.h"
 #import "SAValidator.h"
 #import "SAURLUtils.h"
+#import "SAJSONUtil.h"
 #import "SASwizzle.h"
 #import "SALog.h"
 
@@ -84,10 +86,13 @@
             self.visualPropertiesTracker = [[SAVisualPropertiesTracker alloc] initWithConfigSources:self.configSources];
         }
 
-        // 配置动态变化，开启埋点校验
+        // 可能扫码阶段，可能尚未请求到配置，此处再次尝试开启埋点校验
         if (!self.eventCheck && self.visualizedType == SensorsAnalyticsVisualizedTypeAutoTrack) {
             self.eventCheck = [[SAVisualizedEventCheck alloc] initWithConfigSources:self.configSources];
         }
+
+        // 配置更新，发送到 WKWebView 的内嵌 H5
+        [self.visualPropertiesTracker.viewNodeTree updateConfig:self.configSources.originalResponse];
     } else {
         self.visualPropertiesTracker = nil;
         self.eventCheck = nil;
@@ -135,10 +140,21 @@
     }
     // App 内嵌 H5 数据交互
     NSMutableString *javaScriptSource = [NSMutableString string];
-    [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge = {};"];
     if (self.visualizedConnection.isVisualizedConnecting) {
-        [javaScriptSource appendFormat:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+        NSString *jsVisualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
+        [javaScriptSource appendString:jsVisualizedMode];
     }
+    
+    if (!self.configSources.isValid || self.configSources.originalResponse.count == 0) {
+        return javaScriptSource;
+    }
+
+    // 注入完整配置信息
+    NSString *webVisualConfig = [SAJavaScriptBridgeBuilder buildVisualPropertyBridgeWithVisualConfig:self.configSources.originalResponse];
+    if (!webVisualConfig) {
+        return javaScriptSource;
+    }
+    [javaScriptSource appendString:webVisualConfig];
     return javaScriptSource;
 }
 
@@ -278,6 +294,9 @@
 
 #pragma mark - Property
 - (nullable NSDictionary *)propertiesWithView:(UIView *)view {
+    if (![view isKindOfClass:UIView.class]) {
+        return nil;
+    }
     UIViewController<SAAutoTrackViewControllerProperty> *viewController = view.sensorsdata_viewController;
     if (!viewController) {
         return nil;
@@ -301,12 +320,25 @@
 }
 
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
-    if (!self.visualPropertiesTracker) {
+    if (![view isKindOfClass:UIView.class] || !self.visualPropertiesTracker) {
         return completionHandler(nil);
     }
 
     @try {
         [self.visualPropertiesTracker visualPropertiesWithView:view completionHandler:completionHandler];
+    } @catch (NSException *exception) {
+        SALogError(@"visualPropertiesWithView error: %@", exception);
+        completionHandler(nil);
+    }
+}
+
+- (void)queryVisualPropertiesWithConfigs:(NSArray<NSDictionary *> *)propertyConfigs completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
+    if (!self.visualPropertiesTracker) {
+        return completionHandler(nil);
+    }
+    
+    @try {
+        [self.visualPropertiesTracker queryVisualPropertiesWithConfigs:propertyConfigs completionHandler:completionHandler];
     } @catch (NSException *exception) {
         SALogError(@"visualPropertiesWithView error: %@", exception);
         completionHandler(nil);

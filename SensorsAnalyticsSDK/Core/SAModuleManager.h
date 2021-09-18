@@ -106,6 +106,12 @@ typedef NS_ENUM(NSUInteger, SAModuleType) {
 
 #pragma mark -
 
+@interface SAModuleManager (Visualized) <SAVisualizedModuleProtocol>
+
+@end
+
+#pragma mark -
+
 @interface SAModuleManager (JavaScriptBridge) <SAJavaScriptBridgeModuleProtocol>
 
 @end

@@ -28,18 +28,19 @@
 #import "SAVisualizedUtils.h"
 #import "UIView+AutoTrack.h"
 #import "UIView+SAElementPath.h"
-#import "SAViewNodeTree.h"
 #import "SACommonUtility.h"
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
+#import "SAJavaScriptBridgeManager.h"
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
 #import "UIView+SAVisualProperties.h"
+#import "SAJSONUtil.h"
 #import "SALog.h"
 
 @interface SAVisualPropertiesTracker()
 
-@property (atomic, strong) SAViewNodeTree *viewNodeTree;
+@property (atomic, strong, readwrite) SAViewNodeTree *viewNodeTree;
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) SAVisualPropertiesConfigSources *configSources;
 @property (nonatomic, strong) SAVisualizedDebugLogTracker *debugLogTracker;
@@ -97,21 +98,17 @@
     [self.viewNodeTree refreshRNViewScreenNameWithViewController:viewController];
 }
 
-#pragma mark visualProperties
+#pragma mark - visualProperties
 
+#pragma mark App visualProperties
 // 采集元素自定义属性
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler {
-    
-    /* 子线程执行
-     1. 根据当前 view 查询事件配置
-     2. 如果命中事件配置，根据当前事件配置，遍历包含的属性配置
-     3. 根据属性配置和对应 path 等信息，查找对应的属性元素
-     4. 从元素中，根据解析规则，解析对应的属性，拼接属性即可
-     */
+
     // 如果列表定义事件不限定元素位置，则只能在当前列表内元素（点击元素所在位置）添加属性。所以此时的属性元素位置，和点击元素位置必须相同
     NSString *clickPosition = [view sensorsdata_elementPosition];
     
     NSInteger pageIndex = [SAVisualizedUtils pageIndexWithView:view];
+    // 单独队列执行耗时查询
     dispatch_async(self.serialQueue, ^{
         /* 添加日志信息
          在队列执行，防止快速点击导致的顺序错乱
@@ -125,19 +122,39 @@
          */
         SAViewNode *viewNode = view.sensorsdata_viewNode;
         NSArray <SAVisualPropertiesConfig *>*allEventConfigs = [self.configSources propertiesConfigsWithViewNode:viewNode];
+
         NSMutableDictionary *allEventProperties = [NSMutableDictionary dictionary];
-        
+        NSMutableArray *webPropertiesConfigs = [NSMutableArray array];
         for (SAVisualPropertiesConfig *config in allEventConfigs) {
-            // 查询属性
+            if (config.webProperties.count > 0) {
+                [webPropertiesConfigs addObjectsFromArray:config.webProperties];
+            }
+
+            // 查询 native 属性
             NSDictionary *properties = [self queryAllPropertiesWithPropertiesConfig:config clickPosition:clickPosition pageIndex:pageIndex];
             if (properties.count > 0) {
                 [allEventProperties addEntriesFromDictionary:properties];
             }
         }
-        
-        dispatch_async(dispatch_get_main_queue(), ^{
-            completionHandler(allEventProperties.count > 0 ? allEventProperties : nil);
-        });
+
+        // 不包含 H5 属性配置
+        if (webPropertiesConfigs.count == 0) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(allEventProperties.count > 0 ? allEventProperties : nil);
+            });
+            return;
+        }
+
+        // 查询多个 WebView 内所有自定义属性
+        [self queryMultiWebViewPropertiesWithConfigs:webPropertiesConfigs viewNode:viewNode completionHandler:^(NSDictionary * _Nullable properties) {
+            if (properties.count > 0) {
+                [allEventProperties addEntriesFromDictionary:properties];
+            }
+
+            dispatch_async(dispatch_get_main_queue(), ^{
+                completionHandler(allEventProperties.count > 0 ? allEventProperties : nil);
+            });
+        }];
     });
 }
 
@@ -188,37 +205,12 @@
         // 页面序号，仅匹配当前页面元素
         propertyConfig.pageIndex = pageIndex;
 
-        // 1. 获取属性元素
-        UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
-        if (!view) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"属性 %@ 未找到对应属性元素", propertyConfig.name];
-            SALogDebug(@"%@", logMessage);
+        // 根据修改后的配置，查询属性值
+        NSDictionary *property = [self queryPropertiesWithPropertyConfig:propertyConfig];
+        if (!property) {
             continue;
         }
-        
-        // 2. 根据属性元素，解析属性值
-        NSString *propertyValue = [self analysisPropertyWithView:view propertyConfig:propertyConfig];
-        if (!propertyValue) {
-            continue;
-        }
-
-        // 3. 属性类型转换
-        // 字符型属性
-        if (propertyConfig.type == SAVisualPropertyTypeString) {
-            properties[propertyConfig.name] = propertyValue;
-            continue;
-        }
-
-        // 数值型属性
-        NSDecimalNumber *propertyNumber = [NSDecimalNumber decimalNumberWithString:propertyValue];
-        // 判断转换后是否为 NAN
-        if ([propertyNumber isEqualToNumber:NSDecimalNumber.notANumber]) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 正则解析后为：%@，数值型转换失败", propertyConfig.name, propertyValue];
-            SALogWarn(@"%@", logMessage);
-            continue;
-        }
-
-        properties[propertyConfig.name] = propertyNumber;
+        [properties addEntriesFromDictionary:property];
     }
     return properties;
 }
@@ -255,6 +247,158 @@
     
     NSString *value = [content substringWithRange:firstResult.range];
     return value;
+}
+
+/// 根据属性配置查询属性值
+- (nullable NSDictionary *)queryPropertiesWithPropertyConfig:(SAVisualPropertiesPropertyConfig *)propertyConfig {
+    // 1. 获取属性元素
+    UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
+    if (!view) {
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"属性 %@ 未找到对应属性元素", propertyConfig.name];
+        SALogDebug(@"%@", logMessage);
+        return nil;
+    }
+
+    // 2. 根据属性元素，解析属性值
+    NSString *propertyValue = [self analysisPropertyWithView:view propertyConfig:propertyConfig];
+    if (!propertyValue) {
+        return nil;
+    }
+
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    // 3. 属性类型转换
+    // 字符型属性
+    if (propertyConfig.type == SAVisualPropertyTypeString) {
+        properties[propertyConfig.name] = propertyValue;
+        return [properties copy];
+    }
+
+    // 数值型属性
+    NSDecimalNumber *propertyNumber = [NSDecimalNumber decimalNumberWithString:propertyValue];
+    // 判断转换后是否为 NAN
+    if ([propertyNumber isEqualToNumber:NSDecimalNumber.notANumber]) {
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 正则解析后为：%@，数值型转换失败", propertyConfig.name, propertyValue];
+        SALogWarn(@"%@", logMessage);
+        return nil;
+    }
+    properties[propertyConfig.name] = propertyNumber;
+    return [properties copy];
+}
+
+/// 根据配置，查询 Native 属性
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler {
+
+    dispatch_async(self.serialQueue, ^{
+        NSMutableDictionary *allEventProperties = [NSMutableDictionary dictionary];
+        for (NSDictionary *propertyConfigDic in propertyConfigs) {
+            SAVisualPropertiesPropertyConfig *propertyConfig = [[SAVisualPropertiesPropertyConfig alloc] initWithDictionary:propertyConfigDic];
+
+            /* 查询 native 属性
+             如果存在多个 page 页面，这里可能查询错误
+             */
+            NSDictionary *property = [self queryPropertiesWithPropertyConfig:propertyConfig];
+            if (property.count > 0) {
+                [allEventProperties addEntriesFromDictionary:property];
+            }
+        }
+        dispatch_async(dispatch_get_main_queue(), ^{
+            completionHandler(allEventProperties);
+        });
+    });
+}
+
+
+#pragma mark webView visualProperties
+/// 查询多个 webView 内自定义属性
+- (void)queryMultiWebViewPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs viewNode:(SAViewNode *)viewNode completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler {
+    if (propertyConfigs.count == 0) {
+        completionHandler(nil);
+        return;
+    }
+
+    // 事件元素为 App，属性元素可能存在于多个 WebView
+    NSDictionary <NSString *, NSArray *>* groupPropertyConfigs = [self groupMultiWebViewWithConfigs:propertyConfigs];
+
+    NSMutableDictionary *webProperties = [NSMutableDictionary dictionary];
+    dispatch_group_t group = dispatch_group_create();
+    for (NSArray *configArray in groupPropertyConfigs.allValues) {
+
+        dispatch_group_enter(group);
+        [self queryCurrentWebViewPropertiesWithConfigs:configArray viewNode:viewNode completionHandler:^(NSDictionary * _Nullable properties) {
+            if (properties.count > 0) {
+                [webProperties addEntriesFromDictionary:properties];
+            }
+            dispatch_group_leave(group);
+        }];
+    }
+
+    // 多个 webview 属性查询完成，返回结果
+    dispatch_group_notify(group, self.serialQueue, ^{
+        completionHandler([webProperties copy]);
+    });
+}
+
+/// 查询当前 webView 内自定义属性
+- (void)queryCurrentWebViewPropertiesWithConfigs:(NSArray <NSDictionary *> *)propertyConfigs viewNode:(SAViewNode *)viewNode completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler {
+
+    NSDictionary *config = [propertyConfigs firstObject];
+    SAVisualPropertiesPropertyConfig *propertyConfig = [[SAVisualPropertiesPropertyConfig alloc] initWithDictionary:config];
+    // 设置页面信息，准确查找 webView
+    propertyConfig.screenName = viewNode.screenName;
+    propertyConfig.pageIndex = viewNode.pageIndex;
+
+    UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
+    if (![view isKindOfClass:WKWebView.class]) {
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"App 内嵌 H5 属性 %@ 未找到对应 WKWebView 元素", propertyConfig.name];
+        SALogDebug(@"%@", logMessage);
+        completionHandler(nil);
+        return;
+    }
+
+    WKWebView *webView = (WKWebView *)view;
+    NSMutableDictionary *webMessageInfo = [NSMutableDictionary dictionary];
+    webMessageInfo[@"platform"] = @"ios";
+    webMessageInfo[@"sensorsdata_js_visual_properties"] = propertyConfigs;
+
+    // 注入待查询的属性配置信息
+    NSString *javaScriptSource = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeWebVisualProperties jsonObject:webMessageInfo];
+    if (!javaScriptSource) {
+        completionHandler(nil);
+        return;
+    }
+    // 使用 webview 调用 JS 方法，获取属性，主线程执行
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable results, NSError *_Nullable error) {
+            // 类型判断
+            if ([results isKindOfClass:NSDictionary.class]) {
+                completionHandler(results);
+            } else {
+                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@" 调用 JS 方法 %@，解析 App 内嵌 H5 属性失败", javaScriptSource];
+                SALogDebug(@"%@", logMessage);
+                completionHandler(nil);
+            }
+        }];
+    });
+}
+
+/// 对属性配置按照 webview 进行分组处理
+- (NSDictionary <NSString *, NSArray *> *)groupMultiWebViewWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs {
+    NSMutableDictionary *groupPropertyConfigs = [NSMutableDictionary dictionary];
+    for (NSDictionary * propertyConfigDic in propertyConfigs) {
+        NSString *webViewElementPath = propertyConfigDic[@"webview_element_path"];
+        if (!webViewElementPath) {
+            continue;
+        }
+
+        // 当前 webview 的属性配置
+        NSMutableArray <NSDictionary *>* configs = groupPropertyConfigs[webViewElementPath];
+        if (!configs) {
+            configs = [NSMutableArray array];
+            groupPropertyConfigs[webViewElementPath] = configs;
+        }
+        [configs addObject:propertyConfigDic];
+    }
+    return [groupPropertyConfigs copy];
 }
 
 #pragma mark - logInfos

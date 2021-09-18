@@ -53,10 +53,13 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param view 当前视图
 + (BOOL)isIgnoreSubviewsWithView:(UIView *)view;
 
-
 /// view 截图
 /// @param view 需要截图的 view
 + (UIImage *)screenshotWithView:(UIView *)view;
+
+/// 是否支持打通，包含新老打通
+/// @param webview 需要判断的 webview
++ (BOOL)isSupportCallJSWithWebView:(WKWebView *)webview;
 @end
 
 #pragma mark -

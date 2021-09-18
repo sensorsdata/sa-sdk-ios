@@ -392,4 +392,36 @@ static NSString * const kSARNManagerScreenPropertiesKeyPath = @"screenProperties
     return resultView;
 }
 
+#pragma mark config
+/// 自定义属性配置更新
+/// @param configResponse 配置原始 json 数据
+- (void)updateConfig:(NSDictionary *)configResponse {
+    if (configResponse.count == 0) {
+        return;
+    }
+
+    // 递归遍历，发送自定义属性配置
+    [self sendWebViewConfig:configResponse viewNode:self.rootNode];
+}
+
+- (void)sendWebViewConfig:(NSDictionary *)configResponse viewNode:(SAViewNode *)node {
+    if ([node isKindOfClass:SAWKWebViewNode.class]) {
+        SAWKWebViewNode *webViewNode = (SAWKWebViewNode *)node;
+        
+        // getWindow 需要在主线程执行
+        dispatch_async(dispatch_get_main_queue(), ^{
+            // 判断 WebView 是否显示
+            if (!webViewNode.view.window || ![SAVisualizedUtils isVisibleForView:webViewNode.view]) {
+                return;
+            }
+            [webViewNode callJSSendVisualConfig:configResponse];
+        });
+        return;
+    }
+    
+    [node.subNodes enumerateObjectsUsingBlock:^(SAViewNode *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        [self sendWebViewConfig:configResponse viewNode:obj];
+    }];
+}
+
 @end

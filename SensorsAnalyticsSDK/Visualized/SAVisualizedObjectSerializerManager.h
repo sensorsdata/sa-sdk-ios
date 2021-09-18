@@ -32,11 +32,14 @@
 /// H5 标题
 @property (nonatomic, copy) NSString *title;
 
-/// H5 可点击元素信息
-@property (nonatomic, copy) NSArray *elementSources;
+/// H5 元素信息（包括可点击元素和普通元素）
+@property (nonatomic, copy) NSArray *webElementSources;
 
 /// 弹框信息
 @property (nonatomic, copy) NSArray <NSDictionary *>* alertSources;
+
+/// Web JS SDK 版本号
+@property (nonatomic, copy) NSString *webLibVersion;
 @end
 
 
@@ -76,7 +79,7 @@
 - (void)cleanVisualizedWebPageInfoCache;
 
 /// 缓存可视化全埋点相关 web 信息
-- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo;
+- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSMutableDictionary *)pageInfo;
 
 /// 读取当前 webView 页面信息
 - (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView;

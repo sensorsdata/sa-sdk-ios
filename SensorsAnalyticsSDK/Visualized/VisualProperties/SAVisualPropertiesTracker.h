@@ -11,7 +11,7 @@
 //
 // http://www.apache.org/licenses/LICENSE-2.0
 //
-// Unless required by applicable law or agreed to in writing, software
+// Unless required by applicable law orviewNodeTree agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import "SAVisualPropertiesConfigSources.h"
+#import "SAViewNodeTree.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -31,6 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
 
+@property (atomic, strong, readonly) SAViewNodeTree *viewNodeTree;
+
+#pragma mark view changed
 /// 视图添加或移除
 - (void)didMoveToSuperviewWithView:(UIView *)view;
 
@@ -52,11 +56,18 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param completionHandler 采集完成回调
 - (void)visualPropertiesWithView:(UIView *)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
 
+
+/// 根据配置，采集属性
+/// @param propertyConfigs 自定义属性配置
+/// @param completionHandler 采集完成回调
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler;
+
 #pragma mark debugInfo
 /// 设置采集诊断日志
 - (void)enableCollectDebugLog:(BOOL)enable;
 
 @property (nonatomic, copy, readonly) NSArray <NSDictionary *>*logInfos;
+
 
 @end
 

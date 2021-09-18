@@ -81,7 +81,9 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
-        [result addObject:sensorsValue];
+        if (sensorsValue) {
+            [result addObject:sensorsValue];
+        }
     }
     return [result copy];
 }
@@ -98,7 +100,9 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
             return nil;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
-        [result addObject:sensorsValue];
+        if (sensorsValue) {
+            [result addObject:sensorsValue];
+        }
     }
     return [result copy];
 }

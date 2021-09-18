@@ -131,6 +131,17 @@
     // 增加 appId
     jsonObject[@"app_id"] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
 
+    // 上传全埋点配置开启状态
+    NSMutableArray<NSString *>* autotrackOptions = [NSMutableArray array];
+    SensorsAnalyticsAutoTrackEventType eventType = SensorsAnalyticsSDK.sharedInstance.configOptions.autoTrackEventType;
+    if (eventType &  SensorsAnalyticsEventTypeAppClick) {
+        [autotrackOptions addObject:kSAEventNameAppClick];
+    }
+    if (eventType &  SensorsAnalyticsEventTypeAppViewScreen) {
+        [autotrackOptions addObject:kSAEventNameAppViewScreen];
+    }
+    jsonObject[@"app_autotrack"] = autotrackOptions;
+
     // 添加前端弹框信息
     if (serializerManager.alertInfos.count > 0) {
         jsonObject[@"app_alert_infos"] = [serializerManager.alertInfos copy];
@@ -141,6 +152,7 @@
         SAVisualizedWebPageInfo *webPageInfo = serializerManager.webPageInfo;
         jsonObject[@"h5_url"] = webPageInfo.url;
         jsonObject[@"h5_title"] = webPageInfo.title;
+        jsonObject[@"web_lib_version"] = webPageInfo.webLibVersion;
     }
     
     // SDK 版本号

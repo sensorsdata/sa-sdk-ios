@@ -92,14 +92,14 @@
         SALogError(@"Message webview is invalid from JS SDK");
         return;
     }
-
-    NSDictionary *messageDic = [SAJSONUtil JSONObjectWithString:message.body];
+    
+    NSMutableDictionary *messageDic = [SAJSONUtil JSONObjectWithString:message.body options:NSJSONReadingMutableContainers];
     if (![messageDic isKindOfClass:[NSDictionary class]]) {
         SALogError(@"Message body is formatted failure from JS SDK");
         return;
     }
-
-    [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo: messageDic];
+    
+    [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:messageDic];
 }
 
 /// 开始计时

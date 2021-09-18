@@ -33,8 +33,9 @@
 #import "SAObjectSerializerConfig.h"
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
-#import "SAJSTouchEventView.h"
+#import "SAWebElementView.h"
 #import "SAVisualizedObjectSerializerManager.h"
+#import "SAJavaScriptBridgeManager.h"
 #import "SAVisualizedManager.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()
@@ -115,8 +116,8 @@
     }
 
     NSArray *classNames = [self classHierarchyArrayForObject:object];
-    if ([object isKindOfClass:SAJSTouchEventView.class]) {
-        SAJSTouchEventView *touchView = (SAJSTouchEventView *)object;
+    if ([object isKindOfClass:SAWebElementView.class]) {
+        SAWebElementView *touchView = (SAWebElementView *)object;
         classNames = @[touchView.tagName];
     }
 
@@ -287,7 +288,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
         // 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
         __block BOOL isContainVisualized = NO;
         [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if ([obj.source containsString:@"sensorsdata_visualized_mode"]) {
+            if ([obj.source containsString:kSAJSBridgeVisualizedMode]) {
                 isContainVisualized = YES;
                 *stop = YES;
             }
@@ -298,7 +299,8 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             [self checkJSSDKIntegrationWithWebView:webView];
         } else {
             // 注入 bridge 属性值，标记当前处于可视化全埋点扫码状态
-            [javaScriptSource appendString:@"window.SensorsData_App_Visual_Bridge.sensorsdata_visualized_mode = true;"];
+            NSString *visualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
+            [javaScriptSource appendString:visualizedMode];
         }
     }
 
@@ -306,14 +308,15 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
      1. 存在部分场景，H5 页面内元素滚动，JS SDK 无法检测，如果 App 截图变化，直接通知 JS SDK 遍历最新页面元素数据发送
      2. 可能先进入 H5，再扫码开启可视化全埋点，此时未成功注入标记，通过调用 JS 方法，手动通知 JS SDK 发送数据
      */
-    [javaScriptSource appendString:@"window.sensorsdata_app_call_js('visualized')"];
+    NSString *jsMethodString = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeVisualized jsonObject:nil];
+    [javaScriptSource appendString:jsMethodString];
     [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable response, NSError *_Nullable error) {
         if (error) {
             /*
              如果 JS SDK 尚未加载完成，可能方法不存在；
              等到 JS SDK加载完成检测到 sensorsdata_visualized_mode 会尝试发送数据页面数据
              */
-            SALogError(@"window.sensorsdata_app_call_js error：%@", error);
+            SALogDebug(@"window.sensorsdata_app_call_js error：%@", error);
         }
     }];
 }
@@ -328,7 +331,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
             return;
         }
         // 注入了 bridge 但是未接收到数据
-        NSString *javaScript = @"window.sensorsdata_app_call_js('sensorsdata-check-jssdk')";
+        NSString *javaScript = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeCheckJSSDK jsonObject:nil];
         [webView evaluateJavaScript:javaScript completionHandler:^(id _Nullable response, NSError *_Nullable error) {
             if (!error) {
                 return;
@@ -345,7 +348,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
                 if ([SAVisualizedManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
                     alertInfo[@"title"] = @"当前页面无法进行点击分析";
                 }
-                NSDictionary *alertInfoMessage = @{ @"callType": @"app_alert", @"data": @[alertInfo] };
+                NSMutableDictionary *alertInfoMessage = [@{ @"callType": @"app_alert", @"data": @[alertInfo] } mutableCopy];
                 [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:alertInfoMessage];
             }
         }];

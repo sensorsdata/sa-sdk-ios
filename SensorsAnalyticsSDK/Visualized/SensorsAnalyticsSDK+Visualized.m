@@ -24,8 +24,8 @@
 
 #import "SensorsAnalyticsSDK+Visualized.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAModuleManager+Visualized.h"
 #import "SAVisualizedManager.h"
+#import "SAModuleManager.h"
 
 @implementation SensorsAnalyticsSDK (Visualized)
 

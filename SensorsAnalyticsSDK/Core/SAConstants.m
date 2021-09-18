@@ -57,6 +57,9 @@ NSString * const kSAEventNameAppEnd = @"$AppEnd";
 NSString * const kSAEventNameAppViewScreen = @"$AppViewScreen";
 // App 元素点击
 NSString * const kSAEventNameAppClick = @"$AppClick";
+// web 元素点击
+NSString * const kSAEventNameWebClick = @"$WebClick";
+
 // 自动追踪相关事件及属性
 NSString * const kSAEventNameAppStartPassively = @"$AppStartPassively";
 

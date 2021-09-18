@@ -101,6 +101,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (self) {
         _limitPosition = [dictionaryValueForKey(eventDic, @"limit_element_position") boolValue];
         _limitContent = [dictionaryValueForKey(eventDic, @"limit_element_content") boolValue];
+        _h5 = [dictionaryValueForKey(eventDic, @"h5") boolValue];
     }
     return self;
 }
@@ -126,6 +127,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     [super encodeWithCoder:coder];
     [coder encodeBool:self.limitPosition forKey:@"limitPosition"];
     [coder encodeBool:self.limitContent forKey:@"limitContent"];
+    [coder encodeBool:self.isH5 forKey:@"h5"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -133,6 +135,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (self) {
         self.limitPosition = [coder decodeBoolForKey:@"limitPosition"];
         self.limitContent = [coder decodeBoolForKey:@"limitContent"];
+        self.h5 = [coder decodeBoolForKey:@"h5"];
     }
     return self;
 }
@@ -153,13 +156,24 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
         } else {
             _type = SAVisualPropertyTypeString;
         }
+
+        _h5 = [dictionaryValueForKey(propertiesDic, @"h5") boolValue];
+        // h5 属性对应的 webview 路径
+        _webViewElementPath = dictionaryValueForKey(propertiesDic, @"webview_element_path");
     }
     return self;
 }
 
 /// 当前属性配置，是否命中元素
 - (BOOL)isMatchVisualPropertiesWithViewIdentify:(SAViewIdentifier *)viewIdentify {
-    if (![self isEqualToViewIdentify:viewIdentify]) {
+    BOOL isEqualToIdentify = NO;
+    // H5 属性配置，只用于查询 weView，单独判断
+    if (self.isH5) {
+        isEqualToIdentify = [self isEqualToWebViewIdentify:viewIdentify];
+    } else {
+        isEqualToIdentify = [self isEqualToViewIdentify:viewIdentify];
+    }
+    if (!isEqualToIdentify) {
         return NO;
     }
 
@@ -167,6 +181,10 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     BOOL enableMatchPageIndex = self.pageIndex >= 0 && viewIdentify.pageIndex >= 0;
     if (enableMatchPageIndex && self.pageIndex != viewIdentify.pageIndex) {
         return NO;
+    }
+    // H5 配置，只用于查询 weView，不能比较 App 元素位置
+    if (self.isH5) {
+        return YES;
     }
 
     /* 属性元素，位置匹配场景
@@ -192,6 +210,17 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     return [self.elementPosition isEqualToString:viewIdentify.elementPosition];
 }
 
+/// h5 属性配置，匹配元素
+- (BOOL)isEqualToWebViewIdentify:(SAViewIdentifier *)object {
+    if (!self.isH5) {
+        return NO;
+    }
+
+    BOOL sameElementPath = [self.webViewElementPath isEqualToString:object.elementPath];
+    BOOL sameScreenName = [self.screenName isEqualToString:object.screenName];
+    return sameElementPath && sameScreenName;
+}
+
 #pragma mark NSCoding
 - (void)encodeWithCoder:(NSCoder *)coder {
     [super encodeWithCoder:coder];
@@ -199,6 +228,8 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     [coder encodeObject:self.regular forKey:@"regular"];
     [coder encodeBool:self.limitPosition forKey:@"limitPosition"];
     [coder encodeInteger:self.type forKey:@"type"];
+    [coder encodeBool:self.isH5 forKey:@"h5"];
+    [coder encodeObject:self.webViewElementPath forKey:@"webViewElementPath"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -208,6 +239,8 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
         self.regular = [coder decodeObjectForKey:@"regular"];
         self.limitPosition = [coder decodeBoolForKey:@"limitPosition"];
         self.type = [coder decodeIntegerForKey:@"type"];
+        self.h5 = [coder decodeBoolForKey:@"h5"];
+        self.webViewElementPath = [coder decodeObjectForKey:@"webViewElementPath"];
     }
     return self;
 }
@@ -232,15 +265,22 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
 
         NSArray<NSDictionary *> *propertiesArray = dictionaryValueForKey(eventsDic, @"properties");
         if (propertiesArray) {
+
             NSMutableArray<SAVisualPropertiesPropertyConfig *> *properties = [NSMutableArray array];
+            NSMutableArray <NSDictionary *>*webProperties = [NSMutableArray array];
             for (NSDictionary *dic in propertiesArray) {
                 SAVisualPropertiesPropertyConfig *config = [[SAVisualPropertiesPropertyConfig alloc] initWithDictionary:dic];
-
-                // 保存是否限定位置
-                config.limitPosition = _event.limitPosition;
-                [properties addObject:config];
+                // h5 配置不必解析，单独保存原始 json，直接发送给 js 即可
+                if (config.isH5) {
+                    [webProperties addObject:dic];
+                } else {
+                    // 保存是否限定位置
+                    config.limitPosition = _event.limitPosition;
+                    [properties addObject:config];
+                }
             }
-            _properties = [properties copy];
+            _properties = properties.count > 0 ? [properties copy]: nil;;
+            _webProperties = webProperties.count > 0 ? [webProperties copy]: nil;
         }
     }
     return self;
@@ -252,6 +292,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     [coder encodeObject:self.event forKey:@"event"];
     [coder encodeObject:self.properties forKey:@"properties"];
     [coder encodeObject:self.eventName forKey:@"eventName"];
+    [coder encodeObject:self.webProperties forKey:@"webProperties"];
 }
 
 - (instancetype)initWithCoder:(NSCoder *)coder {
@@ -261,6 +302,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
         self.event = [coder decodeObjectForKey:@"event"];
         self.properties = [coder decodeObjectForKey:@"properties"];
         self.eventName = [coder decodeObjectForKey:@"eventName"];
+        self.webProperties = [coder decodeObjectForKey:@"webProperties"];
     }
     return self;
 }
@@ -283,7 +325,11 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
             NSMutableArray *eventsArray = [NSMutableArray array];
             for (NSDictionary *eventDic in events) {
                 SAVisualPropertiesConfig *event = [[SAVisualPropertiesConfig alloc] initWithDictionary:eventDic];
-                [eventsArray  addObject:event];
+
+                // H5 事件配置，不必解析
+                if (!event.event.isH5) {
+                    [eventsArray addObject:event];
+                }
             }
             _events = [eventsArray copy];
         }

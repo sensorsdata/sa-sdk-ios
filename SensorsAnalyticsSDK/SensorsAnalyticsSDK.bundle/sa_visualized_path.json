@@ -112,7 +112,7 @@
           ]
         },
         {
-          "name": "SAJSTouchEventView",
+          "name": "SAWebElementView",
           "superclass": "UIView",
           "properties": [
               {
@@ -125,10 +125,14 @@
                 "type": "NSString"
               },
               {
-                  "name": "sensorsdata_elementSelector",
-                  "key": "element_selector",
-                  "type": "NSString",
-                  "use_kvc": false
+                  "name": "tagName",
+                  "key": "tag_name",
+                  "type": "NSString"
+              },
+              {
+                  "name": "listSelector",
+                  "key": "list_selector",
+                  "type": "NSString"
               }
           ]
         },

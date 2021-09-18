@@ -143,10 +143,6 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
         return YES;
     }
 
-    // Native 全埋点被忽略元素，不可圈选，RN 全埋点事件由插件触发，不经过此判断
-    if (self.sensorsdata_isIgnored) {
-        return NO;
-    }
     if ([self isKindOfClass:UIControl.class]) {
         // UISegmentedControl 高亮渲染内部嵌套的 UISegment
         if ([self isKindOfClass:UISegmentedControl.class]) {
@@ -462,7 +458,12 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 @end
 
-@implementation SAJSTouchEventView (SAElementPath)
+@implementation SAWebElementView (SAElementPath)
+
+#pragma mark SAVisualizedViewPathProperty
+- (NSString *)sensorsdata_title {
+    return self.title;
+}
 
 - (NSString *)sensorsdata_elementSelector {
     return self.elementSelector;
@@ -477,7 +478,7 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 }
 
 - (BOOL)sensorsdata_enableAppClick {
-    return YES;
+    return self.enableAppClick;
 }
 
 - (NSArray *)sensorsdata_subElements {
@@ -489,6 +490,18 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
 - (BOOL)sensorsdata_isFromWeb {
     return YES;
+}
+
+- (BOOL)sensorsdata_isListView {
+    return self.isListView;
+}
+
+- (NSString *)sensorsdata_elementPath {
+    return self.elementPath;
+}
+
+- (NSString *)sensorsdata_elementPosition {
+    return self.elementPosition;
 }
 
 @end

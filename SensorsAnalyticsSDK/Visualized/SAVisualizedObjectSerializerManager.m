@@ -110,90 +110,136 @@
 }
 
 /// 缓存可视化全埋点相关 web 信息
-- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSDictionary *)pageInfo {
+- (void)saveVisualizedWebPageInfoWithWebView:(WKWebView *)webview webPageInfo:(NSMutableDictionary *)pageInfo {
 
     NSString *callType = pageInfo[@"callType"];
-    if (([callType isEqualToString:@"visualized_track"])) {
-        // H5 页面可点击元素数据
-        NSArray *pageDatas = pageInfo[@"data"];
-        if ([pageDatas isKindOfClass:NSArray.class]) {
-            NSDictionary *elementInfo = [pageDatas firstObject];
-            NSString *url = elementInfo[@"$url"];
-            if (url) {
-                SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-                // 是否包含当前 url 的页面信息
-                if ([self.webPageInfoCache objectForKey:url]) {
-                    webPageInfo = self.webPageInfoCache[url];
-
-                    // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
-                    webPageInfo.alertSources = nil;
-                }
-                webPageInfo.elementSources = pageDatas;
-                self.webPageInfoCache[url] = webPageInfo;
-
-                // 刷新数据
-                [self refreshPayloadHashWithData:pageDatas];
-            }
-        }
+    if ([callType isEqualToString:@"visualized_track"]) { // 页面元素信息
+        
+        [self saveWebElementInfoWithData:pageInfo webView:webview];
     } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
-        /*
-         [{
-         "title": "弹框标题",
-         "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
-         "link_text": "配置文档"
-         "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
-         }]
-         */
-        NSArray <NSDictionary *> *alertDatas = pageInfo[@"data"];
-        NSString *url = webview.URL.absoluteString;
-        if ([alertDatas isKindOfClass:NSArray.class] && url) {
-            SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-            // 是否包含当前 url 的页面信息
-            if ([self.webPageInfoCache objectForKey:url]) {
-                webPageInfo = self.webPageInfoCache[url];
-
-                // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
-                webPageInfo.elementSources = nil;
-                webPageInfo.url = nil;
-                webPageInfo.title = nil;
-            }
-            // 区分点击分析和可视化全埋点，针对 JS 发送的弹框信息，截取标题替换处理
-            if ([SAVisualizedManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
-                NSMutableArray <NSDictionary *>* alertNewDatas = [NSMutableArray array];
-                for (NSDictionary *alertDic in alertDatas) {
-                    NSMutableDictionary <NSString *, NSString *>* alertNewDic = [NSMutableDictionary dictionaryWithDictionary:alertDic];
-                    alertNewDic[@"title"] = [alertDic[@"title"] stringByReplacingOccurrencesOfString:@"可视化全埋点" withString:@"点击分析"];
-                    [alertNewDatas addObject:alertNewDic];
-                };
-                alertDatas = [alertNewDatas copy];
-            }
-            webPageInfo.alertSources = alertDatas;
-            self.webPageInfoCache[url] = webPageInfo;
-            // 刷新数据
-            [self refreshPayloadHashWithData:alertDatas];
-        }
-    } else if (([callType isEqualToString:@"page_info"])) { // h5 页面信息
-        NSDictionary *webInfo = pageInfo[@"data"];
-        NSString *url = webInfo[@"$url"];
-        if ([webInfo isKindOfClass:NSDictionary.class] && url) {
-            SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
-            // 是否包含当前 url 的页面信息
-            if ([self.webPageInfoCache objectForKey:url]) {
-                webPageInfo = self.webPageInfoCache[url];
-
-                // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
-                webPageInfo.alertSources = nil;
-            }
-            webPageInfo.url = url;
-            webPageInfo.title = webInfo[@"$title"];
-            self.webPageInfoCache[url] = webPageInfo;
-            // 刷新数据
-            [self refreshPayloadHashWithData:webInfo];
-        }
+        
+        [self saveWebAlertInfoWithData:pageInfo webView:webview];
+        
+    } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
+        [self saveWebPageInfoWithData:pageInfo webView:webview];
     }
+    
+    // 刷新数据
+    [self refreshPayloadHashWithData:pageInfo];
 }
 
-/// 读取当前 webView 页面信息
+/// 保存 H5 元素信息，并设置状态
+- (void)saveWebElementInfoWithData:(NSMutableDictionary *)pageInfo webView:(WKWebView *)webview {
+    // H5 页面可点击元素数据
+    NSArray *pageDatas = pageInfo[@"data"];
+    // 老版本 Web JS SDK 兼容，老版不包含 enable_click 字段，可点击元素需要设置标识
+    for (NSMutableDictionary *elementInfoDic in pageDatas) {
+        elementInfoDic[@"enable_click"] = @YES;
+    }
+
+    // H5 页面可见非点击元素
+    NSArray *extraElements = pageInfo[@"extra_elements"];
+
+    if (pageDatas.count == 0 && extraElements.count == 0) {
+        return;
+    }
+    NSMutableArray *webElementSources = [NSMutableArray array];
+    if (pageDatas.count > 0) {
+        [webElementSources addObjectsFromArray:pageDatas];
+    }
+    if (extraElements.count > 0) {
+        [webElementSources addObjectsFromArray:extraElements];
+    }
+
+    NSDictionary *elementInfo = [webElementSources firstObject];
+    NSString *url = elementInfo[@"$url"];
+    if (!url) {
+        return;
+    }
+
+    SAVisualizedWebPageInfo *webPageInfo = nil;
+    // 是否包含当前 url 的页面信息
+    if ([self.webPageInfoCache objectForKey:url]) {
+        webPageInfo = self.webPageInfoCache[url];
+
+        // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
+        webPageInfo.alertSources = nil;
+    } else {
+        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        self.webPageInfoCache[url] = webPageInfo;
+    }
+    webPageInfo.webElementSources = [webElementSources copy];
+}
+
+/// 保存 H5 页面弹框信息
+- (void)saveWebAlertInfoWithData:(NSDictionary *)pageInfo webView:(WKWebView *)webview {
+    /*
+     [{
+     "title": "弹框标题",
+     "message": "App SDK 与 Web SDK 没有进行打通，请联系贵方技术人员修正 Web SDK 的配置，详细信息请查看文档。",
+     "link_text": "配置文档"
+     "link_url": "https://manual.sensorsdata.cn/sa/latest/app-h5-1573913.html"
+     }]
+     */
+    NSArray <NSDictionary *> *alertDatas = pageInfo[@"data"];
+    NSString *url = webview.URL.absoluteString;
+    if (![alertDatas isKindOfClass:NSArray.class] || !url) {
+        return;
+    }
+
+    SAVisualizedWebPageInfo *webPageInfo = nil;
+    // 是否包含当前 url 的页面信息
+    if ([self.webPageInfoCache objectForKey:url]) {
+        webPageInfo = self.webPageInfoCache[url];
+
+        // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
+        webPageInfo.webElementSources = nil;
+        webPageInfo.url = nil;
+        webPageInfo.title = nil;
+    } else {
+        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        self.webPageInfoCache[url] = webPageInfo;
+    }
+
+    // 区分点击分析和可视化全埋点，针对 JS 发送的弹框信息，截取标题替换处理
+    if ([SAVisualizedManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+        NSMutableArray <NSDictionary *>* alertNewDatas = [NSMutableArray array];
+        for (NSDictionary *alertDic in alertDatas) {
+            NSMutableDictionary <NSString *, NSString *>* alertNewDic = [NSMutableDictionary dictionaryWithDictionary:alertDic];
+            alertNewDic[@"title"] = [alertDic[@"title"] stringByReplacingOccurrencesOfString:@"可视化全埋点" withString:@"点击分析"];
+            [alertNewDatas addObject:alertNewDic];
+        };
+        alertDatas = [alertNewDatas copy];
+    }
+    webPageInfo.alertSources = alertDatas;
+}
+
+/// 保存 H5 页面信息
+- (void)saveWebPageInfoWithData:(NSDictionary *)pageInfo webView:(WKWebView *)webview {
+    NSDictionary *webInfo = pageInfo[@"data"];
+    NSString *url = webInfo[@"$url"];
+    NSString *libVersion = webInfo[@"lib_version"];
+
+    if (![webInfo isKindOfClass:NSDictionary.class] || !url) {
+        return;
+    }
+    SAVisualizedWebPageInfo *webPageInfo = nil;
+    // 是否包含当前 url 的页面信息
+    if ([self.webPageInfoCache objectForKey:url]) {
+        webPageInfo = self.webPageInfoCache[url];
+        // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
+        webPageInfo.alertSources = nil;
+    } else {
+        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        self.webPageInfoCache[url] = webPageInfo;
+    }
+
+    webPageInfo.url = url;
+    webPageInfo.title = webInfo[@"$title"];
+    webPageInfo.webLibVersion = libVersion;
+}
+
+/// 读取当前 webView 页面相关信息
 - (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView {
     NSString *url = webView.URL.absoluteString;
     SAVisualizedWebPageInfo *webPageInfo = [self.webPageInfoCache objectForKey:url];

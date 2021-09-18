@@ -31,6 +31,10 @@
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
 #import "SAViewElementInfoFactory.h"
+#import "SAJavaScriptBridgeManager.h"
+#import "SAVisualizedManager.h"
+#import "SAJSONUtil.h"
+#import "SALog.h"
 
 @interface SAViewNode()
 
@@ -544,6 +548,39 @@
 }
 
 @end
+
+
+@implementation SAWKWebViewNode
+
+- (void)callJSSendVisualConfig:(NSDictionary *)configResponse {
+    if (configResponse.count == 0) {
+        return;
+    }
+    if (![self.view isKindOfClass:WKWebView.class]) {
+        return;
+    }
+
+    WKWebView *webView = (WKWebView *)self.view;
+    // 判断打通才注入配置
+    if (![SAVisualizedUtils isSupportCallJSWithWebView:webView]) {
+        return;
+    }
+    // 调用 JS 函数，发送配置信息
+    NSString *javaScriptSource = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeUpdateVisualConfig jsonObject:configResponse];
+    if (!javaScriptSource) {
+        return;
+    }
+    [webView evaluateJavaScript:javaScriptSource completionHandler:^(id _Nullable resuts, NSError * _Nullable error) {
+        if (error) {
+            SALogDebug(@"%@ updateH5VisualConfig error: %@", kSAJSBridgeCallMethod, error);
+        } else {
+            SALogDebug(@"%@ updateH5VisualConfig finish", kSAJSBridgeCallMethod);
+        }
+    }];
+}
+
+@end
+
 
 @implementation SAIgnorePathNode
 

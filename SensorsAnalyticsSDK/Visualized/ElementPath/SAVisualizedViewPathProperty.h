@@ -70,8 +70,8 @@
 
 /// 是否为列表（本身支持限定位置，比如 Cell）
 @property (nonatomic, assign) BOOL sensorsdata_isListView;
-@end
 
+@end
 
 #pragma mark - Extension
 @protocol SAVisualizedExtensionProperty <NSObject>

@@ -77,6 +77,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否限制元素内容
 @property (nonatomic, assign, getter=isLimitContent) BOOL limitContent;
 
+/// 是否为 H5 事件
+@property (nonatomic, assign, getter=isH5) BOOL h5;
+
 /// 当前事件配置，是否命中元素
 - (BOOL)isMatchVisualEventWithViewIdentify:(SAViewIdentifier *)viewIdentify;
 @end
@@ -94,6 +97,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否限制元素位置
 @property (nonatomic, assign, getter=isLimitPosition) BOOL limitPosition;
+
+/// 是否为 H5 属性
+@property (nonatomic, assign, getter=isH5) BOOL h5;
+
+/// webview 的元素路径，App 内嵌 H5 属性配置才包含
+@property (nonatomic, copy) NSString *webViewElementPath;
 
 /* 本地扩展，用于元素匹配 */
 /// 点击事件所在元素位置，点击元素传值
@@ -120,6 +129,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// 属性配置
 @property (nonatomic, strong) NSArray<SAVisualPropertiesPropertyConfig *> *properties;
 
+/// web 属性配置，原始配置 json
+@property (nonatomic, strong) NSArray<NSDictionary *> *webProperties;
 @end
 
 

@@ -95,7 +95,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 }
 
 - (BOOL)isValid {
-    return self.configResponse.events.count > 0;
+    return self.configResponse.originalResponse.count > 0;
 }
 
 - (NSString *)configVersion {
@@ -288,7 +288,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     // 查询元素点击事件配置
     for (SAVisualPropertiesConfig *config in configSources) {
         // 普通可视化全埋点事件，不包含自定义属性，直接跳过
-        if (config.properties.count == 0 || !config.event) {
+        if ((config.properties.count == 0 && config.webProperties.count == 0) || !config.event) {
             continue;
         }
         // 命中配置信息
@@ -303,7 +303,10 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 - (nullable NSArray <SAVisualPropertiesConfig *> *)propertiesConfigsWithEventIdentifier:(SAEventIdentifier *)eventIdentifier {
 
     NSArray<SAVisualPropertiesConfig *> *configSources = self.configResponse.events;
-    if (configSources.count == 0 || !eventIdentifier || eventIdentifier.eventType != SensorsAnalyticsEventTypeAppClick) {
+    if (configSources.count == 0 || !eventIdentifier) {
+        return nil;
+    }
+    if (![eventIdentifier.eventName isEqualToString:kSAEventNameAppClick]) {
         return nil;
     }
 

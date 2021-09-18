@@ -21,7 +21,6 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SAModuleManager+Visualized.h"
 #import "SAVisualPropertiesTracker.h"
 #import "SAVisualizedEventCheck.h"
 

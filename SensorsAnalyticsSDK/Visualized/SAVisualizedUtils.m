@@ -23,7 +23,7 @@
 #endif
 
 #import "SAVisualizedUtils.h"
-#import "SAJSTouchEventView.h"
+#import "SAWebElementView.h"
 #import "UIView+SAElementPath.h"
 #import "UIView+SAElementSelector.h"
 #import "SAVisualizedViewPathProperty.h"
@@ -32,6 +32,8 @@
 #import "SAVisualizedManager.h"
 #import "SAAutoTrackUtils.h"
 #import "UIView+AutoTrack.h"
+#import "SACommonUtility.h"
+#import "SAJavaScriptBridgeManager.h"
 #import "SALog.h"
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
@@ -147,15 +149,16 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 #pragma mark WebElement
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
     SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
-    NSArray *webPageDatas = webPageInfo.elementSources;
-    if (webPageDatas.count == 0) {
+    NSArray *webElementSources = webPageInfo.webElementSources;
+    if (webElementSources.count == 0) {
         return nil;
     }
-
-    // 元素去重，去除 id 相同的重复元素
-    NSMutableArray <NSString *> *allNoRepeatElementIds = [NSMutableArray array];
-    NSMutableArray <SAJSTouchEventView *> *touchViewArray = [NSMutableArray array];
-    for (NSDictionary *pageData in webPageDatas) {
+    
+    // 元素去重，去除 id 相同的重复元素，并构建 model
+    NSMutableArray<NSString *> *allNoRepeatElementIds = [NSMutableArray array];
+    NSMutableArray<SAWebElementView *> *webElementArray = [NSMutableArray array];
+    
+    for (NSDictionary *pageData in webElementSources) {
         NSString *elementId = pageData[@"id"];
         if (elementId) {
             if ([allNoRepeatElementIds containsObject:elementId]) {
@@ -163,31 +166,41 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
             }
             [allNoRepeatElementIds addObject:elementId];
         }
-
-        SAJSTouchEventView *touchView = [[SAJSTouchEventView alloc] initWithWebView:webView webElementInfo:pageData];
-        if (touchView) {
-            [touchViewArray addObject:touchView];
+        
+        SAWebElementView *webElement = [[SAWebElementView alloc] initWithWebView:webView webElementInfo:pageData];
+        if (webElement) {
+            [webElementArray addObject:webElement];
         }
     }
-
+    
+    // 根据 level 升序排序
+    [webElementArray sortUsingComparator:^NSComparisonResult(SAWebElementView *obj1,SAWebElementView *obj2) {
+        if (obj1.level > obj2.level) {
+            return NSOrderedDescending;
+        } else {
+            return NSOrderedAscending;
+        }
+    }];
+    
     // 构建子元素数组
-    for (SAJSTouchEventView *touchView1 in [touchViewArray copy]) {
-        //当前元素嵌套子元素
-        if (touchView1.jsSubElementIds.count > 0) {
-            NSMutableArray *jsSubElement = [NSMutableArray arrayWithCapacity:touchView1.jsSubElementIds.count];
-            // 根据子元素 id 查找对应子元素
-            for (NSString *elementId in touchView1.jsSubElementIds) {
-                for (SAJSTouchEventView *touchView2 in [touchViewArray copy]) {
-                    if ([elementId isEqualToString:touchView2.jsElementId]) {
-                        [jsSubElement addObject:touchView2];
-                        [touchViewArray removeObject:touchView2];
-                    }
-                }
-            }
-            touchView1.jsSubviews = [jsSubElement copy];
+    for (SAWebElementView *webElement1 in [webElementArray copy]) {
+        //当前元素是否嵌套子元素
+        if (webElement1.jsSubElementIds.count == 0) {
+            continue;
         }
+        
+        NSMutableArray *jsSubElements = [NSMutableArray arrayWithCapacity:webElement1.jsSubElementIds.count];
+        // 根据子元素 id 查找对应子元素
+        for (SAWebElementView *webElement2 in [webElementArray copy]) {
+            // 如果 element2 是 element1 的子元素，则添加到 jsSubviews
+            if ([webElement1.jsSubElementIds containsObject:webElement2.jsElementId]) {
+                [jsSubElements addObject:webElement2];
+                [webElementArray removeObject:webElement2];
+            }
+        }
+        webElement1.jsSubviews = [jsSubElements copy];
     }
-    return [touchViewArray copy];
+    return [webElementArray copy];
 }
 
 #pragma mark RNUtils
@@ -285,10 +298,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     if ([control isKindOfClass:UIDatePicker.class]) {
         return NO;
     }
-    // 被忽略元素
-    if (control.sensorsdata_isIgnored) {
-        return NO;
-    }
     
     BOOL userInteractionEnabled = control.userInteractionEnabled;
     BOOL enabled = control.enabled;
@@ -364,6 +373,29 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     }
     return screenshotImage;
 }
+
++ (BOOL)isSupportCallJSWithWebView:(WKWebView *)webview {
+    WKUserContentController *contentController = webview.configuration.userContentController;
+    NSArray<WKUserScript *> *userScripts = contentController.userScripts;
+
+    // 判断基于 UA 的老版打通
+    NSString *currentUserAgent = [SACommonUtility currentUserAgent];
+    if ([currentUserAgent containsString:@"sa-sdk-ios"]) {
+        return YES;
+    }
+
+    // 判断新版打通
+    __block BOOL isContainJavaScriptBridge = NO;
+    [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        if ([obj.source containsString:kSAJSBridgeServerURL]) {
+            isContainJavaScriptBridge = YES;
+            *stop = YES;
+        }
+    }];
+
+    return isContainJavaScriptBridge;
+}
+
 @end
 
 

@@ -23,6 +23,9 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// H5 可视化全埋点事件标记
+extern NSString * const kSAWebVisualEventName;
+
 /// 可视化全埋点埋点校验
 @interface SAVisualizedEventCheck : NSObject
 - (instancetype)initWithConfigSources:(SAVisualPropertiesConfigSources *)configSources;

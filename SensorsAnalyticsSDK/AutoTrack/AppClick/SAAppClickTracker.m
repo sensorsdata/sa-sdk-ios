@@ -31,8 +31,8 @@
 #import "SAAutoTrackUtils.h"
 #import "UIView+AutoTrack.h"
 #import "UIViewController+AutoTrack.h"
+#import "SAModuleManager.h"
 #import "SALog.h"
-#import "SAModuleManager+Visualized.h"
 
 @interface SAAppClickTracker ()
 

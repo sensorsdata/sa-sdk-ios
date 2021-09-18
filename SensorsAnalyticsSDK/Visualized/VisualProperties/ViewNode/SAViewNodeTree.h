@@ -52,6 +52,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// 根据节点配置信息，获取 view
 - (UIView *)viewWithPropertyConfig:(SAVisualPropertiesPropertyConfig *)config;
 
+/// 自定义属性配置更新
+/// @param configResponse 配置原始 json 数据
+- (void)updateConfig:(NSDictionary *)configResponse;
+
 @end
 
 NS_ASSUME_NONNULL_END

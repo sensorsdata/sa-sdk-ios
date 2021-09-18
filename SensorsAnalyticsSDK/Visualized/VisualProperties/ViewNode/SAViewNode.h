@@ -97,6 +97,14 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SARNViewNode : SAViewNode
 @end
 
+/// WKWebView 构建的元素节点
+@interface SAWKWebViewNode : SAViewNode
+
+/// 调用  JS 方法，发送自定义属性配置
+/// @param configResponse 配置原始 json 数据
+- (void)callJSSendVisualConfig:(NSDictionary *)configResponse;
+@end
+
 /// 需要忽略相对路径
 @interface SAIgnorePathNode : SAViewNode
 
