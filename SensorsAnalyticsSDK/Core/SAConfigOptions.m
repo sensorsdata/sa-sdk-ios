@@ -48,8 +48,6 @@
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
 
-        _flushBeforeEnterBackground = YES;
-
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
         _enableAutoTrackChildViewScreen = YES;
 #endif

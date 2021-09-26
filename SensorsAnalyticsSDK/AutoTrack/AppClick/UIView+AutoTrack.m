@@ -84,6 +84,14 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
             return content;
         }
     }
+
+    if ([self isKindOfClass:NSClassFromString(@"WXView")]) { // WEEX 元素，http://doc.weex.io/zh/docs/components/a.html
+        NSString *content = [self.accessibilityValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (content.length > 0) {
+            return content;
+        }
+    }
+
     if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
         /* 兼容输入框的元素采集
          UITextField 本身是一个容器，包括 UITextField 的元素内容，文字是直接渲染到 view 的

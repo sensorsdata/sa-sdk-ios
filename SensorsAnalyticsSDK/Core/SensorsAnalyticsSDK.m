@@ -41,7 +41,7 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 
-#define VERSION @"3.1.8"
+#define VERSION @"3.1.9"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -462,9 +462,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
-            [self.eventTracker flushAllEventRecords];
-            // 结束后台任务
-            endBackgroundTask();
+            [self.eventTracker flushAllEventRecordsWithCompletion:^{
+                // 结束后台任务
+                endBackgroundTask();
+            }];
         });
 #else
         dispatch_async(self.serialQueue, ^{
