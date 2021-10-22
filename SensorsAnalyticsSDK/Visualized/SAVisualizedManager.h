@@ -34,10 +34,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAVisualizedManager : NSObject<SAModuleProtocol, SAOpenURLProtocol, SAVisualizedModuleProtocol, SAJavaScriptBridgeModuleProtocol>
 
-@property (class,nonatomic, strong, readonly)SAVisualizedManager *sharedInstance;
++ (instancetype)defaultManager;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 /// 自定义属性采集

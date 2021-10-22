@@ -61,12 +61,9 @@
     self.referrerURL = newProperties[kSAEventPropertyScreenUrl];
     self.referrerProperties = newProperties;
 
-    if (self.enableReferrerTitle) {
-        dispatch_async(self.serialQueue, ^{
-            [self cacheReferrerTitle:newProperties];
-        });
-    }
-
+    dispatch_async(self.serialQueue, ^{
+        [self cacheReferrerTitle:newProperties];
+    });
     return newProperties;
 }
 

@@ -30,6 +30,7 @@
 #import "SAJSONUtil.h"
 #import "SANetwork.h"
 #import "SALog.h"
+#import "SAApplication.h"
 
 @interface SADebugModeManager ()
 
@@ -39,6 +40,15 @@
 
 @implementation SADebugModeManager
 
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SADebugModeManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SADebugModeManager alloc] init];
+    });
+    return manager;
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -46,6 +56,14 @@
         _debugAlertViewHasShownNumber = 0;
     }
     return self;
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    if ([SAApplication isAppExtension]) {
+        configOptions.enableDebugMode = NO;
+    }
+    _configOptions = configOptions;
+    self.enable = configOptions.enableDebugMode;
 }
 
 #pragma mark - SAOpenURLProtocol

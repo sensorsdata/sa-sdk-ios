@@ -31,6 +31,11 @@
 #import "SAModuleManager.h"
 #import "SARemoteConfigEventObject.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAConfigOptions+RemoteConfig.h"
+
+#if __has_include("SAConfigOptions+Encrypt.h")
+#import "SAConfigOptions+Encrypt.h"
+#endif
 
 @interface SARemoteConfigOperator ()
 
@@ -151,10 +156,11 @@
 }
 
 - (BOOL)shouldAddVersionOnEnableEncrypt {
+#if __has_include("SAConfigOptions+Encrypt.h")
     if (!self.configOptions.enableEncrypt) {
         return YES;
     }
-
+#endif
     return SAModuleManager.sharedInstance.hasSecretKey;
 }
 

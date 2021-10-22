@@ -85,12 +85,12 @@
         [object isKindOfClass:[UIStepper class]] ||
         [object isKindOfClass:[UISegmentedControl class]] ||
         [object isKindOfClass:[UIPageControl class]]) {
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object];
+        [SAAutoTrackManager.defaultManager.appClickTracker autoTrackEventWithView:(UIView *)object];
         return;
     }
 
     if ([event isKindOfClass:[UIEvent class]] && event.type == UIEventTypeTouches && [[[event allTouches] anyObject] phase] == UITouchPhaseEnded) {
-        [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithView:(UIView *)object];
+        [SAAutoTrackManager.defaultManager.appClickTracker autoTrackEventWithView:(UIView *)object];
     }
 }
 

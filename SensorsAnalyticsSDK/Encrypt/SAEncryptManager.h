@@ -25,8 +25,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAEncryptManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAEncryptModuleProtocol>
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
++ (instancetype)defaultManager;
 
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end

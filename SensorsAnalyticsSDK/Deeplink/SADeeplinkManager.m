@@ -30,6 +30,8 @@
 #import "SALog.h"
 #import "SAIdentifier.h"
 #import "SAJSONUtil.h"
+#import "SensorsAnalyticsSDK+Deeplink.h"
+#import "SAApplication.h"
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";
@@ -72,6 +74,15 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 @implementation SADeeplinkManager
 
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SADeeplinkManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SADeeplinkManager alloc] init];
+    });
+    return manager;
+}
+
 - (instancetype)init {
     self = [super init];
     if (self) {
@@ -83,12 +94,24 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 }
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    if ([SAApplication isAppExtension]) {
+        configOptions.enableDeeplink = NO;
+    }
     _configOptions = configOptions;
 
     [self filterValidSourceChannnels:configOptions.sourceChannels];
     [self unarchiveSavedDeepLinkInfo:configOptions.enableSaveDeepLinkInfo];
     [self handleLaunchOptions:configOptions.launchOptions];
     [self acquireColdLaunchDeepLinkInfo];
+    self.enable = configOptions.enableDeeplink;
+}
+
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+    if (!enable) {
+        self.utms = nil;
+        self.latestUtms = nil;
+    }
 }
 
 - (void)filterValidSourceChannnels:(NSArray *)sourceChannels {

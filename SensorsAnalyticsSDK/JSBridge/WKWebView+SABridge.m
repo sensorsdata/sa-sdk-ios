@@ -28,25 +28,25 @@
 @implementation WKWebView (SABridge)
 
 - (WKNavigation *)sensorsdata_loadRequest:(NSURLRequest *)request {
-    [[SAJavaScriptBridgeManager sharedInstance] addScriptMessageHandlerWithWebView:self];
+    [[SAJavaScriptBridgeManager defaultManager] addScriptMessageHandlerWithWebView:self];
     
     return [self sensorsdata_loadRequest:request];
 }
 
 - (WKNavigation *)sensorsdata_loadHTMLString:(NSString *)string baseURL:(NSURL *)baseURL {
-    [[SAJavaScriptBridgeManager sharedInstance] addScriptMessageHandlerWithWebView:self];
+    [[SAJavaScriptBridgeManager defaultManager] addScriptMessageHandlerWithWebView:self];
     
     return [self sensorsdata_loadHTMLString:string baseURL:baseURL];
 }
 
 - (WKNavigation *)sensorsdata_loadFileURL:(NSURL *)URL allowingReadAccessToURL:(NSURL *)readAccessURL {
-    [[SAJavaScriptBridgeManager sharedInstance] addScriptMessageHandlerWithWebView:self];
+    [[SAJavaScriptBridgeManager defaultManager] addScriptMessageHandlerWithWebView:self];
     
     return [self sensorsdata_loadFileURL:URL allowingReadAccessToURL:readAccessURL];
 }
 
 - (WKNavigation *)sensorsdata_loadData:(NSData *)data MIMEType:(NSString *)MIMEType characterEncodingName:(NSString *)characterEncodingName baseURL:(NSURL *)baseURL {
-    [[SAJavaScriptBridgeManager sharedInstance] addScriptMessageHandlerWithWebView:self];
+    [[SAJavaScriptBridgeManager defaultManager] addScriptMessageHandlerWithWebView:self];
     
     return [self sensorsdata_loadData:data MIMEType:MIMEType characterEncodingName:characterEncodingName baseURL:baseURL];
 }

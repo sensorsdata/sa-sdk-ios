@@ -40,7 +40,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         return YES;
     }
 
-    return [SAAutoTrackManager.sharedInstance.appClickTracker isIgnoreEventWithView:self];
+    return [SAAutoTrackManager.defaultManager.appClickTracker isIgnoreEventWithView:self];
 }
 
 - (void)setSensorsdata_timeIntervalForLastAppClick:(NSTimeInterval)sensorsdata_timeIntervalForLastAppClick {

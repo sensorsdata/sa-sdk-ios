@@ -23,10 +23,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (ChannelMatchPrivate)
+
+@property (nonatomic, assign) BOOL enableChannelMatch;
+
+@end
+
 @interface SAChannelMatchManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAChannelMatchModuleProtocol>
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
++ (instancetype)defaultManager;
 
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end

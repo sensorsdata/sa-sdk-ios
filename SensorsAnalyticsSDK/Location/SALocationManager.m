@@ -43,21 +43,34 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
 
 @implementation SALocationManager
 
-- (instancetype)init {
-    if (self = [super init]) {
-        //默认设置设置精度为 100 ,也就是 100 米定位一次 ；准确性 kCLLocationAccuracyHundredMeters
-        _locationManager = [[CLLocationManager alloc] init];
-        _locationManager.delegate = self;
-        _locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
-        _locationManager.distanceFilter = 100.0;
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SALocationManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SALocationManager alloc] init];
+    });
+    return manager;
+}
 
-        _isUpdatingLocation = NO;
-
-        _coordinate = kCLLocationCoordinate2DInvalid;
-
-        [self setupListeners];
+- (void)setup {
+    if (_locationManager) {
+        return;
     }
-    return self;
+    //默认设置设置精度为 100 ,也就是 100 米定位一次 ；准确性 kCLLocationAccuracyHundredMeters
+    _locationManager = [[CLLocationManager alloc] init];
+    _locationManager.delegate = self;
+    _locationManager.desiredAccuracy = kCLLocationAccuracyHundredMeters;
+    _locationManager.distanceFilter = 100.0;
+
+    _isUpdatingLocation = NO;
+
+    _coordinate = kCLLocationCoordinate2DInvalid;
+    [self setupListeners];
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+    self.enable = configOptions.enableLocation;
 }
 
 - (void)dealloc {
@@ -68,8 +81,8 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
-
     if (enable) {
+        [self setup];
         [self startUpdatingLocation];
     } else {
         [self stopUpdatingLocation];

@@ -39,7 +39,7 @@
         _lib = @"macOS";
 #endif
         _method = kSALibMethodCode;
-        _version = [SensorsAnalyticsSDK.sharedInstance libVersion];
+        _version = [SensorsAnalyticsSDK.sdkInstance libVersion];
         _appVersion = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"];
         _detail = nil;
     }

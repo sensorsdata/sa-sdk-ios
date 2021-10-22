@@ -25,10 +25,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (RemoteConfigPrivate)
+
+@property (nonatomic, assign) BOOL enableRemoteConfig;
+
+@end
+
 @interface SARemoteConfigManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SARemoteConfigModuleProtocol>
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
++ (instancetype)defaultManager;
 
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end

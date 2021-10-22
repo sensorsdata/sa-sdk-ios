@@ -404,7 +404,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 @implementation SAVisualizedUtils (ViewPath)
 
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
-    BOOL isEnableVisualized =  [[SAVisualizedManager sharedInstance] isVisualizeWithViewController:viewController];
+    BOOL isEnableVisualized =  [[SAVisualizedManager defaultManager] isVisualizeWithViewController:viewController];
     return !isEnableVisualized;
 }
 

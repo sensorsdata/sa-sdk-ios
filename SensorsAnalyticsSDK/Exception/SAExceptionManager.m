@@ -28,6 +28,7 @@
 #import "SAConstants+Private.h"
 #import "SAModuleManager.h"
 #import "SALog.h"
+#import "SAConfigOptions+Exception.h"
 
 #include <libkern/OSAtomic.h>
 #include <execinfo.h>
@@ -49,6 +50,15 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
 
 @implementation SAExceptionManager
 
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAExceptionManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAExceptionManager alloc] init];
+    });
+    return manager;
+}
+
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
 
@@ -59,12 +69,13 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
     }
 }
 
-- (void)dealloc {
-    free(_prev_signal_handlers);
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+    self.enable = configOptions.enableTrackAppCrash;
 }
 
-+ (instancetype)sharedInstance {
-    return (SAExceptionManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeException];
+- (void)dealloc {
+    free(_prev_signal_handlers);
 }
 
 - (void)setupExceptionHandler {
@@ -100,10 +111,10 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
                                                          reason:reason
                                                        userInfo:userInfo];
 
-        [SAExceptionManager.sharedInstance handleUncaughtException:exception];
+        [SAExceptionManager.defaultManager handleUncaughtException:exception];
     }
 
-    struct sigaction prev_action = SAExceptionManager.sharedInstance.prev_signal_handlers[crashSignal];
+    struct sigaction prev_action = SAExceptionManager.defaultManager.prev_signal_handlers[crashSignal];
     if (prev_action.sa_flags & SA_SIGINFO) {
         if (prev_action.sa_sigaction) {
             prev_action.sa_sigaction(crashSignal, info, context);
@@ -118,11 +129,11 @@ static void SASignalHandler(int crashSignal, struct __siginfo *info, void *conte
 static void SAHandleException(NSException *exception) {
     int32_t exceptionCount = OSAtomicIncrement32(&kSAExceptionCount);
     if (exceptionCount <= kSAExceptionMaximum) {
-        [SAExceptionManager.sharedInstance handleUncaughtException:exception];
+        [SAExceptionManager.defaultManager handleUncaughtException:exception];
     }
 
-    if (SAExceptionManager.sharedInstance.defaultExceptionHandler) {
-        SAExceptionManager.sharedInstance.defaultExceptionHandler(exception);
+    if (SAExceptionManager.defaultManager.defaultExceptionHandler) {
+        SAExceptionManager.defaultManager.defaultExceptionHandler(exception);
     }
 }
 
@@ -140,6 +151,7 @@ static void SAHandleException(NSException *exception) {
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
         [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 
+        //TODO: 去除对 SAModuleManager 的引用
         //触发页面浏览时长事件
         [[SAModuleManager sharedInstance] trackPageLeaveWhenCrashed];
 

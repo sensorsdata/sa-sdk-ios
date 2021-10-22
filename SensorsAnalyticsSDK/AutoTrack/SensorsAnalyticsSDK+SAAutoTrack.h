@@ -39,8 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 @interface UIView (SensorsAnalytics)
-- (nullable UIViewController *)sensorsAnalyticsViewController __attribute__((deprecated("已过时")));
-
 /// viewID
 @property (nonatomic, copy) NSString* sensorsAnalyticsViewID;
 
@@ -167,20 +165,16 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)trackViewScreen:(UIViewController *)viewController;
 - (void)trackViewScreen:(UIViewController *)viewController properties:(nullable NSDictionary<NSString *,id> *)properties;
 
-#pragma mark - Deprecated
-
 /**
- * @property
- *
  * @abstract
- * 打开 SDK 自动追踪,默认只追踪App 启动 / 关闭、进入页面
+ * Track $AppViewScreen事件
  *
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
+ * @param url 当前页面url
+ * @param properties 用户扩展属性
  */
-- (void)enableAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties;
+
+#pragma mark - Deprecated
 
 /**
  * @property
@@ -194,32 +188,30 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
 
-/**
- * @abstract
- * 过滤掉 AutoTrack 的某个事件类型
- *
- * @param eventType SensorsAnalyticsAutoTrackEventType 要忽略的 AutoTrack 事件类型
- */
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType")));
+@end
+
+@interface SAConfigOptions (AutoTrack)
+
+///开启自动采集页面浏览时长
+@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
+
+/// 是否自动采集子页面的页面浏览事件
+///
+/// 开启页面浏览事件采集时，有效。默认为不采集
+@property (nonatomic) BOOL enableAutoTrackChildViewScreen API_UNAVAILABLE(macos);
 
 /**
+ * @property
+ *
  * @abstract
- * 判断某个 ViewController 是否被忽略
+ * 打开 SDK 自动追踪,默认只追踪 App 启动 / 关闭、进入页面、元素点击
  *
- * @param viewControllerClassName UIViewController 类名
- *
- * @return YES:被忽略; NO:没有被忽略
+ * @discussion
+ * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
+ *   https://sensorsdata.cn/manual/ios_sdk.html
+ * 该功能默认关闭
  */
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName __attribute__((deprecated("已过时，请参考 -(BOOL)isViewControllerIgnored:(UIViewController *)viewController")));
-
-/**
- * @abstract
- * Track $AppViewScreen事件
- *
- * @param url 当前页面url
- * @param properties 用户扩展属性
- */
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties __attribute__((deprecated("已过时，请参考 trackViewScreen: properties:")));
+@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType API_UNAVAILABLE(macos);
 
 @end
 

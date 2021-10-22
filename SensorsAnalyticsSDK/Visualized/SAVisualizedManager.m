@@ -56,17 +56,19 @@
 
 /// 埋点校验
 @property (nonatomic, strong, readwrite) SAVisualizedEventCheck *eventCheck;
+
 @end
 
 
 @implementation SAVisualizedManager
 
-+ (SAVisualizedManager *)sharedInstance {
-    id <SAModuleProtocol>manager = [[SAModuleManager sharedInstance] managerForModuleType:SAModuleTypeVisualized];
-    if (manager.isEnable) {
-        return (SAVisualizedManager *)manager;
-    }
-    return nil;
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAVisualizedManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAVisualizedManager alloc] init];
+    });
+    return manager;
 }
 
 #pragma mark initialize
@@ -106,6 +108,7 @@
     if (!enable) {
         self.configSources = nil;
         self.visualPropertiesTracker = nil;
+        [self.visualizedConnection close];
         return;
     }
 
@@ -118,19 +121,33 @@
         }
     });
 
-    if (!self.configSources && self.configOptions.enableVisualizedAutoTrack) {
-        // 只要开启可视化，默认获取远程配置
+    // 未开启自定义属性
+    if (!self.configOptions.enableVisualizedProperties) {
+        SALogDebug(@"Current App does not support visualizedProperties");
+        return;
+    }
+
+    if (!self.configSources) {
+        // 获取自定义属性配置
         self.configSources = [[SAVisualPropertiesConfigSources alloc] initWithDelegate:self];
         [self.configSources loadConfig];
     }
 }
 
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+
+    // 由于自定义属性依赖于可视化全埋点，所以只要开启自定义属性，默认打开可视化全埋点相关功能
+    // 可视化全埋点或点击分析开启
+    self.enable = configOptions.enableHeatMap || configOptions.enableVisualizedAutoTrack || configOptions.enableVisualizedProperties;
+}
+
 -(void)updateServerURL:(NSString *)serverURL {
-    if (![SAValidator isValidString:serverURL] || ![self.configOptions.serverURL isEqualToString:serverURL]) {
+    if (![SAValidator isValidString:serverURL]) {
         return;
     }
     // 刷新自定义属性配置
-    [self.configSources loadConfig];
+    [self.configSources reloadConfig];
 }
 
 #pragma mark -
@@ -144,8 +161,8 @@
         NSString *jsVisualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
         [javaScriptSource appendString:jsVisualizedMode];
     }
-    
-    if (!self.configSources.isValid || self.configSources.originalResponse.count == 0) {
+
+    if (!self.configOptions.enableVisualizedProperties || !self.configSources.isValid || self.configSources.originalResponse.count == 0) {
         return javaScriptSource;
     }
 
@@ -205,7 +222,7 @@
         return YES;
     }
     if (featureCode && postURLStr && self.isEnable) {
-        [SAVisualizedManager.sharedInstance showOpenAlertWithURL:url featureCode:featureCode postURL:postURLStr];
+        [SAVisualizedManager.defaultManager showOpenAlertWithURL:url featureCode:featureCode postURL:postURLStr];
         return YES;
     }
     //feature_code url 参数错误
@@ -333,7 +350,7 @@
 }
 
 - (void)queryVisualPropertiesWithConfigs:(NSArray<NSDictionary *> *)propertyConfigs completionHandler:(void (^)(NSDictionary * _Nullable))completionHandler {
-    if (!self.visualPropertiesTracker) {
+    if (propertyConfigs.count == 0 || !self.visualPropertiesTracker) {
         return completionHandler(nil);
     }
     

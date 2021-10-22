@@ -29,12 +29,22 @@
 #import "UIApplication+PushClick.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAMethodHelper.h"
+#import "SAConfigOptions+AppPush.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0
 #import "SAUNUserNotificationCenterDelegateProxy.h"
 #endif
 
 @implementation SAAppPushManager
+
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAAppPushManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAAppPushManager alloc] init];
+    });
+    return manager;
+}
 
 - (void)setEnable:(BOOL)enable {
     _enable = enable;
@@ -45,8 +55,8 @@
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     _configOptions = configOptions;
-
     [UIApplication sharedApplication].sensorsdata_launchOptions = configOptions.launchOptions;
+    self.enable = configOptions.enableTrackPush;
 }
 
 - (void)proxyNotifications {

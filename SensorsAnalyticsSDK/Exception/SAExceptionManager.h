@@ -23,9 +23,12 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAExceptionManager : NSObject <SAPropertyModuleProtocol>
+@interface SAExceptionManager : NSObject <SAModuleProtocol>
+
++ (instancetype)defaultManager;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 
 @end
 

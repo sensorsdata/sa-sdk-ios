@@ -25,26 +25,20 @@
 #import "SensorsAnalyticsSDK+Visualized.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedManager.h"
-#import "SAModuleManager.h"
 
 @implementation SensorsAnalyticsSDK (Visualized)
 
 #pragma mark - VisualizedAutoTrack
 - (BOOL)isVisualizedAutoTrackEnabled {
-    return self.configOptions.enableVisualizedAutoTrack;
+    return self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableVisualizedProperties;
 }
 
 - (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
-    [[SAVisualizedManager sharedInstance] addVisualizeWithViewControllers:controllers];
+    [[SAVisualizedManager defaultManager] addVisualizeWithViewControllers:controllers];
 }
 
 - (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController {
-    return [[SAVisualizedManager sharedInstance] isVisualizeWithViewController:viewController];
-}
-
-- (void)enableVisualizedAutoTrack {
-    self.configOptions.enableVisualizedAutoTrack = YES;
-    [self enableVisualize];
+    return [[SAVisualizedManager defaultManager] isVisualizeWithViewController:viewController];
 }
 
 #pragma mark - HeatMap
@@ -53,20 +47,11 @@
 }
 
 - (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers {
-    [[SAVisualizedManager sharedInstance] addVisualizeWithViewControllers:controllers];
+    [[SAVisualizedManager defaultManager] addVisualizeWithViewControllers:controllers];
 }
 
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController {
-    return [[SAVisualizedManager sharedInstance] isVisualizeWithViewController:viewController];
-}
-
-- (void)enableHeatMap {
-    self.configOptions.enableHeatMap = YES;
-    [self enableVisualize];
-}
-
-- (BOOL)handleHeatMapUrl:(NSURL *)URL {
-    return [SAModuleManager.sharedInstance handleURL:URL];
+    return [[SAVisualizedManager defaultManager] isVisualizeWithViewController:viewController];
 }
 
 @end

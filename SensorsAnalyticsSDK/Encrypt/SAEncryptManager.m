@@ -62,6 +62,15 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @implementation SAEncryptManager
 
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAEncryptManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAEncryptManager alloc] init];
+    });
+    return manager;
+}
+
 #pragma mark - SAModuleProtocol
 
 - (void)setEnable:(BOOL)enable {
@@ -74,6 +83,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     _configOptions = configOptions;
+    if (configOptions.enableEncrypt) {
+        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) || (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
+    }
 
     NSMutableArray *encryptors = [NSMutableArray array];
 
@@ -84,6 +96,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
+    self.enable = configOptions.enableEncrypt;
 }
 
 #pragma mark - SAOpenURLProtocol

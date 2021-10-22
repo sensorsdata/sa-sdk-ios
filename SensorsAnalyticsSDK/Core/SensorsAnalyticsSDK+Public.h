@@ -172,17 +172,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)resetAnonymousId;
 
 /**
- * @abstract
- * 设置是否显示 debugInfoView，对于 iOS，是 UIAlertView／UIAlertController
- *
- * @discussion
- * 设置是否显示 debugInfoView，默认显示
- *
- * @param show             是否显示
- */
-- (void)showDebugInfoView:(BOOL)show API_UNAVAILABLE(macos);
-
-/**
  @abstract
  在初始化 SDK 之后立即调用，替换神策分析默认分配的 *匿名 ID*
 
@@ -332,8 +321,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (NSDictionary *)getLastScreenTrackProperties API_UNAVAILABLE(macos);
 
-- (SensorsAnalyticsDebugMode)debugMode;
-
 /**
  @abstract
  * Track App Extension groupIdentifier 中缓存的数据
@@ -452,9 +439,6 @@ NS_ASSUME_NONNULL_BEGIN
  @param itemId item Id
  */
 - (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId;
-
-
-#pragma mark - VisualizedAutoTrack
 
 /**
  * 判断是否为符合要求的 openURL
@@ -615,30 +599,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 /**
  * @abstract
- * 设备方向信息采集功能开关
- *
- * @discussion
- * 根据需要决定是否开启设备方向采集
- * 默认关闭
- *
- * @param enable YES/NO
- */
-- (void)enableTrackScreenOrientation:(BOOL)enable API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * 位置信息采集功能开关
- *
- * @discussion
- * 根据需要决定是否开启位置采集
- * 默认关闭
- *
- * @param enable YES/NO
- */
-- (void)enableTrackGPSLocation:(BOOL)enable API_UNAVAILABLE(macos);
-
-/**
- * @abstract
  * 清除 keychain 缓存数据
  *
  * @discussion
@@ -647,34 +607,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)clearKeychainData API_UNAVAILABLE(macos);
 
-@end
-
-#pragma mark - Deeplink
-@interface SensorsAnalyticsSDK (Deeplink)
-
-/**
-DeepLink 回调函数
-@param callback 请求成功后的回调函数
-  params：创建渠道链接时填写的 App 内参数
-  succes：deeplink 唤起结果
-  appAwakePassedTime：获取渠道信息所用时间
-*/
-- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback API_UNAVAILABLE(macos);
-
-/**
-触发 $AppDeepLinkLaunch 事件
-@param url 唤起 App 的 DeepLink url
-*/
-- (void)trackDeepLinkLaunchWithURL:(NSString *)url API_UNAVAILABLE(macos);
-
-@end
-
-#pragma mark - JSCall
-@interface SensorsAnalyticsSDK (JSCall)
-
-- (void)trackFromH5WithEvent:(NSString *)eventInfo;
-
-- (void)trackFromH5WithEvent:(NSString *)eventInfo enableVerify:(BOOL)enableVerify;
 @end
 
 #pragma mark -
@@ -807,7 +739,7 @@ DeepLink 回调函数
  * 两次数据发送的最小时间间隔，单位毫秒
  *
  * @discussion
- * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
+ * 默认值为 15 * 1000 毫秒， 在每次调用 track 和 profileSet 等接口的时候，
  * 都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否 WIFI/3G/4G 网络
  * 2. 是否满足以下数据发送条件之一:
@@ -825,7 +757,7 @@ DeepLink 回调函数
  * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
  *
  * @discussion
- * 默认值为 100，在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
+ * 默认值为 100，在每次调用 track 和 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否 WIFI/3G/4G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
@@ -836,17 +768,6 @@ DeepLink 回调函数
 @property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
 
 /**
- * @proeprty
- *
- * @abstract
- * 当 App 进入后台时，是否执行 flush 将数据发送到 SensrosAnalytics
- *
- * @discussion
- * 默认值为 YES
- */
-@property (atomic) BOOL flushBeforeEnterBackground __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBeforeEnterBackground")));
-
-/**
  * @abstract
  * 设置本地缓存最多事件条数
  *
@@ -854,8 +775,7 @@ DeepLink 回调函数
  * 默认为 10000 条事件
  *
  */
-@property (nonatomic, getter = getMaxCacheSize) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
-- (UInt64)getMaxCacheSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+@property (nonatomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 
 /**
  * @abstract
@@ -869,115 +789,11 @@ DeepLink 回调函数
 - (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushNetworkPolicy")));
 
 /**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
- @param configOptions 参数配置
- @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions __attribute__((deprecated("已过时，请使用 + (void)startWithConfigOptions: 方法进行初始化")));
-
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
- * @param serverURL 收集事件的 URL
- * @param debugMode Sensors Analytics 的 Debug 模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nullable NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例
- *
- * @param serverURL 收集事件的 URL
- * @param launchOptions launchOptions
- * @param debugMode Sensors Analytics 的 Debug 模式
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:"))) API_UNAVAILABLE(macos);
-/**
- * @abstract
- * 根据传入的配置，初始化并返回一个 SensorsAnalyticsSDK 的单例。
- * 目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
- * @param serverURL 收集事件的 URL
- * @param launchOptions launchOptions
- *
- * @return 返回的单例
- */
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions  __attribute__((deprecated("已过时，请参考 sharedInstanceWithConfig:")));
-
-/**
  设置调试模式
  目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  @param debugMode 调试模式
  */
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * 自动收集 App Crash 日志，该功能默认是关闭的
- */
-- (void)trackAppCrash  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableTrackAppCrash"))) API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * 提供一个接口，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册ID
- * @param propertyDict     event的属性
- */
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(nullable NSDictionary *)propertyDict __attribute__((deprecated("已过时，请参考login")));
-
-/**
- * @abstract
- * 不带私有属性的trackSignUp，用来在用户注册的时候，用注册ID来替换用户以前的匿名ID
- *
- * @discussion
- * 这个接口是一个较为复杂的功能，请在使用前先阅读相关说明: http://www.sensorsdata.cn/manual/track_signup.html，并在必要时联系我们的技术支持人员。
- *
- * @param newDistinctId     用户完成注册后生成的注册ID
- */
-- (void)trackSignUp:(NSString *)newDistinctId __attribute__((deprecated("已过时，请参考login")));
-
-/**
- * @abstract
- * 初始化事件的计时器。
- *
- * @discussion
- * 若需要统计某个事件的持续时间，先在事件开始时调用 trackTimer:"Event" 记录事件开始时间，该方法并不会真正发
- * 送事件；随后在事件结束时，调用 track:"Event" withProperties:properties，SDK 会追踪 "Event" 事件，并自动将事件持续时
- * 间记录在事件属性 "event_duration" 中。
- *
- * 默认时间单位为毫秒，若需要以其他时间单位统计时长，请使用 trackTimer:withTimeUnit
- *
- * 多次调用 trackTimer:"Event" 时，事件 "Event" 的开始时间以最后一次调用时为准。
- *
- * @param event             event的名称
- */
-- (void)trackTimerBegin:(NSString *)event __attribute__((deprecated("已过时，请参考 trackTimerStart")));
-
-/**
- * @abstract
- * 初始化事件的计时器，允许用户指定计时单位。
- *
- * @discussion
- * 请参考 trackTimer
- *
- * @param event             event的名称
- * @param timeUnit          计时单位，毫秒/秒/分钟/小时
- */
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
 
 /**
  * @abstract

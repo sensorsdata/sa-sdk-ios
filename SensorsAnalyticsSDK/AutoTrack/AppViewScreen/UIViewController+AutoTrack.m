@@ -37,7 +37,7 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
 @implementation UIViewController (AutoTrack)
 
 - (BOOL)sensorsdata_isIgnored {
-    return ![[SAAutoTrackManager sharedInstance].appClickTracker shouldTrackViewController:self];
+    return ![[SAAutoTrackManager defaultManager].appClickTracker shouldTrackViewController:self];
 }
 
 - (NSString *)sensorsdata_screenName {
@@ -68,7 +68,7 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
         nav.sensorsdata_previousViewController = nil;
     }
 
-    SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.sharedInstance.appViewScreenTracker;
+    SAAppViewScreenTracker *appViewScreenTracker = SAAutoTrackManager.defaultManager.appViewScreenTracker;
 
     // parentViewController 判断，防止开启子页面采集时候的侧滑多采集父页面 $AppViewScreen 事件
     if (self.navigationController && self.parentViewController == self.navigationController) {
@@ -78,7 +78,8 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
         }
     }
 
-    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
+    
+    if (SAAutoTrackManager.defaultManager.configOptions.enableAutoTrackChildViewScreen ||
         !self.parentViewController ||
         [self.parentViewController isKindOfClass:[UITabBarController class]] ||
         [self.parentViewController isKindOfClass:[UINavigationController class]] ||

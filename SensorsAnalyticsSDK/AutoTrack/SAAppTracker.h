@@ -55,10 +55,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param viewController UIViewController
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController;
 
-/// 判断某个 ViewController 是否被忽略
-/// @param viewControllerClassName UIViewController 类名
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName;
-
 /// ViewController 的黑名单
 - (NSDictionary *)autoTrackViewControllerBlackList;
 

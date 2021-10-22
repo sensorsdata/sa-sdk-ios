@@ -49,7 +49,7 @@
         return;
     }
 
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithScrollView:scrollView atIndexPath:indexPath];
+    [SAAutoTrackManager.defaultManager.appClickTracker autoTrackEventWithScrollView:scrollView atIndexPath:indexPath];
 }
 
 @end

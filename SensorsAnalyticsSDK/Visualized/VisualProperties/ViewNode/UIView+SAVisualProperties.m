@@ -33,19 +33,19 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 - (void)sensorsdata_visualize_didMoveToSuperview {
     [self sensorsdata_visualize_didMoveToSuperview];
 
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker didMoveToSuperviewWithView:self];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker didMoveToSuperviewWithView:self];
 }
 
 - (void)sensorsdata_visualize_didMoveToWindow {
     [self sensorsdata_visualize_didMoveToWindow];
 
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker didMoveToWindowWithView:self];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker didMoveToWindowWithView:self];
 }
 
 - (void)sensorsdata_visualize_didAddSubview:(UIView *)subview {
     [self sensorsdata_visualize_didAddSubview:subview];
 
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker didAddSubview:subview];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker didAddSubview:subview];
 }
 
 - (void)sensorsdata_visualize_bringSubviewToFront:(UIView *)view {
@@ -78,7 +78,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 
 - (SAViewNode *)sensorsdata_viewNode {
     // 自定义属性被关闭，就不再操作 viewNode
-    if (!SAVisualizedManager.sharedInstance.visualPropertiesTracker) {
+    if (!SAVisualizedManager.defaultManager.visualPropertiesTracker) {
         return nil;
     }
     return objc_getAssociatedObject(self, kSAViewNodePropertyName);
@@ -131,7 +131,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 - (void)sensorsdata_visualize_becomeKeyWindow {
     [self sensorsdata_visualize_becomeKeyWindow];
 
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker becomeKeyWindow:self];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker becomeKeyWindow:self];
 }
 
 @end
@@ -146,7 +146,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
     if (!isSwitchTab) {
         return;
     }
-    if (!SAVisualizedManager.sharedInstance.visualPropertiesTracker) {
+    if (!SAVisualizedManager.defaultManager.visualPropertiesTracker) {
         return;
     }
 
@@ -156,7 +156,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
         // 只需更新切换 item 对应 node 页面名称即可
         if ([node isKindOfClass:SATabBarButtonNode.class] && [node.elementPosition isEqualToString:itemIndex]) {
             // 共用自定义属性查询队列，从而保证更新页面信息后，再进行属性元素遍历
-            dispatch_async(SAVisualizedManager.sharedInstance.visualPropertiesTracker.serialQueue, ^{
+            dispatch_async(SAVisualizedManager.defaultManager.visualPropertiesTracker.serialQueue, ^{
                 [node refreshSubNodeScreenName];
             });
         }

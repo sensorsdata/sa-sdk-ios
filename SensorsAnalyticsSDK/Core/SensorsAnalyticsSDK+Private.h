@@ -55,12 +55,8 @@
 /// @param properties 事件属性
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
-/// 开启可视化模块
-- (void)enableVisualize;
-
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
-@property (nonatomic, readonly, class) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
 @property (nonatomic, strong, readonly) SASuperProperty *superProperty;
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;

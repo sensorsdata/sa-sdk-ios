@@ -26,11 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAJavaScriptBridgeManager : NSObject <WKScriptMessageHandler, SAModuleProtocol, SAJavaScriptBridgeModuleProtocol>
 
++ (instancetype)defaultManager;
+
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-
-+ (instancetype)sharedInstance;
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView;
 

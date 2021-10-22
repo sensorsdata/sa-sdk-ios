@@ -29,13 +29,13 @@
 @implementation UIViewController (PageLeave)
 
 - (void)sensorsdata_pageLeave_viewDidAppear:(BOOL)animated {
-    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager sharedInstance].appPageLeaveTracker;
+    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager defaultManager].appPageLeaveTracker;
     [tracker trackPageEnter:self];
     [self sensorsdata_pageLeave_viewDidAppear:animated];
 }
 
 - (void)sensorsdata_pageLeave_viewDidDisappear:(BOOL)animated {
-    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager sharedInstance].appPageLeaveTracker;
+    SAAppPageLeaveTracker *tracker = [SAAutoTrackManager defaultManager].appPageLeaveTracker;
     [tracker trackPageLeave:self];
     [self sensorsdata_pageLeave_viewDidDisappear:animated];
 }

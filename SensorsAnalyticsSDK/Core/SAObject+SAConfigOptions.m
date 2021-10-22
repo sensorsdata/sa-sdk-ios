@@ -25,6 +25,10 @@
 #import "SAObject+SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALog.h"
+#import "SAModuleManager.h"
+#if __has_include("SAConfigOptions+Encrypt.h")
+#import "SAConfigOptions+Encrypt.h"
+#endif
 
 @implementation SADatabase (SAConfigOptions)
 
@@ -45,7 +49,7 @@
 @implementation SAEventFlush (SAConfigOptions)
 
 - (BOOL)isDebugMode {
-    return [[SensorsAnalyticsSDK sdkInstance] debugMode] != SensorsAnalyticsDebugOff;
+    return SAModuleManager.sharedInstance.debugMode != SensorsAnalyticsDebugOff;
 }
 
 - (NSURL *)serverURL {
@@ -57,7 +61,7 @@
 }
 
 - (BOOL)enableEncrypt {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && __has_include("SAConfigOptions+Encrypt.h")
     return [SensorsAnalyticsSDK sdkInstance].configOptions.enableEncrypt;
 #else
     return NO;
@@ -77,7 +81,7 @@
 @implementation SAEventTracker (SAConfigOptions)
 
 - (BOOL)isDebugMode {
-    return [[SensorsAnalyticsSDK sdkInstance] debugMode] != SensorsAnalyticsDebugOff;
+    return SAModuleManager.sharedInstance.debugMode != SensorsAnalyticsDebugOff;
 }
 
 - (SensorsAnalyticsNetworkType)networkTypePolicy {

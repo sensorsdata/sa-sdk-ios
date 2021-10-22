@@ -34,23 +34,31 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
 
 @property (nonatomic, strong) CMMotionManager *cmmotionManager;
 @property (nonatomic, strong) NSOperationQueue *updateQueue;
-
 @property (nonatomic, strong) NSString *deviceOrientation;
 
 @end
 
 @implementation SADeviceOrientationManager
 
-- (instancetype)init {
-    if (self = [super init]) {
-        _cmmotionManager = [[CMMotionManager alloc] init];
-        _cmmotionManager.deviceMotionUpdateInterval = kSADefaultDeviceMotionUpdateInterval;
-        _updateQueue = [[NSOperationQueue alloc] init];
-        _updateQueue.name = @"com.sensorsdata.analytics.deviceMotionUpdatesQueue";
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SADeviceOrientationManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SADeviceOrientationManager alloc] init];
+    });
+    return manager;
+}
 
-        [self setupListeners];
+- (void)setup {
+    if (_cmmotionManager) {
+        return;
     }
-    return self;
+    _cmmotionManager = [[CMMotionManager alloc] init];
+    _cmmotionManager.deviceMotionUpdateInterval = kSADefaultDeviceMotionUpdateInterval;
+    _updateQueue = [[NSOperationQueue alloc] init];
+    _updateQueue.name = @"com.sensorsdata.analytics.deviceMotionUpdatesQueue";
+
+    [self setupListeners];
 }
 
 #pragma mark - SAModuleProtocol
@@ -59,11 +67,17 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
     _enable = enable;
 
     if (enable) {
+        [self setup];
         [self startDeviceMotionUpdates];
     } else {
         self.deviceOrientation = nil;
         [self stopDeviceMotionUpdates];
     }
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+    self.enable = configOptions.enableDeviceOrientation;
 }
 
 - (NSDictionary *)properties {

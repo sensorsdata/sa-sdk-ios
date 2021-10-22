@@ -46,30 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (instancetype)new NS_UNAVAILABLE;
 
 /**
- * @property
- *
- * @abstract
- * 打开 SDK 自动追踪,默认只追踪 App 启动 / 关闭、进入页面、元素点击
- *
- * @discussion
- * 该功能自动追踪 App 的一些行为，例如 SDK 初始化、App 启动 / 关闭、进入页面 等等，具体信息请参考文档:
- *   https://sensorsdata.cn/manual/ios_sdk.html
- * 该功能默认关闭
- */
-@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType API_UNAVAILABLE(macos);
-
-/// 是否自动采集子页面的页面浏览事件
-///
-/// 开启页面浏览事件采集时，有效。默认为不采集
-@property (nonatomic) BOOL enableAutoTrackChildViewScreen API_UNAVAILABLE(macos);
-
-/// 是否开启 WKWebView 的 H5 打通功能，该功能默认是关闭的
-@property (nonatomic) BOOL enableJavaScriptBridge;
-
-/// 是否自动收集 App Crash 日志，该功能默认是关闭的
-@property (nonatomic) BOOL enableTrackAppCrash API_UNAVAILABLE(macos);
-
-/**
  @abstract
  用于评估是否为服务器信任的安全链接。
 
@@ -94,7 +70,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 两次数据发送的最小时间间隔，单位毫秒
  *
  * @discussion
- * 默认值为 15 * 1000 毫秒， 在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，
+ * 默认值为 15 * 1000 毫秒， 在每次调用 track 和 profileSet 等接口的时候，
  * 都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否 WIFI/3G/4G/5G 网络
  * 2. 是否满足以下数据发送条件之一:
@@ -112,7 +88,7 @@ NS_ASSUME_NONNULL_BEGIN
  * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
  *
  * @discussion
- * 默认值为 100，在每次调用 track、trackSignUp 以及 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
+ * 默认值为 100，在每次调用 track 和 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否 WIFI/3G/4G/5G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
@@ -133,58 +109,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 禁用后，SDK 将不会触发事件，也不会发送网络请求
 @property (nonatomic, assign) BOOL disableSDK;
 
-/// 开启点击图
-@property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);
-
-/// 开启可视化全埋点
-@property (nonatomic, assign) BOOL enableVisualizedAutoTrack API_UNAVAILABLE(macos);
-
-#pragma mark - 请求远程配置策略
-/// 请求远程配置地址，默认从 serverURL 解析
-@property (nonatomic, copy) NSString *remoteConfigURL API_UNAVAILABLE(macos);
-
-/// 禁用随机时间请求远程配置
-@property (nonatomic, assign) BOOL disableRandomTimeRequestRemoteConfig API_UNAVAILABLE(macos);
-
-/// 最小间隔时长，单位：小时，默认 24
-@property (nonatomic, assign) NSInteger minRequestHourInterval API_UNAVAILABLE(macos);
-
-/// 最大间隔时长，单位：小时，默认 48
-@property (nonatomic, assign) NSInteger maxRequestHourInterval API_UNAVAILABLE(macos);
-
-/// DeepLink 中解析出来的参数是否需要保存到本地
-@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo API_UNAVAILABLE(macos);
-
-/// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
-@property (nonatomic, copy) NSArray<NSString *> *sourceChannels API_UNAVAILABLE(macos);
-
-/// 是否在手动埋点事件中自动添加渠道匹配信息
-@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
 
 /// App 进入后台时是否等待数据发送结果。默认 YES，会等待数据发送结果；设置 NO，不会等待数据发送结果
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
-
-/// 是否开启加密
-@property (nonatomic, assign) BOOL enableEncrypt API_UNAVAILABLE(macos);
-
-/// 存储公钥的回调。务必保存秘钥所有字段信息
-@property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey) API_UNAVAILABLE(macos);
-
-/// 获取公钥的回调。务必回传秘钥所有字段信息
-@property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void) API_UNAVAILABLE(macos);
-
-/// 是否开启多渠道匹配，开启后调用 profile_set,不开启则调用 profile_set_once
-@property (nonatomic, assign) BOOL enableMultipleChannelMatch API_UNAVAILABLE(macos);
-
-/// 开启前向页面标题采集功能，默认不开启
-@property (nonatomic, assign) BOOL enableReferrerTitle API_UNAVAILABLE(macos);
-
-///开启自动采集通知
-@property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos);
-
-///开启自动采集页面浏览时长
-@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
-
 
 @end
 

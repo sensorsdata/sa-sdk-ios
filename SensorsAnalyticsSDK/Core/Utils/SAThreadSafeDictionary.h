@@ -22,6 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+
 @interface SAThreadSafeDictionary<KeyType, ObjectType> : NSObject
 
 + (SAThreadSafeDictionary *)dictionary;

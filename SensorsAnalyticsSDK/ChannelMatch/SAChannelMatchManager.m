@@ -33,6 +33,8 @@
 #import "SALog.h"
 #import "SAFileStore.h"
 #import "SAJSONUtil.h"
+#import "SensorsAnalyticsSDK+SAChannelMatch.h"
+#import "SAApplication.h"
 
 NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
@@ -49,6 +51,23 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 @end
 
 @implementation SAChannelMatchManager
+
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAChannelMatchManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAChannelMatchManager alloc] init];
+    });
+    return manager;
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    if ([SAApplication isAppExtension]) {
+        configOptions.enableChannelMatch = NO;
+    }
+    _configOptions = configOptions;
+    self.enable = configOptions.enableChannelMatch;
+}
 
 #pragma mark -
 
@@ -86,7 +105,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
     if (@available(iOS 13.0, *)) {
         __block UIWindowScene *scene = nil;
-        [[UIApplication sharedApplication].connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [UIApplication.sharedApplication.connectedScenes.allObjects enumerateObjectsUsingBlock:^(UIScene * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             if ([obj isKindOfClass:[UIWindowScene class]]) {
                 scene = (UIWindowScene *)obj;
                 *stop = YES;
@@ -195,11 +214,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     [profileProps removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
     // 再发送 profile_set_once
     [profileProps setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
-    if (sdk.configOptions.enableMultipleChannelMatch) {
-        [sdk set:profileProps];
-    } else {
-        [sdk setOnce:profileProps];
-    }
+    [sdk setOnce:profileProps];
     [sdk flush];
 }
 

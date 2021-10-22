@@ -24,12 +24,19 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (DebugModePrivate)
+
+@property (nonatomic, assign) BOOL enableDebugMode;
+
+@end
+
 @interface SADebugModeManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADebugModeModuleProtocol>
 
++ (instancetype)defaultManager;
+
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (nonatomic) SensorsAnalyticsDebugMode debugMode;
-
 @property (nonatomic) BOOL showDebugAlertView;
 
 @end

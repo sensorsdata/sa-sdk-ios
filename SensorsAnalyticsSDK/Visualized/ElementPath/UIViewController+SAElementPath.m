@@ -50,8 +50,7 @@
 
     if (childViewControllers.count > 0 && ![self isKindOfClass:UIAlertController.class]) {
         // UIAlertController 如果添加 TextField 也会嵌套 childViewController，直接返回 .view 即可
-
-        UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
         subElements = [NSMutableArray arrayWithArray:self.view.subviews];
         // 是否包含全屏视图
         __block BOOL isContainFullScreen = NO;
@@ -89,7 +88,7 @@
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated {
     [self sensorsdata_visualize_viewDidAppear:animated];
 
-    if (SAAutoTrackManager.sharedInstance.configOptions.enableAutoTrackChildViewScreen ||
+    if ([SAVisualizedManager defaultManager].configOptions.enableAutoTrackChildViewScreen ||
         !self.parentViewController ||
         [self.parentViewController isKindOfClass:[UITabBarController class]] ||
         [self.parentViewController isKindOfClass:[UINavigationController class]] ||
@@ -100,12 +99,12 @@
 
     // 跳转进入 RN 自定义页面，需更新节点的页面名称
     if ([SAVisualizedUtils isRNCustomViewController:self]) {
-        [SAVisualizedManager.sharedInstance.visualPropertiesTracker enterRNViewController:self];
+        [SAVisualizedManager.defaultManager.visualPropertiesTracker enterRNViewController:self];
     }
 }
 
 - (void)sensorsdata_readyEnterViewController {
-    if (![[SAAutoTrackManager sharedInstance].appViewScreenTracker shouldTrackViewController:self]) {
+    if (![[SAAutoTrackManager defaultManager].appViewScreenTracker shouldTrackViewController:self]) {
         return;
     }
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览

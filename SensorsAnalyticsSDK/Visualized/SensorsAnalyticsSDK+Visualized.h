@@ -73,27 +73,20 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 
+@end
 
-/**
- * 开启 可视化全埋点 分析，默认不开启，
- * $AppClick 事件将会采集控件的 viewPath。
- */
-- (void)enableVisualizedAutoTrack __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableVisualizedAutoTrack")));
+@interface SAConfigOptions (Visualized)
 
-/**
- 开启 HeatMap，$AppClick 事件将会采集控件的 viewPath
- */
-- (void)enableHeatMap __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 enableHeatMap")));
+/// 开启点击图
+@property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);
 
-/**
- * @abstract
- * 神策 SDK 会处理 点击图，可视化全埋点url
- * @discussion
- *  目前处理 heatmap，visualized
- * @param url 点击图的 url
- * @return YES/NO
- */
-- (BOOL)handleHeatMapUrl:(NSURL *)url __attribute__((deprecated("已过时，请参考 handleSchemeUrl:")));
+/// 开启可视化全埋点
+@property (nonatomic, assign) BOOL enableVisualizedAutoTrack API_UNAVAILABLE(macos);
+
+/// 开启可视化全埋点自定义属性
+///
+/// 开启后，SDK 会默认开启可视化全埋点功能
+@property (nonatomic, assign) BOOL enableVisualizedProperties API_UNAVAILABLE(macos);
 
 @end
 

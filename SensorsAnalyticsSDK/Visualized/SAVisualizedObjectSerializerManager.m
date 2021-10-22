@@ -114,16 +114,16 @@
 
     NSString *callType = pageInfo[@"callType"];
     if ([callType isEqualToString:@"visualized_track"]) { // 页面元素信息
-        
+
         [self saveWebElementInfoWithData:pageInfo webView:webview];
     } else if ([callType isEqualToString:@"app_alert"]) { // 弹框提示信息
-        
+
         [self saveWebAlertInfoWithData:pageInfo webView:webview];
-        
+
     } else if ([callType isEqualToString:@"page_info"]) { // h5 页面信息
         [self saveWebPageInfoWithData:pageInfo webView:webview];
     }
-    
+
     // 刷新数据
     [self refreshPayloadHashWithData:pageInfo];
 }
@@ -202,7 +202,7 @@
     }
 
     // 区分点击分析和可视化全埋点，针对 JS 发送的弹框信息，截取标题替换处理
-    if ([SAVisualizedManager sharedInstance].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+    if ([SAVisualizedManager defaultManager].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
         NSMutableArray <NSDictionary *>* alertNewDatas = [NSMutableArray array];
         for (NSDictionary *alertDic in alertDatas) {
             NSMutableDictionary <NSString *, NSString *>* alertNewDic = [NSMutableDictionary dictionaryWithDictionary:alertDic];
@@ -352,3 +352,4 @@
 }
 
 @end
+

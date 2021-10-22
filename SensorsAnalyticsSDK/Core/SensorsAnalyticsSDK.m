@@ -40,8 +40,9 @@
 #import "SAReferrerManager.h"
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
+#import "SAApplication.h"
 
-#define VERSION @"3.1.9"
+#define VERSION @"4.0.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -89,16 +90,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
-#if TARGET_OS_IOS
-    if (configOptions.enableEncrypt) {
-        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) ||
-                 (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
-    }
-#endif
 
     dispatch_once(&sdkInitializeOnceToken, ^{
-        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions debugMode:SensorsAnalyticsDebugOff];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
+        sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions];
+        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
         [sharedInstance addAppLifecycleObservers];
     });
 }
@@ -155,10 +150,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (instance.configOptions.enableLog) {
         [instance enableLog:YES];
     }
-
-    // Debug 模块做了特殊处理，未移除，可以使用 Debug 模块获取 DebugMode
-    SensorsAnalyticsDebugMode mode = SAModuleManager.sharedInstance.debugMode;
-    [SAModuleManager startWithConfigOptions:instance.configOptions debugMode:mode];
+    
+    [SAModuleManager startWithConfigOptions:instance.configOptions];
 
     // 需要在模块加载完成之后添加监听，如果过早会导致退到后台后，$AppEnd 事件无法立即上报
     [instance addAppLifecycleObservers];
@@ -168,20 +161,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     SALogInfo(@"SensorsAnalyticsSDK enabled");
 }
 
-- (instancetype)initWithServerURL:(NSString *)serverURL
-                 andLaunchOptions:(NSDictionary *)launchOptions
-                     andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    @try {
-
-        SAConfigOptions * options = [[SAConfigOptions alloc]initWithServerURL:serverURL launchOptions:launchOptions];
-        self = [self initWithConfigOptions:options debugMode:debugMode];
-    } @catch(NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
-    }
-    return self;
-}
-
-- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions debugMode:(SensorsAnalyticsDebugMode)debugMode {
+- (instancetype)initWithConfigOptions:(nonnull SAConfigOptions *)configOptions {
     @try {
         self = [super init];
         if (self) {
@@ -220,8 +200,11 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
             
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-            [SAReferrerManager sharedInstance].enableReferrerTitle = configOptions.enableReferrerTitle;
 #endif
+            //start flush timer for App Extension
+            if ([SAApplication isAppExtension]) {
+                [self startFlushTimer];
+            }
         }
         
     } @catch(NSException *exception) {
@@ -316,10 +299,13 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 
     dispatch_async(self.serialQueue, ^{
-        // 更新数据接收地址
-        [SAModuleManager.sharedInstance updateServerURL:serverUrl];
+        if (![self.configOptions.serverURL isEqualToString:serverUrl]) {
+            self.configOptions.serverURL = serverUrl;
 
-        self.configOptions.serverURL = serverUrl;
+            // 更新数据接收地址
+            [SAModuleManager.sharedInstance updateServerURL:serverUrl];
+        }
+
         if (isRequestRemoteConfig) {
             [SAModuleManager.sharedInstance retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
@@ -376,10 +362,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     });
 }
 
-- (void)showDebugInfoView:(BOOL)show {
-    [SAModuleManager.sharedInstance setShowDebugAlertView:show];
-}
-
 - (void)flush {
     dispatch_async(self.serialQueue, ^{
         [self.eventTracker flushAllEventRecords];
@@ -398,6 +380,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 /// 注意⚠️：不要随意调整通知添加顺序
 - (void)addAppLifecycleObservers {
     if (self.configOptions.disableSDK) {
+        return;
+    }
+    // app extension does not need state observer
+    if ([SAApplication isAppExtension]) {
         return;
     }
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(appLifecycleStateWillChange:) name:kSAAppLifecycleStateWillChangeNotification object:nil];
@@ -452,7 +438,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     if (newState == SAAppLifecycleStateEnd) {
 
 #if TARGET_OS_IOS
-        UIApplication *application = UIApplication.sharedApplication;
+        UIApplication *application = [SAApplication sharedApplication];
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         void (^endBackgroundTask)(void) = ^() {
             [application endBackgroundTask:backgroundTaskIdentifier];
@@ -497,16 +483,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [[SAReachability sharedInstance] startMonitoring];
 
     return [SAModuleManager.sharedInstance handleURL:url];
-}
-
-#pragma mark - VisualizedAutoTrack
-
-// 开启可视化模块
-- (void)enableVisualize {
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeVisualized];
-
-    // 开启 WKWebView 和 js 的数据交互
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeJavaScriptBridge];
 }
 
 #pragma mark - Item 操作
@@ -621,11 +597,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [object addLatestUtmProperties:SAModuleManager.sharedInstance.latestUtmProperties];
     [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
 
-#if TARGET_OS_IOS
-    if (self.configOptions.enableReferrerTitle) {
-        [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
-    }
-#endif
+    [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
 
     // 5. 添加的自定义属性需要校验
     [object addCustomProperties:properties error:&error];
@@ -847,7 +819,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             return;
         }
 
-        if (self.appLifecycle.state != SAAppLifecycleStateStart) {
+        if (![SAApplication isAppExtension] && self.appLifecycle.state != SAAppLifecycleStateStart) {
             return;
         }
 
@@ -984,20 +956,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     [self enableLoggers];
 }
 
-- (void)enableTrackScreenOrientation:(BOOL)enable {
-    [SAModuleManager.sharedInstance setEnable:enable forModuleType:SAModuleTypeDeviceOrientation];
-}
-
-- (void)enableTrackGPSLocation:(BOOL)enableGPSLocation {
-    if (NSThread.isMainThread) {
-        [SAModuleManager.sharedInstance setEnable:enableGPSLocation forModuleType:SAModuleTypeLocation];
-    } else {
-        dispatch_async(dispatch_get_main_queue(), ^ {
-            [SAModuleManager.sharedInstance setEnable:enableGPSLocation forModuleType:SAModuleTypeLocation];
-        });
-    }
-}
-
 - (void)clearKeychainData {
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
 }
@@ -1076,25 +1034,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     self.userAgent = newUserAgent;
     [SACommonUtility saveUserAgent:self.userAgent];
 }
-
-@end
-
-#pragma mark - Deeplink
-@implementation SensorsAnalyticsSDK (Deeplink)
-
-- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback {
-    SAModuleManager.sharedInstance.linkHandlerCallback = callback;
-}
-
-- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
-    [SAModuleManager.sharedInstance trackDeepLinkLaunchWithURL:url];
-}
-
-@end
-
-#pragma mark - JSCall
-
-@implementation SensorsAnalyticsSDK (JSCall)
 
 - (void)trackFromH5WithEvent:(NSString *)eventInfo {
     [self trackFromH5WithEvent:eventInfo enableVerify:NO];
@@ -1285,7 +1224,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 @end
 
-
 #pragma mark - People analytics
 
 @implementation SensorsAnalyticsPeople
@@ -1352,44 +1290,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 #pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
 
-+ (SensorsAnalyticsSDK *)sharedInstanceWithConfig:(nonnull SAConfigOptions *)configOptions {
-    [self startWithConfigOptions:configOptions];
-    return sharedInstance;
-}
-
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    return [SensorsAnalyticsSDK sharedInstanceWithServerURL:serverURL
-                                           andLaunchOptions:nil andDebugMode:debugMode];
-}
-
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(NSString *)serverURL
-                                    andLaunchOptions:(NSDictionary *)launchOptions
-                                        andDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
-    dispatch_once(&sdkInitializeOnceToken, ^{
-        sharedInstance = [[self alloc] initWithServerURL:serverURL
-                                        andLaunchOptions:launchOptions
-                                            andDebugMode:debugMode];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:debugMode];
-        [sharedInstance addAppLifecycleObservers];
-    });
-    return sharedInstance;
-}
-
-+ (SensorsAnalyticsSDK *)sharedInstanceWithServerURL:(nonnull NSString *)serverURL
-                                    andLaunchOptions:(NSDictionary * _Nullable)launchOptions {
-    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
-    dispatch_once(&sdkInitializeOnceToken, ^{
-        sharedInstance = [[self alloc] initWithServerURL:serverURL
-                                        andLaunchOptions:launchOptions
-                                            andDebugMode:SensorsAnalyticsDebugOff];
-        [SAModuleManager startWithConfigOptions:sharedInstance.configOptions debugMode:SensorsAnalyticsDebugOff];
-        [sharedInstance addAppLifecycleObservers];
-    });
-    return sharedInstance;
-}
-
 - (UInt64)flushInterval {
     @synchronized(self) {
         return self.configOptions.flushInterval;
@@ -1422,24 +1322,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     }
 }
 
-- (BOOL)flushBeforeEnterBackground {
-    @synchronized(self) {
-        return self.configOptions.flushBeforeEnterBackground;
-    }
-}
-
-- (void)setFlushBeforeEnterBackground:(BOOL)flushBeforeEnterBackground {
-    @synchronized(self) {
-        self.configOptions.flushBeforeEnterBackground = flushBeforeEnterBackground;
-    }
-}
-
-- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
-    @synchronized (self) {
-        self.configOptions.flushNetworkPolicy = networkType;
-    }
-}
-
 - (void)setMaxCacheSize:(UInt64)maxCacheSize {
     @synchronized(self) {
         //防止设置的值太小导致事件丢失
@@ -1448,31 +1330,20 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     };
 }
 
-- (UInt64)getMaxCacheSize {
+- (UInt64)maxCacheSize {
     @synchronized(self) {
         return (UInt64)self.configOptions.maxCacheSize;
     };
 }
 
-- (void)trackAppCrash {
-    _configOptions.enableTrackAppCrash = YES;
-    // Install uncaught exception handlers first
-    [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeException];
+- (void)setFlushNetworkPolicy:(SensorsAnalyticsNetworkType)networkType {
+    @synchronized (self) {
+        self.configOptions.flushNetworkPolicy = networkType;
+    }
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
     SAModuleManager.sharedInstance.debugMode = debugMode;
-}
-
-- (void)trackTimerBegin:(NSString *)event {
-    [self trackTimerStart:event];
-}
-
-- (void)trackTimerBegin:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit {
-    UInt64 currentSysUpTime = [self.class getSystemUpTime];
-    dispatch_async(self.serialQueue, ^{
-        [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
-    });
 }
 
 - (void)trackTimer:(NSString *)event {
@@ -1484,16 +1355,6 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     dispatch_async(self.serialQueue, ^{
         [self.trackTimer trackTimerStart:event timeUnit:timeUnit currentSysUpTime:currentSysUpTime];
     });
-}
-
-- (void)trackSignUp:(NSString *)newDistinctId withProperties:(NSDictionary *)propertieDict {
-    [self identify:newDistinctId];
-    SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
-    [self asyncTrackEventObject:object properties:propertieDict];
-}
-
-- (void)trackSignUp:(NSString *)newDistinctId {
-    [self trackSignUp:newDistinctId withProperties:nil];
 }
 
 @end

@@ -25,7 +25,6 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAReferrerManager : NSObject
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
-@property (nonatomic, assign) BOOL enableReferrerTitle;
 @property (nonatomic, assign) BOOL isClearReferrer;
 
 @property (atomic, copy, readonly) NSDictionary *referrerProperties;

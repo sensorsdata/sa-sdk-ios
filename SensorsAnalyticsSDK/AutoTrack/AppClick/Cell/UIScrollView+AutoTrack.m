@@ -42,7 +42,7 @@
     }
     
     // 判断是否忽略 $AppClick 事件采集
-    if ([SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+    if ([SAAutoTrackManager.defaultManager isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     
@@ -66,7 +66,7 @@
     }
     
     // 判断是否忽略 $AppClick 事件采集
-    if ([SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
+    if ([SAAutoTrackManager.defaultManager isAutoTrackEventTypeIgnored:SensorsAnalyticsEventTypeAppClick]) {
         return;
     }
     

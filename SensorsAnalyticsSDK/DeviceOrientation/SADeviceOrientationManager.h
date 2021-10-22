@@ -23,10 +23,18 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (DeviceOrientation)
+
+@property (nonatomic, assign) BOOL enableDeviceOrientation;
+
+@end
+
 @interface SADeviceOrientationManager : NSObject <SAPropertyModuleProtocol>
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
++ (instancetype)defaultManager;
 
+@property (nonatomic, assign, getter=isEnable) BOOL enable;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
 @property (nonatomic, copy, readonly, nullable) NSDictionary *properties;
 
 @end

@@ -80,14 +80,6 @@
     return [self.ignoredViewControllers containsObject:screenName];
 }
 
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
-    if (viewControllerClassName == nil) {
-        return NO;
-    }
-
-    return [self.ignoredViewControllers containsObject:viewControllerClassName];
-}
-
 - (NSDictionary *)autoTrackViewControllerBlackList {
     static dispatch_once_t onceToken;
     static NSDictionary *allClasses = nil;

@@ -28,6 +28,41 @@
 @interface SAConfigOptions ()<NSCopying>
 
 @property (atomic, strong, readwrite) NSMutableArray *encryptors;
+@property (nonatomic, assign) BOOL enableTrackPush;
+
+@property (nonatomic, assign) BOOL enableHeatMap;
+@property (nonatomic, assign) BOOL enableVisualizedAutoTrack;
+@property (nonatomic, assign) BOOL enableVisualizedProperties;
+
+@property (nonatomic, assign) BOOL enableTrackAppCrash;
+
+@property (nonatomic, assign) BOOL enableEncrypt;
+@property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
+@property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
+
+@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo;
+@property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
+@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
+
+@property (nonatomic) BOOL enableJavaScriptBridge;
+
+@property (nonatomic, copy) NSString *remoteConfigURL;
+@property (nonatomic, assign) BOOL disableRandomTimeRequestRemoteConfig;
+@property (nonatomic, assign) NSInteger minRequestHourInterval;
+@property (nonatomic, assign) NSInteger maxRequestHourInterval;
+
+@property (nonatomic, assign) BOOL enableTrackPageLeave;
+@property (nonatomic) BOOL enableAutoTrackChildViewScreen;
+@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
+
+//private switch
+@property (nonatomic, assign) BOOL enableLocation;
+@property (nonatomic, assign) BOOL enableDeviceOrientation;
+@property (nonatomic, assign) BOOL enableRemoteConfig;
+@property (nonatomic, assign) BOOL enableChannelMatch;
+@property (nonatomic, assign) BOOL enableDebugMode;
+@property (nonatomic, assign) BOOL enableDeeplink;
+@property (nonatomic, assign) BOOL enableAutoTrack;
 
 @end
 
@@ -61,6 +96,13 @@
 #endif
 #endif
         SensorsAnalyticsNetworkTypeWIFI;
+
+        //default private switch
+        _enableRemoteConfig = YES;
+        _enableChannelMatch = YES;
+        _enableDebugMode = YES;
+        _enableDeeplink = YES;
+        _enableAutoTrack = YES;
     }
     return self;
 }
@@ -96,20 +138,27 @@
     // 全埋点
     options.autoTrackEventType = self.autoTrackEventType;
     options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
-    options.enableReferrerTitle = self.enableReferrerTitle;
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
+    options.enableVisualizedProperties = self.enableVisualizedProperties;
+    
     // Crash 采集
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     // 渠道相关
     options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
     options.sourceChannels = self.sourceChannels;
-    options.enableMultipleChannelMatch = self.enableMultipleChannelMatch;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
     // 推送点击
     options.enableTrackPush = self.enableTrackPush;
     // 页面浏览时长
     options.enableTrackPageLeave = self.enableTrackPageLeave;
+
+    //private switch
+    options.enableRemoteConfig = self.enableRemoteConfig;
+    options.enableChannelMatch = self.enableChannelMatch;
+    options.enableDebugMode = self.enableDebugMode;
+    options.enableDeeplink = self.enableDeeplink;
+    options.enableAutoTrack = self.enableAutoTrack;
 #endif
     
     return options;

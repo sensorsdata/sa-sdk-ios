@@ -26,17 +26,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (AutoTrackPrivate)
+
+@property (nonatomic, assign) BOOL enableAutoTrack;
+
+@end
+
 @interface SAAutoTrackManager : NSObject <SAModuleProtocol, SAAutoTrackModuleProtocol>
 
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
 @property (nonatomic, strong) SAAppClickTracker *appClickTracker;
 @property (nonatomic, strong) SAAppViewScreenTracker *appViewScreenTracker;
 @property (nonatomic, strong) SAAppPageLeaveTracker *appPageLeaveTracker;
 
-+ (SAAutoTrackManager *)sharedInstance;
++ (SAAutoTrackManager *)defaultManager;
 
 #pragma mark - Public
 

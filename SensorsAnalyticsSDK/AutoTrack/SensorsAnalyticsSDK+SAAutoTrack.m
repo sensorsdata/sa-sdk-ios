@@ -25,7 +25,6 @@
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackUtils.h"
-#import "UIView+AutoTrack.h"
 #import "SAAutoTrackManager.h"
 #import "SAModuleManager.h"
 #import "SAWeakPropertyContainer.h"
@@ -44,10 +43,6 @@
 @end
 
 @implementation UIView (SensorsAnalytics)
-
-- (UIViewController *)sensorsAnalyticsViewController {
-    return self.sensorsdata_viewController;
-}
 
 //viewID
 - (NSString *)sensorsAnalyticsViewID {
@@ -106,31 +101,31 @@
 }
 
 - (BOOL)isAutoTrackEnabled {
-    return [SAAutoTrackManager.sharedInstance isAutoTrackEnabled];
+    return [SAAutoTrackManager.defaultManager isAutoTrackEnabled];
 }
 
 #pragma mark - Ignore
 
 - (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
-    return [SAAutoTrackManager.sharedInstance isAutoTrackEventTypeIgnored:eventType];
+    return [SAAutoTrackManager.defaultManager isAutoTrackEventTypeIgnored:eventType];
 }
 
 - (void)ignoreViewType:(Class)aClass {
-    [SAAutoTrackManager.sharedInstance.appClickTracker ignoreViewType:aClass];
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreViewType:aClass];
 }
 
 - (BOOL)isViewTypeIgnored:(Class)aClass {
-    return [SAAutoTrackManager.sharedInstance.appClickTracker isViewTypeIgnored:aClass];
+    return [SAAutoTrackManager.defaultManager.appClickTracker isViewTypeIgnored:aClass];
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
-    [SAAutoTrackManager.sharedInstance.appClickTracker ignoreAutoTrackViewControllers:controllers];
-    [SAAutoTrackManager.sharedInstance.appViewScreenTracker ignoreAutoTrackViewControllers:controllers];
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAutoTrackViewControllers:controllers];
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker ignoreAutoTrackViewControllers:controllers];
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
-    BOOL isIgnoreAppClick = [SAAutoTrackManager.sharedInstance.appClickTracker isViewControllerIgnored:viewController];
-    BOOL isIgnoreAppViewScreen = [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerIgnored:viewController];
+    BOOL isIgnoreAppClick = [SAAutoTrackManager.defaultManager.appClickTracker isViewControllerIgnored:viewController];
+    BOOL isIgnoreAppViewScreen = [SAAutoTrackManager.defaultManager.appViewScreenTracker isViewControllerIgnored:viewController];
 
     return isIgnoreAppClick || isIgnoreAppViewScreen;
 }
@@ -142,7 +137,7 @@
 }
 
 - (void)trackViewAppClick:(UIView *)view withProperties:(NSDictionary *)p {
-    [SAAutoTrackManager.sharedInstance.appClickTracker trackEventWithView:view properties:p];
+    [SAAutoTrackManager.defaultManager.appClickTracker trackEventWithView:view properties:p];
 }
 
 - (void)trackViewScreen:(UIViewController *)controller {
@@ -150,44 +145,23 @@
 }
 
 - (void)trackViewScreen:(UIViewController *)controller properties:(nullable NSDictionary<NSString *, id> *)properties {
-    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackEventWithViewController:controller properties:properties];
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker trackEventWithViewController:controller properties:properties];
+}
+
+- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker trackEventWithURL:url properties:properties];
 }
 
 #pragma mark - Deprecated
-
-- (void)enableAutoTrack {
-    [self enableAutoTrack:SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppViewScreen];
-}
 
 - (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType {
     if (self.configOptions.autoTrackEventType != eventType) {
         self.configOptions.autoTrackEventType = eventType;
 
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeAutoTrack];
+        SAAutoTrackManager.defaultManager.enable = YES;
         
-        [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
+        [SAAutoTrackManager.defaultManager updateAutoTrackEventType];
     }
-}
-
-- (void)ignoreAutoTrackEventType:(SensorsAnalyticsAutoTrackEventType)eventType {
-    if (!(self.configOptions.autoTrackEventType & eventType)) {
-        return;
-    }
-
-    self.configOptions.autoTrackEventType = self.configOptions.autoTrackEventType ^ eventType;
-
-    [SAAutoTrackManager.sharedInstance updateAutoTrackEventType];
-}
-
-- (BOOL)isViewControllerStringIgnored:(NSString *)viewControllerClassName {
-    BOOL isIgnoreAppClick = [SAAutoTrackManager.sharedInstance.appClickTracker isViewControllerStringIgnored:viewControllerClassName];
-    BOOL isIgnoreAppViewScreen = [SAAutoTrackManager.sharedInstance.appViewScreenTracker isViewControllerStringIgnored:viewControllerClassName];
-
-    return isIgnoreAppClick || isIgnoreAppViewScreen;
-}
-
-- (void)trackViewScreen:(NSString *)url withProperties:(NSDictionary *)properties {
-    [SAAutoTrackManager.sharedInstance.appViewScreenTracker trackEventWithURL:url properties:properties];
 }
 
 @end

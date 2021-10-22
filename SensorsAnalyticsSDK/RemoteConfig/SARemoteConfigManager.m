@@ -27,6 +27,8 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAModuleManager.h"
 #import "SALog.h"
+#import "SAConfigOptions+RemoteConfig.h"
+#import "SAApplication.h"
 
 @interface SARemoteConfigManager ()
 
@@ -35,6 +37,23 @@
 @end
 
 @implementation SARemoteConfigManager
+
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SARemoteConfigManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SARemoteConfigManager alloc] init];
+    });
+    return manager;
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    if ([SAApplication  isAppExtension]) {
+        configOptions.enableRemoteConfig = NO;
+    }
+    _configOptions = configOptions;
+    self.enable = configOptions.enableRemoteConfig;
+}
 
 - (instancetype)init {
     self = [super init];

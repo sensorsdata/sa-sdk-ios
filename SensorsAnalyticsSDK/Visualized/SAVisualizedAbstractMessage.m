@@ -142,6 +142,10 @@
     }
     jsonObject[@"app_autotrack"] = autotrackOptions;
 
+    // 自定义属性开关状态
+        jsonObject[@"app_enablevisualizedproperties"] = @(SensorsAnalyticsSDK.sharedInstance.configOptions.enableVisualizedProperties);
+
+
     // 添加前端弹框信息
     if (serializerManager.alertInfos.count > 0) {
         jsonObject[@"app_alert_infos"] = [serializerManager.alertInfos copy];
@@ -158,7 +162,7 @@
     // SDK 版本号
     jsonObject[@"lib_version"] = SensorsAnalyticsSDK.sharedInstance.libVersion;
     // 可视化全埋点配置版本号
-    jsonObject[@"config_version"] = [SAVisualizedManager sharedInstance].configSources.configVersion;
+    jsonObject[@"config_version"] = [SAVisualizedManager defaultManager].configSources.configVersion;
 
     if (_payload.count == 0) {
         return [SAJSONUtil dataWithJSONObject:jsonObject];

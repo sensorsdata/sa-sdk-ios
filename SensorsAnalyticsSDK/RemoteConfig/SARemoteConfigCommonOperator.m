@@ -27,6 +27,10 @@
 #import "SALog.h"
 #import "SAValidator.h"
 #import "SAModuleManager.h"
+#import "SAConfigOptions+RemoteConfig.h"
+#if __has_include("SAConfigOptions+Encrypt.h")
+#import "SAConfigOptions+Encrypt.h"
+#endif
 
 typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     SARemoteConfigHandleRandomTimeTypeCreate, // 创建分散请求时间
@@ -75,12 +79,14 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     }
     
     // 2. 如果开启加密并且未设置公钥（新用户安装或者从未加密版本升级而来），则请求远程配置获取公钥，同时本地生成随机时间
+#if __has_include("SAConfigOptions+Encrypt.h")
     if (self.configOptions.enableEncrypt && !SAModuleManager.sharedInstance.hasSecretKey) {
         [self requestRemoteConfigWithHandleRandomTimeType:SARemoteConfigHandleRandomTimeTypeCreate isForceUpdate:NO];
         SALogDebug(@"【remote config】Request remote config because encrypt builder is nil");
         return;
     }
-    
+#endif
+
     // 获取本地保存的随机时间和设备启动时间
     NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:kRequestRemoteConfigRandomTimeKey];
     double randomTime = [[requestTimeConfig objectForKey:kRandomTimeKey] doubleValue];
@@ -174,11 +180,12 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
             if (success) {
                 if(config != nil) {
                     // 加密
+#if __has_include("SAConfigOptions+Encrypt.h")
                     if (strongSelf.configOptions.enableEncrypt) {
                         NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
                         [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
                     }
-
+#endif
                     // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
                     dispatch_async(dispatch_get_main_queue(), ^{
                         NSDictionary<NSString *, id> *remoteConfig = [strongSelf extractRemoteConfig:config];

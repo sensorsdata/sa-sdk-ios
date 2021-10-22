@@ -38,6 +38,8 @@
 #import "SAGestureViewProcessorFactory.h"
 #import "SACommonUtility.h"
 #import "UIViewController+SAPageView.h"
+#import "SAApplication.h"
+#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 
 @interface SAAutoTrackManager ()
 
@@ -51,7 +53,14 @@
 
 @implementation SAAutoTrackManager
 
-#pragma mark - SAModuleProtocol
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAAutoTrackManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAAutoTrackManager alloc] init];
+    });
+    return manager;
+}
 
 - (instancetype)init {
     self = [super init];
@@ -72,6 +81,14 @@
     return self;
 }
 
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    if ([SAApplication isAppExtension]) {
+        configOptions.enableAutoTrack = NO;
+    }
+    _configOptions = configOptions;
+    self.enable = configOptions.enableAutoTrack;
+}
+
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
 }
@@ -81,22 +98,20 @@
 
     if (enable) {
         [self enableAutoTrack];
+    } else {
+        [self.appPageLeaveTracker.timestamp removeAllObjects];
     }
-}
-
-#pragma mark - Instance
-
-+ (SAAutoTrackManager *)sharedInstance {
-    return (SAAutoTrackManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeAutoTrack];
 }
 
 #pragma mark - SAAutoTrackModuleProtocol
 
 - (void)trackAppEndWhenCrashed {
+    if (!self.enable) {
+        return;
+    }
     if (self.appEndTracker.isIgnored) {
         return;
     }
-
     [SACommonUtility performBlockOnMainThread:^{
         if (UIApplication.sharedApplication.applicationState == UIApplicationStateActive) {
             [self.appEndTracker autoTrackEvent];
@@ -105,6 +120,9 @@
 }
 
 - (void)trackPageLeaveWhenCrashed {
+    if (!self.enable) {
+        return;
+    }
     if (!self.configOptions.enableTrackPageLeave) {
         return;
     }
@@ -118,6 +136,9 @@
 #pragma mark - Notification
 
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
+    if (!self.enable) {
+        return;
+    }
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
@@ -261,7 +282,6 @@
     dispatch_once(&onceToken, ^{
         [self enableAppViewScreenAutoTrack];
         [self enableAppClickAutoTrack];
-        [self enableReactNativeAutoTrack];
         [self enableAppPageLeave];
     });
 }
@@ -303,12 +323,6 @@
                                withMethod:@selector(sensorsdata_removeTarget:action:)
                                     error:NULL];
 
-}
-
-- (void)enableReactNativeAutoTrack {
-    if (NSClassFromString(@"RCTUIManager") && [SAModuleManager.sharedInstance contains:SAModuleTypeReactNative]) {
-        [SAModuleManager.sharedInstance setEnable:YES forModuleType:SAModuleTypeReactNative];
-    }
 }
 
 - (void)enableAppPageLeave {

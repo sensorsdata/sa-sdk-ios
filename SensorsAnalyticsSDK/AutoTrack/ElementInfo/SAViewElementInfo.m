@@ -47,7 +47,7 @@
     if (!self.view.userInteractionEnabled || self.view.alpha <= 0.01 || self.view.isHidden) {
         return NO;
     }
-    return [SAAutoTrackManager.sharedInstance isGestureVisualView:self.view];
+    return [SAAutoTrackManager.defaultManager isGestureVisualView:self.view];
 }
 
 @end

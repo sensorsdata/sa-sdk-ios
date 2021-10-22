@@ -120,4 +120,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SAConfigOptions (ChannelMatch)
+
+/// 是否在手动埋点事件中自动添加渠道匹配信息
+@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
+
+@end
+
 NS_ASSUME_NONNULL_END

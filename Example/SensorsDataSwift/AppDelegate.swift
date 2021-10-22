@@ -34,10 +34,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         let options = SAConfigOptions(serverURL: "http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0", launchOptions: launchOptions)
         options.maxCacheSize = 10000;
         options.autoTrackEventType = [.eventTypeAppClick,.eventTypeAppStart,.eventTypeAppEnd,.eventTypeAppViewScreen]
+        options.enableVisualizedAutoTrack = true
+        options.enableHeatMap = true
         SensorsAnalyticsSDK.start(configOptions: options)
 
         SensorsAnalyticsSDK.sharedInstance()?.setFlushNetworkPolicy(SensorsAnalyticsNetworkType.typeALL)
-        SensorsAnalyticsSDK.sharedInstance()?.enableHeatMap()
 
         let dict: Dictionary = ["key": "value", "key1": "value1"]
         SensorsAnalyticsSDK.sharedInstance()?.track("testEvent", withProperties: dict)

@@ -27,7 +27,7 @@
 @interface SAThreadSafeDictionary ()
 
 @property (nonatomic, strong) NSMutableDictionary *dictionary;
-@property (nonatomic, strong) NSLock *lock;
+@property (nonatomic, strong) NSRecursiveLock *lock;
 
 @end
 
@@ -43,7 +43,7 @@
     self = [super init];
     if (self) {
         _dictionary = [NSMutableDictionary dictionary];
-        _lock = [[NSLock alloc] init];
+        _lock = [[NSRecursiveLock alloc] init];
     }
     return self;
 }

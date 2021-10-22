@@ -61,7 +61,6 @@
     SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
-    [[SensorsAnalyticsSDK sharedInstance] enableHeatMap];
 }
 
 - (void)tearDown {

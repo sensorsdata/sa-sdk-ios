@@ -30,17 +30,18 @@
 #import "WKWebView+SABridge.h"
 #import "SAJSONUtil.h"
 #import "SASwizzle.h"
+#import "SensorsAnalyticsSDK+JavaScriptBridge.h"
 
-@interface SAJavaScriptBridgeManager ()
-
-@end
 
 @implementation SAJavaScriptBridgeManager
 
-#pragma mark - Life Cycle
-
-+ (instancetype)sharedInstance {
-    return (SAJavaScriptBridgeManager *)[SAModuleManager.sharedInstance managerForModuleType:SAModuleTypeJavaScriptBridge];
++ (instancetype)defaultManager {
+    static dispatch_once_t onceToken;
+    static SAJavaScriptBridgeManager *manager = nil;
+    dispatch_once(&onceToken, ^{
+        manager = [[SAJavaScriptBridgeManager alloc] init];
+    });
+    return manager;
 }
 
 #pragma mark - SAModuleProtocol
@@ -50,6 +51,11 @@
     if (enable) {
         [self swizzleWebViewMethod];
     }
+}
+
+- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    _configOptions = configOptions;
+    self.enable = configOptions.enableJavaScriptBridge;
 }
 
 #pragma mark - SAJavaScriptBridgeModuleProtocol
@@ -111,7 +117,7 @@
     @try {
         WKUserContentController *contentController = webView.configuration.userContentController;
         [contentController removeScriptMessageHandlerForName:SA_SCRIPT_MESSAGE_HANDLER_NAME];
-        [contentController addScriptMessageHandler:[SAJavaScriptBridgeManager sharedInstance] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
+        [contentController addScriptMessageHandler:[SAJavaScriptBridgeManager defaultManager] name:SA_SCRIPT_MESSAGE_HANDLER_NAME];
 
         NSString *javaScriptSource = [SAModuleManager.sharedInstance javaScriptSource];
         if (javaScriptSource.length == 0) {

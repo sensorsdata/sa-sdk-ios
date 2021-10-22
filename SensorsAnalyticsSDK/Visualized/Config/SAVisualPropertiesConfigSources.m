@@ -87,6 +87,19 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     [self updateConfigStatus];
 }
 
+// 刷新配置
+- (void)reloadConfig {
+    // 更新最新缓存，并清除本地配置
+    [self cleanConfig];
+
+    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"重设 serverURL，并清除配置缓存"];
+    SALogDebug(@"%@", logMessage);
+
+    [self updateConfigStatus];
+
+    [self requestConfigWithTimes:kSARequestConfigMaxTimes];
+}
+
 /// 更新配置结果状态
 - (void)updateConfigStatus {
     if ([self.delegate respondsToSelector:@selector(configChangedWithValid:)]) {
@@ -119,15 +132,6 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
             [self requestConfigWithTimes:requestIndex];
         });
     }];
-}
-
-- (void)reloadConfig {
-    // 更新最新缓存，并清除本地配置
-    [self cleanConfig];
-
-    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"重设 serverURL，并清除配置缓存"];
-    SALogDebug(@"%@", logMessage);
-    [self requestConfigWithTimes:1];
 }
 
 - (void)requestConfigWithCompletionHandler:(SAVisualPropertiesConfigCompletionHandler)completionHandler {

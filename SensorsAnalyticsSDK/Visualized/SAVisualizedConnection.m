@@ -138,10 +138,10 @@
     [[SAVisualizedObjectSerializerManager sharedInstance] cleanVisualizedWebPageInfoCache];
 
     // 关闭埋点校验
-    [SAVisualizedManager.sharedInstance enableEventCheck:NO];
+    [SAVisualizedManager.defaultManager enableEventCheck:NO];
 
     // 关闭诊断信息收集
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker enableCollectDebugLog:NO];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker enableCollectDebugLog:NO];
 }
 
 - (BOOL)isVisualizedConnecting {
@@ -188,10 +188,11 @@
 
 /// 解析调试信息
 - (void)analysisDebugMessage:(NSDictionary *)message {
-    if (message.count == 0) {
+    // 关闭自定义属性也不再处理调试信息
+    if (message.count == 0 || !SAVisualizedManager.defaultManager.configOptions.enableVisualizedProperties) {
         return;
     }
-    
+
     // 解析可视化全埋点配置
     NSDictionary *configDic = message[@"visualized_sdk_config"];
     // 是否关闭自定义属性
@@ -199,18 +200,18 @@
     if (disableConfig) {
         NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"开关控制" message:@"轮询接口返回，运维配置，关闭自定义属性"];
         SALogDebug(@"%@", logMessage);
-        
-        [SAVisualizedManager.sharedInstance.configSources setupConfigWithDictionary:nil disableConfig:YES];
+
+        [SAVisualizedManager.defaultManager.configSources setupConfigWithDictionary:nil disableConfig:YES];
     } else if (configDic.count > 0) {
         NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"轮询接口更新可视化全埋点配置，%@", configDic];
         SALogInfo(@"%@", logMessage);
-        
-        [SAVisualizedManager.sharedInstance.configSources setupConfigWithDictionary:configDic disableConfig:NO];
+
+        [SAVisualizedManager.defaultManager.configSources setupConfigWithDictionary:configDic disableConfig:NO];
     }
-    
+
     // 前端页面进入 &debug=1 调试模式
     BOOL isDebug = [message[@"visualized_debug_mode_enabled"] boolValue];
-    [SAVisualizedManager.sharedInstance.visualPropertiesTracker enableCollectDebugLog:isDebug];
+    [SAVisualizedManager.defaultManager.visualPropertiesTracker enableCollectDebugLog:isDebug];
 }
 
 

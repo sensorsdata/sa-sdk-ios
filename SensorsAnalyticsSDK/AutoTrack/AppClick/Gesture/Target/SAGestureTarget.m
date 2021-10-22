@@ -52,7 +52,7 @@
         return;
     }
 
-    [SAAutoTrackManager.sharedInstance.appClickTracker autoTrackEventWithGestureView:processor.trackableView];
+    [SAAutoTrackManager.defaultManager.appClickTracker autoTrackEventWithGestureView:processor.trackableView];
 }
 
 @end

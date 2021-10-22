@@ -21,6 +21,10 @@
 #import <Foundation/Foundation.h>
 #import "SAConfigOptions.h"
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 NS_ASSUME_NONNULL_BEGIN
 
 @class SASecretKey;
@@ -29,14 +33,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAModuleProtocol <NSObject>
 
-- (instancetype)init;
-
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
+@property (nonatomic, strong) SAConfigOptions *configOptions;
++ (instancetype)defaultManager;
 
 @optional
-
-@property (nonatomic, strong) SAConfigOptions *configOptions;
-
 - (void)updateServerURL:(NSString *)serverURL;
 
 @end
@@ -164,26 +165,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@protocol SAVisualizedModuleProtocol <NSObject>
-
-/// 元素相关属性
-/// @param view 需要采集的 view
-- (nullable NSDictionary *)propertiesWithView:(id)view;
-
-#pragma mark visualProperties
-
-/// 采集元素自定义属性
-/// @param view 触发事件的元素
-/// @param completionHandler 采集完成回调
-- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
-
-/// 根据配置，采集属性
-/// @param propertyConfigs 自定义属性配置
-/// @param completionHandler 采集完成回调
-- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler;
-
-@end
-
 #pragma mark -
 
 @protocol SAJavaScriptBridgeModuleProtocol <NSObject>
@@ -203,6 +184,26 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 是否禁用 SDK
 - (BOOL)isDisableSDK;
+
+@end
+
+@protocol SAVisualizedModuleProtocol <NSObject>
+
+/// 元素相关属性
+/// @param view 需要采集的 view
+- (nullable NSDictionary *)propertiesWithView:(id)view;
+
+#pragma mark visualProperties
+
+/// 采集元素自定义属性
+/// @param view 触发事件的元素
+/// @param completionHandler 采集完成回调
+- (void)visualPropertiesWithView:(id)view completionHandler:(void (^)(NSDictionary *_Nullable visualProperties))completionHandler;
+
+/// 根据配置，采集属性
+/// @param propertyConfigs 自定义属性配置
+/// @param completionHandler 采集完成回调
+- (void)queryVisualPropertiesWithConfigs:(NSArray <NSDictionary *>*)propertyConfigs completionHandler:(void (^)(NSDictionary *_Nullable properties))completionHandler;
 
 @end
 

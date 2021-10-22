@@ -24,6 +24,7 @@
 
 #import "SAAppLifecycle.h"
 #import "SALog.h"
+#import "SAApplication.h"
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
@@ -60,9 +61,13 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 }
 
 - (void)setupLaunchedState {
+    if ([SAApplication isAppExtension]) {
+        return;
+    }
     dispatch_block_t mainThreadBlock = ^(){
 #if TARGET_OS_IOS
-        BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+        UIApplication *application = [SAApplication sharedApplication];
+        BOOL isAppStateBackground = application.applicationState == UIApplicationStateBackground;
 #else
         BOOL isAppStateBackground = NO;
 #endif
@@ -110,6 +115,10 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 #pragma mark - Listener
 
 - (void)setupListeners {
+    // app extension does not need state observer
+    if ([SAApplication isAppExtension]) {
+        return;
+    }
 
     // 监听 App 启动或结束事件
     NSNotificationCenter *notificationCenter = [NSNotificationCenter defaultCenter];
@@ -158,7 +167,8 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     SALogDebug(@"application did finish launching");
 
 #if TARGET_OS_IOS
-    BOOL isAppStateBackground = UIApplication.sharedApplication.applicationState == UIApplicationStateBackground;
+    UIApplication *application = [SAApplication sharedApplication];
+    BOOL isAppStateBackground = application.applicationState == UIApplicationStateBackground;
     self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
 #else
     self.state = SAAppLifecycleStateStart;

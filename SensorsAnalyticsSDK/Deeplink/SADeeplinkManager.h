@@ -28,14 +28,20 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAConfigOptions (DeeplinkPrivate)
+
+@property (nonatomic, assign) BOOL enableDeeplink;
+
+@end
+
 typedef void(^SALinkHandlerCallback)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime);
 
 @interface SADeeplinkManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADeeplinkModuleProtocol>
 
++ (instancetype)defaultManager;
+
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
-
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-
 @property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
 
 @end

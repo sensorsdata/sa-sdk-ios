@@ -70,12 +70,12 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
         dispatch_async(dispatch_get_main_queue(), ^{
             [serializer screenshotImageForAllWindowWithCompletionHandler:^(UIImage *image) {
                 // 添加待校验事件
-                snapshotMessage.debugEvents = SAVisualizedManager.sharedInstance.eventCheck.eventCheckResult;
+                snapshotMessage.debugEvents = SAVisualizedManager.defaultManager.eventCheck.eventCheckResult;
                 // 清除事件缓存
-                [SAVisualizedManager.sharedInstance.eventCheck cleanEventCheckResult];
+                [SAVisualizedManager.defaultManager.eventCheck cleanEventCheckResult];
 
                 // 添加诊断信息
-                snapshotMessage.logInfos = SAVisualizedManager.sharedInstance.visualPropertiesTracker.logInfos;
+                snapshotMessage.logInfos = SAVisualizedManager.defaultManager.visualPropertiesTracker.logInfos;
 
                 // 最后构建截图，并设置 imageHash
                 snapshotMessage.screenshot = image;

@@ -279,7 +279,7 @@ static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
                     [properties addObject:config];
                 }
             }
-            _properties = properties.count > 0 ? [properties copy]: nil;;
+            _properties = properties.count > 0 ? [properties copy]: nil;
             _webProperties = webProperties.count > 0 ? [webProperties copy]: nil;
         }
     }
