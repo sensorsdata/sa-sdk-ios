@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIViewController (PageLeave)
+@interface UIViewController (SAPageLeave)
 
 - (void)sensorsdata_pageLeave_viewDidAppear:(BOOL)animated;
 

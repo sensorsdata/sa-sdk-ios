@@ -29,6 +29,7 @@
 #import "SAConstants+Private.h"
 #import "SAAppLifecycle.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAAutoTrackManager.h"
 
 @interface SAAppPageLeaveTracker ()
 
@@ -158,7 +159,18 @@
 - (BOOL)shouldTrackViewController:(UIViewController *)viewController {
     NSDictionary *autoTrackBlackList = [self autoTrackViewControllerBlackList];
     NSDictionary *appViewScreenBlackList = autoTrackBlackList[kSAEventNameAppViewScreen];
-    return ![self isViewController:viewController inBlackList:appViewScreenBlackList];
+    if ([self isViewController:viewController inBlackList:appViewScreenBlackList]) {
+        return NO;
+    }
+    if (SAAutoTrackManager.defaultManager.configOptions.enableAutoTrackChildViewScreen ||
+        !viewController.parentViewController ||
+        [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
+        [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||
+        [viewController.parentViewController isKindOfClass:[UIPageViewController class]] ||
+        [viewController.parentViewController isKindOfClass:[UISplitViewController class]]) {
+        return YES;
+    }
+    return NO;
 }
 
 - (NSMutableDictionary<NSString *,NSMutableDictionary *> *)timestamp {

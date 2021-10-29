@@ -64,24 +64,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAChannelMatchModuleProtocol <NSObject>
 
-/**
- * @abstract
- * 用于在 App 首次启动时追踪渠道来源，并设置追踪渠道事件的属性。SDK 会将渠道值填入事件属性 $utm_ 开头的一系列属性中。
- *
- * @param event  event 的名称
- * @param properties     event 的属性
- * @param disableCallback     是否关闭这次渠道匹配的回调请求
-*/
-- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback;
-
-/// 调用 track 接口并附加渠道信息
-///
-/// 注意：这个方法需要在 serialQueue 中调用，保证线程安全
-///
-/// @param obj 事件对象
-/// @param properties 事件属性
-- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(nullable NSDictionary *)properties;
-
 /// 获取事件的渠道信息
 ///
 /// 注意：这个方法需要在 serialQueue 中调用，保证线程安全

@@ -37,9 +37,9 @@
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import "SAGestureViewProcessorFactory.h"
 #import "SACommonUtility.h"
-#import "UIViewController+SAPageView.h"
 #import "SAApplication.h"
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
+#import "UIViewController+SAPageLeave.h"
 
 @interface SAAutoTrackManager ()
 

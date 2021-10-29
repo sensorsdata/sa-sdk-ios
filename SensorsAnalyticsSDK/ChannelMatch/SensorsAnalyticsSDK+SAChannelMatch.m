@@ -27,9 +27,17 @@
 #import "SATrackEventObject.h"
 #import "SAModuleManager.h"
 #import "SASuperProperty.h"
+#import "SAEventTracker.h"
+#import "SAChannelMatchManager.h"
 
 // 激活事件
 static NSString * const kSAEventNameAppInstall = @"$AppInstall";
+
+@interface SensorsAnalyticsSDK ()
+
+@property (nonatomic, strong, readonly) SAEventTracker *eventTracker;
+
+@end
 
 @implementation SensorsAnalyticsSDK (SAChannelMatch)
 
@@ -41,7 +49,7 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        [SAModuleManager.sharedInstance trackChannelWithEventObject:object properties:propertyDict];
+        [SAChannelMatchManager.defaultManager trackChannelWithEventObject:object properties:propertyDict];
     });
 }
 
@@ -54,7 +62,14 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 }
 
 - (void)trackAppInstallWithProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [SAModuleManager.sharedInstance trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback];
+    NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        if (![SAChannelMatchManager.defaultManager isTrackedAppInstallWithDisableCallback:disableCallback]) {
+            [SAChannelMatchManager.defaultManager setTrackedAppInstallWithDisableCallback:disableCallback];
+            [SAChannelMatchManager.defaultManager trackAppInstall:kSAEventNameAppInstall properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
+            [self.eventTracker flushAllEventRecords];
+        }
+    });
 }
 
 - (void)trackInstallation:(NSString *)event {
@@ -66,7 +81,14 @@ static NSString * const kSAEventNameAppInstall = @"$AppInstall";
 }
 
 - (void)trackInstallation:(NSString *)event withProperties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback {
-    [SAModuleManager.sharedInstance trackAppInstall:event properties:properties disableCallback:disableCallback];
+    NSDictionary *dynamicProperties = [self.superProperty acquireDynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        if (![SAChannelMatchManager.defaultManager isTrackedAppInstallWithDisableCallback:disableCallback]) {
+            [SAChannelMatchManager.defaultManager setTrackedAppInstallWithDisableCallback:disableCallback];
+            [SAChannelMatchManager.defaultManager trackAppInstall:event properties:properties disableCallback:disableCallback dynamicProperties:dynamicProperties];
+            [self.eventTracker flushAllEventRecords];
+        }
+    });
 }
 
 @end
