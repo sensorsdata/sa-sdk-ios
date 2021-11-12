@@ -8,13 +8,13 @@ let package = Package(
         .iOS(.v8)
     ],
     products: [
-        .library(name: "SensorsAnalyticsSDK", targets: ["SensorsAnalyticsSDK"])
+        .library(name: "SensorsAnalytics", targets: ["SensorsAnalytics"])
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "SensorsAnalyticsSDK",
-            dependencies: [],
-            path: "SensorsAnalyticsSDK"),
+            name: "SensorsAnalytics",
+            path: "SensorsAnalyticsSDK",
+            publicHeadersPath: "."),
     ]
 )
