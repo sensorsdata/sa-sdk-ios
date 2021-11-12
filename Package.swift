@@ -15,6 +15,11 @@ let package = Package(
         .target(
             name: "SensorsAnalytics",
             path: "SensorsAnalyticsSDK",
-            publicHeadersPath: "."),
+            publicHeadersPath: ".",
+            linkerSettings: [
+                .linkedLibrary("icucore"),
+                .linkedLibrary("z"),
+                .linkedLibrary("sqlite3"),
+            ]),
     ]
 )
