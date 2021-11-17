@@ -22,7 +22,7 @@
 #endif
 
 #import <zlib.h>
-#import "SALog.h"
+#import "../SALogger/SALog.h"
 #import "SAGzipUtility.h"
 
 @implementation SAGzipUtility

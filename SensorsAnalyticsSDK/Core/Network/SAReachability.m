@@ -28,7 +28,7 @@
 #import <arpa/inet.h>
 #import <ifaddrs.h>
 #import <netdb.h>
-#import "SALog.h"
+#import "../SALogger/SALog.h"
 
 typedef NS_ENUM(NSInteger, SAReachabilityStatus) {
     SAReachabilityStatusNotReachable = 0,

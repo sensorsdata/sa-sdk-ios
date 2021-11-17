@@ -18,9 +18,9 @@
 // limitations under the License.
 //
 
-#import "SADatabase.h"
-#import "SAEventFlush.h"
-#import "SAEventTracker.h"
+#import "Tracker/SADatabase.h"
+#import "Tracker/SAEventFlush.h"
+#import "Tracker/SAEventTracker.h"
 #import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN

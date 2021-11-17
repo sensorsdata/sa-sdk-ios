@@ -23,8 +23,8 @@
 #endif
 
 #import "SAEventRecord.h"
-#import "SAJSONUtil.h"
-#import "SAValidator.h"
+#import "../Utils/SAJSONUtil.h"
+#import "../Utils/SAValidator.h"
 
 static NSString * const SAEncryptRecordKeyEKey = @"ekey";
 static NSString * const SAEncryptRecordKeyPayloads = @"payloads";

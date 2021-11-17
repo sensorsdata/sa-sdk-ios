@@ -23,7 +23,7 @@
 #endif
 
 #import "SAFileStore.h"
-#import "SALog.h"
+#import "SALogger/SALog.h"
 
 @implementation SAFileStore
 

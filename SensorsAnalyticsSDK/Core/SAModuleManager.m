@@ -26,7 +26,7 @@
 #import "SAModuleProtocol.h"
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAThreadSafeDictionary.h"
+#import "Utils/SAThreadSafeDictionary.h"
 
 // Location 模块名
 static NSString * const kSALocationModuleName = @"Location";

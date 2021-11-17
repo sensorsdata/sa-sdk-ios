@@ -24,7 +24,7 @@
 
 #import "SAObject+SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SALog.h"
+#import "SALogger/SALog.h"
 #import "SAModuleManager.h"
 #if __has_include("SAConfigOptions+Encrypt.h")
 #import "SAConfigOptions+Encrypt.h"

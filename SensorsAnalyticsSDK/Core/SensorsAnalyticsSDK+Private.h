@@ -23,11 +23,11 @@
 #import "SensorsAnalyticsSDK.h"
 #import <Foundation/Foundation.h>
 #import <WebKit/WebKit.h>
-#import "SANetwork.h"
+#import "Network/SANetwork.h"
 #import "SAHTTPSession.h"
-#import "SATrackEventObject.h"
+#import "Builder/EventObject/SATrackEventObject.h"
 #import "SAAppLifecycle.h"
-#import "SASuperProperty.h"
+#import "Builder/SASuperProperty.h"
 
 @interface SensorsAnalyticsSDK(Private)
 

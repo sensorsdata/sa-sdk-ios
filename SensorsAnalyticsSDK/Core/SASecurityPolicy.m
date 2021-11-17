@@ -24,7 +24,7 @@
 
 #import "SASecurityPolicy.h"
 #import <AssertMacros.h>
-#import "SALog.h"
+#import "SALogger/SALog.h"
 
 #if !TARGET_OS_IOS && !TARGET_OS_WATCH && !TARGET_OS_TV
 static NSData * SASecKeyGetData(SecKeyRef key) {

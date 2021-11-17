@@ -24,7 +24,7 @@
 
 #import "SAEventStore.h"
 #import "SADatabase.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../SensorsAnalyticsSDK+Private.h"
 
 static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";

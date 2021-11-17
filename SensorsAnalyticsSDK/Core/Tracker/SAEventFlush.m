@@ -23,13 +23,13 @@
 #endif
 
 #import "SAEventFlush.h"
-#import "NSString+HashCode.h"
-#import "SAGzipUtility.h"
-#import "SAModuleManager.h"
-#import "SAObject+SAConfigOptions.h"
-#import "SANetwork.h"
-#import "SALog.h"
-#import "SAJSONUtil.h"
+#import "../NSString+HashCode.h"
+#import "../Utils/SAGzipUtility.h"
+#import "../SAModuleManager.h"
+#import "../SAObject+SAConfigOptions.h"
+#import "../Network/SANetwork.h"
+#import "../SALogger/SALog.h"
+#import "../Utils/SAJSONUtil.h"
 
 @interface SAEventFlush ()
 

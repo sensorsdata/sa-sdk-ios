@@ -23,10 +23,10 @@
 #endif
 
 #import "SAPropertyValidator.h"
-#import "SAConstants+Private.h"
-#import "SACommonUtility.h"
-#import "SADateFormatter.h"
-#import "SAValidator.h"
+#import "../../SAConstants+Private.h"
+#import "../../Utils/SACommonUtility.h"
+#import "../../Utils/SADateFormatter.h"
+#import "../../Utils/SAValidator.h"
 
 static NSUInteger const kSAPropertyLengthLimitation = 8191;
 

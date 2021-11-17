@@ -23,8 +23,8 @@
 #endif
 
 #import <Foundation/Foundation.h>
-#import "SAConfigOptions.h"
-#import "SAModuleProtocol.h"
+#import "../SAConfigOptions.h"
+#import "../SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -23,7 +23,7 @@
 #endif
 
 #import "SAProfileEventObject.h"
-#import "SAConstants+Private.h"
+#import "../../SAConstants+Private.h"
 
 @implementation SAProfileEventObject
 

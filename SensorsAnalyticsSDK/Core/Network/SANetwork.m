@@ -23,16 +23,16 @@
 #endif
 
 #import "SANetwork.h"
-#import "SAURLUtils.h"
-#import "SAModuleManager.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SensorsAnalyticsSDK.h"
-#import "NSString+HashCode.h"
-#import "SAGzipUtility.h"
-#import "SALog.h"
-#import "SAJSONUtil.h"
-#import "SAHTTPSession.h"
-#import "SAReachability.h"
+#import "../Utils/SAURLUtils.h"
+#import "../SAModuleManager.h"
+#import "../SensorsAnalyticsSDK+Private.h"
+#import "../SensorsAnalyticsSDK.h"
+#import "../NSString+HashCode.h"
+#import "../Utils/SAGzipUtility.h"
+#import "../SALogger/SALog.h"
+#import "../Utils/SAJSONUtil.h"
+#import "../SAHTTPSession.h"
+#import "../Network/SAReachability.h"
 
 #if TARGET_OS_IOS
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>

@@ -23,10 +23,10 @@
 #endif
 
 #import "SAEventLibObject.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAPresetProperty.h"
-#import "SAValidator.h"
+#import "../../SensorsAnalyticsSDK+Private.h"
+#import "../../SAConstants+Private.h"
+#import "../SAPresetProperty.h"
+#import "../../Utils/SAValidator.h"
 
 @implementation SAEventLibObject
 

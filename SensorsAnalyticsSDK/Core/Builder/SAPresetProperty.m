@@ -24,17 +24,17 @@
 
 #include <sys/sysctl.h>
 #import "SAPresetProperty.h"
-#import "SAConstants+Private.h"
+#import "../SAConstants+Private.h"
 #import "SAIdentifier.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAReachability.h"
-#import "SALog.h"
-#import "SAFileStore.h"
-#import "SADateFormatter.h"
-#import "SAValidator.h"
-#import "SAModuleManager.h"
-#import "SAJSONUtil.h"
+#import "../SensorsAnalyticsSDK.h"
+#import "../SensorsAnalyticsSDK+Private.h"
+#import "../Network/SAReachability.h"
+#import "../SALogger/SALog.h"
+#import "../SAFileStore.h"
+#import "../Utils/SADateFormatter.h"
+#import "../Utils/SAValidator.h"
+#import "../SAModuleManager.h"
+#import "../Utils/SAJSONUtil.h"
 
 #if TARGET_OS_IOS
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>

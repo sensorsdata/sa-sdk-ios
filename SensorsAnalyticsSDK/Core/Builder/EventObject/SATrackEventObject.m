@@ -23,10 +23,10 @@
 #endif
 
 #import "SATrackEventObject.h"
-#import "SAConstants+Private.h"
-#import "SAPresetProperty.h"
-#import "SAValidator.h"
-#import "SALog.h"
+#import "../../SAConstants+Private.h"
+#import "../SAPresetProperty.h"
+#import "../../Utils/SAValidator.h"
+#import "../../SALogger/SALog.h"
 
 static NSSet *presetEventNames;
 

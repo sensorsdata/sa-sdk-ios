@@ -24,9 +24,9 @@
 
 #import <sqlite3.h>
 #import "SADatabase.h"
-#import "SALog.h"
-#import "SAConstants+Private.h"
-#import "SAObject+SAConfigOptions.h"
+#import "../SALogger/SALog.h"
+#import "../SAConstants+Private.h"
+#import "../SAObject+SAConfigOptions.h"
 
 static NSString *const kDatabaseTableName = @"dataCache";
 static NSString *const kDatabaseColumnStatus = @"status";

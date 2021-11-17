@@ -23,7 +23,7 @@
 #endif
 
 #import "SAAppLifecycle.h"
-#import "SALog.h"
+#import "SALogger/SALog.h"
 #import "SAApplication.h"
 
 #if TARGET_OS_IOS

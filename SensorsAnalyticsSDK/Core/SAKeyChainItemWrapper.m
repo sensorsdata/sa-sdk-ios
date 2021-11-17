@@ -24,7 +24,7 @@
 #endif
 
 
-#import "SALog.h"
+#import "SALogger/SALog.h"
 #import "SAKeyChainItemWrapper.h"
 
 NSString * const kSAService = @"com.sensorsdata.analytics.udid";

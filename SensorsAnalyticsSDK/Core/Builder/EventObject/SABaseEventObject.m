@@ -23,9 +23,9 @@
 #endif
 
 #import "SABaseEventObject.h"
-#import "SAConstants+Private.h"
-#import "SAPresetProperty.h"
-#import "SALog.h"
+#import "../../SAConstants+Private.h"
+#import "../SAPresetProperty.h"
+#import "../../SALogger/SALog.h"
 
 @implementation SABaseEventObject
 
