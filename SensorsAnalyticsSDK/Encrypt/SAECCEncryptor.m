@@ -23,8 +23,8 @@
 #endif
 
 #import "SAECCEncryptor.h"
-#import "SAValidator.h"
-#import "SALog.h"
+#import "../Core/Utils/SAValidator.h"
+#import "../Core/SALogger/SALog.h"
 
 NSString * const kSAEncryptECCClassName = @"SACryptoppECC";
 NSString * const kSAEncryptECCPrefix = @"EC:";

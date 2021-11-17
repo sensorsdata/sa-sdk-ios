@@ -20,8 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SAVisualPropertiesConfigSources.h"
-#import "SAViewNodeTree.h"
+#import "../Config/SAVisualPropertiesConfigSources.h"
+#import "ViewNode/SAViewNodeTree.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -23,8 +23,8 @@
 #endif
 
 #import "SAAppStartTracker.h"
-#import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
 
 // App 启动标记
 static NSString * const kSAHasLaunchedOnce = @"HasLaunchedOnce";

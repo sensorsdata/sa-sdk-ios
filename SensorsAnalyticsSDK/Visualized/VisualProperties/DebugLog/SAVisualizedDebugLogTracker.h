@@ -6,7 +6,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAEventIdentifier.h"
+#import "../../EventCheck/SAEventIdentifier.h"
 NS_ASSUME_NONNULL_BEGIN
 
 /// 诊断日志

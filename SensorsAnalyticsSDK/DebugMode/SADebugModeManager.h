@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
-#import "SAConstants.h"
+#import "../Core/SAModuleProtocol.h"
+#import "../Core/SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

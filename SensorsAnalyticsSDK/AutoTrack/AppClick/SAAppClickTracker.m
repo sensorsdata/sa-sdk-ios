@@ -23,16 +23,16 @@
 #endif
 
 #import "SAAppClickTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAAutoTrackProperty.h"
-#import "SAConstants.h"
-#import "SAValidator.h"
-#import "SAAutoTrackUtils.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../SAAutoTrackProperty.h"
+#import "../../Core/SAConstants.h"
+#import "../../Core/Utils/SAValidator.h"
+#import "../SAAutoTrackUtils.h"
 #import "UIView+AutoTrack.h"
-#import "UIViewController+AutoTrack.h"
-#import "SAModuleManager.h"
-#import "SALog.h"
+#import "../AppViewScreen/UIViewController+AutoTrack.h"
+#import "../../Core/SAModuleManager.h"
+#import "../../Core/SALogger/SALog.h"
 
 @interface SAAppClickTracker ()
 

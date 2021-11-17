@@ -24,7 +24,7 @@
 
 #import "SAApplicationStateSerializer.h"
 #import "SAClassDescription.h"
-#import "SALog.h"
+#import "../Core/SALogger/SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"

@@ -23,14 +23,15 @@
 #endif
 
 #import "UIViewController+SAElementPath.h"
-#import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
+#import "../SAVisualizedUtils.h"
+#import "../../AutoTrack/SAAutoTrackUtils.h"
 #import "UIView+SAElementPath.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAVisualizedObjectSerializerManager.h"
-#import "SAVisualizedManager.h"
-#import "SAAutoTrackManager.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../SAVisualizedObjectSerializerManager.h"
+#import "../SAVisualizedManager.h"
+#import "../../AutoTrack/SAAutoTrackManager.h"
+#import "../../AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h"
 
 @implementation UIViewController (SAElementPath)
 

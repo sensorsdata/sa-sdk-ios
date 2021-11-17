@@ -23,11 +23,11 @@
 #endif
 
 #import "SAExceptionManager.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAModuleManager.h"
-#import "SALog.h"
+#import "../Core/SensorsAnalyticsSDK.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/SALogger/SALog.h"
 #import "SAConfigOptions+Exception.h"
 
 #include <libkern/OSAtomic.h>

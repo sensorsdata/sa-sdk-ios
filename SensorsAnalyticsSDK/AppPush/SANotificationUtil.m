@@ -24,8 +24,8 @@
 
 #import "SANotificationUtil.h"
 #import "SAAppPushConstants.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/SALogger/SALog.h"
 
 @implementation SANotificationUtil
 

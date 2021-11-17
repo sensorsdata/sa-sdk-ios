@@ -23,11 +23,13 @@
 #endif
 
 #import "SAVisualPropertiesConfig.h"
-#import "UIView+SAElementPath.h"
-#import "SAVisualizedUtils.h"
-#import "UIView+AutoTrack.h"
-#import "SAValidator.h"
-#import "SAViewNode.h"
+#import "../ElementPath/UIView+SAElementPath.h"
+#import "../ElementPath/UIView+SAElementPath.h"
+#import "../../AutoTrack/AppClick/UIView+AutoTrack.h"
+#import "../../Core/Utils/SAValidator.h"
+#import "../VisualProperties/ViewNode/SAViewNode.h"
+#import "../../Core/Utils/SAValidator.h"
+#import "../SAVisualizedUtils.h"
 
 static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (![SAValidator isValidDictionary:dic]) {

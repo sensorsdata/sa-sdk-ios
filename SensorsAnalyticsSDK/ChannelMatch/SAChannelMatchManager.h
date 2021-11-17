@@ -18,8 +18,8 @@
 // limitations under the License.
 //
 
-#import "SAConfigOptions.h"
-#import "SAModuleProtocol.h"
+#import "../Core/SAConfigOptions.h"
+#import "../Core/SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

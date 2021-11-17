@@ -23,12 +23,12 @@
 #endif
 
 #import "SAApplicationDelegateProxy.h"
-#import "SAClassHelper.h"
-#import "NSObject+DelegateProxy.h"
+#import "../Core/HookDelegate/SAClassHelper.h"
+#import "../Core/HookDelegate/NSObject+DelegateProxy.h"
 #import "UIApplication+PushClick.h"
-#import "SensorsAnalyticsSDK.h"
+#import "../Core/SensorsAnalyticsSDK.h"
 #import "SAAppPushConstants.h"
-#import "SALog.h"
+#import "../Core/SALogger/SALog.h"
 #import "SANotificationUtil.h"
 #import <objc/message.h>
 

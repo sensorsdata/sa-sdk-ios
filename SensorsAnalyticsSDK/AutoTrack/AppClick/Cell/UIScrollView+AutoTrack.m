@@ -26,8 +26,8 @@
 #import "SAScrollViewDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>
-#import "SAConstants+Private.h"
-#import "SAAutoTrackManager.h"
+#import "../../../Core/SAConstants+Private.h"
+#import "../../SAAutoTrackManager.h"
 
 @implementation UITableView (AutoTrack)
 

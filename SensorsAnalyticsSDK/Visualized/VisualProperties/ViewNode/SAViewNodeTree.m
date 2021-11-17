@@ -24,13 +24,13 @@
 
 #import "SAViewNodeTree.h"
 #import "UIView+SAVisualProperties.h"
-#import "UIView+SAElementPath.h"
-#import "SAConstants+Private.h"
-#import "SAVisualizedUtils.h"
+#import "../../ElementPath/UIView+SAElementPath.h"
+#import "../../../Core/SAConstants+Private.h"
+#import "../../SAVisualizedUtils.h"
 #import "SAViewNodeFactory.h"
-#import "SACommonUtility.h"
-#import "SASwizzle.h"
-#import "SALog.h"
+#import "../../../Core/Utils/SACommonUtility.h"
+#import "../../../Core/SASwizzle.h"
+#import "../../../Core/SALogger/SALog.h"
 
 static void * const kSARNManagerContext = (void*)&kSARNManagerContext;
 static NSString * const kSARNManagerScreenPropertiesKeyPath = @"screenProperties";

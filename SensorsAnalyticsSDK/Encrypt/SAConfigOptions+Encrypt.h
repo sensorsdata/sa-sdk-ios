@@ -19,7 +19,7 @@
 //
 
 #import "SAEncryptProtocol.h"
-#import "SAConfigOptions.h"
+#import "../Core/SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

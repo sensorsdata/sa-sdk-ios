@@ -23,14 +23,15 @@
 #endif
 
 #import "SAAppViewScreenTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
 #import "UIViewController+AutoTrack.h"
-#import "SAAppLifecycle.h"
-#import "SAConstants+Private.h"
-#import "SAValidator.h"
-#import "SAAutoTrackUtils.h"
-#import "SAReferrerManager.h"
-#import "SAModuleManager.h"
+#import "../../Core/SAAppLifecycle.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../Core/Utils/SAValidator.h"
+#import "../SAAutoTrackUtils.h"
+#import "../../Core/SAReferrerManager.h"
+#import "../../Core/SAModuleManager.h"
+#import "../SensorsAnalyticsSDK+SAAutoTrack.h"
 
 @interface SAAppViewScreenTracker ()
 

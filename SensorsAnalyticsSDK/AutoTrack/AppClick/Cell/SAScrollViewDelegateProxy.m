@@ -23,10 +23,10 @@
 #endif
 
 #import "SAScrollViewDelegateProxy.h"
-#import "SAAutoTrackUtils.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAAutoTrackManager.h"
+#import "../../SAAutoTrackUtils.h"
+#import "../../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../../Core/SAConstants+Private.h"
+#import "../../SAAutoTrackManager.h"
 #import <objc/message.h>
 
 @implementation SAScrollViewDelegateProxy

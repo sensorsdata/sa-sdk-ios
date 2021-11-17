@@ -23,7 +23,7 @@
 #endif
 
 #import "SARemoteConfigModel.h"
-#import "SAValidator.h"
+#import "../Core/Utils/SAValidator.h"
 
 static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (![SAValidator isValidDictionary:dic]) {

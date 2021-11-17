@@ -23,18 +23,18 @@
 #endif
 
 #import "SAVisualizedUtils.h"
-#import "SAWebElementView.h"
-#import "UIView+SAElementPath.h"
-#import "UIView+SAElementSelector.h"
-#import "SAVisualizedViewPathProperty.h"
+#import "WebElementInfo/SAWebElementView.h"
+#import "ElementPath/UIView+SAElementPath.h"
+#import "ElementSelector/UIView+SAElementSelector.h"
+#import "ElementPath/SAVisualizedViewPathProperty.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SAConstants+Private.h"
+#import "../Core/SAConstants+Private.h"
 #import "SAVisualizedManager.h"
-#import "SAAutoTrackUtils.h"
-#import "UIView+AutoTrack.h"
-#import "SACommonUtility.h"
-#import "SAJavaScriptBridgeManager.h"
-#import "SALog.h"
+#import "../AutoTrack/SAAutoTrackUtils.h"
+#import "../AutoTrack/AppClick/UIView+AutoTrack.h"
+#import "../Core/Utils/SACommonUtility.h"
+#import "../JSBridge/SAJavaScriptBridgeManager.h"
+#import "../Core/SALogger/SALog.h"
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
 static NSInteger kSAVisualizedFindMaxPageLevel = 4;

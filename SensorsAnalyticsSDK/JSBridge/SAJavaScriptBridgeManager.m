@@ -23,13 +23,13 @@
 #endif
 
 #import "SAJavaScriptBridgeManager.h"
-#import "SALog.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAModuleManager.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/SAModuleManager.h"
 #import "WKWebView+SABridge.h"
-#import "SAJSONUtil.h"
-#import "SASwizzle.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/SASwizzle.h"
 #import "SensorsAnalyticsSDK+JavaScriptBridge.h"
 
 

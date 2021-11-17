@@ -23,7 +23,7 @@
 #endif
 
 #import "UIView+SAVisualProperties.h"
-#import "SAVisualizedManager.h"
+#import "../../SAVisualizedManager.h"
 #import <objc/runtime.h>
 
 static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;

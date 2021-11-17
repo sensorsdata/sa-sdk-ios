@@ -24,12 +24,13 @@
 
 
 #import "UIViewController+AutoTrack.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SACommonUtility.h"
-#import "SALog.h"
-#import "UIView+AutoTrack.h"
-#import "SAAutoTrackManager.h"
-#import "SAWeakPropertyContainer.h"
+#import "../../Core/SensorsAnalyticsSDK.h"
+#import "../../Core/Utils/SACommonUtility.h"
+#import "../../Core/SALogger/SALog.h"
+#import "../AppClick/UIView+AutoTrack.h"
+#import "../SAAutoTrackManager.h"
+#import "../../Core/Utils/SAWeakPropertyContainer.h"
+#import "../SensorsAnalyticsSDK+SAAutoTrack.h"
 #import <objc/runtime.h>
 
 static void *const kSAPreviousViewController = (void *)&kSAPreviousViewController;

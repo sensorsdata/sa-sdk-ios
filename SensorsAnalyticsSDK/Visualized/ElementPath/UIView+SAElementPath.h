@@ -21,8 +21,8 @@
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
 #import <WebKit/WebKit.h>
-#import "SAWebElementView.h"
-#import "SAAutoTrackProperty.h"
+#import "../WebElementInfo/SAWebElementView.h"
+#import "../../AutoTrack/SAAutoTrackProperty.h"
 #import "SAVisualizedViewPathProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN

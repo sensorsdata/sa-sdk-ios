@@ -23,14 +23,15 @@
 #endif
 
 #import "UIApplication+AutoTrack.h"
-#import "SALog.h"
-#import "SensorsAnalyticsSDK.h"
+#import "../../Core/SALogger/SALog.h"
+#import "../../Core/SensorsAnalyticsSDK.h"
 #import "UIView+AutoTrack.h"
-#import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "UIViewController+AutoTrack.h"
-#import "SAAutoTrackUtils.h"
-#import "SAAutoTrackManager.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../AppViewScreen/UIViewController+AutoTrack.h"
+#import "../SAAutoTrackUtils.h"
+#import "../SAAutoTrackManager.h"
+#import "../SensorsAnalyticsSDK+SAAutoTrack.h"
 
 @implementation UIApplication (AutoTrack)
 

@@ -23,12 +23,12 @@
 #endif
 
 #import "SARemoteConfigManager.h"
-#import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAModuleManager.h"
-#import "SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/SALogger/SALog.h"
 #import "SAConfigOptions+RemoteConfig.h"
-#import "SAApplication.h"
+#import "../Core/SAApplication.h"
 
 @interface SARemoteConfigManager ()
 

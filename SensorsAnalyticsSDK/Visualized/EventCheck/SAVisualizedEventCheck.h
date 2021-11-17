@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAVisualPropertiesConfigSources.h"
+#import "../Config/SAVisualPropertiesConfigSources.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

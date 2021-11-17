@@ -27,14 +27,15 @@
 #endif
 
 #import "SensorsAnalyticsSDK+WebView.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SAConstants+Private.h"
-#import "SACommonUtility.h"
-#import "SAConstants.h"
-#import "SAJSONUtil.h"
-#import "SAURLUtils.h"
-#import "SALog.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SensorsAnalyticsSDK.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SACommonUtility.h"
+#import "../Core/SAConstants.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/SALogger/SALog.h"
+#import "../JSBridge/SensorsAnalyticsSDK+JavaScriptBridge.h"
 
 static NSString * const kSAJSGetAppInfoScheme = @"sensorsanalytics://getAppInfo";
 static NSString * const kSAJSTrackEventNativeScheme = @"sensorsanalytics://trackEvent";

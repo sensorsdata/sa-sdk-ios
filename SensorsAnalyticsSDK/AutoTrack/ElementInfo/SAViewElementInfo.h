@@ -19,7 +19,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrackProperty.h"
+#import "../SAAutoTrackProperty.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

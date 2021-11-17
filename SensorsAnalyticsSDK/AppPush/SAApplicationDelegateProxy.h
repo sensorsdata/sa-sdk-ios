@@ -18,7 +18,8 @@
 // limitations under the License.
 //
 
-#import "SADelegateProxy.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/HookDelegate/SADelegateProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

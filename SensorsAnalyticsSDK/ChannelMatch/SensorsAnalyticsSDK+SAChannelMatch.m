@@ -23,11 +23,11 @@
 #endif
 
 #import "SensorsAnalyticsSDK+SAChannelMatch.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SATrackEventObject.h"
-#import "SAModuleManager.h"
-#import "SASuperProperty.h"
-#import "SAEventTracker.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/Builder/EventObject/SATrackEventObject.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/Builder/SASuperProperty.h"
+#import "../Core/Tracker/SAEventTracker.h"
 #import "SAChannelMatchManager.h"
 
 // 激活事件

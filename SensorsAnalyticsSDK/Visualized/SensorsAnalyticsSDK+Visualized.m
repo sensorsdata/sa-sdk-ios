@@ -23,7 +23,7 @@
 #endif
 
 #import "SensorsAnalyticsSDK+Visualized.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedManager.h"
 
 @implementation SensorsAnalyticsSDK (Visualized)

@@ -24,19 +24,19 @@
 
 #import "SAVisualPropertiesTracker.h"
 #import <UIKit/UIKit.h>
-#import "SAVisualPropertiesConfigSources.h"
-#import "SAVisualizedUtils.h"
-#import "UIView+AutoTrack.h"
-#import "UIView+SAElementPath.h"
-#import "SACommonUtility.h"
-#import "SAVisualizedDebugLogTracker.h"
-#import "SAVisualizedLogger.h"
-#import "SAJavaScriptBridgeManager.h"
-#import "SAAlertController.h"
-#import "SAAutoTrackUtils.h"
-#import "UIView+SAVisualProperties.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
+#import "../Config/SAVisualPropertiesConfigSources.h"
+#import "../SAVisualizedUtils.h"
+#import "../../AutoTrack/AppClick/UIView+AutoTrack.h"
+#import "../ElementPath/UIView+SAElementPath.h"
+#import "../../Core/Utils/SACommonUtility.h"
+#import "DebugLog/SAVisualizedDebugLogTracker.h"
+#import "DebugLog/SAVisualizedLogger.h"
+#import "../../JSBridge/SAJavaScriptBridgeManager.h"
+#import "../../Core/SAAlertController.h"
+#import "../../AutoTrack/SAAutoTrackUtils.h"
+#import "ViewNode/UIView+SAVisualProperties.h"
+#import "../../Core/Utils/SAJSONUtil.h"
+#import "../../Core/SALogger/SALog.h"
 
 @interface SAVisualPropertiesTracker()
 

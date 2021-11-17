@@ -23,11 +23,12 @@
 #endif
 
 #import "UIView+AutoTrack.h"
-#import "SAAutoTrackUtils.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../SAAutoTrackUtils.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>
-#import "SAViewElementInfoFactory.h"
-#import "SAAutoTrackManager.h"
+#import "../ElementInfo/SAViewElementInfoFactory.h"
+#import "../SAAutoTrackManager.h"
+#import "../SensorsAnalyticsSDK+SAAutoTrack.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 

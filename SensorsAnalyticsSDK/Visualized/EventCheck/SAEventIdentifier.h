@@ -18,8 +18,8 @@
 // limitations under the License.
 //
 
-#import "SAVisualPropertiesConfig.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Config/SAVisualPropertiesConfig.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

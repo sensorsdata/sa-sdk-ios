@@ -27,15 +27,15 @@
 #import <WebKit/WebKit.h>
 #import "NSInvocation+SAHelpers.h"
 #import "SAClassDescription.h"
-#import "SALog.h"
+#import "../Core/SALogger/SALog.h"
 #import "SAObjectIdentityProvider.h"
 #import "SAVisualizedAutoTrackObjectSerializer.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAObjectSerializerContext.h"
 #import "SAPropertyDescription.h"
-#import "SAWebElementView.h"
+#import "WebElementInfo/SAWebElementView.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SAJavaScriptBridgeManager.h"
+#import "../JSBridge/SAJavaScriptBridgeManager.h"
 #import "SAVisualizedManager.h"
 
 @interface SAVisualizedAutoTrackObjectSerializer ()

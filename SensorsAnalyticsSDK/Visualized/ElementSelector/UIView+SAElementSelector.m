@@ -23,8 +23,9 @@
 
 #import <objc/runtime.h>
 #import <CommonCrypto/CommonDigest.h>
-#import "SensorsAnalyticsSDK.h"
+#import "../../Core/SensorsAnalyticsSDK.h"
 #import "UIView+SAElementSelector.h"
+#import "../../AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h"
 
 // NB If you add any more fingerprint methods, increment this.
 #define SA_FINGERPRINT_VERSION 1

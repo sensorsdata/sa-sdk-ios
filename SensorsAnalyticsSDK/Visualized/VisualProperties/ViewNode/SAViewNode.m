@@ -23,18 +23,18 @@
 #endif
 
 #import "SAViewNode.h"
-#import "SAAutoTrackUtils.h"
+#import "../../../AutoTrack/SAAutoTrackUtils.h"
 #import "UIView+SAVisualProperties.h"
-#import "SACommonUtility.h"
-#import "UIView+SAElementPath.h"
-#import "UIView+AutoTrack.h"
-#import "SAConstants+Private.h"
-#import "SAVisualizedUtils.h"
-#import "SAViewElementInfoFactory.h"
-#import "SAJavaScriptBridgeManager.h"
-#import "SAVisualizedManager.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
+#import "../../../Core/Utils/SACommonUtility.h"
+#import "../../ElementPath/UIView+SAElementPath.h"
+#import "../../../AutoTrack/AppClick/UIView+AutoTrack.h"
+#import "../../../Core/SAConstants+Private.h"
+#import "../../SAVisualizedUtils.h"
+#import "../../../AutoTrack/ElementInfo/SAViewElementInfoFactory.h"
+#import "../../../JSBridge/SAJavaScriptBridgeManager.h"
+#import "../../SAVisualizedManager.h"
+#import "../../../Core/Utils/SAJSONUtil.h"
+#import "../../../Core/SALogger/SALog.h"
 
 @interface SAViewNode()
 

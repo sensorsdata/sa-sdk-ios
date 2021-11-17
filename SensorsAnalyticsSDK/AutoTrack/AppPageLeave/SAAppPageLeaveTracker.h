@@ -19,7 +19,7 @@
 //
 
 
-#import "SAAppTracker.h"
+#import "../SAAppTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

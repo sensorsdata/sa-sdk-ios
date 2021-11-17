@@ -19,8 +19,8 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrackProperty.h"
-#import "SAGestureTarget.h"
+#import "../../SAAutoTrackProperty.h"
+#import "Target/SAGestureTarget.h"
 #import "SAGestureTargetActionModel.h"
 
 NS_ASSUME_NONNULL_BEGIN

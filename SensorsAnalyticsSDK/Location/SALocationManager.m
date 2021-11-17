@@ -24,8 +24,8 @@
 
 #import <UIKit/UIKit.h>
 #import "SALocationManager.h"
-#import "SAConstants+Private.h"
-#import "SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/SALogger/SALog.h"
 
 static NSString * const kSAEventPresetPropertyLatitude = @"$latitude";
 static NSString * const kSAEventPresetPropertyLongitude = @"$longitude";

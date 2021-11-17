@@ -23,12 +23,12 @@
 #endif
 
 #import "SARemoteConfigCheckOperator.h"
-#import "SAConstants+Private.h"
-#import "SAURLUtils.h"
-#import "SAAlertController.h"
-#import "SACommonUtility.h"
-#import "SAReachability.h"
-#import "SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/SAAlertController.h"
+#import "../Core/Utils/SACommonUtility.h"
+#import "../Core/Network/SAReachability.h"
+#import "../Core/SALogger/SALog.h"
 
 typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 

@@ -19,7 +19,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "SAAutoTrackProperty.h"
+#import "../SAAutoTrackProperty.h"
 
 #pragma mark - UIView
 

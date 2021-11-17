@@ -24,8 +24,8 @@
 
 #import "SAAESEncryptor.h"
 #import <CommonCrypto/CommonCryptor.h>
-#import "SAValidator.h"
-#import "SALog.h"
+#import "../Core/Utils/SAValidator.h"
+#import "../Core/SALogger/SALog.h"
 
 @interface SAAESEncryptor ()
 

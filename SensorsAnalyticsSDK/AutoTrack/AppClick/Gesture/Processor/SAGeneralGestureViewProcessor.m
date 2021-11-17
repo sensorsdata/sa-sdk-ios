@@ -23,10 +23,10 @@
 #endif
 
 #import "SAGeneralGestureViewProcessor.h"
-#import "UIGestureRecognizer+SAAutoTrack.h"
-#import "SAAlertController.h"
-#import "SAAutoTrackUtils.h"
-#import "SAJSONUtil.h"
+#import "../UIGestureRecognizer+SAAutoTrack.h"
+#import "../../../../Core/SAAlertController.h"
+#import "../../../SAAutoTrackUtils.h"
+#import "../../../../Core/Utils/SAJSONUtil.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {
     NSMutableArray *subViews = [NSMutableArray array];

@@ -24,8 +24,8 @@
 
 #import "UIGestureRecognizer+SAAutoTrack.h"
 #import <objc/runtime.h>
-#import "SASwizzle.h"
-#import "SALog.h"
+#import "../../../Core/SASwizzle.h"
+#import "../../../Core/SALogger/SALog.h"
 
 static void *const kSAGestureTargetKey = (void *)&kSAGestureTargetKey;
 static void *const kSAGestureTargetActionModelsKey = (void *)&kSAGestureTargetActionModelsKey;

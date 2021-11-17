@@ -24,12 +24,12 @@
 
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
-#import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
-#import "SAViewNode.h"
-#import "SALog+Private.h"
-#import "UIView+SAVisualProperties.h"
-#import "SAConstants+Private.h"
+#import "../../SAVisualizedUtils.h"
+#import "../../../AutoTrack/SAAutoTrackUtils.h"
+#import "../ViewNode/SAViewNode.h"
+#import "../../../Core/SALogger/SALog+Private.h"
+#import "../ViewNode/UIView+SAVisualProperties.h"
+#import "../../../Core/SAConstants+Private.h"
 
 @interface SAVisualizedDebugLogTracker()<SAVisualizedLoggerDelegate>
 @property (atomic, strong, readwrite) NSMutableArray<NSMutableDictionary *> *debugLogInfos;

@@ -29,10 +29,10 @@
 #import "SAObjectIdentityProvider.h"
 #import "SAObjectSerializerConfig.h"
 #import "SAVisualizedConnection.h"
-#import "SAConstants+Private.h"
+#import "../Core/SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SACommonUtility.h"
+#import "Core/Utils/SACommonUtility.h"
 
 #pragma mark -- Snapshot Request
 

@@ -23,12 +23,12 @@
 #endif
 
 #import "SAGestureTarget.h"
-#import "SAGestureViewProcessorFactory.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "UIView+AutoTrack.h"
-#import "SAAutoTrackUtils.h"
-#import "SAAutoTrackManager.h"
+#import "../Processor/SAGestureViewProcessorFactory.h"
+#import "../../../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../../../Core/SAConstants+Private.h"
+#import "../../UIView+AutoTrack.h"
+#import "../../../SAAutoTrackUtils.h"
+#import "../../../SAAutoTrackManager.h"
 
 @implementation SAGestureTarget
 

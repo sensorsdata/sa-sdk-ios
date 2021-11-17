@@ -23,19 +23,19 @@
 #endif
 
 #import "SAChannelMatchManager.h"
-#import "SAConstants+Private.h"
-#import "SAIdentifier.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAValidator.h"
-#import "SAAlertController.h"
-#import "SAURLUtils.h"
-#import "SAReachability.h"
-#import "SALog.h"
-#import "SAFileStore.h"
-#import "SAJSONUtil.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Builder/SAIdentifier.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/Utils/SAValidator.h"
+#import "../Core/SAAlertController.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/Network/SAReachability.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SAFileStore.h"
+#import "../Core/Utils/SAJSONUtil.h"
 #import "SensorsAnalyticsSDK+SAChannelMatch.h"
-#import "SAApplication.h"
-#import "SAProfileEventObject.h"
+#import "../Core/SAApplication.h"
+#import "../Core/Builder/EventObject/SAProfileEventObject.h"
 
 NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";

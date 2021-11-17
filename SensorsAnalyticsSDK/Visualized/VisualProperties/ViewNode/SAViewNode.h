@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SAVisualPropertiesConfig.h"
+#import "../../Config/SAVisualPropertiesConfig.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
 
 /**
  * @abstract

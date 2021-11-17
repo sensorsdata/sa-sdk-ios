@@ -24,7 +24,7 @@
 
 #import <objc/runtime.h>
 #import <UIKit/UIKit.h>
-#import "SALog.h"
+#import "../Core/SALogger/SALog.h"
 #import "NSInvocation+SAHelpers.h"
 
 typedef union {

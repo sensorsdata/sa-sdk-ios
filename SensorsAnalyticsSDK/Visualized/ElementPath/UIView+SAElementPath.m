@@ -24,14 +24,14 @@
 
 #import <objc/runtime.h>
 #import "UIView+SAElementPath.h"
-#import "UIView+AutoTrack.h"
-#import "UIViewController+AutoTrack.h"
+#import "../../AutoTrack/AppClick/UIView+AutoTrack.h"
+#import "../../AutoTrack/AppViewScreen/UIViewController+AutoTrack.h"
 #import "UIViewController+SAElementPath.h"
-#import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
-#import "SAConstants+Private.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAViewElementInfoFactory.h"
+#import "../SAVisualizedUtils.h"
+#import "../../AutoTrack/SAAutoTrackUtils.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../AutoTrack/ElementInfo/SAViewElementInfoFactory.h"
 
 typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 

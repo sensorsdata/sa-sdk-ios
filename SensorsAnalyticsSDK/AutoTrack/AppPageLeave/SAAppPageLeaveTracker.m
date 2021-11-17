@@ -23,13 +23,12 @@
 #endif
 
 #import "SAAppPageLeaveTracker.h"
-#import "SAAutoTrackUtils.h"
-#import "SensorsAnalyticsSDK+SAAutoTrack.h"
-#import "SAConstants+Private.h"
-#import "SAConstants+Private.h"
-#import "SAAppLifecycle.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAAutoTrackManager.h"
+#import "../SAAutoTrackUtils.h"
+#import "../SensorsAnalyticsSDK+SAAutoTrack.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../Core/SAAppLifecycle.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../SAAutoTrackManager.h"
 
 @interface SAAppPageLeaveTracker ()
 

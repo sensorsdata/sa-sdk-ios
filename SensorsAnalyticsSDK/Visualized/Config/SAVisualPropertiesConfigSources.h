@@ -20,8 +20,8 @@
 
 #import <Foundation/Foundation.h>
 #import "SAVisualPropertiesConfig.h"
-#import "SAEventIdentifier.h"
-#import "SAViewNode.h"
+#import "../EventCheck/SAEventIdentifier.h"
+#import "../VisualProperties/ViewNode/SAViewNode.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

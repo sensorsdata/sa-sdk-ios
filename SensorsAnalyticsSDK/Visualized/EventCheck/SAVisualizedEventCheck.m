@@ -23,9 +23,9 @@
 #endif
 
 #import "SAVisualizedEventCheck.h"
-#import "SAConstants+Private.h"
+#import "../../Core/SAConstants+Private.h"
 #import "SAEventIdentifier.h"
-#import "SALog.h"
+#import "../../Core/SALogger/SALog.h"
 
 NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
 

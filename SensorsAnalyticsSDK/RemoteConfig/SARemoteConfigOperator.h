@@ -20,7 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SARemoteConfigModel.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

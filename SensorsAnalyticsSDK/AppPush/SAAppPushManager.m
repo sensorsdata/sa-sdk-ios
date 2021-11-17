@@ -24,11 +24,11 @@
 
 #import "SAAppPushManager.h"
 #import "SAApplicationDelegateProxy.h"
-#import "SASwizzle.h"
-#import "SALog.h"
+#import "../Core/SASwizzle.h"
+#import "../Core/SALogger/SALog.h"
 #import "UIApplication+PushClick.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAMethodHelper.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/HookDelegate/SAMethodHelper.h"
 #import "SAConfigOptions+AppPush.h"
 
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_10_0

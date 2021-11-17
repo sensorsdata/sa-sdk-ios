@@ -19,10 +19,10 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
-#import "SAAppClickTracker.h"
-#import "SAAppViewScreenTracker.h"
-#import "SAAppPageLeaveTracker.h"
+#import "../Core/SAModuleProtocol.h"
+#import "AppClick/SAAppClickTracker.h"
+#import "AppViewScreen/SAAppViewScreenTracker.h"
+#import "AppPageLeave/SAAppPageLeaveTracker.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

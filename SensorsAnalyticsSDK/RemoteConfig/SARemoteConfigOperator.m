@@ -23,14 +23,14 @@
 #endif
 
 #import "SARemoteConfigOperator.h"
-#import "SALog.h"
-#import "SAURLUtils.h"
-#import "SAConstants+Private.h"
-#import "SAValidator.h"
-#import "SAJSONUtil.h"
-#import "SAModuleManager.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SAValidator.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/SAModuleManager.h"
 #import "SARemoteConfigEventObject.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
 #import "SAConfigOptions+RemoteConfig.h"
 
 #if __has_include("SAConfigOptions+Encrypt.h")

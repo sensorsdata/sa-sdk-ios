@@ -23,8 +23,8 @@
 #endif
 
 #import "SAViewNodeFactory.h"
-#import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
+#import "../../SAVisualizedUtils.h"
+#import "../../../AutoTrack/SAAutoTrackUtils.h"
 #import "SAViewNode.h"
 
 @implementation SAViewNodeFactory

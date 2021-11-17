@@ -23,9 +23,9 @@
 #endif
 
 #import "SAEventIdentifier.h"
-#import "UIViewController+AutoTrack.h"
-#import "SAConstants+Private.h"
-#import "SAAutoTrackUtils.h"
+#import "../../AutoTrack/AppViewScreen/UIViewController+AutoTrack.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../AutoTrack/SAAutoTrackUtils.h"
 
 @implementation SAEventIdentifier
 

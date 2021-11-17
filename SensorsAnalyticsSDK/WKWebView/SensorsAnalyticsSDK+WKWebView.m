@@ -27,12 +27,13 @@
 #endif
 
 #import "SensorsAnalyticsSDK+WKWebView.h"
-#import "SAConstants+Private.h"
-#import "SACommonUtility.h"
-#import "SAJSONUtil.h"
-#import "SAURLUtils.h"
-#import "SANetwork.h"
-#import "SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SACommonUtility.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/Network/SANetwork.h"
+#import "../Core/SALogger/SALog.h"
+#import "../JSBridge/SensorsAnalyticsSDK+JavaScriptBridge.h"
 #import <WebKit/WebKit.h>
 #import <objc/runtime.h>
 

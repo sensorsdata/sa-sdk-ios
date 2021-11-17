@@ -23,14 +23,14 @@
 #endif
 
 #import "SADebugModeManager.h"
-#import "SAModuleManager.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAAlertController.h"
-#import "SAURLUtils.h"
-#import "SAJSONUtil.h"
-#import "SANetwork.h"
-#import "SALog.h"
-#import "SAApplication.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SAAlertController.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/Network/SANetwork.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SAApplication.h"
 
 @interface SADebugModeManager ()
 

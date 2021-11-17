@@ -21,8 +21,8 @@
 
 #import <Foundation/Foundation.h>
 #import <UIKit/UIKit.h>
-#import "SAVisualPropertiesTracker.h"
-#import "SAVisualizedEventCheck.h"
+#import "VisualProperties/SAVisualPropertiesTracker.h"
+#import "EventCheck/SAVisualizedEventCheck.h"
 
 typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
     SensorsAnalyticsVisualizedTypeUnknown,  // 未知或不允许

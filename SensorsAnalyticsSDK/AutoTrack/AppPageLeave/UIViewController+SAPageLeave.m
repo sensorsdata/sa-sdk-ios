@@ -23,7 +23,7 @@
 #endif
 
 #import "UIViewController+SAPageLeave.h"
-#import "SAAutoTrackManager.h"
+#import "../SAAutoTrackManager.h"
 
 
 @implementation UIViewController (SAPageLeave)

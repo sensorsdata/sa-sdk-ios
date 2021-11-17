@@ -23,11 +23,11 @@
 #endif
 
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackUtils.h"
 #import "SAAutoTrackManager.h"
-#import "SAModuleManager.h"
-#import "SAWeakPropertyContainer.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/Utils/SAWeakPropertyContainer.h"
 #include <objc/runtime.h>
 
 @implementation UIImage (SensorsAnalytics)

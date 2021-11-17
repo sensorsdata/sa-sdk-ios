@@ -23,12 +23,12 @@
 #endif
 
 #import "SAAppTracker.h"
-#import "SATrackEventObject.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SALog.h"
-#import "SAConstants+Private.h"
-#import "SAJSONUtil.h"
-#import "SAValidator.h"
+#import "../Core/Builder/EventObject/SATrackEventObject.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/Utils/SAValidator.h"
 
 @implementation SAAppTracker
 

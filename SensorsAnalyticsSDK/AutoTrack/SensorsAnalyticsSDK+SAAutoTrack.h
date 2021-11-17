@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-#import "SensorsAnalyticsSDK.h"
+#import "../Core/SensorsAnalyticsSDK.h"
 #import <UIKit/UIKit.h>
 
 NS_ASSUME_NONNULL_BEGIN

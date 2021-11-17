@@ -21,7 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SARemoteConfigCommonOperator.h"
 #import "SARemoteConfigCheckOperator.h"
-#import "SAModuleProtocol.h"
+#import "../Core/SAModuleProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

@@ -23,12 +23,13 @@
 #endif
 
 #import "SASecretKeyFactory.h"
-#import "SAConfigOptions.h"
+#import "../Core/SAConfigOptions.h"
 #import "SASecretKey.h"
-#import "SAValidator.h"
-#import "SAJSONUtil.h"
+#import "../Core/SAConfigOptions.h"
+#import "../Core/Utils/SAJSONUtil.h"
 #import "SAAlgorithmProtocol.h"
 #import "SAECCPluginEncryptor.h"
+#import "../Core/Utils/SAValidator.h"
 
 static NSString *const kSAEncryptVersion = @"pkv";
 static NSString *const kSAEncryptPublicKey = @"public_key";

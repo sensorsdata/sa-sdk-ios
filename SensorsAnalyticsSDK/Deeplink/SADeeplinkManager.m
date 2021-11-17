@@ -23,15 +23,15 @@
 #endif
 
 #import "SADeeplinkManager.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
-#import "SAURLUtils.h"
-#import "SAFileStore.h"
-#import "SALog.h"
-#import "SAIdentifier.h"
-#import "SAJSONUtil.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SAURLUtils.h"
+#import "../Core/SAFileStore.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/Builder/SAIdentifier.h"
+#import "../Core/Utils/SAJSONUtil.h"
 #import "SensorsAnalyticsSDK+Deeplink.h"
-#import "SAApplication.h"
+#import "../Core/SAApplication.h"
 
 static NSString *const kSAAppDeeplinkLaunchEvent = @"$AppDeeplinkLaunch";
 static NSString *const kSADeeplinkMatchedResultEvent = @"$AppDeeplinkMatchedResult";

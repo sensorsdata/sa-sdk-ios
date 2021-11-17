@@ -23,17 +23,19 @@
 #endif
 
 
-#import "SAGzipUtility.h"
+#import "../Core/Utils/SAGzipUtility.h"
 #import "SAVisualizedAbstractMessage.h"
-#import "SensorsAnalyticsSDK.h"
-#import "SALog.h"
-#import "UIViewController+AutoTrack.h"
-#import "SAAutoTrackUtils.h"
+#import "../Core/SensorsAnalyticsSDK.h"
+#import "../Core/SALogger/SALog.h"
+#import "../AutoTrack/AppViewScreen/UIViewController+AutoTrack.h"
+#import "../AutoTrack/SAAutoTrackUtils.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SAConstants+Private.h"
+#import "../Core/SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
-#import "SAJSONUtil.h"
+#import "../Core/Utils/SAJSONUtil.h"
 #import "SAVisualizedManager.h"
+#import "../AutoTrack/SensorsAnalyticsSDK+SAAutoTrack.h"
+#import "SensorsAnalyticsSDK+Visualized.h"
 
 @interface SAVisualizedAbstractMessage ()
 

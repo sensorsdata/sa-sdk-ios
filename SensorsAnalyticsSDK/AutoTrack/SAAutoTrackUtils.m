@@ -23,14 +23,15 @@
 #endif
 
 #import "SAAutoTrackUtils.h"
-#import "SAConstants+Private.h"
-#import "SACommonUtility.h"
-#import "SensorsAnalyticsSDK.h"
-#import "UIView+AutoTrack.h"
-#import "SALog.h"
-#import "SAAlertController.h"
-#import "SAModuleManager.h"
-#import "SAValidator.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/Utils/SACommonUtility.h"
+#import "../Core/SensorsAnalyticsSDK.h"
+#import "AppClick/UIView+AutoTrack.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SAAlertController.h"
+#import "../Core/SAModuleManager.h"
+#import "../Core/Utils/SAValidator.h"
+#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 
 /// 一个元素 $AppClick 全埋点最小时间间隔，100 毫秒
 static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;

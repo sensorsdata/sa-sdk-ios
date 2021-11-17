@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-#import "SATrackEventObject.h"
+#import "../Core/Builder/EventObject/SATrackEventObject.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

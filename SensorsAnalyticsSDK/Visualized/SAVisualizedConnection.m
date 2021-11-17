@@ -26,13 +26,14 @@
 #import "SAVisualizedConnection.h"
 #import "SAVisualizedMessage.h"
 #import "SAVisualizedSnapshotMessage.h"
-#import "SALog.h"
-#import "SensorsAnalyticsSDK+Private.h"
+#import "../Core/SALogger/SALog.h"
+#import "../Core/SensorsAnalyticsSDK+Private.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SAJSONUtil.h"
-#import "SAConstants+Private.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/SAConstants+Private.h"
 #import "SAVisualizedManager.h"
-#import "SAVisualizedLogger.h"
+#import "VisualProperties/DebugLog/SAVisualizedLogger.h"
+#import "SensorsAnalyticsSDK+Visualized.h"
 
 @interface SAVisualizedConnection ()
 @property (nonatomic, strong) NSTimer *timer;

@@ -23,16 +23,16 @@
 #endif
 
 #import "SAVisualPropertiesConfigSources.h"
-#import "UIViewController+AutoTrack.h"
-#import "SAConstants+Private.h"
-#import "SAAutoTrackUtils.h"
-#import "SAReadWriteLock.h"
-#import "SAReachability.h"
-#import "SAFileStore.h"
-#import "SAURLUtils.h"
-#import "SAVisualizedLogger.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
+#import "../../AutoTrack/AppViewScreen/UIViewController+AutoTrack.h"
+#import "../../Core/SAConstants+Private.h"
+#import "../../AutoTrack/SAAutoTrackUtils.h"
+#import "../../Core/Utils/SAReadWriteLock.h"
+#import "../../Core/Network/SAReachability.h"
+#import "../../Core/SAFileStore.h"
+#import "../../Core/Utils/SAURLUtils.h"
+#import "../VisualProperties/DebugLog/SAVisualizedLogger.h"
+#import "../../Core/Utils/SAJSONUtil.h"
+#import "../../Core/SALogger/SALog.h"
 
 static NSString * kSAConfigFileName = @"SAVisualPropertiesConfig";
 static NSString * kSARequestConfigPath = @"config/visualized/iOS.conf";

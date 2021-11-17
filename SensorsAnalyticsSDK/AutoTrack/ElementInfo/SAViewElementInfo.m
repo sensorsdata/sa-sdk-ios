@@ -23,7 +23,7 @@
 #endif
 
 #import "SAViewElementInfo.h"
-#import "SAAutoTrackManager.h"
+#import "../SAAutoTrackManager.h"
 
 #pragma mark - View Element Type
 @implementation SAViewElementInfo

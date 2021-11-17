@@ -24,8 +24,8 @@
 
 #import <UIKit/UIKit.h>
 #import "SADeviceOrientationManager.h"
-#import "SAConstants+Private.h"
-#import "SALog.h"
+#import "../Core/SAConstants+Private.h"
+#import "../Core/SALogger/SALog.h"
 
 static NSTimeInterval const kSADefaultDeviceMotionUpdateInterval = 0.5;
 static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orientation";

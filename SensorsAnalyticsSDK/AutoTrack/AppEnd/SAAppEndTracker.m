@@ -23,8 +23,8 @@
 #endif
 
 #import "SAAppEndTracker.h"
-#import "SensorsAnalyticsSDK+Private.h"
-#import "SAConstants+Private.h"
+#import "../../Core/SensorsAnalyticsSDK+Private.h"
+#import "../../Core/SAConstants+Private.h"
 
 @interface SAAppEndTracker ()
 

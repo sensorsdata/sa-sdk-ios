@@ -23,10 +23,10 @@
 #endif
 
 #import "SAVisualizedObjectSerializerManager.h"
-#import "SAJSONUtil.h"
-#import "SALog.h"
+#import "../Core/Utils/SAJSONUtil.h"
+#import "../Core/SALogger/SALog.h"
 #import "SAVisualizedManager.h"
-#import "SACommonUtility.h"
+#import "../Core/Utils/SACommonUtility.h"
 
 @implementation SAVisualizedWebPageInfo
 
