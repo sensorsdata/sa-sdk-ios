@@ -28,8 +28,6 @@
 #import "SAValidator.h"
 #import "SALog.h"
 
-static NSSet *presetEventNames;
-
 @implementation SATrackEventObject
 
 - (instancetype)initWithEventId:(NSString *)eventId {
@@ -145,29 +143,6 @@ static NSSet *presetEventNames;
 
 - (void)addChannelProperties:(NSDictionary *)properties {
     [self.properties addEntriesFromDictionary:properties];
-}
-
-- (void)validateEventWithError:(NSError **)error {
-    [super validateEventWithError:error];
-    if (*error) {
-        return;
-    }
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        presetEventNames = [NSSet setWithObjects:
-                            kSAEventNameAppStart,
-                            kSAEventNameAppStartPassively ,
-                            kSAEventNameAppEnd,
-                            kSAEventNameAppViewScreen,
-                            kSAEventNameAppClick,
-                            kSAEventNameSignUp,
-                            kSAEventNameAppCrashed,
-                            kSAEventNameAppRemoteConfigChanged, nil];
-    });
-    //事件校验，预置事件提醒
-    if ([presetEventNames containsObject:self.eventId]) {
-        SALogWarn(@"\n【event warning】\n %@ is a preset event name of us, it is recommended that you use a new one", self.eventId);
-    }
 }
 
 @end

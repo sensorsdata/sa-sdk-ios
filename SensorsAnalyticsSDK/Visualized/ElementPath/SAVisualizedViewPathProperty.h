@@ -80,4 +80,6 @@
 /// 一个 view 上子视图可见区域
 @property (nonatomic, assign, readonly) CGRect sensorsdata_visibleFrame;
 
+/// 是否禁用 RCTView 子视图交互
+@property (nonatomic, assign) BOOL sensorsdata_isDisableRNSubviewsInteractive;
 @end

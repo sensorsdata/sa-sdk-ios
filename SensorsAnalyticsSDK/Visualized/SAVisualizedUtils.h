@@ -36,12 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 /// 解析构造 web 元素
 + (NSArray *)analysisWebElementWithWebView:(WKWebView *)webView;
 
-///  获取 RN 当前页面信息
-+ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
-
-/// 是否为 RN 内的原生页面
-+ (BOOL)isRNCustomViewController:(UIViewController *)viewController;
-
 /// 获取当前有效的 keyWindow
 + (UIWindow *)currentValidKeyWindow;
 
@@ -60,6 +54,24 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否支持打通，包含新老打通
 /// @param webview 需要判断的 webview
 + (BOOL)isSupportCallJSWithWebView:(WKWebView *)webview;
+
+#pragma mark - RN
+///  获取 RN 当前页面信息
++ (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
+
+/// 是否为 RN 内的原生页面
++ (BOOL)isRNCustomViewController:(UIViewController *)viewController;
+
+/// 是否为RCTView 类型
++ (BOOL)isKindOfRCTView:(UIView *)view;
+
+/// 获取 RCTView 按照 zIndex 排序后的子元素
+/// @param view 当前元素
++ (NSArray<UIView *> *)sortedRNSubviewsWithView:(UIView *)view;
+
+/// 是否为可交互的 RN 元素
+/// @param view 需要判断的 RN 元素
++ (BOOL)isInteractiveEnabledRNView:(UIView *)view;
 @end
 
 #pragma mark -

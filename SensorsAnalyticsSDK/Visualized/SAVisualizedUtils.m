@@ -38,6 +38,19 @@
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
 static NSInteger kSAVisualizedFindMaxPageLevel = 4;
+typedef NSArray<UIView *>* (*SASortedRNSubviewsMethod)(UIView *, SEL);
+
+/// RCTView 响应交互类型
+typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
+    /// 0: 默认类型，优先使用子视图响应交互
+    SARCTViewPointerEventsUnspecified = 0,
+    /// 1: 自身以及子视图都不响应交互，所以不阻塞下层 view 交互
+    SARCTViewPointerEventsNone,
+    /// 2: 只让子视图响应交互，自身不可点击
+    SARCTViewPointerEventsBoxNone,
+    /// 3: 只有自身接收事件，子视图不可交互
+    SARCTViewPointerEventsBoxOnly,
+};
 
 @implementation SAVisualizedUtils
 
@@ -62,31 +75,28 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 /// @param view 被遮挡的 RNView
 /// @param fromView 遮挡的 RNView
 + (BOOL)isCoveredOfRNView:(UIView *)view fromRNView:(UIView *)fromView {
-    @try {
-        /* RCTView 默认重写了 hitTest:
-         详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
-         针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 RNView
-         */
-        NSInteger pointerEvents = [[fromView valueForKey:@"pointerEvents"] integerValue];
-        // RCTView 重写 hitTest: 并返回 nil，不阻塞底下元素交互
-        if (pointerEvents == 1) {
-            return NO;
-        }
-        // 遍历子视图判断是否存在坐标覆盖阻塞交互
-        if (pointerEvents == 2) {
-            // 寻找完全遮挡 view 的子视图
-            for (UIView *subView in fromView.subviews) {
-                BOOL enableInteraction = [SAVisualizedUtils isVisibleForView:subView] && subView.userInteractionEnabled;
-                BOOL isCovered = [self isCoveredForView:view fromView:subView];
-                if (enableInteraction && isCovered) {
-                    return YES;
-                }
-            }
-            return NO;
-        }
-    } @catch (NSException *exception) {
-        SALogDebug(@"%@ error: %@", self, exception);
+    /* RCTView 默认重写了 hitTest:
+     详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
+     针对 RN 部分框架或实现方式，设置 pointerEvents 并在 hitTest: 内判断处理，从而实现交互的穿透，不响应当前 RNView
+     */
+    SARCTViewPointerEvents pointerEvents = [self pointEventsWithRCTView:fromView];
+    // RCTView 重写 hitTest: 并返回 nil，不阻塞底下元素交互
+    if (pointerEvents == SARCTViewPointerEventsNone) {
+        return NO;
     }
+    // 遍历子视图判断是否存在坐标覆盖阻塞交互
+    if (pointerEvents == SARCTViewPointerEventsBoxNone) {
+        // 寻找完全遮挡 view 的子视图
+        for (UIView *subView in fromView.subviews) {
+            BOOL enableInteraction = [SAVisualizedUtils isVisibleForView:subView] && subView.userInteractionEnabled;
+            BOOL isCovered = [self isCoveredForView:view fromView:subView];
+            if (enableInteraction && isCovered) {
+                return YES;
+            }
+        }
+        return NO;
+    }
+    
     return [self isCoveredForView:view fromView:fromView];
 }
 
@@ -123,9 +133,22 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 + (NSArray *)findPossibleCoverAllBrotherViews:(UIView *)view {
     NSMutableArray <UIView *> *otherViews = [NSMutableArray array];
     UIView *superView = [view superview];
-    if (superView) {
+    NSArray *subviews = superView.subviews;
+    
+    if ([self isKindOfRCTView:superView]) {
+        /* RCTView 默认重写了 hitTest:
+         如果 pointerEvents = 0 或 2，会优先从按照 reactZIndex 排序后的数组 reactZIndexSortedSubviews 中逆序遍历查询用于交互的 view。所以这里，针对 pointerEvents = 0 或 2，也需要从 reactZIndexSortedSubviews 获取父试图的子视图，用于判断同级元素的交互遮挡。
+         详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
+         */
+        SARCTViewPointerEvents pointerEvents = [self pointEventsWithRCTView:superView];
+        // RCTView 重写 hitTest: 并返回 nil，不阻塞底下元素交互
+        if (pointerEvents != SARCTViewPointerEventsNone && pointerEvents != SARCTViewPointerEventsBoxOnly) {
+            subviews = [self sortedRNSubviewsWithView:superView];
+        }
+    }
+    if (subviews) {
         // 逆序遍历
-        [superView.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        [subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
             if (obj == view) {
                 *stop = YES;
             } else if ([self isVisibleForView:obj] && obj.userInteractionEnabled) { // userInteractionEnabled 为 YES 才有可能遮挡响应事件
@@ -139,11 +162,6 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 /// view 是否可见
 + (BOOL)isVisibleForView:(UIView *)view {
     return view.alpha > 0.01 && !view.isHidden;
-}
-
-+ (BOOL)isKindOfRCTView:(UIView *)view {
-    Class RCTView = NSClassFromString(@"RCTView");
-    return RCTView && [view isKindOfClass:RCTView];
 }
 
 #pragma mark WebElement
@@ -204,6 +222,13 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
 }
 
 #pragma mark RNUtils
+
+// 是否为RCTView 类型
++ (BOOL)isKindOfRCTView:(UIView *)view {
+    Class rctViewClass = NSClassFromString(@"RCTView");
+    return rctViewClass && [view isKindOfClass:rctViewClass];
+}
+
 + (NSDictionary *)currentRNScreenVisualizeProperties {
     // 获取 RN 页面信息
     NSDictionary <NSString *, NSString *> *RNScreenInfo = nil;
@@ -241,29 +266,63 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
     return NO;
 }
 
+// 获取 RCTView 按照 zIndex 排序后的子元素
++ (NSArray<UIView *> *)sortedRNSubviewsWithView:(UIView *)view {
+    SEL sortedRNSubviewsSel = NSSelectorFromString(@"reactZIndexSortedSubviews");
+    if (![view respondsToSelector:sortedRNSubviewsSel]) {
+        return view.subviews;
+    }
+    SASortedRNSubviewsMethod method = (SASortedRNSubviewsMethod)[view methodForSelector:sortedRNSubviewsSel];
+    return method(view, sortedRNSubviewsSel);
+}
+
++ (BOOL)isInteractiveEnabledRNView:(UIView *)view {
+    /* RCTView 默认重写了 hitTest:，对应做兼容处理
+     详情参照：https://github.com/facebook/react-native/blob/master/React/Views/RCTView.m
+     */
+    // 当前 view 的父视图是否禁用子视图交互
+    if (view.superview.sensorsdata_isDisableRNSubviewsInteractive) {
+        view.sensorsdata_isDisableRNSubviewsInteractive = YES;
+        return NO;
+    }
+    
+    if (![self isKindOfRCTView:view]) {
+        return YES;
+    }
+  
+    // 设置交互状态
+    SARCTViewPointerEvents pointerEvents = [self pointEventsWithRCTView:view];
+    // None 和 BoxOnly 都禁用子视图交互
+    BOOL isEventsNone = pointerEvents == SARCTViewPointerEventsNone;
+    BOOL isEventsBoxOnly = pointerEvents == SARCTViewPointerEventsBoxOnly;
+    view.sensorsdata_isDisableRNSubviewsInteractive = isEventsNone || isEventsBoxOnly;
+    
+    // EventsNone 和 EventsBoxNone 时，自身不可交互
+    if (pointerEvents == SARCTViewPointerEventsNone || pointerEvents == SARCTViewPointerEventsBoxNone) {
+        return NO;
+    }
+    
+    return YES;
+}
+
+/// 获取当前 RCTView 的交互类型
++ (SARCTViewPointerEvents)pointEventsWithRCTView:(UIView *)view {
+    if (![self isKindOfRCTView:view]) {
+        return SARCTViewPointerEventsUnspecified;
+    }
+    
+    SARCTViewPointerEvents pointerEvents = SARCTViewPointerEventsUnspecified;
+    @try {
+        pointerEvents = [[view valueForKey:@"pointerEvents"] integerValue];
+    } @catch (NSException *exception) {
+        SALogWarn(@"%@ error: %@", self, exception);
+    }
+    return pointerEvents;
+}
+
 #pragma mark keyWindow
 /// 获取当前有效的 keyWindow
 + (UIWindow *)currentValidKeyWindow {
-    UIWindow *keyWindow = [self currentKeyWindow];
-    // 判断 keyWindow 是否显示
-    if ([self isVisibleForView:keyWindow]) {
-        return keyWindow;
-    }
-
-    __block UIWindow *validWindow = nil;
-    // 逆序遍历，获取最上层全屏 window
-    [[UIApplication sharedApplication].windows enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIWindow * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
-        CGSize fullScreenSize = [UIScreen mainScreen].bounds.size;
-        if ([obj isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, obj.frame.size) && [self isVisibleForView:obj]) {
-            validWindow = obj;
-            *stop = YES;
-        }
-    }];
-    return validWindow;
-}
-
-// 获取当前 keyWindow
-+ (UIWindow *)currentKeyWindow {
     UIWindow *keyWindow = nil;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
@@ -276,8 +335,7 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
                     }
                     // iOS 13 及以上，可能动态设置其他 window 为 keyWindow，此时直接使用此 keyWindow
                     if (window.isKeyWindow) {
-                        keyWindow = window;
-                        break;
+                        return window;
                     }
                     // 获取 windowScene.windows 中第一个 window
                     if (!keyWindow) {
@@ -289,7 +347,26 @@ static NSInteger kSAVisualizedFindMaxPageLevel = 4;
         }
     }
 #endif
-    return keyWindow ?: [UIApplication sharedApplication].keyWindow;
+    return keyWindow ?: [self topWindow];
+}
+
++ (UIWindow *)topWindow {
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    NSArray<UIWindow *> *allWindows = [UIApplication sharedApplication].windows;
+
+    // 如果 windows 未包含 keyWindow，可能是 iOS13 以下系统弹出 UIAlertView 等场景，此时忽略 UIAlertView 所在 window
+    if ([allWindows containsObject:keyWindow]) {
+        return keyWindow;
+    }
+
+    // 逆序遍历，获取最上层全屏可见 window
+    CGSize fullScreenSize = [UIScreen mainScreen].bounds.size;
+    for (UIWindow *window in [allWindows reverseObjectEnumerator]) {
+        if ([window isMemberOfClass:UIWindow.class] && CGSizeEqualToSize(fullScreenSize, window.frame.size) && [self isVisibleForView:window]) {
+            return window;
+        }
+    }
+    return nil;
 }
 
 #pragma mark viewTree

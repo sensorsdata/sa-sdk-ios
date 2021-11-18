@@ -35,6 +35,9 @@
 
 typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
+
+static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAIsDisableRNSubviewsInteractivePropertyName;
+
 #pragma mark - UIView
 @implementation UIView (SAElementPath)
 
@@ -123,6 +126,11 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 - (BOOL)sensorsdata_isAutoTrackAppClick {
     // 判断是否被覆盖
     if ([SAVisualizedUtils isCoveredForView:self]) {
+        return NO;
+    }
+    
+    // RN 已禁用了子视图交互
+    if (![SAVisualizedUtils isInteractiveEnabledRNView:self]) {
         return NO;
     }
     
@@ -268,7 +276,12 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
     }
 
     NSMutableArray *newSubViews = [NSMutableArray array];
-    for (UIView *view in self.subviews) {
+    NSArray<UIView *>* subViews = self.subviews;
+    // 针对 RCTView，获取按照 zIndex 排序后的子元素
+    if ([SAVisualizedUtils isKindOfRCTView:self]) {
+        subViews = [SAVisualizedUtils sortedRNSubviewsWithView:self];
+    }
+    for (UIView *view in subViews) {
         if (view.sensorsdata_isVisible) {
             [newSubViews addObject:view];
         }
@@ -387,6 +400,14 @@ typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
         visibleFrame = CGRectIntersection(visibleFrame, superViewVisibleFrame);
     }
     return visibleFrame;
+}
+
+- (BOOL)sensorsdata_isDisableRNSubviewsInteractive {
+    return [objc_getAssociatedObject(self, kSAIsDisableRNSubviewsInteractivePropertyName) boolValue];
+}
+
+- (void)setSensorsdata_isDisableRNSubviewsInteractive:(BOOL)sensorsdata_isDisableRNSubviewsInteractive {
+    objc_setAssociatedObject(self, kSAIsDisableRNSubviewsInteractivePropertyName, @(sensorsdata_isDisableRNSubviewsInteractive), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
 @end
