@@ -8,13 +8,16 @@ let package = Package(
         .iOS(.v8)
     ],
     products: [
-        .library(name: "SensorsAnalytics", targets: ["SensorsAnalytics"])
+        .library(
+            name: "SensorsAnalyticsCore", targets: ["Core"]),
+        .library(name: "SensorsAnalyticsAutoTrack", targets: ["AutoTrack"]),
+
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "SensorsAnalytics",
-            path: "SensorsAnalyticsSDK/Core",
+            name: "Core",
+            path: "SensorsAnalyticsSDK/Core/",
             resources: [.copy("SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle")],
             publicHeadersPath: ".",
             linkerSettings: [
@@ -23,5 +26,9 @@ let package = Package(
                 .linkedLibrary("sqlite3"),
             ]
         ),
+        .target(
+            name: "AutoTrack",
+            path: "SensorsAnalyticsSDK/AutoTrack/"
+        )
     ]
 )
