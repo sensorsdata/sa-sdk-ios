@@ -14,12 +14,14 @@ let package = Package(
     targets: [
         .target(
             name: "SensorsAnalytics",
-            path: "SensorsAnalyticsSDK",
+            path: "SensorsAnalyticsSDK/Core",
+            resources: [.copy("SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle")],
             publicHeadersPath: ".",
             linkerSettings: [
                 .linkedLibrary("icucore"),
                 .linkedLibrary("z"),
                 .linkedLibrary("sqlite3"),
-            ]),
+            ]
+        ),
     ]
 )
