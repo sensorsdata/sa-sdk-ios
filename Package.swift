@@ -9,14 +9,14 @@ let package = Package(
     ],
     products: [
         .library(
-            name: "SensorsAnalyticsCore", targets: ["Core"]),
-        .library(name: "SensorsAnalyticsAutoTrack", targets: ["AutoTrack"]),
+            name: "SensorsAnalyticsCore", targets: ["SensorsAnalyticsCore"]),
+        .library(name: "SensorsAnalyticsAutoTrack", targets: ["SensorsAnalyticsAutoTrack"]),
 
     ],
     dependencies: [],
     targets: [
         .target(
-            name: "Core",
+            name: "SensorsAnalyticsCore",
             path: "SensorsAnalyticsSDK/Core/",
             resources: [.copy("SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle")],
             publicHeadersPath: ".",
@@ -27,7 +27,7 @@ let package = Package(
             ]
         ),
         .target(
-            name: "AutoTrack",
+            name: "SensorsAnalyticsAutoTrack",
             path: "SensorsAnalyticsSDK/AutoTrack/"
         )
     ]
