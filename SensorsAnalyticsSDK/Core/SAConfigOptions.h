@@ -110,7 +110,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL disableSDK;
 
 
-/// App 进入后台时是否等待数据发送结果。默认 YES，会等待数据发送结果；设置 NO，不会等待数据发送结果
+/// App 进入后台时是否等待数据发送结果。默认 NO，不会等待数据发送结果；设置 YES，会等待数据发送结果
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
 
 @end

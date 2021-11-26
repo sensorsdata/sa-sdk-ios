@@ -42,7 +42,7 @@
 #import "SAJSONUtil.h"
 #import "SAApplication.h"
 
-#define VERSION @"4.0.2"
+#define VERSION @"4.0.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 

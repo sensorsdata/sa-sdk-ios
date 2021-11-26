@@ -443,7 +443,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     for (NSString *moduleName in self.moduleNames) {
         id module = [self moduleWithName:moduleName];
         if (!module) {
-            return source;
+            continue;
         }
         if ([module conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [module respondsToSelector:@selector(javaScriptSource)] && [module conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAJavaScriptBridgeModuleProtocol, SAModuleProtocol>moduleObject = module;
