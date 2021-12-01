@@ -53,6 +53,11 @@
     const char *types = method_getTypeEncoding(method);
     // 在 toClass 中，添加一个名为 destinationSelector 的方法
     if (!class_addMethod(toClass, destinationSelector, methodIMP, types)) {
+        IMP destinationIMP = [self implementationOfMethodSelector:destinationSelector fromClass:toClass];
+        if (destinationIMP == methodIMP) {
+            return;
+        }
+
         class_replaceMethod(toClass, destinationSelector, methodIMP, types);
     }
 }

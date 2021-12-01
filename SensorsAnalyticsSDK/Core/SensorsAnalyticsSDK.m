@@ -41,8 +41,9 @@
 #import "SAProfileEventObject.h"
 #import "SAJSONUtil.h"
 #import "SAApplication.h"
+#import "SAEventTrackerPluginManager.h"
 
-#define VERSION @"4.0.3"
+#define VERSION @"4.0.4"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -131,6 +132,9 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     instance.configOptions.disableSDK = YES;
 
+    //disable all event tracker plugins
+    [[SAEventTrackerPluginManager defaultManager] disableAllPlugins];
+
     SALogWarn(@"SensorsAnalyticsSDK disabled");
     [SALog sharedLog].enableLog = NO;
 }
@@ -158,6 +162,10 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
     [instance appendWebViewUserAgent];
     [instance startFlushTimer];
+
+    //enable all event tracker plugins
+    [[SAEventTrackerPluginManager defaultManager] enableAllPlugins];
+
     SALogInfo(@"SensorsAnalyticsSDK enabled");
 }
 

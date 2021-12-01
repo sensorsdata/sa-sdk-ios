@@ -41,6 +41,16 @@
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
 #import "UIViewController+SAPageLeave.h"
 
+//event tracker plugins
+#if __has_include("SACellClickHookDelegatePlugin.h")
+#import "SACellClickHookDelegatePlugin.h"
+#endif
+#import "SACellClickDynamicSubclassPlugin.h"
+#import "SAEventTrackerPluginManager.h"
+#if __has_include("SAGesturePlugin.h")
+#import "SAGesturePlugin.h"
+#endif
+
 @interface SAAutoTrackManager ()
 
 @property (nonatomic, strong) SAAppStartTracker *appStartTracker;
@@ -98,9 +108,11 @@
 
     if (enable) {
         [self enableAutoTrack];
-    } else {
-        [self.appPageLeaveTracker.timestamp removeAllObjects];
+        [self registerPlugins];
+        return;
     }
+    [self.appPageLeaveTracker.timestamp removeAllObjects];
+    [self unregisterPlugins];
 }
 
 #pragma mark - SAAutoTrackModuleProtocol
@@ -302,27 +314,6 @@
         SALogError(@"Failed to swizzle sendAction:to:forEvent: on UIAppplication. Details: %@", error);
         error = NULL;
     }
-
-    // Cell
-    SEL selector = NSSelectorFromString(@"sensorsdata_setDelegate:");
-    [UITableView sa_swizzleMethod:@selector(setDelegate:)
-                       withMethod:selector
-                            error:NULL];
-    [UICollectionView sa_swizzleMethod:@selector(setDelegate:)
-                            withMethod:selector
-                                 error:NULL];
-
-    // Gesture
-    [UIGestureRecognizer sa_swizzleMethod:@selector(initWithTarget:action:)
-                               withMethod:@selector(sensorsdata_initWithTarget:action:)
-                                    error:NULL];
-    [UIGestureRecognizer sa_swizzleMethod:@selector(addTarget:action:)
-                               withMethod:@selector(sensorsdata_addTarget:action:)
-                                    error:NULL];
-    [UIGestureRecognizer sa_swizzleMethod:@selector(removeTarget:action:)
-                               withMethod:@selector(sensorsdata_removeTarget:action:)
-                                    error:NULL];
-
 }
 
 - (void)enableAppPageLeave {
@@ -331,6 +322,38 @@
     }
     [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_pageLeave_viewDidAppear:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_pageLeave_viewDidDisappear:) error:NULL];
+}
+
+- (void)registerPlugins {
+    BOOL enableAppClick = self.configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppClick;
+    if (!enableAppClick) {
+        return;
+    }
+    //UITableView/UICollectionView Cell + AppClick plugin register
+#if __has_include("SACellClickHookDelegatePlugin.h")
+    [[SAEventTrackerPluginManager defaultManager] registerPlugin:[[SACellClickHookDelegatePlugin alloc] init]];
+#else
+    [[SAEventTrackerPluginManager defaultManager] registerPlugin:[[SACellClickDynamicSubclassPlugin alloc] init]];
+#endif
+
+    //UIGestureRecognizer + AppClick plugin register
+#if __has_include("SAGesturePlugin.h")
+    [[SAEventTrackerPluginManager defaultManager] registerPlugin:[[SAGesturePlugin alloc] init]];
+#endif
+}
+
+- (void)unregisterPlugins {
+    //unregister UITableView/UICollectionView cell click plugin
+#if __has_include("SACellClickHookDelegatePlugin.h")
+    [[SAEventTrackerPluginManager defaultManager] unregisterPlugin:[SACellClickHookDelegatePlugin class]];
+#else
+    [[SAEventTrackerPluginManager defaultManager] unregisterPlugin:[SACellClickDynamicSubclassPlugin class]];
+#endif
+
+    //unregister SAGesturePlugin
+#if __has_include("SAGesturePlugin.h")
+    [[SAEventTrackerPluginManager defaultManager] unregisterPlugin:[SAGesturePlugin class]];
+#endif
 }
 
 @end

@@ -48,14 +48,4 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface SADelegateProxy (Utils)
-
-+ (BOOL)isKVOClass:(Class _Nullable)cls;
-
-+ (BOOL)isSensorsClass:(Class _Nullable)cls;
-
-+ (NSString *)generateSensorsClassName:(id)obj;
-
-@end
-
 NS_ASSUME_NONNULL_END

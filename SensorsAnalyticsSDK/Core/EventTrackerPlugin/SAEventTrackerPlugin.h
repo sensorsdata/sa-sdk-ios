@@ -1,9 +1,9 @@
 //
-// SAClassHelper.h
+// SAEventTrackerPlugin.h
 // SensorsAnalyticsSDK
 //
-// Created by yuqiang on 2020/11/5.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 陈玉国 on 2021/11/8.
+// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,25 +18,15 @@
 // limitations under the License.
 //
 
+
 #import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAClassHelper : NSObject
+@interface SAEventTrackerPlugin : NSObject
 
-/// 动态创建 Class, 类名为 className, 父类为 delegate 的当前类
-/// @param object 实例对象
-/// @param className 类名
-+ (Class _Nullable)allocateClassWithObject:(id)object className:(NSString *)className;
-
-/// 动态创建类后, 注册类
-/// @param cla 待注册的类
-+ (void)registerClass:(Class)cla;
-
-/// 把实例对象的类变更为另外的类
-/// @param object 实例对象
-/// @param cla 要变更的目标类
-+ (BOOL)setObject:(id)object toClass:(Class)cla;
+@property (nonatomic, readonly) NSString *type;
+@property (nonatomic, assign) BOOL enable;
 
 @end
 
