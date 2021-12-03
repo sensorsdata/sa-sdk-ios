@@ -22,7 +22,7 @@
 #import "SAConstants.h"
 
 #pragma mark - Track Timer
-extern NSString  * const kSAEventIdSuffix;
+extern NSString * const kSAEventIdSuffix;
 
 #pragma mark--evnet
 extern NSString * const kSAEventTime;
@@ -37,6 +37,7 @@ extern NSString * const kSAEventToken;
 extern NSString * const kSAEventHybridH5;
 extern NSString * const kSAEventLoginId;
 extern NSString * const kSAEventAnonymousId;
+extern NSString * const kSAEventIdentities;
 
 #pragma mark - Item
 extern NSString * const SA_EVENT_ITEM_TYPE;
@@ -64,6 +65,11 @@ extern NSString * const kSAEventNameSignUp;
 extern NSString * const kSAEventNameAppCrashed;
 
 extern NSString * const kSAEventNameAppRemoteConfigChanged;
+
+// 绑定事件
+extern NSString * const kSAEventNameBind;
+// 解绑事件
+extern NSString * const kSAEventNameUnbind;
 
 #pragma mark--app install property
 extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
@@ -102,6 +108,8 @@ extern NSString * const kSALibMethodCode;
 #pragma mark--track
 extern NSString * const kSAEventTypeTrack;
 extern NSString * const kSAEventTypeSignup;
+extern NSString * const kSAEventTypeBind;
+extern NSString * const kSAEventTypeUnbind;
 
 #pragma mark--profile
 extern NSString * const SA_PROFILE_SET;
@@ -124,7 +132,8 @@ NSSet* sensorsdata_reserved_properties(void);
 #pragma mark - safe sync
 BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 
-void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dispatch_block_t block);
+void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,
+                                    DISPATCH_NOESCAPE dispatch_block_t block);
 
 #pragma mark - SF related notifications
 extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;
@@ -146,8 +155,7 @@ extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
 
 extern NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION;
 
-
-//page leave
+// page leave
 extern NSString * const kSAPageLeaveTimestamp;
 extern NSString * const kSAPageLeaveAutoTrackProperties;
 extern NSString * const kSAEventDurationProperty;

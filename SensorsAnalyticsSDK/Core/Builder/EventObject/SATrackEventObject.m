@@ -187,3 +187,29 @@
 }
 
 @end
+
+/// 绑定 ID 事件
+@implementation SABindEventObject
+
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
+    if (self) {
+        self.type = kSAEventTypeBind;
+    }
+    return self;
+}
+
+@end
+
+/// 解绑 ID 事件
+@implementation SAUnbindEventObject
+
+- (instancetype)initWithEventId:(NSString *)eventId {
+    self = [super initWithEventId:eventId];
+    if (self) {
+        self.type = kSAEventTypeUnbind;
+    }
+    return self;
+}
+
+@end

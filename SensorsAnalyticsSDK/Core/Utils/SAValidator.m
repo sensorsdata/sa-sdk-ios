@@ -53,7 +53,7 @@ static NSRegularExpression *regexForValidKey;
     @try {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            NSString *name = @"^([a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
+            NSString *name = @"^((?!^user_group|^user_tag)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
             regexForValidKey = [NSRegularExpression regularExpressionWithPattern:name options:NSRegularExpressionCaseInsensitive error:nil];
         });
         // 保留字段通过字符串直接比较，效率更高

@@ -41,6 +41,7 @@ NSString * const kSAEventToken = @"token";
 NSString * const kSAEventHybridH5 = @"_hybrid_h5";
 NSString * const kSAEventLoginId = @"login_id";
 NSString * const kSAEventAnonymousId = @"anonymous_id";
+NSString * const kSAEventIdentities = @"identities";
 
 #pragma mark - Item
 NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
@@ -68,6 +69,11 @@ NSString * const kSAEventNameSignUp = @"$SignUp";
 NSString * const kSAEventNameAppCrashed = @"AppCrashed";
 // 远程控制配置变化
 NSString * const kSAEventNameAppRemoteConfigChanged = @"$AppRemoteConfigChanged";
+
+// 绑定事件
+NSString * const kSAEventNameBind = @"$BindID";
+// 解绑事件
+NSString * const kSAEventNameUnbind = @"$UnbindID";
 
 #pragma mark - app install property
 NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
@@ -107,6 +113,8 @@ NSString * const kSALibMethodCode = @"code";
 #pragma mark--track type
 NSString * const kSAEventTypeTrack = @"track";
 NSString * const kSAEventTypeSignup = @"track_signup";
+NSString * const kSAEventTypeBind = @"track_id_bind";
+NSString * const kSAEventTypeUnbind = @"track_id_unbind";
 
 #pragma mark - profile
 NSString * const SA_PROFILE_SET = @"profile_set";

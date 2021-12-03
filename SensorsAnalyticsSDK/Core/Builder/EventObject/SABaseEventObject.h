@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAEventLibObject.h"
 #import "SAEventBuildStrategyProtocol.h"
+#import "SAEventLibObject.h"
 #import "SAPropertyValidator.h"
 
 NS_ASSUME_NONNULL_BEGIN
@@ -71,6 +71,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 用于记录动态公共属性, 动态公共属性需要在 serialQueue 队列外获取
 @property (nonatomic, strong) NSDictionary *dynamicSuperProperties;
+
+/// ID-Mapping 3.0 新增identities
+@property (nonatomic, strong) NSDictionary *identities;
 
 /// 忽略远程控制，强制上报，默认为 NO
 @property (nonatomic, assign, getter=isIgnoreRemoteConfig) BOOL ignoreRemoteConfig;

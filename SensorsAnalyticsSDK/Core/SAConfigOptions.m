@@ -24,6 +24,7 @@
 
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAIdentifier.h"
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -82,6 +83,8 @@
 
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
+
+        _loginIDKey = kSAIdentitiesLoginId;
 
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
         _enableAutoTrackChildViewScreen = YES;
@@ -142,6 +145,8 @@
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableVisualizedProperties = self.enableVisualizedProperties;
     
+    options.loginIDKey = self.loginIDKey;
+
     // Crash 采集
     options.enableTrackAppCrash = self.enableTrackAppCrash;
     // 渠道相关

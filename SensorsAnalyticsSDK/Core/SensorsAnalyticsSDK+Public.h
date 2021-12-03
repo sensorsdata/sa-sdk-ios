@@ -26,6 +26,11 @@
 @class SAConfigOptions;
 
 NS_ASSUME_NONNULL_BEGIN
+
+extern NSString * const SensorsAnalyticsIdentityKeyIDFA;
+extern NSString * const SensorsAnalyticsIdentityKeyMobile;
+extern NSString * const SensorsAnalyticsIdentityKeyEmail;
+
 /**
  * @class
  * SensorsAnalyticsSDK 类
@@ -186,6 +191,24 @@ NS_ASSUME_NONNULL_BEGIN
  @param anonymousId 当前用户的 anonymousId
  */
 - (void)identify:(NSString *)anonymousId;
+
+/**
+ @abstract
+ ID-Mapping 3.0 功能下绑定业务 ID 功能
+
+ @param key 绑定业务 ID 的键名
+ @param value 绑定业务 ID 的键值
+ */
+- (void)bind:(NSString *)key value:(NSString *)value;
+
+/**
+ @abstract
+ ID-Mapping 3.0 功能下解绑业务 ID 功能
+
+ @param key 解绑业务 ID 的键名
+ @param value 解绑业务 ID 的键值
+ */
+- (void)unbind:(NSString *)key value:(NSString *)value;
 
 #pragma mark - trackTimer
 /**

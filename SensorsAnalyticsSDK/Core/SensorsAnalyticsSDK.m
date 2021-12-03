@@ -43,12 +43,15 @@
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
 
-#define VERSION @"4.0.4"
+#define VERSION @"4.1.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
 static dispatch_once_t sdkInitializeOnceToken;
 static SensorsAnalyticsSDK *sharedInstance = nil;
+NSString * const SensorsAnalyticsIdentityKeyIDFA = @"$identity_idfa";
+NSString * const SensorsAnalyticsIdentityKeyMobile = @"$identity_mobile";
+NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 @interface SensorsAnalyticsSDK()
 
@@ -191,10 +194,17 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
             _trackTimer = [[SATrackTimer alloc] init];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
-            
+
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             _superProperty = [[SASuperProperty alloc] init];
+
+            NSString *loginIDKey = _configOptions.loginIDKey;
+            if ((![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [_identifier isPresetKey:loginIDKey]) || ![SAValidator isValidKey:loginIDKey]) {
+                SALogError(@"LoginIDKey [ %@ ] is invalid", _configOptions.loginIDKey);
+                _configOptions.loginIDKey = kSAIdentitiesLoginId;
+            }
+            _identifier.loginIDKey = _configOptions.loginIDKey;
 
             if (!_configOptions.disableSDK) {
                 if (_configOptions.enableLog) {
@@ -339,11 +349,12 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 
 - (void)logout {
     dispatch_async(self.serialQueue, ^{
-        if (!self.loginId) {
-            return;
-        }
+        BOOL isLogin = (self.loginId.length > 0);
+        // logout 中会将 self.loginId 清除，因此需要在 logout 之前获取当前登录状态
         [self.identifier logout];
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
+        if (isLogin) {
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGOUT_NOTIFICATION object:nil];
+        }
     });
 }
 
@@ -594,6 +605,7 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
     object.loginId = self.loginId;
     object.anonymousId = anonymousId;
     object.originalId = anonymousId;
+    object.identities = [self.identifier identitiesWithEventType:object.type];
 
     // 4. 添加属性
     [object addEventProperties:self.presetProperty.automaticProperties];
@@ -680,6 +692,30 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
     [self asyncTrackEventObject:object properties:properties];
+}
+
+- (void)bind:(NSString *)key value:(NSString *)value {
+    if (![self.identifier isValidIdentity:key value:value]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.identifier bindIdentity:key value:value];
+    });
+
+    SABindEventObject *object = [[SABindEventObject alloc] initWithEventId:kSAEventNameBind];
+    [self asyncTrackEventObject:object properties:nil];
+}
+
+- (void)unbind:(NSString *)key value:(NSString *)value {
+    if (![self.identifier isValidIdentity:key value:value]) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.identifier unbindIdentity:key value:value];
+    });
+
+    SAUnbindEventObject *object = [[SAUnbindEventObject alloc] initWithEventId:kSAEventNameUnbind];
+    [self asyncTrackEventObject:object properties:nil];
 }
 
 - (void)track:(NSString *)event {
@@ -1087,7 +1123,8 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
         [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLibVersion];
 
-        if ([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup]) {
+        BOOL isTrackEvent = [type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup] || [type isEqualToString:kSAEventTypeBind] || [type isEqualToString:kSAEventTypeUnbind];
+        if (isTrackEvent) {
             // track / track_signup 类型的请求，还是要加上各种公共property
             // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
             [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
@@ -1208,17 +1245,46 @@ static SensorsAnalyticsSDK *sharedInstance = nil;
         }
         enqueueEvent[kSAEventAnonymousId] = self.anonymousId;
 
-        if ([type isEqualToString:kSAEventTypeSignup]) {
-            NSString *newLoginId = eventDict[kSAEventDistinctId];
+        NSDictionary *identities = enqueueEvent[kSAEventIdentities];
+
+        dispatch_block_t trackBlock = ^{
+            // 先设置 loginId 后再设置 identities。identities 对 loginId 有依赖
+            enqueueEvent[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
+            [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
+            SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
+        };
+
+        void(^loginBlock)(NSString *)  = ^(NSString *newLoginId){
             if ([self.identifier isValidLoginId:newLoginId]) {
                 [self.identifier login:newLoginId];
                 enqueueEvent[kSAEventLoginId] = newLoginId;
-                [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
-                [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
-                SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-                [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
+                trackBlock();
+            }
+        };
+
+        if([type isEqualToString:kSAEventTypeSignup]) {
+            if (identities) {
+                // 3.0 版本需要从 identities 中获取 login_id 信息
+                NSString *newLoginId = identities[self.configOptions.loginIDKey];
+                if (newLoginId) {
+                    // 当可以从 identities 中获取到登录 ID 时正常处理登录逻辑
+                    loginBlock(newLoginId);
+                } else {
+                    // 当 identities 中无法获取到登录 ID 时，只触发事件不进行 loginId 处理
+                    // 场景示例 ：H5 和 App 端自定义 loginIDKey 不一致
+                    trackBlock();
+                }
+            } else {
+                // 2.0 版本逻辑，保持不变
+                loginBlock(eventDict[kSAEventDistinctId]);
             }
         } else {
+            // 打通场景下，除登录事件外其他事件
+            enqueueEvent[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
+            eventDict[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
+
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
 
             eventDict[kSAEventProperties][@"sensorsdata_web_visual_eventName"] = nil;

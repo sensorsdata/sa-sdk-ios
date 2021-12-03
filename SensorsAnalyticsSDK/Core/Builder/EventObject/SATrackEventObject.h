@@ -53,4 +53,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+/// 绑定 ID 事件
+@interface SABindEventObject : SATrackEventObject
+
+@end
+
+/// 解绑 ID 事件
+@interface SAUnbindEventObject : SATrackEventObject
+
+@end
+
 NS_ASSUME_NONNULL_END

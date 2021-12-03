@@ -37,7 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
  @param serverURL 数据接收地址
  @return 配置对象
  */
-- (instancetype)initWithServerURL:(nonnull NSString *)serverURL launchOptions:(nullable id)launchOptions NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithServerURL:(nonnull NSString *)serverURL
+                    launchOptions:(nullable id)launchOptions NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
@@ -112,6 +113,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// App 进入后台时是否等待数据发送结果。默认 NO，不会等待数据发送结果；设置 YES，会等待数据发送结果
 @property (nonatomic, assign) BOOL flushBeforeEnterBackground;
+
+/// login 时自定义登录 ID 字段名
+@property (nonatomic, copy) NSString *loginIDKey;
 
 @end
 

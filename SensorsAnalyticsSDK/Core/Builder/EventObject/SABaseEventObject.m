@@ -72,6 +72,7 @@
     eventInfo[kSAEventName] = self.event;
     eventInfo[kSAEventProject] = self.project;
     eventInfo[kSAEventToken] = self.token;
+    eventInfo[kSAEventIdentities] = self.identities;
     return eventInfo;
 }
 
