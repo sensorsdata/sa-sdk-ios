@@ -24,11 +24,16 @@
 
 #import "SensorsAnalyticsSDK+DebugMode.h"
 #import "SADebugModeManager.h"
+#import "SAModuleManager.h"
 
 @implementation SensorsAnalyticsSDK (DebugMode)
 
 - (void)showDebugInfoView:(BOOL)show {
     [[SADebugModeManager defaultManager] setShowDebugAlertView:show];
+}
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return SAModuleManager.sharedInstance.debugMode;
 }
 
 @end

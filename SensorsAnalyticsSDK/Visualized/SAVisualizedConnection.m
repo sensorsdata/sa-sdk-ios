@@ -265,7 +265,12 @@
 }
 
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
-    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+#ifdef SWIFTPM_MODULE_BUNDLE
+    NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+    NSBundle *bundle = [NSBundle bundleForClass:[SensorsAnalyticsSDK class]];
+#endif
+    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[bundle pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
 
     NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualized_path.json" ofType:nil];
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];

@@ -249,7 +249,12 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
                 }
             } else if (countryCode && networkCode) { //国外运营商解析
                 //加载当前 bundle
-                NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+#ifdef SWIFTPM_MODULE_BUNDLE
+                NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+                NSBundle *bundle = [NSBundle bundleForClass:[SensorsAnalyticsSDK class]];
+#endif
+                NSBundle *sensorsBundle = [NSBundle bundleWithPath:[bundle pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
                 //文件路径
                 NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
                 NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];

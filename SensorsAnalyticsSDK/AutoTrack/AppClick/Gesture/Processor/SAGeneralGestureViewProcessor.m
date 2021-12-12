@@ -77,7 +77,12 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
     static dispatch_once_t onceToken;
     static id info = nil;
     dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+#ifdef SWIFTPM_MODULE_BUNDLE
+        NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+        NSBundle *bundle = [NSBundle bundleForClass:self.class];
+#endif
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[bundle pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
         if (jsonData) {

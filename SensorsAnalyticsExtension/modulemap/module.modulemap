@@ -1,0 +1,4 @@
+module SensorsAnalyticsExtension {
+    header "../../SensorsAnalyticsSDK/Core/SAAppExtensionDataManager.h"
+    export *
+}

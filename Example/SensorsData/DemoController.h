@@ -22,7 +22,7 @@
 #define DemoController_h
 
 #import <UIKit/UIKit.h>
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+@import SensorsAnalyticsSDK;
 
 @interface DemoController : UITableViewController<SAScreenAutoTracker, SAUIViewAutoTrackDelegate, UIActionSheetDelegate>
 

@@ -84,7 +84,12 @@
     static dispatch_once_t onceToken;
     static NSDictionary *allClasses = nil;
     dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+#ifdef SWIFTPM_MODULE_BUNDLE
+        NSBundle *bundle = SWIFTPM_MODULE_BUNDLE;
+#else
+        NSBundle *bundle = [NSBundle bundleForClass:[SensorsAnalyticsSDK class]];
+#endif
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[bundle pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
         //文件路径
         NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
         NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];

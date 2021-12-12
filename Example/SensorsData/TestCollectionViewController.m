@@ -19,7 +19,7 @@
 //
 
 #import "TestCollectionViewController.h"
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+@import SensorsAnalyticsSDK;
 
 @interface CustomCollectionViewCell : UICollectionViewCell
 

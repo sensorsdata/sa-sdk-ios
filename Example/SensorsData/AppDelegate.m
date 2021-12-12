@@ -19,8 +19,8 @@
 //
 
 #import "AppDelegate.h"
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
-#import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
+@import SensorsAnalyticsSDK;
+@import SensorsAnalyticsExtension;
 
 static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 

@@ -904,10 +904,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     return [SAReferrerManager sharedInstance].referrerProperties;
 }
 
-- (SensorsAnalyticsDebugMode)debugMode {
-    return SAModuleManager.sharedInstance.debugMode;
-}
-
 - (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
     @try {
         if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {

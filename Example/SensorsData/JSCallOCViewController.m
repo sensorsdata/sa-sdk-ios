@@ -19,7 +19,7 @@
 //
 
 #import "JSCallOCViewController.h"
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+@import SensorsAnalyticsSDK;
 #import <WebKit/WebKit.h>
 
 @interface JSCallOCViewController ()<WKNavigationDelegate, WKUIDelegate>

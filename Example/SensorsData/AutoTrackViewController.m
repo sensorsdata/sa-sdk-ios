@@ -19,7 +19,7 @@
 //
 
 #import "AutoTrackViewController.h"
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+@import SensorsAnalyticsSDK;
 #import "TestViewController.h"
 
 @interface AutoTrackViewController ()<SAUIViewAutoTrackDelegate>

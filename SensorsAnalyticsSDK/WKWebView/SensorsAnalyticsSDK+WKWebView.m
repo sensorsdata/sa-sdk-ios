@@ -33,6 +33,7 @@
 #import "SAURLUtils.h"
 #import "SANetwork.h"
 #import "SALog.h"
+#import "SensorsAnalyticsSDK+JavaScriptBridge.h"
 #import <WebKit/WebKit.h>
 #import <objc/runtime.h>
 

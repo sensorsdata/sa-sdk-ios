@@ -19,7 +19,7 @@
 //
 
 #import "TestTableViewController.h"
-#import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
+@import SensorsAnalyticsSDK;
 @interface SATableHeaderFooterView : UITableViewHeaderFooterView
 @property(nonatomic,assign)NSUInteger section;
 @property(nonatomic,weak)UITableView *tablView;
