@@ -43,7 +43,7 @@
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
 
-#define VERSION @"4.1.0"
+#define VERSION @"4.1.1"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -177,6 +177,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
+
+            // 优先开启 log, 防止部分日志输出不生效(比如: SAIdentifier 初始化时校验 loginIDKey)
+            if (!_configOptions.disableSDK && _configOptions.enableLog) {
+                [self enableLog:_configOptions.enableLog];
+            }
+
             _appLifecycle = [[SAAppLifecycle alloc] init];
             
             _people = [[SensorsAnalyticsPeople alloc] init];
@@ -193,23 +199,16 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
             _trackTimer = [[SATrackTimer alloc] init];
 
-            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
+            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue loginIDKey:_configOptions.loginIDKey];
+            // SAIdentifier 中会校验 loginIDKey, 如果不合法会使用默认值
+            // 此处更新 configOptions 中的 loginIDKey 和 SAIdentifier 中保持一致
+            _configOptions.loginIDKey = _identifier.loginIDKey;
 
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
             
             _superProperty = [[SASuperProperty alloc] init];
 
-            NSString *loginIDKey = _configOptions.loginIDKey;
-            if ((![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [_identifier isPresetKey:loginIDKey]) || ![SAValidator isValidKey:loginIDKey]) {
-                SALogError(@"LoginIDKey [ %@ ] is invalid", _configOptions.loginIDKey);
-                _configOptions.loginIDKey = kSAIdentitiesLoginId;
-            }
-            _identifier.loginIDKey = _configOptions.loginIDKey;
-
             if (!_configOptions.disableSDK) {
-                if (_configOptions.enableLog) {
-                    [self enableLog:_configOptions.enableLog];
-                }
                 [[SAReachability sharedInstance] startMonitoring];
                 [self addRemoteConfigObservers];
             }

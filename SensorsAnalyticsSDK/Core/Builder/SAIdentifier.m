@@ -39,7 +39,8 @@ NSString * const kSAIdentitiesAnonymousId = @"$identity_anonymous_id";
 NSString * const kSAIdentitiesCookieId = @"$identity_cookie_id";
 
 #if TARGET_OS_OSX
-NSString * const kSAIdentitiesUniqueID = @"$mac_serial_id";
+NSString * const kSAIdentitiesOldUniqueID = @"$mac_serial_id";
+NSString * const kSAIdentitiesUniqueID = @"$identity_mac_serial_id";
 NSString * const kSAIdentitiesUUID = @"$identity_mac_uuid";
 #else
 NSString * const kSAIdentitiesUniqueID = @"$identity_idfv";
@@ -55,6 +56,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
 @property (nonatomic, copy, readwrite) NSString *loginId;
 @property (nonatomic, copy, readwrite) NSString *anonymousId;
+@property (nonatomic, copy, readwrite) NSString *loginIDKey;
 
 @property (nonatomic, copy, readwrite) NSDictionary *identities;
 @property (nonatomic, copy) NSDictionary *removedIdentity;
@@ -65,10 +67,17 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue {
+- (instancetype)initWithQueue:(dispatch_queue_t)queue loginIDKey:(NSString *)loginIDKey {
     self = [super init];
     if (self) {
         _queue = queue;
+
+        if ((![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [self isPresetKey:loginIDKey]) || ![SAValidator isValidKey:loginIDKey]) {
+            SALogError(@"LoginIDKey [ %@ ] is invalid", loginIDKey);
+            loginIDKey = kSAIdentitiesLoginId;
+        }
+        _loginIDKey = loginIDKey;
+
         dispatch_async(_queue, ^{
             // 获取 self.identities 需要判断当前本地文件是否存在 anonymousId
             // 获取 self.anonymousId 会写入本地文件，因此需要先获取 self.identities
@@ -359,6 +368,9 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     return ([key isEqualToString:kSAIdentitiesUniqueID] ||
             [key isEqualToString:kSAIdentitiesUUID] ||
             [key isEqualToString:kSAIdentitiesLoginId] ||
+#if TARGET_OS_OSX
+            [key isEqualToString:kSAIdentitiesOldUniqueID] ||
+#endif
             [key isEqualToString:kSAIdentitiesAnonymousId]);
 }
 
@@ -552,7 +564,13 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         // v3.0 版本清空本地保存的 loginIDKey 会在 logout 中处理
         [SAFileStore archiveWithFileName:kSALoginIDKey value:nil];
     }
-
+#if TARGET_OS_OSX
+        // 4.1.0 以后的版本将 $mac_serial_id 替换为了 $identity_mac_serial_id
+        // 此处不考虑是否是用户绑定的 key, 直接移除
+        if (identities[kSAIdentitiesOldUniqueID]) {
+            [identities removeObjectForKey:kSAIdentitiesOldUniqueID];
+        }
+#endif
     // 每次强制更新一次本地 identities，触发部分业务场景需要更新本地内容
     [self archiveIdentities:identities];
     return identities;

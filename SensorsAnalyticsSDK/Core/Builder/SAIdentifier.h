@@ -38,15 +38,17 @@ extern NSString * const kSAIdentitiesLoginId;
 /// ID-Mapping 3.0 业务 ID，当前所有处理逻辑都是在的 serialQueue 中处理
 @property (nonatomic, copy, readonly) NSDictionary *identities;
 
-@property (nonatomic, copy) NSString *loginIDKey;
+/// 自定义的 loginIDKey，
+@property (nonatomic, copy, readonly) NSString *loginIDKey;
 
 /**
  初始化方法
 
  @param queue 一个全局队列
+ @param loginIDKey 自定义的 loginIDKey
  @return 初始化对象
  */
-- (instancetype)initWithQueue:(dispatch_queue_t)queue;
+- (instancetype)initWithQueue:(dispatch_queue_t)queue loginIDKey:(NSString *)loginIDKey;
 
 /**
  自定义匿名 Id（设备 Id）
@@ -104,8 +106,6 @@ extern NSString * const kSAIdentitiesLoginId;
 + (NSString *)hardwareID;
 
 #pragma mark - Identities
-/// 预置 identity ID 检查
-- (BOOL)isPresetKey:(NSString *)key;
 
 /// 检查添业务 ID 是否有效，用于触发事件前判断
 - (BOOL)isValidIdentity:(NSString *)key value:(NSString *)value;

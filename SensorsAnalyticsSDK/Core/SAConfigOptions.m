@@ -123,6 +123,7 @@
     options.flushBeforeEnterBackground = self.flushBeforeEnterBackground;
     options.flushNetworkPolicy = self.flushNetworkPolicy;
     options.disableSDK = self.disableSDK;
+    options.loginIDKey = self.loginIDKey;
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书
@@ -144,8 +145,6 @@
     options.enableHeatMap = self.enableHeatMap;
     options.enableVisualizedAutoTrack = self.enableVisualizedAutoTrack;
     options.enableVisualizedProperties = self.enableVisualizedProperties;
-    
-    options.loginIDKey = self.loginIDKey;
 
     // Crash 采集
     options.enableTrackAppCrash = self.enableTrackAppCrash;
