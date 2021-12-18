@@ -66,3 +66,11 @@
 @interface UITabBar (SAVisualProperties)
 - (void)sensorsdata_visualize_setSelectedItem:(UITabBarItem *)selectedItem;
 @end
+
+
+#pragma mark - 属性内容
+@interface UIView (PropertiesContent)
+
+@property (nonatomic, copy, readonly) NSString *sensorsdata_propertyContent;
+
+@end

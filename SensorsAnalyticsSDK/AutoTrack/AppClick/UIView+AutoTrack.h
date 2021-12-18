@@ -32,12 +32,6 @@
 @interface UIImageView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UITextField (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UITextView (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
 @interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
 @end
 

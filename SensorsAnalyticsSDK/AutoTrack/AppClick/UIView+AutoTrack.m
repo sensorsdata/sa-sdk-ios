@@ -92,30 +92,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         }
     }
 
-    if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
-        /* 兼容输入框的元素采集
-         UITextField 本身是一个容器，包括 UITextField 的元素内容，文字是直接渲染到 view 的
-         层级结构如下
-         UITextField
-            _UITextFieldRoundedRectBackgroundViewNeue
-            UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
-                _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
-            _UITextFieldClearButton (可能存在)
-         */
-        UITextField *textField = (UITextField *)[self nextResponder];
-        return [textField sensorsdata_elementContent];
-    }
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
-        
-        UITextField *textField = (UITextField *)[self nextResponder];
-        do {
-            if ([textField isKindOfClass:UITextField.class]) {
-                return [textField sensorsdata_elementContent];
-            }
-        } while ((textField = (UITextField *)[textField nextResponder]));
-        
-        return nil;
-    }
     NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
     for (UIView *subview in self.subviews) {
         // 忽略隐藏控件
@@ -182,27 +158,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         return index > 0 ? [NSString stringWithFormat:@"%ld", (long)index] : @"0";
     }
     return [super sensorsdata_elementPosition];
-}
-
-@end
-
-@implementation UITextField (AutoTrack)
-
-- (NSString *)sensorsdata_elementContent {
-    if (self.text) {
-        return self.text;
-    } else if (self.placeholder) {
-        return self.placeholder;
-    }
-    return super.sensorsdata_elementContent;
-}
-
-@end
-
-@implementation UITextView (AutoTrack)
-
-- (NSString *)sensorsdata_elementContent {
-    return self.text ?: super.sensorsdata_elementContent;
 }
 
 @end

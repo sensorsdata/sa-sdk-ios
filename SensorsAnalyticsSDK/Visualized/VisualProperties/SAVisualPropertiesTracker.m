@@ -221,7 +221,7 @@
     // 获取元素内容，主线程执行
     __block NSString *content = nil;
     dispatch_sync(dispatch_get_main_queue(), ^{
-        content = view.sensorsdata_elementContent;
+        content = view.sensorsdata_propertyContent;
     });
     
     if (content.length == 0) {

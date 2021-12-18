@@ -25,9 +25,11 @@
 #import "UIView+SAVisualProperties.h"
 #import "SAVisualizedManager.h"
 #import <objc/runtime.h>
+#import "SAAutoTrackUtils.h"
 
 static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 
+#pragma mark -
 @implementation UIView (SAVisualProperties)
 
 - (void)sensorsdata_visualize_didMoveToSuperview {
@@ -161,6 +163,194 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
             });
         }
     }
+}
+
+@end
+
+#pragma mark -
+@implementation UIView (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    if ([self isKindOfClass:NSClassFromString(@"RTLabel")]) {   // RTLabel:https://github.com/honcheng/RTLabel
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Warc-performSelector-leaks"
+        if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
+            NSString *title = [self performSelector:NSSelectorFromString(@"text")];
+            if (title.length > 0) {
+                return title;
+            }
+        }
+        return nil;
+    }
+    if ([self isKindOfClass:NSClassFromString(@"YYLabel")]) {    // RTLabel:https://github.com/ibireme/YYKit
+        if ([self respondsToSelector:NSSelectorFromString(@"text")]) {
+            NSString *title = [self performSelector:NSSelectorFromString(@"text")];
+            if (title.length > 0) {
+                return title;
+            }
+        }
+        return nil;
+#pragma clang diagnostic pop
+    }
+    if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
+        NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (content.length > 0) {
+            return content;
+        }
+    }
+
+    if ([self isKindOfClass:NSClassFromString(@"WXView")]) { // WEEX 元素，http://doc.weex.io/zh/docs/components/a.html
+        NSString *content = [self.accessibilityValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+        if (content.length > 0) {
+            return content;
+        }
+    }
+
+    if ([[self nextResponder] isKindOfClass:UITextField.class] && ![self isKindOfClass:UIButton.class]) {
+        /* 兼容输入框的元素采集
+         UITextField 本身是一个容器，包括 UITextField 的元素内容，文字是直接渲染到 view 的
+         层级结构如下
+         UITextField
+            _UITextFieldRoundedRectBackgroundViewNeue
+            UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
+                _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
+            _UITextFieldClearButton (可能存在)
+         */
+        UITextField *textField = (UITextField *)[self nextResponder];
+        return [textField sensorsdata_propertyContent];
+    }
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
+        
+        UITextField *textField = (UITextField *)[self nextResponder];
+        do {
+            if ([textField isKindOfClass:UITextField.class]) {
+                return [textField sensorsdata_propertyContent];
+            }
+        } while ((textField = (UITextField *)[textField nextResponder]));
+        
+        return nil;
+    }
+
+    NSMutableArray<NSString *> *elementContentArray = [NSMutableArray array];
+    for (UIView *subview in self.subviews) {
+        // 忽略隐藏控件
+        if (subview.isHidden || subview.sensorsAnalyticsIgnoreView) {
+            continue;
+        }
+        NSString *temp = subview.sensorsdata_propertyContent;
+        if (temp.length > 0) {
+            [elementContentArray addObject:temp];
+        }
+    }
+    if (elementContentArray.count > 0) {
+        return [elementContentArray componentsJoinedByString:@"-"];
+    }
+    
+    return nil;
+}
+
+@end
+
+@implementation UILabel (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return self.text ?: super.sensorsdata_propertyContent;
+}
+
+@end
+
+@implementation UIImageView (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    NSString *imageName = self.image.sensorsAnalyticsImageName;
+    if (imageName.length > 0) {
+        return [NSString stringWithFormat:@"%@", imageName];
+    }
+    return super.sensorsdata_propertyContent;
+}
+
+@end
+
+
+@implementation UITextField (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    if (self.text) {
+        return self.text;
+    } else if (self.placeholder) {
+        return self.placeholder;
+    }
+    return super.sensorsdata_propertyContent;
+}
+
+@end
+
+@implementation UITextView (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return self.text ?: super.sensorsdata_propertyContent;
+}
+
+@end
+
+@implementation UISearchBar (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return self.text ?: super.sensorsdata_propertyContent;
+}
+
+@end
+
+#pragma mark - UIControl
+
+@implementation UIButton (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    NSString *text = self.titleLabel.text;
+    if (!text) {
+        text = super.sensorsdata_propertyContent;
+    }
+    return text;
+}
+
+@end
+
+@implementation UISwitch (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return self.on ? @"checked" : @"unchecked";
+}
+
+@end
+
+@implementation UIStepper (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return [NSString stringWithFormat:@"%g", self.value];
+}
+
+@end
+
+@implementation UISegmentedControl (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return  self.selectedSegmentIndex == UISegmentedControlNoSegment ? [super sensorsdata_propertyContent] : [self titleForSegmentAtIndex:self.selectedSegmentIndex];
+}
+
+@end
+
+@implementation UIPageControl (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return [NSString stringWithFormat:@"%ld", (long)self.currentPage];
+}
+
+@end
+
+@implementation UISlider (PropertiesContent)
+
+- (NSString *)sensorsdata_propertyContent {
+    return [NSString stringWithFormat:@"%f", self.value];
 }
 
 @end

@@ -43,7 +43,7 @@
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
 
-#define VERSION @"4.1.1"
+#define VERSION @"4.1.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
