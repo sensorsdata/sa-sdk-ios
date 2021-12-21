@@ -25,67 +25,67 @@
 #import "SAConstants.h"
 
 
-//SensorsAnalyticsSDK section
-#if __has_include("SensorsAnalyticsSDK+SAChannelMatch.h")
-#import "SensorsAnalyticsSDK+SAChannelMatch.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+DebugMode.h")
-#import "SensorsAnalyticsSDK+DebugMode.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+Deeplink.h")
-#import "SensorsAnalyticsSDK+Deeplink.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
-#import "SensorsAnalyticsSDK+SAAutoTrack.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+Visualized.h")
-#import "SensorsAnalyticsSDK+Visualized.h"
-#endif
-
-#if __has_include("SASecretKey.h")
-#import "SASecretKey.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+JavaScriptBridge.h")
-#import "SensorsAnalyticsSDK+JavaScriptBridge.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+DeviceOrientation.h")
-#import "SensorsAnalyticsSDK+DeviceOrientation.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+Location.h")
-#import "SensorsAnalyticsSDK+Location.h"
-#endif
-
-
-//configOptions section
-
-#if __has_include("SAConfigOptions+RemoteConfig.h")
-#import "SAConfigOptions+RemoteConfig.h"
-#endif
-
-#if __has_include("SAConfigOptions+Encrypt.h")
-#import "SAConfigOptions+Encrypt.h"
-#endif
-
-#if __has_include("SAConfigOptions+AppPush.h")
-#import "SAConfigOptions+AppPush.h"
-#endif
-
-#if __has_include("SAConfigOptions+Exception.h")
-#import "SAConfigOptions+Exception.h"
-#endif
-
-
-#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
-#import "SensorsAnalyticsSDK+WKWebView.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+WebView.h")
-#import "SensorsAnalyticsSDK+WebView.h"
-#endif
+////SensorsAnalyticsSDK section
+//#if __has_include("SensorsAnalyticsSDK+SAChannelMatch.h")
+//#import "SensorsAnalyticsSDK+SAChannelMatch.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+DebugMode.h")
+//#import "SensorsAnalyticsSDK+DebugMode.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+Deeplink.h")
+//#import "SensorsAnalyticsSDK+Deeplink.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")
+//#import "SensorsAnalyticsSDK+SAAutoTrack.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+Visualized.h")
+//#import "SensorsAnalyticsSDK+Visualized.h"
+//#endif
+//
+//#if __has_include("SASecretKey.h")
+//#import "SASecretKey.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+JavaScriptBridge.h")
+//#import "SensorsAnalyticsSDK+JavaScriptBridge.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+DeviceOrientation.h")
+//#import "SensorsAnalyticsSDK+DeviceOrientation.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+Location.h")
+//#import "SensorsAnalyticsSDK+Location.h"
+//#endif
+//
+//
+////configOptions section
+//
+//#if __has_include("SAConfigOptions+RemoteConfig.h")
+//#import "SAConfigOptions+RemoteConfig.h"
+//#endif
+//
+//#if __has_include("SAConfigOptions+Encrypt.h")
+//#import "SAConfigOptions+Encrypt.h"
+//#endif
+//
+//#if __has_include("SAConfigOptions+AppPush.h")
+//#import "SAConfigOptions+AppPush.h"
+//#endif
+//
+//#if __has_include("SAConfigOptions+Exception.h")
+//#import "SAConfigOptions+Exception.h"
+//#endif
+//
+//
+//#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
+//#import "SensorsAnalyticsSDK+WKWebView.h"
+//#endif
+//
+//#if __has_include("SensorsAnalyticsSDK+WebView.h")
+//#import "SensorsAnalyticsSDK+WebView.h"
+//#endif
