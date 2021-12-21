@@ -22,6 +22,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+#define SAPropertyError(errorCode, fromat, ...) \
+    [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" \
+                        code:errorCode \
+                    userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
+
+
+typedef NS_ENUM(NSUInteger, SAValidatorError) {
+    SAValidatorErrorNil = 20001,
+    SAValidatorErrorNotString,
+    SAValidatorErrorEmpty,
+    SAValidatorErrorRegexInit,
+    SAValidatorErrorInvalid,
+    SAValidatorErrorOverflow,
+};
+
 @interface SAValidator : NSObject
 
 + (BOOL)isValidString:(NSString *)string;
@@ -32,8 +47,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (BOOL)isValidData:(NSData *)data;
 
-/// 检查事件名或参数名是否有效
-+ (BOOL)isValidKey:(NSString *)key;
+/// 校验事件名或参数名是否有效
++ (void)validKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable * _Nullable)error;
+
+//保留字校验
++ (void)reservedKeywordCheckForObject:(NSString *)object error:(NSError *__autoreleasing  _Nullable * _Nullable)error;
 
 @end
 

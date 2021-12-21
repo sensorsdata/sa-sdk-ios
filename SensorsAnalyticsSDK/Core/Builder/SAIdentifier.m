@@ -27,6 +27,7 @@
 #import "SAFileStore.h"
 #import "SAValidator.h"
 #import "SALog.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #if TARGET_OS_IOS
 #import "SAKeyChainItemWrapper.h"
@@ -72,7 +73,16 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     if (self) {
         _queue = queue;
 
-        if ((![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [self isPresetKey:loginIDKey]) || ![SAValidator isValidKey:loginIDKey]) {
+        NSError *error = nil;
+        [SAValidator validKey:loginIDKey error:&error];
+        if (error) {
+            SALogError(@"%@",error.localizedDescription);
+            if (error.code != SAValidatorErrorOverflow) {
+                loginIDKey = kSAIdentitiesLoginId;
+            }
+        }
+
+        if (![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [self isPresetKey:loginIDKey]) {
             SALogError(@"LoginIDKey [ %@ ] is invalid", loginIDKey);
             loginIDKey = kSAIdentitiesLoginId;
         }
@@ -92,14 +102,17 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 #pragma mark - Public Methods
 
 - (BOOL)identify:(NSString *)anonymousId {
-    if (![SAValidator isValidString:anonymousId]) {
-        SALogError(@"%@ anonymousId:%@ is invalid parameter for identify", self, anonymousId);
+    if (![anonymousId isKindOfClass:[NSString class]]) {
+        SALogError(@"AnonymousId must be string");
+        return NO;
+    }
+    if (anonymousId.length == 0) {
+        SALogError(@"AnonymousId is empty");
         return NO;
     }
 
-    if ([anonymousId length] > 255) {
-        SALogError(@"%@ anonymousId:%@ is beyond the maximum length 255", self, anonymousId);
-        return NO;
+    if ([anonymousId length] > kSAPropertyValueMaxLength) {
+        SALogWarn(@"AnonymousId: %@'s length is longer than %ld", anonymousId, kSAPropertyValueMaxLength);
     }
 
     if ([anonymousId isEqualToString:self.anonymousId]) {
@@ -136,13 +149,20 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 }
 
 - (BOOL)isValidLoginId:(NSString *)loginId {
-    if (![SAValidator isValidString:loginId]) {
-        SALogError(@"%@ loginId:%@ is invalid parameter for login", self, loginId);
+    if (![loginId isKindOfClass:[NSString class]]) {
+        SALogError(@"LoginId must be string");
+        return NO;
+    }
+    if (loginId.length == 0) {
+        SALogError(@"LoginId is empty");
         return NO;
     }
 
-    if ([loginId length] > 255) {
-        SALogError(@"%@ loginId:%@ is beyond the maximum length 255", self, loginId);
+    if ([loginId length] > kSAPropertyValueMaxLength) {
+        SALogWarn(@"LoginId: %@'s length is longer than %ld", loginId, kSAPropertyValueMaxLength);
+    }
+
+    if ([loginId isEqualToString:self.loginId]) {
         return NO;
     }
 
@@ -376,14 +396,22 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
 - (BOOL)isValidIdentity:(NSString *)key value:(NSString *)value {
     if (![key isKindOfClass:NSString.class]) {
-        SALogError(@"Key must be String");
+        SALogError(@"Key [%@] must be string", key);
         return NO;
     }
     if (key.length <= 0) {
-        SALogError(@"Key is empty or null");
+        SALogError(@"Key is empty");
         return NO;
     }
-    if (![SAValidator isValidKey:key] || [self isPresetKey:key]) {
+    NSError *error = nil;
+    [SAValidator validKey:key error:&error];
+    if (error) {
+        SALogError(@"%@",error.localizedDescription);
+    }
+    if (error && error.code != SAValidatorErrorOverflow) {
+        return NO;
+    }
+    if ([self isPresetKey:key]) {
         SALogError(@"Key [ %@ ] is invalid", key);
         return NO;
     }
@@ -391,18 +419,19 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         SALogError(@"Key [ %@ ] is invalid", key);
         return NO;
     }
-    if (![value isKindOfClass:NSString.class]) {
-        SALogError(@"Value must be String");
+    if (!value) {
+        SALogError(@"bind or unbind value should not be nil");
         return NO;
     }
-    if (key.length <= 0) {
-        SALogError(@"Value is empty or null");
+    if (![value isKindOfClass:[NSString class]]) {
+        SALogError(@"bind or unbind value should be string");
         return NO;
     }
-    if (value.length > 255) {
-        SALogError(@"Value [ %@ ] is beyond the maximum length 255", value);
+    if (value.length == 0) {
+        SALogError(@"bind or unbind value should not be empty");
         return NO;
     }
+    [value sensorsdata_propertyValueWithKey:key error:nil];
     return YES;
 }
 

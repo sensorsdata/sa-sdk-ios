@@ -25,8 +25,11 @@
 #import "SAValidator.h"
 #import "SAConstants+Private.h"
 #import "SALog.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 static NSRegularExpression *regexForValidKey;
+static NSString *const kSAProperNameValidateRegularExpression = @"^((?!^distinct_id$|^original_id$|^time$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$|^user_tag.*|^user_group.*)[a-zA-Z_$][a-zA-Z\\d_$]*)$";
+
 
 @implementation SAValidator
 
@@ -46,30 +49,52 @@ static NSRegularExpression *regexForValidKey;
     return ([data isKindOfClass:[NSData class]] && ([data length] > 0));
 }
 
-+ (BOOL)isValidKey:(NSString *)key {
-    if (![self isValidString:key]) {
-        return NO;
++ (void)validKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable * _Nullable)error {
+    if (!key) {
+        *error = SAPropertyError(SAValidatorErrorNil, @"Property key or Event name should not be nil");
+        return;
     }
-    @try {
-        static dispatch_once_t onceToken;
-        dispatch_once(&onceToken, ^{
-            NSString *name = @"^((?!^user_group|^user_tag)[a-zA-Z_$][a-zA-Z\\d_$]{0,99})$";
-            regexForValidKey = [NSRegularExpression regularExpressionWithPattern:name options:NSRegularExpressionCaseInsensitive error:nil];
-        });
-        // 保留字段通过字符串直接比较，效率更高
-        NSSet *reservedProperties = sensorsdata_reserved_properties();
-        for (NSString *reservedProperty in reservedProperties) {
-            if ([reservedProperty caseInsensitiveCompare:key] == NSOrderedSame) {
-                return NO;
-            }
-        }
-        // 属性名通过正则表达式匹配，比使用谓词效率更高
-        NSRange range = NSMakeRange(0, key.length);
-        return ([regexForValidKey numberOfMatchesInString:key options:0 range:range] > 0);
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
-        return NO;
+
+    if (![key isKindOfClass:[NSString class]]) {
+        *error = SAPropertyError(SAValidatorErrorNotString, @"Property key or Event name must be string, not %@", [key class]);
+        return;
     }
+
+    if (key.length == 0) {
+        *error = SAPropertyError(SAValidatorErrorEmpty, @"Property key or Event name is empty");
+        return;
+    }
+
+    NSError *tempError = nil;
+    [self reservedKeywordCheckForObject:key error:&tempError];
+    if (tempError) {
+        *error = tempError;
+        return;
+    }
+    
+    if (key.length > kSAEventNameMaxLength) {
+        *error = SAPropertyError(SAValidatorErrorOverflow, @"Property key or Event name %@'s length is longer than %ld", key, kSAEventNameMaxLength);
+        return;
+    }
+    *error = nil;
 }
 
++ (void)reservedKeywordCheckForObject:(NSString *)object error:(NSError *__autoreleasing  _Nullable *)error {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        regexForValidKey = [NSRegularExpression regularExpressionWithPattern:kSAProperNameValidateRegularExpression options:NSRegularExpressionCaseInsensitive error:nil];
+    });
+
+    if (!regexForValidKey) {
+        *error = SAPropertyError(SAValidatorErrorRegexInit, @"Property Key validate regular expression init failed, please check the regular expression's syntax");
+        return;
+    }
+
+    // 属性名通过正则表达式匹配，比使用谓词效率更高
+    NSRange range = NSMakeRange(0, object.length);
+    if ([regexForValidKey numberOfMatchesInString:object options:0 range:range] < 1) {
+        *error = SAPropertyError(SAValidatorErrorInvalid, @"Property Key or Event name: [%@] is invalid.", object);
+        return;
+    }
+}
 @end

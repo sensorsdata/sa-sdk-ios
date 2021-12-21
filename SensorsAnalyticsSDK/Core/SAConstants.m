@@ -172,3 +172,7 @@ NSString * const kSAPageLeaveTimestamp = @"timestamp";
 NSString * const kSAPageLeaveAutoTrackProperties = @"properties";
 NSString * const kSAEventDurationProperty = @"event_duration";
 NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";
+
+//event name、property key、value max length
+NSInteger kSAEventNameMaxLength = 100;
+NSInteger kSAPropertyValueMaxLength = 1024;

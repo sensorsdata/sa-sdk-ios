@@ -160,3 +160,8 @@ extern NSString * const kSAPageLeaveTimestamp;
 extern NSString * const kSAPageLeaveAutoTrackProperties;
 extern NSString * const kSAEventDurationProperty;
 extern NSString * const kSAEventNameAppPageLeave;
+
+
+//event name、property key、value max length
+extern NSInteger kSAEventNameMaxLength;
+extern NSInteger kSAPropertyValueMaxLength;

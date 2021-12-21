@@ -27,30 +27,20 @@
 #import "SAPresetProperty.h"
 #import "SAValidator.h"
 #import "SALog.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 @implementation SATrackEventObject
 
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super init];
     if (self) {
-        self.eventId = eventId;
+        self.eventId = eventId && ![eventId isKindOfClass:[NSString class]] ? [NSString stringWithFormat:@"%@", eventId] : eventId;
     }
     return self;
 }
 
 - (void)validateEventWithError:(NSError **)error {
-    if (self.eventId && ![self.eventId isKindOfClass:NSString.class]) {
-        *error = SAPropertyError(20000, @"Event name must be NSString. got: %@ %@", [self.eventId class], self.eventId);
-        return;
-    }
-    if (self.eventId == nil || [self.eventId length] == 0) {
-        *error = SAPropertyError(20001, @"Event name should not be empty or nil");
-        return;
-    }
-    if (![SAValidator isValidKey:self.eventId]) {
-        *error = SAPropertyError(20002, @"Event name[%@] not valid", self.eventId);
-        return;
-    }
+    [SAValidator validKey:self.eventId error:error];
 }
 
 #pragma makr - SAEventBuildStrategy
@@ -75,11 +65,8 @@
     }
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
-    [super addCustomProperties:properties error:error];
-    if (*error) {
-        return;
-    }
+- (void)addCustomProperties:(NSDictionary *)properties {
+    [super addCustomProperties:properties];
     
     // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
     id libMethod = self.properties[kSAEventPresetPropertyLibMethod];
@@ -157,11 +144,8 @@
     return self;
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
-    [super addCustomProperties:properties error:error];
-    if (*error) {
-        return;
-    }
+- (void)addCustomProperties:(NSDictionary *)properties {
+    [super addCustomProperties:properties];
     self.properties[kSAEventPresetPropertyLibMethod] = kSALibMethodAuto;
     self.lib.method = kSALibMethodAuto;
 

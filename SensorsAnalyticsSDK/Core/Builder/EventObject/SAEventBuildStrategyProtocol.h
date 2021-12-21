@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 添加自定义属性(属性校验不通过时, error 包含错误信息)
 /// @param properties 自定义属性
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError ** _Nullable)error;
+- (void)addCustomProperties:(NSDictionary *)properties;
 
 /// 添加前向页面标题
 /// @param referrerTitle 前向页面标题

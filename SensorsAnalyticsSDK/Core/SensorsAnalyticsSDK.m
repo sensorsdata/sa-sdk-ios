@@ -43,7 +43,7 @@
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
 
-#define VERSION @"4.1.2"
+#define VERSION @"4.1.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -184,7 +184,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             }
 
             _appLifecycle = [[SAAppLifecycle alloc] init];
-            
+
             _people = [[SensorsAnalyticsPeople alloc] init];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
@@ -205,7 +205,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             _configOptions.loginIDKey = _identifier.loginIDKey;
 
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
-            
+
             _superProperty = [[SASuperProperty alloc] init];
 
             if (!_configOptions.disableSDK) {
@@ -213,11 +213,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 [self addRemoteConfigObservers];
             }
 
-#if TARGET_OS_IOS
+        #if TARGET_OS_IOS
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
-            
+
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-#endif
+        #endif
             //start flush timer for App Extension
             if ([SAApplication isAppExtension]) {
                 [self startFlushTimer];
@@ -527,35 +527,34 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+
+    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
     //item_type 必须为合法变量名
-    NSString *itemType = itemDict[SA_EVENT_ITEM_TYPE];
-    if (itemType.length == 0 || ![SAValidator isValidKey:itemType]) {
-        NSString *errMsg = [NSString stringWithFormat:@"item_type name[%@] not valid", itemType];
-        SALogError(@"%@", errMsg);
-        [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
-        return;
+    NSString *itemType = itemProperties[SA_EVENT_ITEM_TYPE];
+
+    NSError *error = nil;
+    [SAValidator validKey:itemType error:&error];
+    if (error) {
+        SALogError(@"%@",error.localizedDescription);
+        if (error.code != SAValidatorErrorOverflow) {
+            itemProperties[SA_EVENT_ITEM_TYPE] = nil;
+        }
     }
 
-    NSString *itemId = itemDict[SA_EVENT_ITEM_ID];
-    if (itemId.length == 0 || itemId.length > 255) {
-        SALogError(@"%@ max length of item_id is 255, item_id: %@", self, itemId);
-        return;
+    NSString *itemId = itemProperties[SA_EVENT_ITEM_ID];
+    if (![itemId isKindOfClass:[NSString class]]) {
+        SALogError(@"Item_id must be a string");
+        itemProperties[SA_EVENT_ITEM_ID] = nil;
+    }
+
+    if ([itemId isKindOfClass:[NSString class]] && itemId.length > kSAPropertyValueMaxLength) {
+        SALogError(@"%@'s length is longer than %ld", itemId, kSAPropertyValueMaxLength);
     }
     
     // 校验 properties
-    NSError *error = nil;
-    propertyDict = [SAPropertyValidator validProperties:[propertyDict copy] error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to item properties", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
-    
-    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
+    NSMutableDictionary *propertyMDict = [SAPropertyValidator validProperties:propertyDict];
     
     // 处理 $project
-    NSMutableDictionary *propertyMDict = [NSMutableDictionary dictionaryWithDictionary:propertyDict];
     id project = propertyMDict[kSAEventCommonOptionalPropertyProject];
     if (project) {
         itemProperties[kSAEventProject] = project;
@@ -595,7 +594,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     if (error) {
         SALogError(@"%@", error.localizedDescription);
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
     }
 
     // 3. 设置用户关联信息
@@ -619,17 +617,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
 
     // 5. 添加的自定义属性需要校验
-    [object addCustomProperties:properties error:&error];
+    [object addCustomProperties:properties];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
     // 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id 属性, 因此需要将修正逻操作放在所有属性添加后
     [object correctDeviceID:self.presetProperty.deviceID];
-
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return;
-    }
 
     // 6. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
@@ -654,12 +646,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         return NO;
     }
     // 校验 properties
-    NSError *error = nil;
-    NSMutableDictionary *properties = [SAPropertyValidator validProperties:obj.properties error:&error];
-    if (error) {
-        SALogError(@"%@ failed to track event.", self);
-        return NO;
-    }
+    NSMutableDictionary *properties = [SAPropertyValidator validProperties:obj.properties];
     obj.properties = properties;
     return YES;
 }
@@ -676,14 +663,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         return nil;
     }
     // 校验 properties
-    NSError *error = nil;
-    NSDictionary *validProperties = [SAPropertyValidator validProperties:originProperties error:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        SALogError(@"%@ failed to track event.", self);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-        return nil;
-    }
+    NSDictionary *validProperties = [SAPropertyValidator validProperties:originProperties];
     event[@"properties"] = validProperties;
     return event;
 }
@@ -735,12 +715,15 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (BOOL)checkEventName:(NSString *)eventName {
-    if ([SAValidator isValidKey:eventName]) {
+    NSError *error = nil;
+    [SAValidator validKey:eventName error:&error];
+    if (!error) {
         return YES;
     }
-    NSString *errMsg = [NSString stringWithFormat:@"Event name[%@] not valid", eventName];
-    SALogError(@"%@", errMsg);
-    [SAModuleManager.sharedInstance showDebugModeWarning:errMsg];
+    SALogError(@"%@", error.localizedDescription);
+    if (error.code == SAValidatorErrorInvalid || error.code == SAValidatorErrorOverflow) {
+        return YES;
+    }
     return NO;
 }
 
@@ -1173,14 +1156,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     NSString *type = eventDict[kSAEventType];
     @try {
         // 校验 properties
-        NSError *validError = nil;
-        NSMutableDictionary *propertiesDict = [SAPropertyValidator validProperties:eventDict[kSAEventProperties] error:&validError];
-        if (validError) {
-            SALogError(@"%@", validError.localizedDescription);
-            SALogError(@"%@ failed to track event from H5.", self);
-            [SAModuleManager.sharedInstance showDebugModeWarning:validError.localizedDescription];
-            return;
-        }
+        NSMutableDictionary *propertiesDict = [SAPropertyValidator validProperties:eventDict[kSAEventProperties]];
 
         [eventDict removeObjectForKey:@"_nocache"];
         [eventDict removeObjectForKey:@"server_url"];

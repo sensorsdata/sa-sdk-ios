@@ -19,13 +19,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAValidator.h"
 
 NS_ASSUME_NONNULL_BEGIN
-
-#define SAPropertyError(errorCode, fromat, ...) \
-    [NSError errorWithDomain:@"SensorsAnalyticsErrorDomain" \
-                        code:errorCode \
-                    userInfo:@{NSLocalizedDescriptionKey:[NSString stringWithFormat:fromat,##__VA_ARGS__]}] \
 
 @protocol SAPropertyKeyProtocol <NSObject>
 
@@ -68,8 +64,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAPropertyValidator : NSObject
 
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error;
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties validator:(id<SAEventPropertyValidatorProtocol>)validator error:(NSError **)error;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties;
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties validator:(id<SAEventPropertyValidatorProtocol>)validator;
 
 @end
 

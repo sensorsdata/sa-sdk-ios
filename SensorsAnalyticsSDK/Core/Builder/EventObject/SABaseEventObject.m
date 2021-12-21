@@ -92,11 +92,8 @@
 - (void)addSuperProperties:(NSDictionary *)properties {
 }
 
-- (void)addCustomProperties:(NSDictionary *)properties error:(NSError **)error {
-    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties validator:self error:error];
-    if (*error) {
-        return;
-    }
+- (void)addCustomProperties:(NSDictionary *)properties {
+    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties validator:self];
 
     [self.properties addEntriesFromDictionary:props];
     
@@ -141,13 +138,13 @@
 
 - (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
     if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-        *error = SAPropertyError(10004, @"Property Key should by %@", [key class]);
+        *error = SAPropertyError(10004, @"Property Key: %@ must be a string", key);
         return nil;
     }
 
     // key 校验
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
-    if (*error) {
+    if (*error && (*error).code != SAValidatorErrorOverflow) {
         return nil;
     }
 

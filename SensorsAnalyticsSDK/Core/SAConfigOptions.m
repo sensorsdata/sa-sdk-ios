@@ -65,6 +65,7 @@
 @property (nonatomic, assign) BOOL enableDeeplink;
 @property (nonatomic, assign) BOOL enableAutoTrack;
 
+
 @end
 
 @implementation SAConfigOptions

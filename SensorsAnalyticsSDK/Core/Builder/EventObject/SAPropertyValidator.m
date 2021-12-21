@@ -26,29 +26,19 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SADateFormatter.h"
-#import "SAValidator.h"
-
-static NSUInteger const kSAPropertyLengthLimitation = 8191;
+#import "SensorsAnalyticsSDK+Private.h"
+#import "SALog.h"
 
 @implementation NSString (SAProperty)
 
 - (void)sensorsdata_isValidPropertyKeyWithError:(NSError *__autoreleasing  _Nullable *)error {
-    if (![SAValidator isValidKey: self]) {
-        *error = SAPropertyError(10001, @"property name[%@] is not valid", self);
-    }
+    [SAValidator validKey:self error:error];
 }
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
-    NSInteger maxLength = kSAPropertyLengthLimitation;
-    if ([key isEqualToString:@"app_crashed_reason"]) {
-        maxLength = kSAPropertyLengthLimitation * 2;
-    }
     NSUInteger length = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (length > maxLength) {
-        //截取再拼接 $ 末尾，替换原数据
-        NSMutableString *newString = [NSMutableString stringWithString:[SACommonUtility subByteString:self byteLength:maxLength - 1]];
-        [newString appendString:@"$"];
-        return [newString copy];
+    if (length > kSAPropertyValueMaxLength) {
+        SALogWarn(@"%@'s length is longer than %ld", self, kSAPropertyValueMaxLength);
     }
     return self;
 }
@@ -58,7 +48,7 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 @implementation NSNumber (SAProperty)
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
-    return self;
+    return [self isEqualToNumber:NSDecimalNumber.notANumber] || [self isEqualToNumber:@(INFINITY)] ? nil : self;
 }
 
 @end
@@ -121,12 +111,12 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 - (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
     if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-        *error = SAPropertyError(10004, @"Property Key should by %@", [key class]);
+        *error = SAPropertyError(10004, @"Property Key: %@ must be a string", key);
         return nil;
     }
 
     [(id <SAPropertyKeyProtocol>)key sensorsdata_isValidPropertyKeyWithError:error];
-    if (*error) {
+    if (*error && (*error).code != SAValidatorErrorOverflow) {
         return nil;
     }
 
@@ -143,22 +133,24 @@ static NSUInteger const kSAPropertyLengthLimitation = 8191;
 
 @implementation SAPropertyValidator
 
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties error:(NSError **)error {
-    return [self validProperties:properties validator:properties error:error];
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties {
+    return [self validProperties:properties validator:properties];
 }
 
-+ (NSMutableDictionary *)validProperties:(NSDictionary *)properties validator:(id<SAEventPropertyValidatorProtocol>)validator error:(NSError **)error {
++ (NSMutableDictionary *)validProperties:(NSDictionary *)properties validator:(id<SAEventPropertyValidatorProtocol>)validator {
     if (![properties isKindOfClass:[NSDictionary class]] || ![validator conformsToProtocol:@protocol(SAEventPropertyValidatorProtocol)]) {
         return nil;
     }
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
     for (id key in properties) {
-        id value = [validator sensorsdata_validKey:key value:properties[key] error:error];
-        if (*error) {
-            return nil;
+        NSError *error = nil;
+        id value = [validator sensorsdata_validKey:key value:properties[key] error:&error];
+        if (error) {
+            SALogError(@"%@",error.localizedDescription);
         }
-
-        result[key] = value;
+        if (value) {
+            result[key] = value;
+        }
     }
     return result;
 }
