@@ -18,7 +18,7 @@
 // limitations under the License.
 //
 
-#import "Core/SAConfigOptions.h"
+#import "../Core/SAConfigOptions.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

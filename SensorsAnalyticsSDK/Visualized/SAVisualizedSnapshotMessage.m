@@ -32,7 +32,7 @@
 #import "../Core/SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAVisualizedObjectSerializerManager.h"
-#import "Core/Utils/SACommonUtility.h"
+#import "../Core/Utils/SACommonUtility.h"
 
 #pragma mark -- Snapshot Request
 

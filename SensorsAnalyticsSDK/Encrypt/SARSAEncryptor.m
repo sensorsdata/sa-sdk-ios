@@ -24,8 +24,8 @@
 
 #import "SARSAEncryptor.h"
 #import <Security/Security.h>
-#import "Core/Utils/SAValidator.h"
-#import "Core/SALogger/SALog.h"
+#import "../Core/Utils/SAValidator.h"
+#import "../Core/SALogger/SALog.h"
 
 @interface SARSAEncryptor ()
 

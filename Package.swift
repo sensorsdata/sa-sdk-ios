@@ -29,24 +29,27 @@ let package = Package(
     targets: [
         .target(
             name: "SensorsAnalyticsAppPush",
-            path: "SensorsAnalyticsSDK/AppPush/"
+            path: "SensorsAnalyticsSDK/AppPush/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsAutoTrack",
-            path: "SensorsAnalyticsSDK/AutoTrack/"
+            path: "SensorsAnalyticsSDK/AutoTrack/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsCAID",
-            path: "SensorsAnalyticsSDK/CAID/"
+            path: "SensorsAnalyticsSDK/CAID/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsChannelMatch",
-            path: "SensorsAnalyticsSDK/ChannelMatch/"
+            path: "SensorsAnalyticsSDK/ChannelMatch/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsCore",
             path: "SensorsAnalyticsSDK/Core/",
-            resources: [.copy("SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle")],
             publicHeadersPath: ".",
             linkerSettings: [
                 .linkedLibrary("icucore"),
@@ -56,47 +59,58 @@ let package = Package(
         ),
         .target(
             name: "SensorsAnalyticsDebugMode",
-            path: "SensorsAnalyticsSDK/DebugMode/"
+            path: "SensorsAnalyticsSDK/DebugMode/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsDeeplink",
-            path: "SensorsAnalyticsSDK/Deeplink/"
+            path: "SensorsAnalyticsSDK/Deeplink/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsDeviceOrientation",
-            path: "SensorsAnalyticsSDK/DeviceOrientation/"
+            path: "SensorsAnalyticsSDK/DeviceOrientation/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsEncrypt",
-            path: "SensorsAnalyticsSDK/Encrypt/"
+            path: "SensorsAnalyticsSDK/Encrypt/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsException",
-            path: "SensorsAnalyticsSDK/Exception/"
+            path: "SensorsAnalyticsSDK/Exception/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsJSBridge",
-            path: "SensorsAnalyticsSDK/JSBridge/"
+            path: "SensorsAnalyticsSDK/JSBridge/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsLocation",
-            path: "SensorsAnalyticsSDK/Location/"
+            path: "SensorsAnalyticsSDK/Location/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsRemoteConfig",
-            path: "SensorsAnalyticsSDK/RemoteConfig/"
+            path: "SensorsAnalyticsSDK/RemoteConfig/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsVisualized",
-            path: "SensorsAnalyticsSDK/Visualized/"
+            path: "SensorsAnalyticsSDK/Visualized/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsWebView",
-            path: "SensorsAnalyticsSDK/WebView/"
+            path: "SensorsAnalyticsSDK/WebView/",
+            publicHeadersPath: "."
         ),
         .target(
             name: "SensorsAnalyticsWKWebView",
-            path: "SensorsAnalyticsSDK/WKWebView/"
+            path: "SensorsAnalyticsSDK/WKWebView/",
+            publicHeadersPath: "."
         ),
     ]
 )
