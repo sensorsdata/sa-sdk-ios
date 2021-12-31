@@ -117,6 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// login 时自定义登录 ID 字段名
 @property (nonatomic, copy) NSString *loginIDKey;
 
+/// 是否进行 session 切割。默认 NO，不会进行 session 切割；设置 YES，会进行 session 切割
+@property (nonatomic, assign) BOOL enableSession;
+
 @end
 
 NS_ASSUME_NONNULL_END

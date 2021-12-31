@@ -125,6 +125,7 @@
     options.flushNetworkPolicy = self.flushNetworkPolicy;
     options.disableSDK = self.disableSDK;
     options.loginIDKey = self.loginIDKey;
+    options.enableSession = self.enableSession;
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书

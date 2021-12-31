@@ -90,4 +90,9 @@
     return filepath;
 }
 
+#pragma mark - file exits
++ (BOOL)isFileExistsWithFileName:(NSString *)fileName {
+    return [[NSFileManager defaultManager] fileExistsAtPath:[SAFileStore filePath:fileName]];
+}
+
 @end

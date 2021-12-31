@@ -120,6 +120,9 @@
     [self.properties removeObjectsForKeys:needRemoveKeys];
 }
 
+- (void)addSessionPropertiesWithObject:(id)object {
+}
+
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle {
 }
 

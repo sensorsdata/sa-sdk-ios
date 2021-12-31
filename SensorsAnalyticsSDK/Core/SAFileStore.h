@@ -57,6 +57,15 @@ NS_ASSUME_NONNULL_BEGIN
 */
 + (NSString *)filePath:(NSString *)fileName;
 
+/**
+ @abstract
+ 判断文件是否存在
+
+ @param fileName 文件名
+ @return 是否存在
+*/
++ (BOOL)isFileExistsWithFileName:(NSString *)fileName;
+
 @end
 
 NS_ASSUME_NONNULL_END

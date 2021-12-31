@@ -257,6 +257,8 @@
 		A8CC223C2685E50C00E96A03 /* SARemoteConfigCommonOperator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8CC222E2685E50C00E96A03 /* SARemoteConfigCommonOperator.h */; };
 		A8CC223D2685E50C00E96A03 /* SARemoteConfigCheckOperator.h in Headers */ = {isa = PBXBuildFile; fileRef = A8CC222F2685E50C00E96A03 /* SARemoteConfigCheckOperator.h */; };
 		A8CC223E2685E50C00E96A03 /* SARemoteConfigModel.h in Headers */ = {isa = PBXBuildFile; fileRef = A8CC22302685E50C00E96A03 /* SARemoteConfigModel.h */; };
+		A8FEFB2C277C0ADA0011D0BB /* SASessionProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8FEFB2A277C0ADA0011D0BB /* SASessionProperty.h */; };
+		A8FEFB2D277C0ADA0011D0BB /* SASessionProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8FEFB2B277C0ADA0011D0BB /* SASessionProperty.m */; };
 		CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		CB30C31322843D3A0004061D /* SensorsAnalyticsExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */; };
@@ -605,6 +607,8 @@
 		A8CC222E2685E50C00E96A03 /* SARemoteConfigCommonOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigCommonOperator.h; sourceTree = "<group>"; };
 		A8CC222F2685E50C00E96A03 /* SARemoteConfigCheckOperator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigCheckOperator.h; sourceTree = "<group>"; };
 		A8CC22302685E50C00E96A03 /* SARemoteConfigModel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SARemoteConfigModel.h; sourceTree = "<group>"; };
+		A8FEFB2A277C0ADA0011D0BB /* SASessionProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SASessionProperty.h; sourceTree = "<group>"; };
+		A8FEFB2B277C0ADA0011D0BB /* SASessionProperty.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASessionProperty.m; sourceTree = "<group>"; };
 		CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SensorsAnalyticsSDK.bundle; sourceTree = "<group>"; };
 		CB30C30F22843D3A0004061D /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -709,6 +713,8 @@
 				45A5655A263C174300C9C41B /* SAPresetProperty.m */,
 				45A5655B263C174300C9C41B /* SASuperProperty.h */,
 				45A5654A263C174300C9C41B /* SASuperProperty.m */,
+				A8FEFB2A277C0ADA0011D0BB /* SASessionProperty.h */,
+				A8FEFB2B277C0ADA0011D0BB /* SASessionProperty.m */,
 			);
 			path = Builder;
 			sourceTree = "<group>";
@@ -1551,6 +1557,7 @@
 				A8356DC82656459A00FD64AA /* SAScrollViewDelegateProxy.h in Headers */,
 				A8356DBE2656459A00FD64AA /* UIView+AutoTrack.h in Headers */,
 				4D41D9D325FF7E9300D856F4 /* UIViewController+SAElementPath.h in Headers */,
+				A8FEFB2C277C0ADA0011D0BB /* SASessionProperty.h in Headers */,
 				4DD1285325F872A4008C0B1E /* SAVisualizedAbstractMessage.h in Headers */,
 				452472C8273E3ACB00865E44 /* SADelegateProxyObject.h in Headers */,
 				4D2D53992591EB2100805141 /* SADatabase.h in Headers */,
@@ -1774,6 +1781,7 @@
 				A8356DD02656459A00FD64AA /* SAGeneralGestureViewProcessor.m in Sources */,
 				F22E1B1C26A55C8A0033A748 /* SAAppPageLeaveTracker.m in Sources */,
 				881A4194253D7B4F00854F69 /* SATrackTimer.m in Sources */,
+				A8FEFB2D277C0ADA0011D0BB /* SASessionProperty.m in Sources */,
 				A82E895D267D918100475757 /* SAECCPluginEncryptor.m in Sources */,
 				A8CC22352685E50C00E96A03 /* SARemoteConfigCommonOperator.m in Sources */,
 				4D9B536826382F0100318B1D /* SADeviceOrientationManager.m in Sources */,

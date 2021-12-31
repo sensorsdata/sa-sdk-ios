@@ -28,6 +28,7 @@
 #import "SAValidator.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SASessionProperty.h"
 
 @implementation SATrackEventObject
 
@@ -78,6 +79,15 @@
     }
     self.properties[kSAEventPresetPropertyLibMethod] = libMethod;
     self.lib.method = libMethod;
+}
+
+- (void)addSessionPropertiesWithObject:(id)object {
+    if (![object isKindOfClass:[SASessionProperty class]]) {
+        return;
+    }
+    
+    NSDictionary *properties = [(SASessionProperty *)object sessionPropertiesWithEventTime:@(self.timeStamp)];
+    [self.properties addEntriesFromDictionary:properties];
 }
 
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle {

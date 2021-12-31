@@ -48,6 +48,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param properties 自定义属性
 - (void)addCustomProperties:(NSDictionary *)properties;
 
+/// 添加 session 相关属性
+/// @param object session 实例
+- (void)addSessionPropertiesWithObject:(nullable id)object;
+
 /// 添加前向页面标题
 /// @param referrerTitle 前向页面标题
 - (void)addReferrerTitleProperty:(NSString *)referrerTitle;

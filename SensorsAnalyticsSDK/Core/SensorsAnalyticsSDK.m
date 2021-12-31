@@ -42,8 +42,9 @@
 #import "SAJSONUtil.h"
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
+#import "SASessionProperty.h"
 
-#define VERSION @"4.1.3"
+#define VERSION @"4.1.4"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -82,6 +83,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 @property (nonatomic, strong) SAPresetProperty *presetProperty;
 
 @property (nonatomic, strong) SASuperProperty *superProperty;
+
+@property (nonatomic, strong) SASessionProperty *sessionProperty;
 
 @property (atomic, strong) SAConsoleLogger *consoleLogger;
 
@@ -207,6 +210,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
 
             _superProperty = [[SASuperProperty alloc] init];
+            
+            if (_configOptions.enableSession) {
+                _sessionProperty = [[SASessionProperty alloc] init];
+            } else {
+                [SASessionProperty removeSessionModel];
+            }
 
             if (!_configOptions.disableSDK) {
                 [[SAReachability sharedInstance] startMonitoring];
@@ -620,15 +629,19 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [object addCustomProperties:properties];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
+    
+    // 6. 添加 $event_session_id
+    [object addSessionPropertiesWithObject:self.sessionProperty];
+    
     // 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id 属性, 因此需要将修正逻操作放在所有属性添加后
     [object correctDeviceID:self.presetProperty.deviceID];
 
-    // 6. trackEventCallback 接口调用
+    // 7. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
         return;
     }
 
-    // 7. 发送通知 & 事件采集
+    // 8. 发送通知 & 事件采集
     NSDictionary *result = [object jsonObject];
     [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
     [self.eventTracker trackEvent:result isSignUp:object.isSignUp];
@@ -1117,13 +1130,17 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
             // 每次 track 时手机网络状态
             [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
+
+            [propertiesDict removeObjectForKey:@"_nocache"];
         }
+        [eventDict removeObjectForKey:@"_nocache"];
+        [eventDict removeObjectForKey:@"server_url"];
 
         NSString *visualProperties = eventDict[kSAEventProperties][@"sensorsdata_app_visual_properties"];
         // 是否包含自定义属性配置
         if (!visualProperties || ![eventDict[kSAEventName] isEqualToString:kSAEventNameWebClick]) {
             eventDict[kSAEventProperties] = propertiesDict;
-            [self trackFromH5WithEventDict:eventDict];
+            [self trackFromH5WithEventDict:eventDict isTrackEvent:isTrackEvent];
             return;
         }
 
@@ -1146,28 +1163,25 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 }
                 propertiesDict[@"sensorsdata_app_visual_properties"] = nil;
                 eventDict[kSAEventProperties] = propertiesDict;
-                [self trackFromH5WithEventDict:eventDict];
+                [self trackFromH5WithEventDict:eventDict isTrackEvent:isTrackEvent];
             });
         }];
     });
 }
-- (void)trackFromH5WithEventDict:(NSMutableDictionary *)eventDict {
+- (void)trackFromH5WithEventDict:(NSMutableDictionary *)eventDict isTrackEvent:(BOOL)isTrackEvent {
     NSNumber *timeStamp = @([[self class] getCurrentTime]);
     NSString *type = eventDict[kSAEventType];
     @try {
         // 校验 properties
         NSMutableDictionary *propertiesDict = [SAPropertyValidator validProperties:eventDict[kSAEventProperties]];
 
-        [eventDict removeObjectForKey:@"_nocache"];
-        [eventDict removeObjectForKey:@"server_url"];
-        
-        if (([type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup])) {
-            //  是否首日访问
-            if ([type isEqualToString:kSAEventTypeTrack]) {
+        // 可视化自定义属性中可能存在同名属性，因此要在设置完可视化自定义属性后再处理如下逻辑
+        // track\sign_up\bind\unbind 事件都需要添加首日访问和 DeepLink 渠道参数
+        if (isTrackEvent) {
+            //  是否首日访问，只有 track/bind/unbind 事件添加 $is_first_day 属性
+            if (![type isEqualToString:kSAEventTypeSignup]) {
                 propertiesDict[kSAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
             }
-            [propertiesDict removeObjectForKey:@"_nocache"];
-
             // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
             [propertiesDict addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
         }
@@ -1201,6 +1215,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 timeStamp = @([customTime unsignedLongLongValue]);
             }
             [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyTime];
+        }
+        
+        // 添加 $event_session_id
+        if (isTrackEvent && self.sessionProperty) {
+            [propertiesDict addEntriesFromDictionary:[self.sessionProperty sessionPropertiesWithEventTime:timeStamp]];
         }
 
         eventDict[kSAEventProperties] = propertiesDict;
