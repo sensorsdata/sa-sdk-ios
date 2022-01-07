@@ -52,6 +52,7 @@
 		4D2D53BE2591EB3A00805141 /* SAJSONUtil.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D53AE2591EB3900805141 /* SAJSONUtil.m */; };
 		4D2D53C22591EB3A00805141 /* SAReadWriteLock.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D2D53B22591EB3900805141 /* SAReadWriteLock.h */; };
 		4D2D53C62591EB3A00805141 /* SACommonUtility.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D53B62591EB3A00805141 /* SACommonUtility.m */; };
+		4D3F15C42787ED5900C16EA3 /* SAVisualizedUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D3F15C32787ED5900C16EA3 /* SAVisualizedUtilsTest.m */; };
 		4D41D9D325FF7E9300D856F4 /* UIViewController+SAElementPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D41D9D125FF7E9300D856F4 /* UIViewController+SAElementPath.h */; };
 		4D41D9D425FF7E9300D856F4 /* UIViewController+SAElementPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D41D9D225FF7E9300D856F4 /* UIViewController+SAElementPath.m */; };
 		4D4DB2C725B7D19C00938842 /* SAClassHelper.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */; };
@@ -76,7 +77,6 @@
 		4D6AE7EF26086ABE00A9CB08 /* SAVisualizedDebugLogTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6AE7ED26086ABE00A9CB08 /* SAVisualizedDebugLogTracker.h */; };
 		4D6AE7FC26086E9300A9CB08 /* SAVisualizedEventCheck.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D6AE7FA26086E9300A9CB08 /* SAVisualizedEventCheck.h */; };
 		4D6AE7FD26086E9300A9CB08 /* SAVisualizedEventCheck.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D6AE7FB26086E9300A9CB08 /* SAVisualizedEventCheck.m */; };
-		4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */; };
 		4D79695A2609D8FE001B0A6C /* SAEventIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D7969582609D8FE001B0A6C /* SAEventIdentifier.h */; };
 		4D79695B2609D8FE001B0A6C /* SAEventIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7969592609D8FE001B0A6C /* SAEventIdentifier.m */; };
 		4D9B536726382F0100318B1D /* SADeviceOrientationManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D9B536526382F0000318B1D /* SADeviceOrientationManager.h */; };
@@ -179,6 +179,9 @@
 		A806642B26905F6C00FFDEBA /* SAChannelMatchManager.h in Headers */ = {isa = PBXBuildFile; fileRef = A806642726905F6C00FFDEBA /* SAChannelMatchManager.h */; };
 		A806642C26905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h in Headers */ = {isa = PBXBuildFile; fileRef = A806642826905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A806642D26905F6C00FFDEBA /* SAChannelMatchManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A806642926905F6C00FFDEBA /* SAChannelMatchManager.m */; };
+		A826F5102729054100934D3E /* SAFileStoreTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A826F50F2729054100934D3E /* SAFileStoreTest.m */; };
+		A826F51227292FB600934D3E /* SAKeyChainItemWrapperTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A826F51127292FB600934D3E /* SAKeyChainItemWrapperTest.m */; };
+		A826F51827293C8B00934D3E /* SATrackTimerTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A826F51727293C8B00934D3E /* SATrackTimerTest.m */; };
 		A82E894E267D918100475757 /* SASecretKeyFactory.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893D267D918100475757 /* SASecretKeyFactory.m */; };
 		A82E894F267D918100475757 /* SAEncryptManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E893E267D918100475757 /* SAEncryptManager.m */; };
 		A82E8950267D918100475757 /* SAAESEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = A82E893F267D918100475757 /* SAAESEncryptor.h */; };
@@ -196,7 +199,9 @@
 		A82E895C267D918100475757 /* SAECCEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E894B267D918100475757 /* SAECCEncryptor.m */; };
 		A82E895D267D918100475757 /* SAECCPluginEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E894C267D918100475757 /* SAECCPluginEncryptor.m */; };
 		A82E895E267D918100475757 /* SARSAPluginEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = A82E894D267D918100475757 /* SARSAPluginEncryptor.m */; };
-		A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */; };
+		A8302C3C2726B2E6006E78CC /* SAProfileEventObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8302C3B2726B2E6006E78CC /* SAProfileEventObjectTest.m */; };
+		A8302C3E2726B900006E78CC /* SAPropertyValidatorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8302C3D2726B900006E78CC /* SAPropertyValidatorTest.m */; };
+		A8302C402726C65A006E78CC /* SATrackEventObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8302C3F2726C65A006E78CC /* SATrackEventObjectTest.m */; };
 		A8356DBC2656459A00FD64AA /* SAAutoTrackManager.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D882656459A00FD64AA /* SAAutoTrackManager.m */; };
 		A8356DBD2656459A00FD64AA /* SAAutoTrackUtils.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D892656459A00FD64AA /* SAAutoTrackUtils.h */; };
 		A8356DBE2656459A00FD64AA /* UIView+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356D8A2656459A00FD64AA /* UIView+AutoTrack.h */; };
@@ -238,6 +243,21 @@
 		A8356DE42656459A00FD64AA /* SAAppViewScreenTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DB92656459A00FD64AA /* SAAppViewScreenTracker.h */; };
 		A8356DE52656459A00FD64AA /* SAAppViewScreenTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356DBA2656459A00FD64AA /* SAAppViewScreenTracker.m */; };
 		A8356DE62656459A00FD64AA /* UIApplication+AutoTrack.h in Headers */ = {isa = PBXBuildFile; fileRef = A8356DBB2656459A00FD64AA /* UIApplication+AutoTrack.h */; };
+		A8A2BBC72722AB4900B2DEDC /* SAURLUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBBE2722AB4900B2DEDC /* SAURLUtilsTest.m */; };
+		A8A2BBC92722AB4900B2DEDC /* SANSStringHashCodeTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC02722AB4900B2DEDC /* SANSStringHashCodeTest.m */; };
+		A8A2BBCA2722AB4900B2DEDC /* SAJSONUtilTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC12722AB4900B2DEDC /* SAJSONUtilTest.m */; };
+		A8A2BBCB2722AB4900B2DEDC /* SACommonUtilityTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC22722AB4900B2DEDC /* SACommonUtilityTest.m */; };
+		A8A2BBCC2722AB4900B2DEDC /* SAGzipUtilityTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC32722AB4900B2DEDC /* SAGzipUtilityTest.m */; };
+		A8A2BBCD2722AB4900B2DEDC /* SAValidatorTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC42722AB4900B2DEDC /* SAValidatorTest.m */; };
+		A8A2BBCE2722AB4900B2DEDC /* SAUtilsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC52722AB4900B2DEDC /* SAUtilsTest.m */; };
+		A8A2BBCF2722AB4900B2DEDC /* SADateFormatterTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBC62722AB4900B2DEDC /* SADateFormatterTest.m */; };
+		A8A2BBD22722AB6100B2DEDC /* SALogMessageTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBD12722AB6100B2DEDC /* SALogMessageTest.m */; };
+		A8A2BBD72722AB6F00B2DEDC /* SAPresetPropertyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBD42722AB6F00B2DEDC /* SAPresetPropertyTest.m */; };
+		A8A2BBD82722AB6F00B2DEDC /* SAIdentifierTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBD52722AB6F00B2DEDC /* SAIdentifierTest.m */; };
+		A8A2BBD92722AB6F00B2DEDC /* SASuperPropertyTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBD62722AB6F00B2DEDC /* SASuperPropertyTest.m */; };
+		A8A2BBDE2722AF8300B2DEDC /* SABaseEventObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBDD2722AF8300B2DEDC /* SABaseEventObjectTest.m */; };
+		A8A2BBE02722B91A00B2DEDC /* SAEventLibObjectTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8A2BBDF2722B91A00B2DEDC /* SAEventLibObjectTest.m */; };
+		A8B48EB027281097009C71ED /* SANetworkTest.m in Sources */ = {isa = PBXBuildFile; fileRef = A8B48EAF27281097009C71ED /* SANetworkTest.m */; };
 		A8BCC4A82686C2D800B72040 /* SAConfigOptions+Encrypt.m in Sources */ = {isa = PBXBuildFile; fileRef = A8BCC4A72686C2D800B72040 /* SAConfigOptions+Encrypt.m */; };
 		A8BCC4AB2686C42D00B72040 /* SASecretKey.h in Headers */ = {isa = PBXBuildFile; fileRef = A8BCC4A92686C42D00B72040 /* SASecretKey.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		A8BCC4AC2686C42D00B72040 /* SASecretKey.m in Sources */ = {isa = PBXBuildFile; fileRef = A8BCC4AA2686C42D00B72040 /* SASecretKey.m */; };
@@ -261,12 +281,11 @@
 		A8FEFB2D277C0ADA0011D0BB /* SASessionProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8FEFB2B277C0ADA0011D0BB /* SASessionProperty.m */; };
 		CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		CB30C31322843D3A0004061D /* SensorsAnalyticsExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */; };
+		CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTest.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTest.m */; };
 		CB6EBAE8228551ED003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */; };
 		CB6EBAF322855222003CFBA8 /* cert.outdate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAEF22855222003CFBA8 /* cert.outdate.cer */; };
 		CB6EBAF422855222003CFBA8 /* ca.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAF022855222003CFBA8 /* ca.cer1 */; };
 		CB6EBAF522855222003CFBA8 /* ca.der.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAF122855222003CFBA8 /* ca.der.cer */; };
-		CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */ = {isa = PBXBuildFile; fileRef = CB6EBAF222855222003CFBA8 /* SANetworkTests.m */; };
 		F2066972271FFEE10002ABDF /* UIViewController+SAPageLeave.m in Sources */ = {isa = PBXBuildFile; fileRef = F2066970271FFEE10002ABDF /* UIViewController+SAPageLeave.m */; };
 		F2066973271FFEE10002ABDF /* UIViewController+SAPageLeave.h in Headers */ = {isa = PBXBuildFile; fileRef = F2066971271FFEE10002ABDF /* UIViewController+SAPageLeave.h */; };
 		F211742126E9A72C00D65E19 /* SAApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = F211741F26E9A72B00D65E19 /* SAApplication.h */; };
@@ -317,8 +336,6 @@
 		F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E9723025E637820009A2B9 /* SAAppPushManager.m */; };
 		FC002920262C189E00A18FE3 /* SAConfigOptions+Encrypt.h in Headers */ = {isa = PBXBuildFile; fileRef = FC0028EF2629756400A18FE3 /* SAConfigOptions+Encrypt.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */; };
-		FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */; };
-		FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */; };
 		FCE7F19D263012660018EB14 /* SAEncryptTests.m in Sources */ = {isa = PBXBuildFile; fileRef = FCE7F19C263012660018EB14 /* SAEncryptTests.m */; };
 /* End PBXBuildFile section */
 
@@ -405,6 +422,7 @@
 		4D2D53B62591EB3A00805141 /* SACommonUtility.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SACommonUtility.m; sourceTree = "<group>"; };
 		4D2D53B72591EB3A00805141 /* SAValidator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAValidator.h; sourceTree = "<group>"; };
 		4D2D53B82591EB3A00805141 /* SACommonUtility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SACommonUtility.h; sourceTree = "<group>"; };
+		4D3F15C32787ED5900C16EA3 /* SAVisualizedUtilsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedUtilsTest.m; sourceTree = "<group>"; };
 		4D41D9D125FF7E9300D856F4 /* UIViewController+SAElementPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIViewController+SAElementPath.h"; sourceTree = "<group>"; };
 		4D41D9D225FF7E9300D856F4 /* UIViewController+SAElementPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+SAElementPath.m"; sourceTree = "<group>"; };
 		4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAClassHelper.h; sourceTree = "<group>"; };
@@ -422,7 +440,6 @@
 		4D6AE7ED26086ABE00A9CB08 /* SAVisualizedDebugLogTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedDebugLogTracker.h; sourceTree = "<group>"; };
 		4D6AE7FA26086E9300A9CB08 /* SAVisualizedEventCheck.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedEventCheck.h; sourceTree = "<group>"; };
 		4D6AE7FB26086E9300A9CB08 /* SAVisualizedEventCheck.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedEventCheck.m; sourceTree = "<group>"; };
-		4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUtilsTest.m; sourceTree = "<group>"; };
 		4D7969582609D8FE001B0A6C /* SAEventIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventIdentifier.h; sourceTree = "<group>"; };
 		4D7969592609D8FE001B0A6C /* SAEventIdentifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventIdentifier.m; sourceTree = "<group>"; };
 		4D8CE4C622E872B400829B29 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -529,6 +546,9 @@
 		A806642726905F6C00FFDEBA /* SAChannelMatchManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAChannelMatchManager.h; sourceTree = "<group>"; };
 		A806642826905F6C00FFDEBA /* SensorsAnalyticsSDK+SAChannelMatch.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAChannelMatch.h"; sourceTree = "<group>"; };
 		A806642926905F6C00FFDEBA /* SAChannelMatchManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAChannelMatchManager.m; sourceTree = "<group>"; };
+		A826F50F2729054100934D3E /* SAFileStoreTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAFileStoreTest.m; sourceTree = "<group>"; };
+		A826F51127292FB600934D3E /* SAKeyChainItemWrapperTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAKeyChainItemWrapperTest.m; sourceTree = "<group>"; };
+		A826F51727293C8B00934D3E /* SATrackTimerTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTest.m; sourceTree = "<group>"; };
 		A82E893D267D918100475757 /* SASecretKeyFactory.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASecretKeyFactory.m; sourceTree = "<group>"; };
 		A82E893E267D918100475757 /* SAEncryptManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptManager.m; sourceTree = "<group>"; };
 		A82E893F267D918100475757 /* SAAESEncryptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAESEncryptor.h; sourceTree = "<group>"; };
@@ -546,7 +566,9 @@
 		A82E894B267D918100475757 /* SAECCEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAECCEncryptor.m; sourceTree = "<group>"; };
 		A82E894C267D918100475757 /* SAECCPluginEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAECCPluginEncryptor.m; sourceTree = "<group>"; };
 		A82E894D267D918100475757 /* SARSAPluginEncryptor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SARSAPluginEncryptor.m; sourceTree = "<group>"; };
-		A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTests.m; sourceTree = "<group>"; };
+		A8302C3B2726B2E6006E78CC /* SAProfileEventObjectTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAProfileEventObjectTest.m; sourceTree = "<group>"; };
+		A8302C3D2726B900006E78CC /* SAPropertyValidatorTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPropertyValidatorTest.m; sourceTree = "<group>"; };
+		A8302C3F2726C65A006E78CC /* SATrackEventObjectTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackEventObjectTest.m; sourceTree = "<group>"; };
 		A8356D882656459A00FD64AA /* SAAutoTrackManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackManager.m; sourceTree = "<group>"; };
 		A8356D892656459A00FD64AA /* SAAutoTrackUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackUtils.h; sourceTree = "<group>"; };
 		A8356D8A2656459A00FD64AA /* UIView+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+AutoTrack.h"; sourceTree = "<group>"; };
@@ -588,6 +610,21 @@
 		A8356DB92656459A00FD64AA /* SAAppViewScreenTracker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppViewScreenTracker.h; sourceTree = "<group>"; };
 		A8356DBA2656459A00FD64AA /* SAAppViewScreenTracker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppViewScreenTracker.m; sourceTree = "<group>"; };
 		A8356DBB2656459A00FD64AA /* UIApplication+AutoTrack.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIApplication+AutoTrack.h"; sourceTree = "<group>"; };
+		A8A2BBBE2722AB4900B2DEDC /* SAURLUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAURLUtilsTest.m; sourceTree = "<group>"; };
+		A8A2BBC02722AB4900B2DEDC /* SANSStringHashCodeTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANSStringHashCodeTest.m; sourceTree = "<group>"; };
+		A8A2BBC12722AB4900B2DEDC /* SAJSONUtilTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAJSONUtilTest.m; sourceTree = "<group>"; };
+		A8A2BBC22722AB4900B2DEDC /* SACommonUtilityTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SACommonUtilityTest.m; sourceTree = "<group>"; };
+		A8A2BBC32722AB4900B2DEDC /* SAGzipUtilityTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAGzipUtilityTest.m; sourceTree = "<group>"; };
+		A8A2BBC42722AB4900B2DEDC /* SAValidatorTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAValidatorTest.m; sourceTree = "<group>"; };
+		A8A2BBC52722AB4900B2DEDC /* SAUtilsTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAUtilsTest.m; sourceTree = "<group>"; };
+		A8A2BBC62722AB4900B2DEDC /* SADateFormatterTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SADateFormatterTest.m; sourceTree = "<group>"; };
+		A8A2BBD12722AB6100B2DEDC /* SALogMessageTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SALogMessageTest.m; sourceTree = "<group>"; };
+		A8A2BBD42722AB6F00B2DEDC /* SAPresetPropertyTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyTest.m; sourceTree = "<group>"; };
+		A8A2BBD52722AB6F00B2DEDC /* SAIdentifierTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTest.m; sourceTree = "<group>"; };
+		A8A2BBD62722AB6F00B2DEDC /* SASuperPropertyTest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SASuperPropertyTest.m; sourceTree = "<group>"; };
+		A8A2BBDD2722AF8300B2DEDC /* SABaseEventObjectTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SABaseEventObjectTest.m; sourceTree = "<group>"; };
+		A8A2BBDF2722B91A00B2DEDC /* SAEventLibObjectTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventLibObjectTest.m; sourceTree = "<group>"; };
+		A8B48EAF27281097009C71ED /* SANetworkTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SANetworkTest.m; sourceTree = "<group>"; };
 		A8BCC4A72686C2D800B72040 /* SAConfigOptions+Encrypt.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SAConfigOptions+Encrypt.m"; sourceTree = "<group>"; };
 		A8BCC4A92686C42D00B72040 /* SASecretKey.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASecretKey.h; sourceTree = "<group>"; };
 		A8BCC4AA2686C42D00B72040 /* SASecretKey.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SASecretKey.m; sourceTree = "<group>"; };
@@ -614,12 +651,11 @@
 		CB30C30F22843D3A0004061D /* SensorsAnalyticsExtension.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = SensorsAnalyticsExtension.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C31122843D3A0004061D /* SensorsAnalyticsExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsExtension.h; sourceTree = "<group>"; };
 		CB6EBAE3228551EC003CFBA8 /* SensorsAnalyticsTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SensorsAnalyticsTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTests.m; sourceTree = "<group>"; };
+		CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SensorsAnalyticsTest.m; sourceTree = "<group>"; };
 		CB6EBAE7228551EC003CFBA8 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		CB6EBAEF22855222003CFBA8 /* cert.outdate.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = cert.outdate.cer; sourceTree = "<group>"; };
 		CB6EBAF022855222003CFBA8 /* ca.cer1 */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = ca.cer1; sourceTree = "<group>"; };
 		CB6EBAF122855222003CFBA8 /* ca.der.cer */ = {isa = PBXFileReference; lastKnownFileType = file; path = ca.der.cer; sourceTree = "<group>"; };
-		CB6EBAF222855222003CFBA8 /* SANetworkTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SANetworkTests.m; sourceTree = "<group>"; };
 		F2066970271FFEE10002ABDF /* UIViewController+SAPageLeave.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIViewController+SAPageLeave.m"; sourceTree = "<group>"; };
 		F2066971271FFEE10002ABDF /* UIViewController+SAPageLeave.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIViewController+SAPageLeave.h"; sourceTree = "<group>"; };
 		F211741F26E9A72B00D65E19 /* SAApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAApplication.h; sourceTree = "<group>"; };
@@ -670,8 +706,6 @@
 		F2E9723025E637820009A2B9 /* SAAppPushManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppPushManager.m; sourceTree = "<group>"; };
 		FC0028EF2629756400A18FE3 /* SAConfigOptions+Encrypt.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+Encrypt.h"; sourceTree = "<group>"; };
 		FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALinkHandlerTests.m; sourceTree = "<group>"; };
-		FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SATrackTimerTests.m; sourceTree = "<group>"; };
-		FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAIdentifierTests.m; sourceTree = "<group>"; };
 		FCE7F19C263012660018EB14 /* SAEncryptTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAEncryptTests.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -806,6 +840,14 @@
 				4D41D9D225FF7E9300D856F4 /* UIViewController+SAElementPath.m */,
 			);
 			path = ElementPath;
+			sourceTree = "<group>";
+		};
+		4D3F15C12787ECF600C16EA3 /* Visualized */ = {
+			isa = PBXGroup;
+			children = (
+				4D3F15C32787ED5900C16EA3 /* SAVisualizedUtilsTest.m */,
+			);
+			path = Visualized;
 			sourceTree = "<group>";
 		};
 		4D6A188D22978F5B00F6B218 /* AutoTrack */ = {
@@ -1226,6 +1268,60 @@
 			path = AppViewScreen;
 			sourceTree = "<group>";
 		};
+		A8A2BBBD2722AB4900B2DEDC /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				A8A2BBBE2722AB4900B2DEDC /* SAURLUtilsTest.m */,
+				A8A2BBC02722AB4900B2DEDC /* SANSStringHashCodeTest.m */,
+				A8A2BBC12722AB4900B2DEDC /* SAJSONUtilTest.m */,
+				A8A2BBC22722AB4900B2DEDC /* SACommonUtilityTest.m */,
+				A8A2BBC32722AB4900B2DEDC /* SAGzipUtilityTest.m */,
+				A8A2BBC42722AB4900B2DEDC /* SAValidatorTest.m */,
+				A8A2BBC52722AB4900B2DEDC /* SAUtilsTest.m */,
+				A8A2BBC62722AB4900B2DEDC /* SADateFormatterTest.m */,
+			);
+			path = Utils;
+			sourceTree = "<group>";
+		};
+		A8A2BBD02722AB6100B2DEDC /* SALogger */ = {
+			isa = PBXGroup;
+			children = (
+				A8A2BBD12722AB6100B2DEDC /* SALogMessageTest.m */,
+			);
+			path = SALogger;
+			sourceTree = "<group>";
+		};
+		A8A2BBD32722AB6F00B2DEDC /* Builder */ = {
+			isa = PBXGroup;
+			children = (
+				A8A2BBDC2722AF6F00B2DEDC /* EventObject */,
+				A8A2BBD42722AB6F00B2DEDC /* SAPresetPropertyTest.m */,
+				A8A2BBD52722AB6F00B2DEDC /* SAIdentifierTest.m */,
+				A8A2BBD62722AB6F00B2DEDC /* SASuperPropertyTest.m */,
+			);
+			path = Builder;
+			sourceTree = "<group>";
+		};
+		A8A2BBDC2722AF6F00B2DEDC /* EventObject */ = {
+			isa = PBXGroup;
+			children = (
+				A8A2BBDD2722AF8300B2DEDC /* SABaseEventObjectTest.m */,
+				A8A2BBDF2722B91A00B2DEDC /* SAEventLibObjectTest.m */,
+				A8302C3B2726B2E6006E78CC /* SAProfileEventObjectTest.m */,
+				A8302C3D2726B900006E78CC /* SAPropertyValidatorTest.m */,
+				A8302C3F2726C65A006E78CC /* SATrackEventObjectTest.m */,
+			);
+			path = EventObject;
+			sourceTree = "<group>";
+		};
+		A8B48EAE27281071009C71ED /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				A8B48EAF27281097009C71ED /* SANetworkTest.m */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
 		A8BCC4D626872A3F00B72040 /* Deeplink */ = {
 			isa = PBXGroup;
 			children = (
@@ -1331,17 +1427,20 @@
 		CB6EBAE4228551EC003CFBA8 /* SensorsAnalyticsTests */ = {
 			isa = PBXGroup;
 			children = (
+				4D3F15C12787ECF600C16EA3 /* Visualized */,
+				A8B48EAE27281071009C71ED /* Network */,
+				A8A2BBD32722AB6F00B2DEDC /* Builder */,
+				A8A2BBD02722AB6100B2DEDC /* SALogger */,
+				A8A2BBBD2722AB4900B2DEDC /* Utils */,
 				880F37D824AC31A6005AC8A0 /* Tracker */,
 				4D6A188D22978F5B00F6B218 /* AutoTrack */,
 				CB6EBAEE22855222003CFBA8 /* Resources */,
-				CB6EBAF222855222003CFBA8 /* SANetworkTests.m */,
 				FCE7F19C263012660018EB14 /* SAEncryptTests.m */,
 				FC23719423D0519A00DDD708 /* SALinkHandlerTests.m */,
-				FC3C58D923BEEFB000D83BF4 /* SATrackTimerTests.m */,
-				FC80AB7B242CB17A006D1D25 /* SAIdentifierTests.m */,
-				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTests.m */,
-				A83129A9246E400B00A18C25 /* SAPresetPropertyTests.m */,
-				4D76AEEE2364393400B4D0AF /* SAUtilsTest.m */,
+				A826F50F2729054100934D3E /* SAFileStoreTest.m */,
+				A826F51127292FB600934D3E /* SAKeyChainItemWrapperTest.m */,
+				A826F51727293C8B00934D3E /* SATrackTimerTest.m */,
+				CB6EBAE5228551EC003CFBA8 /* SensorsAnalyticsTest.m */,
 				CB6EBAE7228551EC003CFBA8 /* Info.plist */,
 			);
 			path = SensorsAnalyticsTests;
@@ -1892,17 +1991,34 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				A8A2BBCB2722AB4900B2DEDC /* SACommonUtilityTest.m in Sources */,
 				880F37DA24AC34A4005AC8A0 /* SAEventStoreTests.m in Sources */,
-				A83129AA246E400B00A18C25 /* SAPresetPropertyTests.m in Sources */,
+				A8A2BBDE2722AF8300B2DEDC /* SABaseEventObjectTest.m in Sources */,
+				A826F51827293C8B00934D3E /* SATrackTimerTest.m in Sources */,
 				4D6A189222978F5B00F6B218 /* SAAutoTrackUtilsTest.m in Sources */,
-				CB6EBAF622855222003CFBA8 /* SANetworkTests.m in Sources */,
-				FC80AB7C242CB17A006D1D25 /* SAIdentifierTests.m in Sources */,
-				4D76AEEF2364393400B4D0AF /* SAUtilsTest.m in Sources */,
-				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTests.m in Sources */,
+				A8A2BBCC2722AB4900B2DEDC /* SAGzipUtilityTest.m in Sources */,
+				A826F5102729054100934D3E /* SAFileStoreTest.m in Sources */,
+				A8302C3E2726B900006E78CC /* SAPropertyValidatorTest.m in Sources */,
+				A8A2BBD92722AB6F00B2DEDC /* SASuperPropertyTest.m in Sources */,
+				4D3F15C42787ED5900C16EA3 /* SAVisualizedUtilsTest.m in Sources */,
+				CB6EBAE6228551EC003CFBA8 /* SensorsAnalyticsTest.m in Sources */,
+				A8A2BBCD2722AB4900B2DEDC /* SAValidatorTest.m in Sources */,
+				A8A2BBCA2722AB4900B2DEDC /* SAJSONUtilTest.m in Sources */,
+				A826F51227292FB600934D3E /* SAKeyChainItemWrapperTest.m in Sources */,
+				A8A2BBC72722AB4900B2DEDC /* SAURLUtilsTest.m in Sources */,
 				F214CE58249A07DF00A2633D /* SADatabaseUnitTest.m in Sources */,
 				FC23719523D0519A00DDD708 /* SALinkHandlerTests.m in Sources */,
-				FC3C58DA23BEEFB000D83BF4 /* SATrackTimerTests.m in Sources */,
+				A8302C402726C65A006E78CC /* SATrackEventObjectTest.m in Sources */,
+				A8A2BBC92722AB4900B2DEDC /* SANSStringHashCodeTest.m in Sources */,
+				A8A2BBCE2722AB4900B2DEDC /* SAUtilsTest.m in Sources */,
+				A8A2BBCF2722AB4900B2DEDC /* SADateFormatterTest.m in Sources */,
+				A8B48EB027281097009C71ED /* SANetworkTest.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
+				A8A2BBD82722AB6F00B2DEDC /* SAIdentifierTest.m in Sources */,
+				A8302C3C2726B2E6006E78CC /* SAProfileEventObjectTest.m in Sources */,
+				A8A2BBD72722AB6F00B2DEDC /* SAPresetPropertyTest.m in Sources */,
+				A8A2BBE02722B91A00B2DEDC /* SAEventLibObjectTest.m in Sources */,
+				A8A2BBD22722AB6100B2DEDC /* SALogMessageTest.m in Sources */,
 				FCE7F19D263012660018EB14 /* SAEncryptTests.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

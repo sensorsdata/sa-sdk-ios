@@ -115,7 +115,7 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
     return [self.dynamicSuperPropertiesLock readWithBlock:^id _Nonnull{
         if (self.dynamicSuperProperties) {
             NSDictionary *dynamicProperties = self.dynamicSuperProperties();
-            NSDictionary *validProperties = [SAPropertyValidator validProperties:dynamicProperties];
+            NSDictionary *validProperties = [SAPropertyValidator validProperties:[dynamicProperties copy]];
             [self unregisterSameLetterSuperProperties:validProperties];
             return validProperties;
         }

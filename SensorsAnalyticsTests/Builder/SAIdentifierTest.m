@@ -1,5 +1,5 @@
 //
-// SAIdentifierManagerTests.m
+// SAIdentifierTest.m
 // SensorsAnalyticsTests
 //
 // Created by 彭远洋 on 2020/3/26.
@@ -45,21 +45,20 @@ static NSString *const kCustomValue = @"xyzValue";
 static NSString *const kCookieId = @"$identity_cookie_id";
 static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
-@interface SAIdentifierTests : XCTestCase
+@interface SAIdentifierTest : XCTestCase
 
 @property (nonatomic, strong) SAIdentifier *identifier;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
 @property (nonatomic, copy) NSString *deviceId;
+
 @end
 
-@implementation SAIdentifierTests
+@implementation SAIdentifierTest
 
 - (void)setUp {
-
     NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
     _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-    _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
-    _identifier.loginIDKey = kLoginId;
+    _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue loginIDKey:kLoginId];
     [_identifier logout];
     _deviceId = _identifier.anonymousId;
 }
@@ -89,22 +88,38 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertTrue([_identifier.distinctId isEqualToString:_deviceId]);
 }
 
-- (void)testAnonymousIdMaxLength {
-    // 长度超过 255 会失败
+- (void)testAnonymousIdGreaterThanMaxLength {
     NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < kSAPropertyValueMaxLength + 5; i++) {
         [str appendString:@"a"];
     }
     [_identifier identify:str];
-    XCTAssertTrue(_identifier.anonymousId.length != 300);
+    XCTAssertTrue(_identifier.anonymousId.length == kSAPropertyValueMaxLength + 5);
 }
 
-- (void)testLoginIdMaxLength {
+- (void)testAnonymousIdLessThanMaxLength {
     NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
-    for (int i = 0; i < 300; i++) {
+    for (int i = 0; i < kSAPropertyValueMaxLength - 5; i++) {
         [str appendString:@"a"];
     }
-    XCTAssertFalse([_identifier isValidLoginId:str]);
+    [_identifier identify:str];
+    XCTAssertTrue(_identifier.anonymousId.length == kSAPropertyValueMaxLength - 5);
+}
+
+- (void)testLoginIdGreaterThanMaxLength {
+    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
+    for (int i = 0; i < kSAPropertyValueMaxLength + 5; i++) {
+        [str appendString:@"a"];
+    }
+    XCTAssertTrue([_identifier isValidLoginId:str]);
+}
+
+- (void)testLoginIdLessThanMaxLength {
+    NSMutableString *str = [[NSMutableString alloc] initWithString:@""];
+    for (int i = 0; i < kSAPropertyValueMaxLength - 5; i++) {
+        [str appendString:@"a"];
+    }
+    XCTAssertTrue([_identifier isValidLoginId:str]);
 }
 
 - (void)testLoginWithLoginId {

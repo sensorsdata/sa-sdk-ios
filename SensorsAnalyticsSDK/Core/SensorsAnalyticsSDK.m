@@ -44,7 +44,7 @@
 #import "SAEventTrackerPluginManager.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.1.4"
+#define VERSION @"4.1.5"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -626,7 +626,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
 
     // 5. 添加的自定义属性需要校验
-    [object addCustomProperties:properties];
+    [object addCustomProperties:[properties copy]];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
     

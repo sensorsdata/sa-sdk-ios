@@ -58,7 +58,7 @@
     [self.viewController viewWillAppear:NO];
     [self.viewController viewDidAppear:NO];
 
-    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0" launchOptions:nil];
     options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
     [SensorsAnalyticsSDK startWithConfigOptions:options];
 }
@@ -92,10 +92,6 @@
     XCTAssertTrue([dic[@"$element_id"] isEqualToString:@"FirstButtonViewId"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UIButton"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"FirstButton"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UIButton[(jjf_varE='48e2c5881d79d256751ad1ca00f1ca7b18db2f5e' AND jjf_varB='069e4bf7483d2ce72b7d96ab25df3ee25ccc7725')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithCustomButton {
@@ -108,10 +104,6 @@
     XCTAssertNil(dic[@"$element_position"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"CustomButton"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"SecondButton"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/CustomButton[(jjf_varE='714cdf49ea3239903c52fa1b730832c08b81ef3a' AND jjf_varB='2eda4e1895ef39a601c41da8062d821019d4d99c')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithSlider {
@@ -125,10 +117,6 @@
     XCTAssertNil(dic[@"$element_position"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UISlider"]);
     XCTAssertTrue([dic[@"$element_content"] doubleValue] == 0.5555);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UISlider[(jjf_varB='40be71691d75278c3b4ad73edc118a00f073c31d')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithStepper {
@@ -143,10 +131,6 @@
     XCTAssertNil(dic[@"$element_position"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UIStepper"]);
     XCTAssertTrue([dic[@"$element_content"] doubleValue] == 99);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UIStepper[(jjf_varB='eeb8a2dd9a9743ccf6065c39df3bbdca99059f0c')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithSwitch {
@@ -161,10 +145,6 @@
     XCTAssertNil(dic[@"$element_position"]);
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UISwitch"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"checked"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UISwitch[(jjf_varB='e6e184158358b42cfc78bcc3b19011afc9417547')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithSegmentedControl {
@@ -179,10 +159,6 @@
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UISegmentedControl"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"第二个"]);
     XCTAssertTrue([dic[@"$element_position"] isEqualToString:@"1"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UISegmentedControl[(jjf_varB='fac459bd36d8326d9140192c7900decaf3744f5e')]/UISegment[1]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithTapLabel {
@@ -195,10 +171,6 @@
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UILabel"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"这是一个可以点击的 Label"]);
     XCTAssertNil(dic[@"$element_position"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UILabel[(jjf_varE='7ac9e0fb66ba5d819b14c5520322a6f2f0f2b64e')]";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithTapImageView {
@@ -211,10 +183,6 @@
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UIImageView"]);
     XCTAssertNil(dic[@"$element_content"]);
     XCTAssertNil(dic[@"$element_position"]);
-
-    // version 1.11.0
-    NSString *selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UIScrollView/UIImageView";
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testAutoTrackPropertiesWithTableView {
@@ -228,16 +196,6 @@
     XCTAssertTrue([dic[@"$element_type"] isEqualToString:@"UITableView"]);
     XCTAssertTrue([dic[@"$element_content"] isEqualToString:@"Section: 0, Row: 2"]);
     XCTAssertTrue([dic[@"$element_position"] isEqualToString:@"0:2"]);
-
-    // version 1.11.0
-    NSString *selector = nil;
-    if (@available(iOS 11.0, *)) {
-        selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewCell[0][2]";
-    } else {
-        // iOS 11 以下路径中多 UITableViewWrapperView
-        selector = @"UITabBarController/UINavigationController[1]/ElementViewController/UIView/UITableView/UITableViewWrapperView/UITableViewCell[0][2]";
-    }
-    XCTAssertTrue([dic[@"$element_selector"] isEqualToString:selector]);
 }
 
 - (void)testCategoryDelegateProperty {

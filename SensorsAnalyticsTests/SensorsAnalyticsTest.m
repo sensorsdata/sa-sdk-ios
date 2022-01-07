@@ -1,6 +1,6 @@
 //
-//  SensorsAnalyticsTests.m
-//  SensorsAnalyticsTests
+//  SensorsAnalyticsTest.m
+//  SensorsAnalyticsTest
 //
 //  Created by 张敏超 on 2019/3/12.
 //  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
@@ -22,74 +22,22 @@
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SADatabase.h"
 
-@interface SensorsAnalyticsTests : XCTestCase
-@property (nonatomic, weak) SensorsAnalyticsSDK *sensorsAnalytics;
+@interface SensorsAnalyticsTest : XCTestCase
+
 @end
 
-@interface SensorsAnalyticsSDK()
-@property (atomic, strong) SADatabase *messageQueue;
-@end
-
-@implementation SensorsAnalyticsTests
+@implementation SensorsAnalyticsTest
 
 - (void)setUp {
     // Put setup code here. This method is called before the invocation of each test method in the class.
-    self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
-    if (!self.sensorsAnalytics) {
-        SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-        [SensorsAnalyticsSDK startWithConfigOptions:options];
-        self.sensorsAnalytics = [SensorsAnalyticsSDK sharedInstance];
-    }
+    SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0" launchOptions:nil];
+    options.autoTrackEventType = SensorsAnalyticsEventTypeAppStart | SensorsAnalyticsEventTypeAppEnd | SensorsAnalyticsEventTypeAppClick | SensorsAnalyticsEventTypeAppViewScreen;
+    [SensorsAnalyticsSDK startWithConfigOptions:options];
 }
 
 - (void)tearDown {
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wformat"
-    [self.sensorsAnalytics trackEventCallback:nil];
-#pragma clang diagnostic pop
-    self.sensorsAnalytics = nil;
-}
-
-#pragma mark - fix bug
-/**
- 不支持多线程初始化，由 v1.11.5 修改支持 $AppStart 事件公共属性引入，v1.11.7 新增子线程初始化
- 
- 在使用异步线程初始化 SDK 时，会导致 application:didFinishLaunchingWithOptions: 方法运行结束后才初始化 SDK
- 由于 SDK 中，通过监听 UIApplicationDidFinishLaunchingNotification 触发 $AppStart 事件
- */
-- (void)testMultiThreadInitializedSDK {
-    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
-    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        SAConfigOptions *options = [[SAConfigOptions alloc] initWithServerURL:@"" launchOptions:nil];
-        // 捕获 NSInternalInconsistencyException 异常，是由 NSAssert 抛出的异常
-        XCTAssertThrowsSpecificNamed([SensorsAnalyticsSDK startWithConfigOptions:options], NSException, NSInternalInconsistencyException, @"");
-
-        [expectation fulfill];
-    });
-
-    [self waitForExpectationsWithTimeout:2 handler:^(NSError *error) {
-        XCTAssertNil(error);
-    }];
-}
-
-/**
- 多次调用初始化方法会生成多个实例，不是一个单例对象，v1.11.7 修复
- */
-- (void)testMultipleCallOldInitializeMethod {
-    NSUInteger hash = self.sensorsAnalytics.hash;
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wdeprecated-declarations"
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andDebugMode:SensorsAnalyticsDebugOff];
-    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
-
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andLaunchOptions:nil];
-    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
-
-    [SensorsAnalyticsSDK sharedInstanceWithServerURL:@"" andLaunchOptions:nil andDebugMode:SensorsAnalyticsDebugOff];
-    XCTAssertEqual(hash, [SensorsAnalyticsSDK sharedInstance].hash);
-#pragma clang diagnostic pop
+    // Put teardown code here. This method is called after the invocation of each test method in the class.
 }
 
 // 调用 Profile 相关的方法时，事件名称为 nil，不调用 callback

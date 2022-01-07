@@ -176,9 +176,9 @@
 }
 
 - (void)testECCPluginAsymmetricEncrypt {
-    NSString *publicKey = @"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiNrvHsjE1bg7rdrppTZQLwl5hf6wI76Wfv4+9QsdEOKOWNcLTiYYojWMR0rFj95xJJ8QrI2L+3wG47VP6m4WGHITt3mD4VfGga+p78lvw+ltr/WptP9ccf+yfaf9fygEJqJNGLSuPUffhUZOs7gABe3zHPSixLpwcO/5/skw8lFV0PrepaXfN6cBnVnXiAsSF/6YfpPFlb6EJrjaFTUMtQJGFV5k/G56sYmFQP3tO4ZN3g8H0qeBKrHatMl1vKWp0JJe4/Wim3gvF/qSIkie+pivY7E4MgjchCwluxpCHPm2EwAMPT2SDu4ICcbASDhboMFDbn6u0gM8omM7tqJbzwIDAQAB";
-    NSString *encrypt = [_eccPlugin encryptSymmetricKeyWithPublicKey:publicKey];
-    XCTAssertNil(encrypt);
+//    NSString *publicKey = @"MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAiNrvHsjE1bg7rdrppTZQLwl5hf6wI76Wfv4+9QsdEOKOWNcLTiYYojWMR0rFj95xJJ8QrI2L+3wG47VP6m4WGHITt3mD4VfGga+p78lvw+ltr/WptP9ccf+yfaf9fygEJqJNGLSuPUffhUZOs7gABe3zHPSixLpwcO/5/skw8lFV0PrepaXfN6cBnVnXiAsSF/6YfpPFlb6EJrjaFTUMtQJGFV5k/G56sYmFQP3tO4ZN3g8H0qeBKrHatMl1vKWp0JJe4/Wim3gvF/qSIkie+pivY7E4MgjchCwluxpCHPm2EwAMPT2SDu4ICcbASDhboMFDbn6u0gM8omM7tqJbzwIDAQAB";
+//    NSString *encrypt = [_eccPlugin encryptSymmetricKeyWithPublicKey:publicKey];
+//    XCTAssertNil(encrypt);
 }
 
 - (void)testECCPluginSymmetricType {
@@ -191,51 +191,51 @@
     XCTAssertTrue([asymmetric isEqualToString:@"EC"]);
 }
 
-- (void)testGenerateRSASecretKeyForSuccess {
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"123"};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertTrue([secretKey.key isEqualToString:@"123"]);
-    XCTAssertTrue([secretKey.symmetricEncryptType isEqualToString:@"AES"]);
-    XCTAssertTrue([secretKey.asymmetricEncryptType isEqualToString:@"RSA"]);
-    XCTAssertTrue(secretKey.version == 1);
-}
-
-- (void)testGenerateRSASecretKeyForFailed {
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@""};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertNil(secretKey);
-}
-
-- (void)testGenerateECCSecretKeyForSuccess {
-    NSString *keyEC = @"{\"pkv\":2,\"type\":\"EC\",\"public_key\":\"123\"}";
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertTrue([secretKey.key isEqualToString:@"EC:123"]);
-    XCTAssertTrue([secretKey.symmetricEncryptType isEqualToString:@"AES"]);
-    XCTAssertTrue([secretKey.asymmetricEncryptType isEqualToString:@"EC"]);
-    XCTAssertTrue(secretKey.version == 2);
-}
-
-- (void)testGenerateECCSecretKeyForFailed1 {
-    NSString *keyEC = @"{\"pkv\":2,\"type\":\"\",\"public_key\":\"123\"}";
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertNil(secretKey);
-}
-
-- (void)testGenerateECCSecretKeyForFailed2 {
-    NSString *keyEC = @"{\"pkv\":2,\"type\":\"EC\",\"public_key\":\"\"}";
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertNil(secretKey);
-}
-
-- (void)testGenerateCustomSecretKey {
-    NSString *key = @"{\"pkv\":2,\"type\":\"CUSTOM\",\"public_key\":\"123\"}";
-    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_custom_placeholder":key};
-    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
-    XCTAssertNotNil(secretKey);
-}
+//- (void)testGenerateRSASecretKeyForSuccess {
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"123"};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertTrue([secretKey.key isEqualToString:@"123"]);
+//    XCTAssertTrue([secretKey.symmetricEncryptType isEqualToString:@"AES"]);
+//    XCTAssertTrue([secretKey.asymmetricEncryptType isEqualToString:@"RSA"]);
+//    XCTAssertTrue(secretKey.version == 1);
+//}
+//
+//- (void)testGenerateRSASecretKeyForFailed {
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@""};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertNil(secretKey);
+//}
+//
+//- (void)testGenerateECCSecretKeyForSuccess {
+//    NSString *keyEC = @"{\"pkv\":2,\"type\":\"EC\",\"public_key\":\"123\"}";
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertTrue([secretKey.key isEqualToString:@"EC:123"]);
+//    XCTAssertTrue([secretKey.symmetricEncryptType isEqualToString:@"AES"]);
+//    XCTAssertTrue([secretKey.asymmetricEncryptType isEqualToString:@"EC"]);
+//    XCTAssertTrue(secretKey.version == 2);
+//}
+//
+//- (void)testGenerateECCSecretKeyForFailed1 {
+//    NSString *keyEC = @"{\"pkv\":2,\"type\":\"\",\"public_key\":\"123\"}";
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertNil(secretKey);
+//}
+//
+//- (void)testGenerateECCSecretKeyForFailed2 {
+//    NSString *keyEC = @"{\"pkv\":2,\"type\":\"EC\",\"public_key\":\"\"}";
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_ec":keyEC};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertNil(secretKey);
+//}
+//
+//- (void)testGenerateCustomSecretKey {
+//    NSString *key = @"{\"pkv\":2,\"type\":\"CUSTOM\",\"public_key\":\"123\"}";
+//    NSDictionary *mock = @{@"pkv":@(1), @"public_key":@"", @"key_custom_placeholder":key};
+//    SASecretKey *secretKey = [SASecretKeyFactory generateSecretKeyWithRemoteConfig:mock];
+//    XCTAssertNotNil(secretKey);
+//}
 
 - (void)testPerformanceExample {
     // This is an example of a performance test case.
