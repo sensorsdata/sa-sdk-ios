@@ -50,6 +50,9 @@ let package = Package(
         .target(
             name: "SensorsAnalyticsCore",
             path: "SensorsAnalyticsSDK/Core/",
+            resources: [
+                .copy("../SensorsAnalyticsSDK.bundle")
+            ],
             publicHeadersPath: ".",
             linkerSettings: [
                 .linkedLibrary("icucore"),
