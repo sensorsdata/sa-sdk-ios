@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/26.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -104,9 +104,9 @@
 }
 
 - (void)testSameProjectWithNotStringURL {
-//    SANetwork *network = [[SANetwork alloc] init];
-//    NSString *urlString = (NSString *)@{@"A" : @"a"};
-//    XCTAssertFalse([network isSameProjectWithURLString:urlString]);
+//   SANetwork *network = [[SANetwork alloc] init];
+//   NSString *urlString = (NSString *)@{@"A" : @"a"};
+//   XCTAssertFalse([network isSameProjectWithURLString:urlString]);
 }
 
 - (void)testSameProjectWithNotValidStringURL {

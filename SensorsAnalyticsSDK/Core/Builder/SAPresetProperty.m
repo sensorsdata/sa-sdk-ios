@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/5/12.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -30,7 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAReachability.h"
 #import "SALog.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SADateFormatter.h"
 #import "SAValidator.h"
 #import "SAModuleManager.h"
@@ -46,7 +46,7 @@ static NSString* const SACarrierChinaMCC = @"460";
 
 #pragma mark - device
 /// 设备 ID
-NSString * const kSAEventPresetPropertyDeviceId = @"$device_id";
+NSString * const kSAEventPresetPropertyAnonymizationID = @"$anonymization_id";
 /// 运营商
 static NSString * const SAEventPresetPropertyCarrier = @"$carrier";
 /// 型号
@@ -163,18 +163,18 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     return self.automaticProperties[kSAEventPresetPropertyAppVersion];
 }
 
-- (NSString *)deviceID {
-    return self.automaticProperties[kSAEventPresetPropertyDeviceId];
+- (NSString *)anonymizationID {
+    return self.automaticProperties[kSAEventPresetPropertyAnonymizationID];
 }
 
 #pragma mark – Private Methods
 
 - (void)unarchiveFirstDay {
-    self.firstDay = [SAFileStore unarchiveWithFileName:@"first_day"];
+    self.firstDay = [[SAStoreManager sharedInstance] objectForKey:@"first_day"];
     if (!self.firstDay) {
         NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd"];
         self.firstDay = [dateFormatter stringFromDate:[NSDate date]];
-        [SAFileStore archiveWithFileName:@"first_day" value:self.firstDay];
+        [[SAStoreManager sharedInstance] setObject:self.firstDay forKey:@"first_day"];
     }
 }
 
@@ -292,7 +292,10 @@ NSString * const kSAEventPresetPropertyLibDetail = @"$lib_detail";
     sensorsdata_dispatch_safe_sync(self.queue, ^{
         if (!_automaticProperties) {
             _automaticProperties = [NSMutableDictionary dictionary];
-            _automaticProperties[kSAEventPresetPropertyDeviceId] = [SAIdentifier hardwareID];
+
+            NSData *data = [[SAIdentifier hardwareID] dataUsingEncoding:NSUTF8StringEncoding];
+            NSString *anonymizationID = [data base64EncodedStringWithOptions:0];
+            _automaticProperties[kSAEventPresetPropertyAnonymizationID] = anonymizationID;
             _automaticProperties[SAEventPresetPropertyModel] = [SAPresetProperty deviceModel];
             _automaticProperties[SAEventPresetPropertyManufacturer] = @"Apple";
 

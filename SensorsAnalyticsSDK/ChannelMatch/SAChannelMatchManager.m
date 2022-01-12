@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2020/8/29.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@
 #import "SAURLUtils.h"
 #import "SAReachability.h"
 #import "SALog.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SAJSONUtil.h"
 #import "SensorsAnalyticsSDK+SAChannelMatch.h"
 #import "SAApplication.h"
@@ -42,6 +42,9 @@ NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
 NSString * const kSAEventPropertyChannelDeviceInfo = @"$channel_device_info";
 NSString * const kSAEventPropertyUserAgent = @"$user_agent";
 NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_event";
+
+static NSString * const kSAHasTrackInstallation = @"HasTrackInstallation";
+static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInstallationWithDisableCallback";
 
 @interface SAChannelMatchManager ()
 
@@ -75,7 +78,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 - (NSMutableSet<NSString *> *)trackChannelEventNames {
     if (!_trackChannelEventNames) {
         _trackChannelEventNames = [[NSMutableSet alloc] init];
-        NSSet *trackChannelEvents = (NSSet *)[SAFileStore unarchiveWithFileName:kSAEventPropertyChannelDeviceInfo];
+        NSSet *trackChannelEvents = (NSSet *)[[SAStoreManager sharedInstance] objectForKey:kSAEventPropertyChannelDeviceInfo];
         if (trackChannelEvents) {
             [_trackChannelEventNames unionSet:trackChannelEvents];
         }
@@ -123,8 +126,8 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 #pragma mark - 渠道联调诊断标记
 /// 客户是否触发过激活事件
 - (BOOL)isAppInstalled {
-    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
-    return [userDefault boolForKey:SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK] || [userDefault boolForKey:SA_HAS_TRACK_INSTALLATION];
+    SAStoreManager *manager = [SAStoreManager sharedInstance];
+    return [manager boolForKey:kSAHasTrackInstallationDisableCallback] || [manager boolForKey:kSAHasTrackInstallation];
 }
 
 /// 客户可以使用渠道联调诊断功能
@@ -133,7 +136,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
         // 当未触发过激活事件时，可以使用联调诊断功能
         return YES;
     }
-    return [[NSUserDefaults standardUserDefaults] boolForKey:kSAChannelDebugFlagKey];
+    return [[SAStoreManager sharedInstance] boolForKey:kSAChannelDebugFlagKey];
 }
 
 /// 当前获取到的设备 ID 为有效值
@@ -142,21 +145,19 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 }
 
 - (BOOL)isTrackedAppInstallWithDisableCallback:(BOOL)disableCallback {
-    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
-    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
-    return [userDefault boolForKey:userDefaultsKey];
+    NSString *key = disableCallback ? kSAHasTrackInstallationDisableCallback : kSAHasTrackInstallation;
+    return [[SAStoreManager sharedInstance] boolForKey:key];
 }
 
 - (void)setTrackedAppInstallWithDisableCallback:(BOOL)disableCallback {
-    NSUserDefaults *userDefault = [NSUserDefaults standardUserDefaults];
-    NSString *userDefaultsKey = disableCallback ? SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK : SA_HAS_TRACK_INSTALLATION;
+    SAStoreManager *manager = [SAStoreManager sharedInstance];
+    NSString *userDefaultsKey = disableCallback ? kSAHasTrackInstallationDisableCallback : kSAHasTrackInstallation;
 
     // 记录激活事件是否获取到了有效的设备 ID 信息，设备 ID 信息有效时后续可以使用联调诊断功能
-    [userDefault setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
+    [manager setBool:[self isValidOfDeviceInfo] forKey:kSAChannelDebugFlagKey];
 
     // 激活事件 - 根据 disableCallback 记录是否触发过激活事件
-    [userDefault setBool:YES forKey:userDefaultsKey];
-    [userDefault synchronize];
+    [manager setBool:YES forKey:userDefaultsKey];
 }
 
 #pragma mark - 激活事件
@@ -268,7 +269,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 }
 
 - (void)archiveTrackChannelEventNames {
-    [SAFileStore archiveWithFileName:kSAEventPropertyChannelDeviceInfo value:self.trackChannelEventNames];
+    [[SAStoreManager sharedInstance] setObject:self.trackChannelEventNames forKey:kSAEventPropertyChannelDeviceInfo];
 }
 
 - (NSDictionary *)channelInfoWithEvent:(NSString *)event {

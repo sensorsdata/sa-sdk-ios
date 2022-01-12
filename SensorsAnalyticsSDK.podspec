@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.1.5"
+  s.version      = "4.2.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
@@ -13,6 +13,11 @@ Pod::Spec.new do |s|
 
   s.libraries = 'icucore', 'sqlite3', 'z'
 
+  s.subspec '__Store' do |ss|
+    ss.source_files = 'SensorsAnalyticsSDK/Store/*.{h,m}'
+    ss.public_header_files = 'SensorsAnalyticsSDK/Store/SABaseStoreManager.h', 'SensorsAnalyticsSDK/Store/SAStorePlugin.h', 'SensorsAnalyticsSDK/Store/SAAESStorePlugin.h'
+  end
+
   s.subspec 'Base' do |b|
     core_dir = "SensorsAnalyticsSDK/Core/"
     b.source_files = core_dir + "**/*.{h,m}"
@@ -20,6 +25,7 @@ Pod::Spec.new do |s|
     b.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h"
     b.ios.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
     b.ios.frameworks = 'CoreTelephony'
+    b.dependency 'SensorsAnalyticsSDK/__Store'
   end
 
   s.subspec 'Extension' do |e|

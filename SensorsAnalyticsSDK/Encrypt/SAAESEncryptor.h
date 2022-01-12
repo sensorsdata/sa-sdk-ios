@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/12/12.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -17,14 +17,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 //
+
 #import <Foundation/Foundation.h>
 #import "SAAlgorithmProtocol.h"
+#import "SAAESCrypt.h"
+
 NS_ASSUME_NONNULL_BEGIN
 
-
-@interface SAAESEncryptor : NSObject <SAAlgorithmProtocol>
-
-@property (nonatomic, copy, readonly) NSData *key;
+@interface SAAESEncryptor : SAAESCrypt <SAAlgorithmProtocol>
 
 @end
 

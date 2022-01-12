@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 张敏超🍎 on 2020/11/25.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #import "SAValidator.h"
 #import "SAURLUtils.h"
 #import "SAAlertController.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SAJSONUtil.h"
 #import "SAGzipUtility.h"
 #import "SALog.h"
@@ -319,13 +319,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         // 通过用户的回调保存公钥
         saveSecretKey(secretKey);
 
-        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:nil];
+        [[SAStoreManager sharedInstance] removeObjectForKey:kSAEncryptSecretKey];
 
         SALogDebug(@"Save secret key by saveSecretKey callback, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
     } else {
         // 存储到本地
         NSData *secretKeyData = [NSKeyedArchiver archivedDataWithRootObject:secretKey];
-        [SAFileStore archiveWithFileName:kSAEncryptSecretKey value:secretKeyData];
+        [[SAStoreManager sharedInstance] setObject:secretKeyData forKey:kSAEncryptSecretKey];
 
         SALogDebug(@"Save secret key by localSecretKey, pkv : %ld, public_key : %@", (long)secretKey.version, secretKey.key);
     }
@@ -346,7 +346,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
     } else {
         // 通过本地获取公钥
-        id secretKeyData = [SAFileStore unarchiveWithFileName:kSAEncryptSecretKey];
+        id secretKeyData = [[SAStoreManager sharedInstance] objectForKey:kSAEncryptSecretKey];
         if ([SAValidator isValidData:secretKeyData]) {
             secretKey = [NSKeyedUnarchiver unarchiveObjectWithData:secretKeyData];
         }

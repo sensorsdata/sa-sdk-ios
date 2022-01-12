@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/4/23.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@
 /// 弹框信息
 @property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
 
-///  App 内嵌 H5 页面 缓存
+/// App 内嵌 H5 页面 缓存
 /*
  key:H5 页面 url
  value:SAVisualizedWebPageInfo 对象

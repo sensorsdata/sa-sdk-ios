@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/3/3.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -440,7 +440,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
         CGSize size = view.bounds.size;
         UIGraphicsBeginImageContextWithOptions(size, NO, 0);
         CGRect rect = view.bounds;
-        //  drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
+        // drawViewHierarchyInRect:afterScreenUpdates: 截取一个UIView或者其子类中的内容，并且以位图的形式（bitmap）保存到UIImage中
         // afterUpdates 参数表示是否在所有效果应用在视图上了以后再获取快照
         [view drawViewHierarchyInRect:rect afterScreenUpdates:NO];
         screenshotImage = UIGraphicsGetImageFromCurrentImageContext();

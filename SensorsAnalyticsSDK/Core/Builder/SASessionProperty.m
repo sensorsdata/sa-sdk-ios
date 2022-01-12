@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2021/12/23.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #endif
 
 #import "SASessionProperty.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 
 /// session 标记
 static NSString * const kSAEventPropertySessionID = @"$event_session_id";
@@ -94,11 +94,7 @@ static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
 #pragma mark - Public
 
 + (void)removeSessionModel {
-    if (![SAFileStore isFileExistsWithFileName:kSASessionModelKey]) {
-        return;
-    }
-    
-    [SAFileStore archiveWithFileName:kSASessionModelKey value:nil];
+    [[SAStoreManager sharedInstance] removeObjectForKey:kSASessionModelKey];
 }
 
 - (NSDictionary *)sessionPropertiesWithEventTime:(NSNumber *)eventTime {
@@ -116,7 +112,7 @@ static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
     self.sessionModel.lastEventTime = eventTime;
     
     // session 保存本地
-    [SAFileStore archiveWithFileName:kSASessionModelKey value:self.sessionModel];
+    [[SAStoreManager sharedInstance] setObject:self.sessionModel forKey:kSASessionModelKey];
     
     return @{kSAEventPropertySessionID : self.sessionModel.sessionID};
 }
@@ -126,7 +122,7 @@ static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
 /// 懒加载是为了防止在初始化的时候同步读取文件
 - (SASessionModel *)sessionModel {
     if (!_sessionModel) {
-        _sessionModel = [SAFileStore unarchiveWithFileName:kSASessionModelKey] ?: [[SASessionModel alloc] init];
+        _sessionModel = [[SAStoreManager sharedInstance] objectForKey:kSASessionModelKey] ?: [[SASessionModel alloc] init];
     }
     return _sessionModel;
 }

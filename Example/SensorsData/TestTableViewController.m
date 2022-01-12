@@ -1,21 +1,21 @@
 //
-//  TestTableViewController.m
-//  SensorsData
+// TestTableViewController.m
+// SensorsData
 //
-//  Created by 王灼洲 on 2017/10/16.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 王灼洲 on 2017/10/16.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #import "TestTableViewController.h"
@@ -42,7 +42,7 @@
     }
 }
 //-(NSString *)title {
-//    return @"title";
+//   return @"title";
 //}
 -(void)layoutSubviews{
     [super layoutSubviews];
@@ -109,25 +109,25 @@
     footerView.backButton.backgroundColor = UIColor.redColor;
     self.tableView.tableFooterView = footerView;
 
-//    UILabel *header = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 60)];
-//    header.userInteractionEnabled = YES;
-//    [header addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(headerClick:)]];
-////    header.text = @"header";
+//   UILabel *header = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 60)];
+//   header.userInteractionEnabled = YES;
+//   [header addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(headerClick:)]];
+////   header.text = @"header";
 //
-//    self.tableView.tableHeaderView = header;
+//   self.tableView.tableHeaderView = header;
 //
-//    UILabel *footer = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 60)];
-//    footer.userInteractionEnabled = YES;
-//    [footer addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(headerClick:)]];
-////    footer.text = @"footer";
-//    self.tableView.tableFooterView = footer;
+//   UILabel *footer = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, UIScreen.mainScreen.bounds.size.width, 60)];
+//   footer.userInteractionEnabled = YES;
+//   [footer addGestureRecognizer:[[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(headerClick:)]];
+////   footer.text = @"footer";
+//   self.tableView.tableFooterView = footer;
 
     self.tableView_1 = [[UITableView alloc]initWithFrame:table_1_frame style:UITableViewStylePlain];
     self.tableView_1.delegate = self;
     self.tableView_1.dataSource = self;
     self.tableView_1.sensorsAnalyticsViewID = @"tableView2";
     [self.tableView_1 registerClass:[UITableViewCell class] forCellReuseIdentifier:@"cell"];
-//    [self.tableView_1 registerClass:SATableHeaderFooterView.class forHeaderFooterViewReuseIdentifier:@"SATableHeaderFooterView"];
+//   [self.tableView_1 registerClass:SATableHeaderFooterView.class forHeaderFooterViewReuseIdentifier:@"SATableHeaderFooterView"];
 
     [self.view addSubview:self.tableView_1];
 
@@ -180,13 +180,13 @@
 }
 //-(NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section
 //{
-//    NSString *title = nil;
-//    if (tableView == self.tableView) {
-//        title = [NSString stringWithFormat:@"table :section %ld",(long)section];
-//    }else{
-//        title = [NSString stringWithFormat:@"table_1 :section %ld",(long)section];
-//    }
-//    return title;
+//   NSString *title = nil;
+//   if (tableView == self.tableView) {
+//       title = [NSString stringWithFormat:@"table :section %ld",(long)section];
+//   }else{
+//       title = [NSString stringWithFormat:@"table_1 :section %ld",(long)section];
+//   }
+//   return title;
 //
 //}
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
@@ -199,7 +199,7 @@
         sectionFooterView = [[SATableHeaderFooterView alloc]initWithReuseIdentifier:@"SATableHeaderFooterView"];
     }
     [sectionFooterView.backButton setTitle:[NSString stringWithFormat:@"footer_section_%ld",(long)section] forState:UIControlStateNormal];
-//    sectionFooterView.backgroundColor = UIColor.blackColor;
+//   sectionFooterView.backgroundColor = UIColor.blackColor;
     sectionFooterView.section = section;
     sectionFooterView.tablView = tableView;
     sectionFooterView.clickHeader = ^(UITableView *tableView, NSUInteger section) {
@@ -213,7 +213,7 @@
         sectionHeaderView = [[SATableHeaderFooterView alloc]initWithReuseIdentifier:@"SATableHeaderFooterView"];
     }
     [sectionHeaderView.backButton setTitle:[NSString stringWithFormat:@"header_section_%ld",(long)section] forState:UIControlStateNormal];
-//    sectionHeaderView.backgroundColor = UIColor.blueColor;
+//   sectionHeaderView.backgroundColor = UIColor.blueColor;
     sectionHeaderView.section = section;
     sectionHeaderView.tablView = tableView;
     sectionHeaderView.clickHeader = ^(UITableView *tableView, NSUInteger section) {
@@ -247,7 +247,7 @@
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-//    [super tableView:tableView didSelectRowAtIndexPath:indexPath];
+//   [super tableView:tableView didSelectRowAtIndexPath:indexPath];
 }
 
 

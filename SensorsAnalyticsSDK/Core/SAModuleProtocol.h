@@ -1,21 +1,21 @@
 //
-//  SAModuleProtocol.h
-//  Pods
+// SAModuleProtocol.h
+// Pods
 //
-//  Created by 张敏超🍎 on 2020/8/12.
-//  
+// Created by 张敏超🍎 on 2020/8/12.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #import <Foundation/Foundation.h>
@@ -117,9 +117,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// DeepLink 回调函数
 /// @param linkHandlerCallback  callback 请求成功后的回调函数
-///     - params：创建渠道链接时填写的 App 内参数
-///     - succes：deeplink 唤起结果
-///     - appAwakePassedTime：获取渠道信息所用时间
+///    - params：创建渠道链接时填写的 App 内参数
+///    - succes：deeplink 唤起结果
+///    - appAwakePassedTime：获取渠道信息所用时间
 - (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback;
 
 /// 最新的来源渠道信息

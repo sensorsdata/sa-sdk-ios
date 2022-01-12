@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/15.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -60,9 +60,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param duration 事件时长
 - (void)addDurationProperty:(NSNumber *)duration;
 
-/// 修正 $device_id
-/// @param deviceID device id
-- (void)correctDeviceID:(NSString *)deviceID;
+/// 修正 $anonymization_id
+/// @param anonymizationID anonymizationID
+- (void)correctAnonymizationID:(NSString *)anonymizationID;
 
 @end
 

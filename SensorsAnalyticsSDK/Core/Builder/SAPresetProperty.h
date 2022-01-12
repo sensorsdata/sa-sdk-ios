@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/5/12.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAEventPresetPropertyDeviceId;
+extern NSString * const kSAEventPresetPropertyAnonymizationID;
 
 /// SDK 类型
 extern NSString * const kSAEventPresetPropertyLib;
@@ -45,7 +45,7 @@ extern NSString * const kSAEventPresetPropertyIsFirstDay;
 
 @property (nonatomic, strong, readonly) NSMutableDictionary *automaticProperties;
 @property (nonatomic, copy, readonly) NSString *appVersion;
-@property (nonatomic, copy, readonly) NSString *deviceID;
+@property (nonatomic, copy, readonly) NSString *anonymizationID;
 
 /**
  初始化方法

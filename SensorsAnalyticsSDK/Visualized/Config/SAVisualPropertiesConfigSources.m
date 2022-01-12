@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2021/1/7.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -28,7 +28,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAReadWriteLock.h"
 #import "SAReachability.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SAURLUtils.h"
 #import "SAVisualizedLogger.h"
 #import "SAJSONUtil.h"
@@ -243,7 +243,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 - (void)unarchiveConfig {
     NSString *project = SensorsAnalyticsSDK.sharedInstance.network.project;
 
-    NSData *data = [SAFileStore unarchiveWithFileName:kSAConfigFileName];
+    NSData *data = [[SAStoreManager sharedInstance] objectForKey:kSAConfigFileName];
     SAVisualPropertiesResponse *config = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 
     if (!config) {
@@ -270,14 +270,14 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     self.configResponse = config;
 
     NSData *data = [NSKeyedArchiver archivedDataWithRootObject:config];
-    [SAFileStore archiveWithFileName:kSAConfigFileName value:data];
+    [[SAStoreManager sharedInstance] setObject:data forKey:kSAConfigFileName];
 }
 
 /// 清除配置缓存
 - (void)cleanConfig {
     self.configResponse = nil;
     // 清除文件缓存
-    [SAFileStore archiveWithFileName:kSAConfigFileName value:nil];
+    [[SAStoreManager sharedInstance] removeObjectForKey:kSAConfigFileName];
 }
 
 #pragma mark - queryConfig

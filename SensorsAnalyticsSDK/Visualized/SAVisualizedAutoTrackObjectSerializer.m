@@ -1,21 +1,21 @@
 //
-//  SAObjectSerializer.m
-//  SensorsAnalyticsSDK
+// SAObjectSerializer.m
+// SensorsAnalyticsSDK
 //
-//  Created by 雨晗 on 1/18/16.
-//  Copyright © 2015-2019 Sensors Data Inc. All rights reserved.
+// Created by 雨晗 on 1/18/16.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -94,7 +94,7 @@
     if (classDescription) {
         // 遍历自身和父类的所需的属性及类型，合并为当前类所有属性
         for (SAPropertyDescription *propertyDescription in [classDescription propertyDescriptions]) {
-            //  根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
+            // 根据是否符号要求（是否显示等）构建属性，通过 KVC 和 NSInvocation 动态调用获取描述信息
             id propertyValue = [self propertyValueForObject:object withPropertyDescription:propertyDescription context:context];         // $递增作为元素 id
             propertyValues[propertyDescription.key] = propertyValue;
         }

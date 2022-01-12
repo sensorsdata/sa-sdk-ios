@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2021/4/2.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,6 +23,7 @@
 #endif
 
 #import "SAAppStartTracker.h"
+#import "SAStoreManager.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
@@ -91,14 +92,12 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
 #pragma mark – Private Methods
 
 - (BOOL)isFirstAppStart {
-    return ![[NSUserDefaults standardUserDefaults] boolForKey:kSAHasLaunchedOnce];
+    return ![[SAStoreManager sharedInstance] boolForKey:kSAHasLaunchedOnce];
 }
 
 - (void)updateFirstAppStart {
     if ([self isFirstAppStart]) {
-        NSUserDefaults *standard = [NSUserDefaults standardUserDefaults];
-        [standard setBool:YES forKey:kSAHasLaunchedOnce];
-        [standard synchronize];
+        [[SAStoreManager sharedInstance] setBool:YES forKey:kSAHasLaunchedOnce];
     }
 }
 

@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/9/28.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,12 +40,12 @@
 }
 
 - (void)testSubByteWithEmptyString {
-//    NSString *subByteString = [SACommonUtility subByteString:@"" byteLength:10];
-//    XCTAssertTrue([subByteString isEqualToString:@""]);
+//   NSString *subByteString = [SACommonUtility subByteString:@"" byteLength:10];
+//   XCTAssertTrue([subByteString isEqualToString:@""]);
 }
 
 - (void)testSubByteWithNilString {
-//    XCTAssertNil([SACommonUtility subByteString:nil byteLength:10]);
+//   XCTAssertNil([SACommonUtility subByteString:nil byteLength:10]);
 }
 
 - (void)testSubByteWithGreaterThanLengthString {
@@ -59,8 +59,8 @@
 }
 
 - (void)testSubByteWithLessThanLengthString {
-//    NSString *subByteString = [SACommonUtility subByteString:@"123456789" byteLength:10];
-//    XCTAssertTrue([subByteString isEqualToString:@"123456789"]);
+//   NSString *subByteString = [SACommonUtility subByteString:@"123456789" byteLength:10];
+//   XCTAssertTrue([subByteString isEqualToString:@"123456789"]);
 }
 
 - (void)testSubByteWithChineseString {
@@ -78,8 +78,8 @@
 }
 
 - (void)testSubByteWithNegativeLength {
-//    NSString *subByteString = [SACommonUtility subByteString:@"123456789" byteLength:-5];
-//    XCTAssertTrue([subByteString isEqualToString:@""]);
+//   NSString *subByteString = [SACommonUtility subByteString:@"123456789" byteLength:-5];
+//   XCTAssertTrue([subByteString isEqualToString:@""]);
 }
 
 - (void)testSubByteWithEmojiString {

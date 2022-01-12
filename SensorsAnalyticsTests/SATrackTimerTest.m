@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/27.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -61,8 +61,8 @@
 }
 
 - (void)testGenerateEventIdByNotStringEventName {
-//    NSString *eventName = (NSString *)@[@1, @2];
-//    XCTAssertNil([self.trackTimer generateEventIdByEventName:eventName]);
+//   NSString *eventName = (NSString *)@[@1, @2];
+//   XCTAssertNil([self.trackTimer generateEventIdByEventName:eventName]);
 }
 
 - (void)testGenerateEventIdByStringEventName {
@@ -81,8 +81,8 @@
 }
 
 - (void)testEventNameFromNotStringEventId {
-//    NSString *eventId = (NSString *)@[@1, @2];
-//    XCTAssertNil([self.trackTimer eventNameFromEventId:eventId]);
+//   NSString *eventId = (NSString *)@[@1, @2];
+//   XCTAssertNil([self.trackTimer eventNameFromEventId:eventId]);
 }
 
 - (void)testEventNameFromNoSuffixEventId {

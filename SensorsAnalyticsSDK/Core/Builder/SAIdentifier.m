@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/2/17.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@
 
 #import "SAIdentifier.h"
 #import "SAConstants+Private.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SAValidator.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -93,7 +93,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
             // 获取 self.anonymousId 会写入本地文件，因此需要先获取 self.identities
             self.identities = [self unarchiveIdentities];
             self.anonymousId = [self unarchiveAnonymousId];
-            self.loginId = [SAFileStore unarchiveWithFileName:kSAEventLoginId];
+            self.loginId = [[SAStoreManager sharedInstance] objectForKey:kSAEventLoginId];
         });
     }
     return self;
@@ -125,7 +125,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 }
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
-    [SAFileStore archiveWithFileName:kSAEventDistinctId value:anonymousId];
+    [[SAStoreManager sharedInstance] setObject:anonymousId forKey:kSAEventDistinctId];
 #if TARGET_OS_IOS
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
@@ -171,7 +171,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         return NO;
     }
 
-    NSString *cachedKey = [SAFileStore unarchiveWithFileName:kSALoginIDKey];
+    NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
     // 当 loginIDKey 发生变化时，不需要检查 loginId 是否相同
     if ([cachedKey isEqualToString:self.loginIDKey] && [loginId isEqualToString:self.loginId]) {
         return NO;
@@ -188,9 +188,9 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 - (void)updateLoginId:(NSString *)loginId {
     dispatch_async(self.queue, ^{
         self.loginId = loginId;
-        [SAFileStore archiveWithFileName:kSAEventLoginId value:loginId];
+        [[SAStoreManager sharedInstance] setObject:loginId forKey:kSAEventLoginId];
         // 登录时本地保存当前的 loginIDKey 字段，字段存在时表示 v3.0 版本 SDK 已进行过登录
-        [SAFileStore archiveWithFileName:kSALoginIDKey value:self.loginIDKey];
+        [[SAStoreManager sharedInstance] setObject:self.loginIDKey forKey:kSALoginIDKey];
     });
 }
 
@@ -202,9 +202,9 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 - (void)clearLoginId {
     dispatch_async(self.queue, ^{
         self.loginId = nil;
-        [SAFileStore archiveWithFileName:kSAEventLoginId value:nil];
+        [[SAStoreManager sharedInstance] removeObjectForKey:kSAEventLoginId];
         // 退出登录时清除本地保存的 loginIDKey 字段，字段不存在时表示 v3.0 版本 SDK 已退出登录
-        [SAFileStore archiveWithFileName:kSALoginIDKey value:nil];
+        [[SAStoreManager sharedInstance] removeObjectForKey:kSALoginIDKey];
     });
 }
 
@@ -267,14 +267,14 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 #pragma mark – Private Methods
 
 - (NSString *)unarchiveAnonymousId {
-    NSString *anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
+    NSString *anonymousId = [[SAStoreManager sharedInstance] objectForKey:kSAEventDistinctId];
 
 #if TARGET_OS_IOS
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
             // 保存 Archiver
-            [SAFileStore archiveWithFileName:kSAEventDistinctId value:distinctIdInKeychain];
+            [[SAStoreManager sharedInstance] setObject:distinctIdInKeychain forKey:kSAEventDistinctId];
         }
         anonymousId = distinctIdInKeychain;
     } else {
@@ -507,7 +507,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 #endif
         if (!anonymousId) {
             // 读取本地文件中保存的 anonymouId
-            anonymousId = [SAFileStore unarchiveWithFileName:kSAEventDistinctId];
+            anonymousId = [[SAStoreManager sharedInstance] objectForKey:kSAEventDistinctId];
         }
         identities[kSAIdentitiesAnonymousId] = anonymousId;
     }
@@ -530,12 +530,12 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         identities[key] = value;
     }
 
-    NSString *loginId = [SAFileStore unarchiveWithFileName:kSAEventLoginId];
+    NSString *loginId = [[SAStoreManager sharedInstance] objectForKey:kSAEventLoginId];
     // 本地存在 loginId 时表示 v2.0 版本为登录状态，可能需要将登录状态同步 v3.0 版本的 identities 中
     // 为了避免客户升级 v3.0 后又降级至 v2.0，然后又升级至 v3.0 版本的兼容问题，这里每次冷启动都处理一次
     if (loginId) {
         // 当 v3.0 版本进行过登录操作时，本地一定会存在登录时使用的 loginIDKey 内容
-        NSString *cachedKey = [SAFileStore unarchiveWithFileName:kSALoginIDKey];
+        NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
         // 场景 1：
         // v3.0 版本设置 loginIDKey 为 a_id 并进行登录 123, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后 loginIDKey 仍为 a_id
         // 此时 identities 中存在 a_id 内容，需要更新 a_id 内容
@@ -573,10 +573,10 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
             identities = newIdentities;
 
             // 此时相当于进行登录操作，需要保存登录时设置的 loginIDKey 内容至本地文件中
-            [SAFileStore archiveWithFileName:kSALoginIDKey value:self.loginIDKey];
+            [[SAStoreManager sharedInstance] setObject:self.loginIDKey forKey:kSALoginIDKey];
         }
     } else {
-        NSString *cachedKey = [SAFileStore unarchiveWithFileName:kSALoginIDKey];
+        NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
         // 当 identities 中存在 cachedKey 内容时，表示当前 identities 中是登录状态
         if (identities[cachedKey]) {
             // 场景：v3.0 版本登录时，降级至 v2.0 版本并退出登录，然后再升级至 v3.0 版本
@@ -591,7 +591,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
         // 当 v2.0 版本状态为未登录状态时，直接清空本地保存的 loginIDKey 文件内容
         // v3.0 版本清空本地保存的 loginIDKey 会在 logout 中处理
-        [SAFileStore archiveWithFileName:kSALoginIDKey value:nil];
+        [[SAStoreManager sharedInstance] removeObjectForKey:kSALoginIDKey];
     }
 #if TARGET_OS_OSX
         // 4.1.0 以后的版本将 $mac_serial_id 替换为了 $identity_mac_serial_id
@@ -606,7 +606,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 }
 
 - (NSDictionary *)decodeIdentities {
-    NSString *content = [SAFileStore unarchiveWithFileName:kSAIdentities];
+    NSString *content = [[SAStoreManager sharedInstance] objectForKey:kSAIdentities];
     NSData *data;
     if ([content hasPrefix:kSAIdentitiesCacheType]) {
         NSString *value = [content substringFromIndex:kSAIdentitiesCacheType.length];
@@ -627,7 +627,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         NSData *data = [NSJSONSerialization dataWithJSONObject:identities options:NSJSONWritingPrettyPrinted error:nil];
         NSString *base64Str = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
         NSString *result = [NSString stringWithFormat:@"%@%@",kSAIdentitiesCacheType, base64Str];
-        [SAFileStore archiveWithFileName:kSAIdentities value:result];
+        [[SAStoreManager sharedInstance] setObject:result forKey:kSAIdentities];
     } @catch (NSException *exception) {
         SALogError(@"%@", exception);
     }

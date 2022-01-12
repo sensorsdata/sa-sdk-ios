@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by 陈玉国 on 2020/6/17.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -62,7 +62,7 @@ static NSInteger maxCacheSize = 9999;
     NSString *content = @"{\"content\":\"testInsertSingleRecord\"}";
     NSString *type = @"POST";
     SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:@"1" content: content];
-//    record.content = content;
+//   record.content = content;
     record.type = type;
     BOOL success = [self.database insertRecord:record];
     XCTAssertTrue(success);
@@ -74,7 +74,7 @@ static NSInteger maxCacheSize = 9999;
     NSString *content =@"{\"content\":\"testFetchRecord\"}";
     NSString *type = @"POST";
     SAEventRecord *record = [[SAEventRecord alloc] initWithRecordID:@"1" content: content];
-//    record.content = content;
+//   record.content = content;
     record.type = type;
     [self.database insertRecord:record];
     SAEventRecord *tempRecord = [self.database selectRecords:1].firstObject;

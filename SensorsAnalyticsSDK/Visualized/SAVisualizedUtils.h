@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2020/3/3.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isSupportCallJSWithWebView:(WKWebView *)webview;
 
 #pragma mark - RN
-///  获取 RN 当前页面信息
+/// 获取 RN 当前页面信息
 + (NSDictionary <NSString *, NSString *>*)currentRNScreenVisualizeProperties;
 
 /// 是否为 RN 内的原生页面

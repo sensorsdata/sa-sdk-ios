@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by 彭远洋 on 2020/3/26.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -423,13 +423,13 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     NSString *existValue = kMobileValue;
     [_identifier bindIdentity:kMobile value:existValue];
 
-    //  H5 解绑事件
+    // H5 解绑事件
     NSString *unbindValue = @"151";
     NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile:unbindValue} eventType:kSAEventTypeUnbind];
     XCTAssertTrue(identities.allKeys.count == 1);
     XCTAssertTrue([identities[kMobile] isEqualToString:unbindValue]);
 
-    //  H5 解绑后事件
+    // H5 解绑后事件
     NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -447,12 +447,12 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testH5EventAfterBindForNewKey {
     NSString *bindValue = kMobileValue;
     NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: bindValue} eventType:kSAEventTypeBind];
-    //  H5 绑定事件
+    // H5 绑定事件
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kMobile] isEqualToString:bindValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
-    //  H5 绑定后事件
+    // H5 绑定后事件
     NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kMobile] isEqualToString:bindValue]);
@@ -471,14 +471,14 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     NSString *oldValue = kMobileValue;
     [_identifier bindIdentity:kMobile value:oldValue];
 
-    //  H5 绑定事件
+    // H5 绑定事件
     NSString *newValue = @"151";
     NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: newValue} eventType:kSAEventTypeBind];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kMobile] isEqualToString:oldValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
-    //  H5 绑定后事件
+    // H5 绑定后事件
     NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kMobile] isEqualToString:oldValue]);
@@ -494,14 +494,14 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 }
 
 - (void)testH5EventAfterSignUpForNotSign {
-    //  H5 登录事件
+    // H5 登录事件
     [_identifier login:kLoginIdValue];
     NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:kLoginIdValue} eventType:kSAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kLoginId] isEqualToString:kLoginIdValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
-    //  H5 登录后事件
+    // H5 登录后事件
     NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kLoginId] isEqualToString:kLoginIdValue]);
@@ -520,7 +520,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     NSString *oldValue = kLoginIdValue;
     NSString *newValue = @"xxxNewLoginId";
     [_identifier login:oldValue];
-    //  H5 登录事件
+    // H5 登录事件
 
     [_identifier login:newValue];
     NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:newValue} eventType:kSAEventTypeSignup];
@@ -528,7 +528,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertTrue([identities[kLoginId] isEqualToString:newValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
-    //  H5 登录后事件
+    // H5 登录后事件
     NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kLoginId] isEqualToString:newValue]);

@@ -1,21 +1,21 @@
 //
-//  SAConstants.m
-//  SensorsAnalyticsSDK
+// SAConstants.m
+// SensorsAnalyticsSDK
 //
-//  Created by 向作为 on 2018/8/9.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 向作为 on 2018/8/9.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -123,10 +123,6 @@ NSString * const SA_PROFILE_UNSET = @"profile_unset";
 NSString * const SA_PROFILE_DELETE = @"profile_delete";
 NSString * const SA_PROFILE_APPEND = @"profile_append";
 NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
-
-#pragma mark - NSUserDefaults
-NSString * const SA_HAS_TRACK_INSTALLATION = @"HasTrackInstallation";
-NSString * const SA_HAS_TRACK_INSTALLATION_DISABLE_CALLBACK = @"HasTrackInstallationWithDisableCallback";
 
 #pragma mark - bridge name
 NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME = @"sensorsdataNativeTracker";

@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2021/1/6.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -37,7 +37,7 @@ typedef NS_ENUM(NSInteger, SAVisualPropertyType) {
 
 NS_ASSUME_NONNULL_BEGIN
 
-///  view 标识，包含页面名称、路径等
+/// view 标识，包含页面名称、路径等
 @interface SAViewIdentifier : NSObject<NSCoding>
 
 /// 元素路径

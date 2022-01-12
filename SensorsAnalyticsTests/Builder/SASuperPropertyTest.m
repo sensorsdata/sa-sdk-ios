@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/22.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -127,13 +127,13 @@
 }
 
 - (void)testUnregisterSameLetterSuperPropertiesWithNotDictionary {
-//    [self.superProperty registerSuperProperties:@{@"ABC" : @"abc"}];
-//    NSDictionary *property = (NSDictionary *)@"ABC";
-//    [self.superProperty unregisterSameLetterSuperProperties:property];
-//    NSDictionary *superProperties = [self.superProperty currentSuperProperties];
-//    XCTAssertTrue([superProperties isKindOfClass:[NSDictionary class]]);
-//    XCTAssertTrue(superProperties.count == 1);
-//    XCTAssertTrue([superProperties[@"ABC"] isEqualToString:@"abc"]);
+//   [self.superProperty registerSuperProperties:@{@"ABC" : @"abc"}];
+//   NSDictionary *property = (NSDictionary *)@"ABC";
+//   [self.superProperty unregisterSameLetterSuperProperties:property];
+//   NSDictionary *superProperties = [self.superProperty currentSuperProperties];
+//   XCTAssertTrue([superProperties isKindOfClass:[NSDictionary class]]);
+//   XCTAssertTrue(superProperties.count == 1);
+//   XCTAssertTrue([superProperties[@"ABC"] isEqualToString:@"abc"]);
 }
 
 - (void)testUnregisterSameLetterSuperPropertiesWithDictionary {

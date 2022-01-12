@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/22.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -89,13 +89,13 @@
 }
 
 - (void)testJsonObjectWithNotStringEventId {
-//    SABaseEventObject *baseEventObject = [[SABaseEventObject alloc] init];
-//    NSString *eventId = (NSString *)@1;
-//    baseEventObject.eventId = eventId;
-//    NSDictionary *jsonObject = [baseEventObject jsonObject];
-//    XCTAssertTrue([jsonObject isKindOfClass:[NSDictionary class]]);
-//    XCTAssertGreaterThan(jsonObject.count, 0);
-//    XCTAssertNil(jsonObject[@"event"]);
+//   SABaseEventObject *baseEventObject = [[SABaseEventObject alloc] init];
+//   NSString *eventId = (NSString *)@1;
+//   baseEventObject.eventId = eventId;
+//   NSDictionary *jsonObject = [baseEventObject jsonObject];
+//   XCTAssertTrue([jsonObject isKindOfClass:[NSDictionary class]]);
+//   XCTAssertGreaterThan(jsonObject.count, 0);
+//   XCTAssertNil(jsonObject[@"event"]);
 }
 
 - (void)testJsonObjectWithStringEventId {

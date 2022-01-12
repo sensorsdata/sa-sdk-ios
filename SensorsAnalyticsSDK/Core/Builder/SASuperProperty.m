@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/10.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -23,8 +23,8 @@
 #endif
 
 #import "SASuperProperty.h"
-#import "SAFileStore.h"
 #import "SAPropertyValidator.h"
+#import "SAStoreManager.h"
 #import "SAModuleManager.h"
 #import "SAReadWriteLock.h"
 #import "SALog.h"
@@ -126,12 +126,12 @@ static NSString *const kSASavedSuperPropertiesFileName = @"super_properties";
 #pragma mark - 缓存
 
 - (void)unarchiveSuperProperties {
-    NSDictionary *archivedSuperProperties = (NSDictionary *)[SAFileStore unarchiveWithFileName:kSASavedSuperPropertiesFileName];
+    NSDictionary *archivedSuperProperties = [[SAStoreManager sharedInstance] objectForKey:kSASavedSuperPropertiesFileName];
     _superProperties = archivedSuperProperties ? [archivedSuperProperties copy] : [NSDictionary dictionary];
 }
 
 - (void)archiveSuperProperties {
-    [SAFileStore archiveWithFileName:kSASavedSuperPropertiesFileName value:self.superProperties];
+    [[SAStoreManager sharedInstance] setObject:self.superProperties forKey:kSASavedSuperPropertiesFileName];
 }
 
 @end

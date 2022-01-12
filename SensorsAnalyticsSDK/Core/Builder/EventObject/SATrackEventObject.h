@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/6.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -48,7 +48,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 采集预置事件
 /// $AppStart、$AppEnd、$AppViewScreen、$AppClick 全埋点事件
-///  AppCrashed、$AppRemoteConfigChanged 等预置事件
+/// AppCrashed、$AppRemoteConfigChanged 等预置事件
 @interface SAPresetEventObject : SATrackEventObject
 
 @end

@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2020/1/6.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,7 +26,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAURLUtils.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SALog.h"
 #import "SAIdentifier.h"
 #import "SAJSONUtil.h"
@@ -131,10 +131,10 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
 
 - (void)unarchiveSavedDeepLinkInfo:(BOOL)enableSave {
     if (!enableSave) {
-        [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:nil];
+        [[SAStoreManager sharedInstance] removeObjectForKey:kSavedDeepLinkInfoFileName];
         return;
     }
-    NSDictionary *local = [SAFileStore unarchiveWithFileName:kSavedDeepLinkInfoFileName];
+    NSDictionary *local = [[SAStoreManager sharedInstance] objectForKey:kSavedDeepLinkInfoFileName];
     if (!local) {
         return;
     }
@@ -242,7 +242,7 @@ static NSString *const kSavedDeepLinkInfoFileName = @"latest_utms";
     if (!_configOptions.enableSaveDeepLinkInfo) {
         return;
     }
-    [SAFileStore archiveWithFileName:kSavedDeepLinkInfoFileName value:dictionary];
+    [[SAStoreManager sharedInstance] setObject:dictionary forKey:kSavedDeepLinkInfoFileName];
 }
 
 #pragma mark - parse utms

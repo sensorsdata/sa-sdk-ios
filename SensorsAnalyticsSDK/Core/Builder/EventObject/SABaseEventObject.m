@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2021/4/13.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -129,13 +129,13 @@
 - (void)addDurationProperty:(NSNumber *)duration {
 }
 
-- (void)correctDeviceID:(NSString *)deviceID {
-    // 修正 $device_id
-    // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id
-    // 2. trackEventCallback 可以修改 $device_id
-    // 3. profile 操作中若传入 $device_id, 也需要进行修正
-    if (self.properties[kSAEventPresetPropertyDeviceId] && deviceID) {
-        self.properties[kSAEventPresetPropertyDeviceId] = deviceID;
+- (void)correctAnonymizationID:(NSString *)anonymizationID {
+    // 修正 $anonymization_id
+    // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id
+    // 2. trackEventCallback 可以修改 $anonymization_id
+    // 3. profile 操作中若传入 $anonymization_id, 也需要进行修正
+    if (self.properties[kSAEventPresetPropertyAnonymizationID] && anonymizationID) {
+        self.properties[kSAEventPresetPropertyAnonymizationID] = anonymizationID;
     }
 }
 

@@ -24,7 +24,7 @@
 
 #import "SACAIDUtils.h"
 #import "SASwizzle.h"
-#import "SAFileStore.h"
+#import "SAStoreManager.h"
 #import "SALog.h"
 
 static NSString *const kSACAIDCacheKey = @"com.sensorsdata.caid.cache";
@@ -39,7 +39,7 @@ static NSDictionary *caid;
         return nil;
     }
     if (!caid) {
-        caid = [SAFileStore unarchiveWithFileName:kSACAIDCacheKey];
+        caid = [[SAStoreManager sharedInstance] objectForKey:kSACAIDCacheKey];
     }
     if (caid.allKeys.count == 0 ) {
         SALogError(@"未获取到缓存的 CAID 信息，请检查是否正确集成 CAID SDK，并调用 getCAIDAsyncly 接口获取 CAID 信息");
@@ -71,7 +71,7 @@ static NSDictionary *caid;
             caid[@"last_caid"] = (NSString *)[SACAIDUtils invokeObject:caidStruct selString:@"lastVersionCAID"];
             caid[@"last_caid_version"] = (NSNumber *)[SACAIDUtils invokeObject:caidStruct selString:@"lastVersion"];
             // 客户每次调用 getCAIDAsyncly 方法成功后都会更新本地 CAID 信息
-            [SAFileStore archiveWithFileName:kSACAIDCacheKey value:caid];
+            [[SAStoreManager sharedInstance] setObject:caid forKey:kSACAIDCacheKey];
         }
         callback(error, caidStruct);
     }];

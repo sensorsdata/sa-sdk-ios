@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/25.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -55,9 +55,9 @@
 }
 
 - (void)testEventObjectWithNotStringType {
-//    NSString *type = (NSString *)@{@"A" : @"B"};
-//    SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-//    XCTAssertNil(object.type);
+//   NSString *type = (NSString *)@{@"A" : @"B"};
+//   SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
+//   XCTAssertNil(object.type);
 }
 
 - (void)testEventObjectWithStringType {

@@ -1,20 +1,21 @@
-//  SensorsAnalyticsSDK.m
-//  SensorsAnalyticsSDK
 //
-//  Created by 曹犟 on 15/7/1.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// SensorsAnalyticsSDK.m
+// SensorsAnalyticsSDK
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Created by 曹犟 on 15/7/1.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #if ! __has_feature(objc_arc)
@@ -42,9 +43,12 @@
 #import "SAJSONUtil.h"
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
+#import "SAStoreManager.h"
+#import "SAFileStorePlugin.h"
+#import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.1.5"
+#define VERSION @"4.2.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -186,6 +190,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 [self enableLog:_configOptions.enableLog];
             }
 
+            [self resgisterStorePlugins];
+
             _appLifecycle = [[SAAppLifecycle alloc] init];
 
             _people = [[SensorsAnalyticsPeople alloc] init];
@@ -242,6 +248,18 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)dealloc {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)resgisterStorePlugins {
+    SAFileStorePlugin *filePlugin = [[SAFileStorePlugin alloc] init];
+    [[SAStoreManager sharedInstance] registerStorePlugin:filePlugin];
+
+    SAUserDefaultsStorePlugin *userDefaultsPlugin = [[SAUserDefaultsStorePlugin alloc] init];
+    [[SAStoreManager sharedInstance] registerStorePlugin:userDefaultsPlugin];
+
+    for (id<SAStorePlugin> plugin in self.configOptions.storePlugins) {
+        [[SAStoreManager sharedInstance] registerStorePlugin:plugin];
+    }
 }
 
 - (void)removeObservers {
@@ -629,12 +647,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [object addCustomProperties:[properties copy]];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
-    
+
     // 6. 添加 $event_session_id
     [object addSessionPropertiesWithObject:self.sessionProperty];
-    
-    // 公共属性, 动态公共属性, 自定义属性不允许修改 $device_id 属性, 因此需要将修正逻操作放在所有属性添加后
-    [object correctDeviceID:self.presetProperty.deviceID];
+
+    // 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id 属性, 因此需要将修正逻操作放在所有属性添加后
+    [object correctAnonymizationID:self.presetProperty.anonymizationID];
 
     // 7. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
@@ -933,11 +951,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId {
     if ([pushTypeKey isKindOfClass:NSString.class] && pushTypeKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
         NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
-        NSString * valueOfPushId = [NSUserDefaults.standardUserDefaults valueForKey:keyOfPushId];
+        NSString * valueOfPushId = [[SAStoreManager sharedInstance] stringForKey:keyOfPushId];
         NSString * newValueOfPushId = [NSString stringWithFormat:@"%@_%@", self.distinctId, pushId];
         if (![valueOfPushId isEqualToString:newValueOfPushId]) {
             [self set:@{pushTypeKey:pushId}];
-            [NSUserDefaults.standardUserDefaults setValue:newValueOfPushId forKey:keyOfPushId];
+            [[SAStoreManager sharedInstance] setObject:newValueOfPushId forKey:keyOfPushId];
         }
     }
 }
@@ -945,10 +963,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)profileUnsetPushKey:(NSString *)pushTypeKey {
     NSAssert(([pushTypeKey isKindOfClass:[NSString class]] && pushTypeKey.length), @"pushTypeKey should be a non-empty string object!!!❌❌❌");
     NSString *localKey = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
-    NSString *localValue = [NSUserDefaults.standardUserDefaults valueForKey:localKey];
+    NSString *localValue = [[SAStoreManager sharedInstance] stringForKey:localKey];
     if ([localValue hasPrefix:self.distinctId]) {
         [self unset:pushTypeKey];
-        [NSUserDefaults.standardUserDefaults removeObjectForKey:localKey];
+        [[SAStoreManager sharedInstance] removeObjectForKey:localKey];
     }
 }
 
@@ -1178,7 +1196,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         // 可视化自定义属性中可能存在同名属性，因此要在设置完可视化自定义属性后再处理如下逻辑
         // track\sign_up\bind\unbind 事件都需要添加首日访问和 DeepLink 渠道参数
         if (isTrackEvent) {
-            //  是否首日访问，只有 track/bind/unbind 事件添加 $is_first_day 属性
+            // 是否首日访问，只有 track/bind/unbind 事件添加 $is_first_day 属性
             if (![type isEqualToString:kSAEventTypeSignup]) {
                 propertiesDict[kSAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
             }

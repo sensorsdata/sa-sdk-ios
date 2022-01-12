@@ -3,7 +3,7 @@
 // SensorsAnalyticsTests
 //
 // Created by wenquan on 2021/10/27.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -40,7 +40,7 @@
 }
 
 - (void)testSaveUdidWithEmptyUdid {
-//    XCTAssertTrue([[SAKeyChainItemWrapper saveUdid:@""] isEqualToString:@""]);
+//   XCTAssertTrue([[SAKeyChainItemWrapper saveUdid:@""] isEqualToString:@""]);
 }
 
 - (void)testSaveUdidWithNilUdid {
@@ -53,11 +53,11 @@
 }
 
 - (void)testSaveUdidWithStringUdid {
-//    XCTAssertTrue([[SAKeyChainItemWrapper saveUdid:@"ABC"] isEqualToString:@"ABC"]);
+//   XCTAssertTrue([[SAKeyChainItemWrapper saveUdid:@"ABC"] isEqualToString:@"ABC"]);
 }
 
 - (void)testSaveOrUpdatePassword {
-//    XCTAssertTrue([SAKeyChainItemWrapper saveOrUpdatePassword:@"password" account:@"account" service:@"service" accessGroup:nil]);
+//   XCTAssertTrue([SAKeyChainItemWrapper saveOrUpdatePassword:@"password" account:@"account" service:@"service" accessGroup:nil]);
 }
 
 - (void)testExample {

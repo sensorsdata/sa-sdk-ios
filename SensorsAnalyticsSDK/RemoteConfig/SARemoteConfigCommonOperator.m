@@ -3,7 +3,7 @@
 // SensorsAnalyticsSDK
 //
 // Created by wenquan on 2020/7/20.
-// Copyright © 2020 Sensors Data Co., Ltd. All rights reserved.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -26,6 +26,7 @@
 #import "SAReachability.h"
 #import "SALog.h"
 #import "SAValidator.h"
+#import "SAStoreManager.h"
 #import "SAModuleManager.h"
 #import "SAConfigOptions+RemoteConfig.h"
 #if __has_include("SAConfigOptions+Encrypt.h")
@@ -65,7 +66,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 #pragma mark - Protocol
 
 - (void)enableLocalRemoteConfig {
-    NSDictionary *config = [[NSUserDefaults standardUserDefaults] objectForKey:kSDKConfigKey];
+    NSDictionary *config = [[SAStoreManager sharedInstance] objectForKey:kSDKConfigKey];
     [self enableRemoteConfig:config];
 }
 
@@ -88,7 +89,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 #endif
 
     // 获取本地保存的随机时间和设备启动时间
-    NSDictionary *requestTimeConfig = [[NSUserDefaults standardUserDefaults] objectForKey:kRequestRemoteConfigRandomTimeKey];
+    NSDictionary *requestTimeConfig = [[SAStoreManager sharedInstance] objectForKey:kRequestRemoteConfigRandomTimeKey];
     double randomTime = [[requestTimeConfig objectForKey:kRandomTimeKey] doubleValue];
     double startDeviceTime = [[requestTimeConfig objectForKey:kStartDeviceTimeKey] doubleValue];
     // 获取当前设备启动时间，以开机时间为准，单位：秒
@@ -150,13 +151,11 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
     double randomTime = currentTime + realIntervalTime;
     
     NSDictionary *createRequestTimeConfig = @{kRandomTimeKey: @(randomTime), kStartDeviceTimeKey: @(currentTime) };
-    [[NSUserDefaults standardUserDefaults] setObject:createRequestTimeConfig forKey:kRequestRemoteConfigRandomTimeKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[SAStoreManager sharedInstance] setObject:createRequestTimeConfig forKey:kRequestRemoteConfigRandomTimeKey];
 }
 
 - (void)removeRandomTime {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:kRequestRemoteConfigRandomTimeKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[SAStoreManager sharedInstance] removeObjectForKey:kRequestRemoteConfigRandomTimeKey];
 }
 
 #pragma mark Request
@@ -242,8 +241,7 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 }
 
 - (void)saveRemoteConfig:(NSDictionary<NSString *, id> *)remoteConfig {
-    [[NSUserDefaults standardUserDefaults] setObject:[self addLibVersionToRemoteConfig:remoteConfig] forKey:kSDKConfigKey];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    [[SAStoreManager sharedInstance] setObject:[self addLibVersionToRemoteConfig:remoteConfig] forKey:kSDKConfigKey];
 }
 
 - (void)triggerRemoteConfigEffect:(NSDictionary<NSString *, id> *)remoteConfig {

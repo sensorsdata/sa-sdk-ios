@@ -1,21 +1,21 @@
 //
-//  AutoTrackViewController.m
-//  SensorsAnalyticsSDK
+// AutoTrackViewController.m
+// SensorsAnalyticsSDK
 //
-//  Created by 王灼洲 on 2017/4/27.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 王灼洲 on 2017/4/27.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #import "AutoTrackViewController.h"
@@ -53,7 +53,7 @@
     [self.myButton1 setAttributedTitle:[[NSAttributedString alloc]initWithString:@"attributedTitle - button1" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }] forState:UIControlStateNormal];
 
     [self.myLabel setAttributedText:[[NSAttributedString alloc]initWithString:@"attributedText-longGesture" attributes:@{ NSFontAttributeName: [UIFont systemFontOfSize:13], NSForegroundColorAttributeName: [UIColor redColor] }]];
-    //    self.myLabel.text = @"text----";
+    //   self.myLabel.text = @"text----";
 
 }
 -(IBAction)stepperOnClick:(UIStepper*)sender {

@@ -1,21 +1,21 @@
 //
-//  SensorsAnalyticsTest.m
-//  SensorsAnalyticsTest
+// SensorsAnalyticsTest.m
+// SensorsAnalyticsTest
 //
-//  Created by 张敏超 on 2019/3/12.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 张敏超 on 2019/3/12.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #import <XCTest/XCTest.h>
@@ -55,49 +55,49 @@
 #pragma mark - event
 //测试 itemSet 接口，是否成功
 - (void)testItemSet {
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
-//    
-//    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
-//    dispatch_async(queue, ^{
-//        
-//        NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-//        [[SensorsAnalyticsSDK sharedInstance] itemSetWithType:@"itemSet0517" itemId:@"itemId0517" properties:@{@"itemSet":@"acsdfgvzscd"}];
-//        
-//        sleep(1);
-//        
-//        NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-//        BOOL insertSucceed = newCount == lastCount + 1;
-//        XCTAssertTrue(insertSucceed);
-//        
-//        [expectation fulfill];
-//    });
-//    
-//    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
-//        XCTAssertNil(error);
-//    }];
+//   XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+//   
+//   dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+//   dispatch_async(queue, ^{
+//       
+//       NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+//       [[SensorsAnalyticsSDK sharedInstance] itemSetWithType:@"itemSet0517" itemId:@"itemId0517" properties:@{@"itemSet":@"acsdfgvzscd"}];
+//       
+//       sleep(1);
+//       
+//       NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+//       BOOL insertSucceed = newCount == lastCount + 1;
+//       XCTAssertTrue(insertSucceed);
+//       
+//       [expectation fulfill];
+//   });
+//   
+//   [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+//       XCTAssertNil(error);
+//   }];
 }
 
 //测试 itemDelete 接口，是否成功
 - (void)testItemDelete {
-//    XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
+//   XCTestExpectation *expectation = [self expectationWithDescription:@"异步操作timeout"];
 //
-//    dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
-//    dispatch_async(queue, ^{
-//        NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-//        [[SensorsAnalyticsSDK sharedInstance] itemDeleteWithType:@"itemSet0517" itemId:@"itemId0517"];
+//   dispatch_queue_t queue = dispatch_queue_create("sensorsData-Test", DISPATCH_QUEUE_SERIAL);
+//   dispatch_async(queue, ^{
+//       NSInteger lastCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+//       [[SensorsAnalyticsSDK sharedInstance] itemDeleteWithType:@"itemSet0517" itemId:@"itemId0517"];
 //
-//        sleep(1);
+//       sleep(1);
 //
-//        NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
-//        BOOL insertSucceed = newCount == lastCount + 1;
-//        XCTAssertTrue(insertSucceed);
+//       NSInteger newCount = [SensorsAnalyticsSDK sharedInstance].messageQueue.count;
+//       BOOL insertSucceed = newCount == lastCount + 1;
+//       XCTAssertTrue(insertSucceed);
 //
-//        [expectation fulfill];
-//    });
+//       [expectation fulfill];
+//   });
 //
-//    [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
-//        XCTAssertNil(error);
-//    }];
+//   [self waitForExpectationsWithTimeout:30 handler:^(NSError *error) {
+//       XCTAssertNil(error);
+//   }];
 }
 
 #pragma mark - trackTimer

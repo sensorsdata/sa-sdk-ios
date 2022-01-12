@@ -1,21 +1,21 @@
 //
-//  TestCollectionViewController.m
-//  SensorsData
+// TestCollectionViewController.m
+// SensorsData
 //
-//  Created by 王灼洲 on 2017/11/3.
-//  Copyright © 2015-2020 Sensors Data Co., Ltd. All rights reserved.
+// Created by 王灼洲 on 2017/11/3.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-//  Licensed under the Apache License, Version 2.0 (the "License");
-//  you may not use this file except in compliance with the License.
-//  You may obtain a copy of the License at
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
 //
-//      http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
-//  Unless required by applicable law or agreed to in writing, software
-//  distributed under the License is distributed on an "AS IS" BASIS,
-//  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-//  See the License for the specific language governing permissions and
-//  limitations under the License.
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
 //
 
 #import "TestCollectionViewController.h"
@@ -74,17 +74,17 @@
         [view removeFromSuperview];
     }
     
-//    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-//    [button setBackgroundColor:[UIColor whiteColor]];
-//    [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
-//    [button setTitle:[NSString stringWithFormat:@"%@",self.dataArray[indexPath.item]] forState:UIControlStateNormal];
-//    button.frame = CGRectMake(0, 0, 60, 60);
+//   UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+//   [button setBackgroundColor:[UIColor whiteColor]];
+//   [button setTitleColor:[UIColor redColor] forState:UIControlStateNormal];
+//   [button setTitle:[NSString stringWithFormat:@"%@",self.dataArray[indexPath.item]] forState:UIControlStateNormal];
+//   button.frame = CGRectMake(0, 0, 60, 60);
     
     UILabel *label = [[UILabel alloc]initWithFrame:CGRectMake(0, 0, 60, 60)];
     label.text = [NSString stringWithFormat:@"%ld:%@",(long)indexPath.section, self.dataArray[indexPath.item]];
     label.textColor = [UIColor redColor];
     [cell.contentView addSubview:label];
-//    [cell.contentView addSubview:button];
+//   [cell.contentView addSubview:button];
     
     return cell;
 }
@@ -114,6 +114,6 @@
 
 //-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 //{
-//    
+//   
 //}
 @end
