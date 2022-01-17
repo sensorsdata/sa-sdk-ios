@@ -94,7 +94,7 @@
     NSTimeInterval duration = (currentTimestamp - startTimestamp) < 24 * 60 * 60 ? (currentTimestamp - startTimestamp) : 0;
     tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", duration] floatValue]);
     [self trackWithProperties:tempProperties];
-    self.timestamp[address] = nil;
+    [self.timestamp removeObjectForKey:address];
 }
 
 - (void)trackWithProperties:(NSDictionary *)properties {

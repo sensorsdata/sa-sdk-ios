@@ -40,8 +40,6 @@ extern NSString * const kSAEventAnonymousId;
 extern NSString * const kSAEventIdentities;
 
 #pragma mark - Item
-extern NSString * const SA_EVENT_ITEM_TYPE;
-extern NSString * const SA_EVENT_ITEM_ID;
 extern NSString * const SA_EVENT_ITEM_SET;
 extern NSString * const SA_EVENT_ITEM_DELETE;
 

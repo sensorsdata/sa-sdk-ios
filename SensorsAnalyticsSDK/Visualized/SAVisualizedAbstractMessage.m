@@ -80,7 +80,7 @@
     if (!key) {
         return;
     }
-    _payload[key] = nil;
+    [_payload removeObjectForKey:key];
 }
 
 - (NSDictionary *)payload {

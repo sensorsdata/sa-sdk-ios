@@ -134,8 +134,8 @@
     // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id
     // 2. trackEventCallback 可以修改 $anonymization_id
     // 3. profile 操作中若传入 $anonymization_id, 也需要进行修正
-    if (self.properties[kSAEventPresetPropertyAnonymizationID] && anonymizationID) {
-        self.properties[kSAEventPresetPropertyAnonymizationID] = anonymizationID;
+    if (self.properties[@"$anonymization_id"] && anonymizationID) {
+        self.properties[@"$anonymization_id"] = anonymizationID;
     }
 }
 

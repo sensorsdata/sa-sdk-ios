@@ -103,7 +103,7 @@ NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
         return;
     }
     // 移除标记
-    eventIdentifier.properties[kSAWebVisualEventName] = nil;
+    [eventIdentifier.properties removeObjectForKey:kSAWebVisualEventName];
 
     // 缓存 H5 可视化全埋点事件
     for (NSString *eventName in webVisualEventNames) {

@@ -40,7 +40,12 @@
 #import "SAAppLifecycle.h"
 #import "SAReferrerManager.h"
 #import "SAProfileEventObject.h"
+#import "SAItemEventObject.h"
 #import "SAJSONUtil.h"
+#import "SAPropertyPluginManager.h"
+#import "SAPresetPropertyPlugin.h"
+#import "SAAppVersionPropertyPlugin.h"
+#import "SADeviceIDPropertyPlugin.h"
 #import "SAApplication.h"
 #import "SAEventTrackerPluginManager.h"
 #import "SAStoreManager.h"
@@ -48,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.0"
+#define VERSION @"4.2.1"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -223,6 +228,9 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 [SASessionProperty removeSessionModel];
             }
 
+            // 初始化注册内部插件
+            [self registerPropertyPlugin];
+
             if (!_configOptions.disableSDK) {
                 [[SAReachability sharedInstance] startMonitoring];
                 [self addRemoteConfigObservers];
@@ -264,6 +272,19 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)removeObservers {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void)registerPropertyPlugin {
+    dispatch_async(self.serialQueue, ^{
+        SAPresetPropertyPlugin *presetPlugin = [[SAPresetPropertyPlugin alloc] initWithLibVersion:VERSION];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:presetPlugin];
+
+        SAAppVersionPropertyPlugin *appVersionPlugin = [[SAAppVersionPropertyPlugin alloc] init];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:appVersionPlugin];
+
+        SADeviceIDPropertyPlugin *deviceIDPlugin = [[SADeviceIDPropertyPlugin alloc] init];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:deviceIDPlugin];
+    });
 }
 
 #if TARGET_OS_IOS
@@ -314,7 +335,18 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (NSDictionary *)getPresetProperties {
-    return [NSDictionary dictionaryWithDictionary:[self.presetProperty currentPresetProperties]];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    void(^block)(void) = ^{
+        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[[SAPresetPropertyPlugin class], [SADeviceIDPropertyPlugin class]]];
+        [properties addEntriesFromDictionary:dic];
+    };
+    if (sensorsdata_is_same_queue(self.serialQueue)) {
+        block();
+    } else {
+        dispatch_sync(self.serialQueue, block);
+    }
+    [properties addEntriesFromDictionary:[self.presetProperty currentPresetProperties]];
+    return properties;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl {
@@ -531,76 +563,21 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 #pragma mark - Item 操作
-- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
-    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
-    itemDict[kSAEventType] = SA_EVENT_ITEM_SET;
-    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
-    itemDict[SA_EVENT_ITEM_ID] = itemId;
 
+- (void)itemSetWithType:(NSString *)itemType itemId:(NSString *)itemId properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
+    SAItemEventObject *object = [[SAItemEventObject alloc] initWithType:kSAEventItemSet itemType:itemType itemID:itemId];
     dispatch_async(self.serialQueue, ^{
-        [self trackItems:itemDict properties:propertyDict];
+        [self trackEventObject:object properties:propertyDict];
     });
 }
 
 - (void)itemDeleteWithType:(NSString *)itemType itemId:(NSString *)itemId {
-    NSMutableDictionary *itemDict = [[NSMutableDictionary alloc] init];
-    itemDict[kSAEventType] = SA_EVENT_ITEM_DELETE;
-    itemDict[SA_EVENT_ITEM_TYPE] = itemType;
-    itemDict[SA_EVENT_ITEM_ID] = itemId;
-    
+    SAItemEventObject *object = [[SAItemEventObject alloc] initWithType:kSAEventItemDelete itemType:itemType itemID:itemId];
     dispatch_async(self.serialQueue, ^{
-        [self trackItems:itemDict properties:nil];
+        [self trackEventObject:object properties:nil];
     });
 }
 
-- (void)trackItems:(nullable NSDictionary <NSString *, id> *)itemDict properties:(nullable NSDictionary <NSString *, id> *)propertyDict {
-
-    NSMutableDictionary *itemProperties = [NSMutableDictionary dictionaryWithDictionary:itemDict];
-    //item_type 必须为合法变量名
-    NSString *itemType = itemProperties[SA_EVENT_ITEM_TYPE];
-
-    NSError *error = nil;
-    [SAValidator validKey:itemType error:&error];
-    if (error) {
-        SALogError(@"%@",error.localizedDescription);
-        if (error.code != SAValidatorErrorOverflow) {
-            itemProperties[SA_EVENT_ITEM_TYPE] = nil;
-        }
-    }
-
-    NSString *itemId = itemProperties[SA_EVENT_ITEM_ID];
-    if (![itemId isKindOfClass:[NSString class]]) {
-        SALogError(@"Item_id must be a string");
-        itemProperties[SA_EVENT_ITEM_ID] = nil;
-    }
-
-    if ([itemId isKindOfClass:[NSString class]] && itemId.length > kSAPropertyValueMaxLength) {
-        SALogError(@"%@'s length is longer than %ld", itemId, kSAPropertyValueMaxLength);
-    }
-    
-    // 校验 properties
-    NSMutableDictionary *propertyMDict = [SAPropertyValidator validProperties:propertyDict];
-    
-    // 处理 $project
-    id project = propertyMDict[kSAEventCommonOptionalPropertyProject];
-    if (project) {
-        itemProperties[kSAEventProject] = project;
-        [propertyMDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
-    }
-    
-    if (propertyMDict.count > 0) {
-        itemProperties[kSAEventProperties] = propertyMDict;
-    }
-    
-    itemProperties[kSAEventLib] = [self.presetProperty libPropertiesWithLibMethod:kSALibMethodCode];
-
-    NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    itemProperties[kSAEventTime] = timeStamp;
-
-    SALogDebug(@"\n【track event】:\n%@", itemProperties);
-
-    [self.eventTracker trackEvent:itemProperties];
-}
 #pragma mark - track event
 - (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
@@ -632,7 +609,9 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     object.identities = [self.identifier identitiesWithEventType:object.type];
 
     // 4. 添加属性
-    [object addEventProperties:self.presetProperty.automaticProperties];
+    NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] propertiesWithEvent:object.event type:object.type properties:properties];
+    [object.properties addEntriesFromDictionary:dic];
+    
     [object addSuperProperties:self.superProperty.currentSuperProperties];
     [object addEventProperties:object.dynamicSuperProperties];
     [object addEventProperties:self.presetProperty.currentNetworkProperties];
@@ -647,12 +626,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [object addCustomProperties:[properties copy]];
     [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
     [object addModuleProperties:SAModuleManager.sharedInstance.properties];
-
     // 6. 添加 $event_session_id
     [object addSessionPropertiesWithObject:self.sessionProperty];
 
     // 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id 属性, 因此需要将修正逻操作放在所有属性添加后
-    [object correctAnonymizationID:self.presetProperty.anonymizationID];
+    [object correctAnonymizationID:dic[kSADeviceIDPropertyPluginAnonymizationID]];
 
     // 7. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
@@ -864,6 +842,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     SALogDebug(@"SDK have set trackEvent callBack");
     dispatch_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
+    });
+}
+
+- (void)registerPropertyPlugin:(id<SAPropertyPluginProtocol>)plugin {
+    dispatch_async(self.serialQueue, ^{
+        [SAPropertyPluginManager.sharedInstance registerPropertyPlugin:plugin];
     });
 }
 
@@ -1117,7 +1101,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         NSString *type = eventDict[kSAEventType];
         NSMutableDictionary *propertiesDict = eventDict[kSAEventProperties];
 
-        if ([type isEqualToString:kSAEventTypeSignup]) {
+        if([type isEqualToString:kSAEventTypeSignup]) {
             eventDict[@"original_id"] = self.anonymousId;
         } else {
             eventDict[kSAEventDistinctId] = self.distinctId;
@@ -1125,14 +1109,16 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         eventDict[kSAEventTrackId] = @(arc4random());
 
         NSMutableDictionary *libMDic = eventDict[kSAEventLib];
+
         //update lib $app_version from super properties
         NSDictionary *superProperties = [self.superProperty currentSuperProperties];
-        id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ? : self.presetProperty.appVersion;
+        NSDictionary *appVersionProperties = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[[SAAppVersionPropertyPlugin class]]];
+        id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ?: appVersionProperties[kSAEventPresetPropertyAppVersion];
         if (appVersion) {
             libMDic[kSAEventPresetPropertyAppVersion] = appVersion;
         }
 
-        NSMutableDictionary *automaticPropertiesCopy = [NSMutableDictionary dictionaryWithDictionary:self.presetProperty.automaticProperties];
+        NSMutableDictionary *automaticPropertiesCopy = [[SAPropertyPluginManager sharedInstance] propertiesWithEvent:eventDict[kSAEventName] type:type properties:nil];
         [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
         [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLibVersion];
 
@@ -1179,7 +1165,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 if (!propertiesDict[kSAEventCommonOptionalPropertyTime]) {
                     propertiesDict[kSAEventCommonOptionalPropertyTime] = currentTime;
                 }
-                propertiesDict[@"sensorsdata_app_visual_properties"] = nil;
+                [propertiesDict removeObjectForKey:@"sensorsdata_app_visual_properties"];
                 eventDict[kSAEventProperties] = propertiesDict;
                 [self trackFromH5WithEventDict:eventDict isTrackEvent:isTrackEvent];
             });
@@ -1299,7 +1285,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
 
-            eventDict[kSAEventProperties][@"sensorsdata_web_visual_eventName"] = nil;
+            [eventDict[kSAEventProperties] removeObjectForKey:@"sensorsdata_web_visual_eventName"];
             [self.eventTracker trackEvent:enqueueEvent];
             SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
         }

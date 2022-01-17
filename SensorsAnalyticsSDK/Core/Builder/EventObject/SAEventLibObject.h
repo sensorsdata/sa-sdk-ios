@@ -22,6 +22,17 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// SDK 类型
+extern NSString * const kSAEventPresetPropertyLib;
+/// SDK 方法
+extern NSString * const kSAEventPresetPropertyLibMethod;
+/// SDK 版本
+extern NSString * const kSAEventPresetPropertyLibVersion;
+/// SDK 调用栈
+extern NSString * const kSAEventPresetPropertyLibDetail;
+/// 应用版本
+extern NSString * const kSAEventPresetPropertyAppVersion;
+
 @interface SAEventLibObject : NSObject
 
 @property (nonatomic, copy) NSString *lib;

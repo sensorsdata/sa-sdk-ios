@@ -44,8 +44,6 @@ NSString * const kSAEventAnonymousId = @"anonymous_id";
 NSString * const kSAEventIdentities = @"identities";
 
 #pragma mark - Item
-NSString * const SA_EVENT_ITEM_TYPE = @"item_type";
-NSString * const SA_EVENT_ITEM_ID = @"item_id";
 NSString * const SA_EVENT_ITEM_SET = @"item_set";
 NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
 

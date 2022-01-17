@@ -22,19 +22,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAEventPresetPropertyAnonymizationID;
-
-/// SDK 类型
-extern NSString * const kSAEventPresetPropertyLib;
-/// SDK 方法
-extern NSString * const kSAEventPresetPropertyLibMethod;
-/// SDK 版本
-extern NSString * const kSAEventPresetPropertyLibVersion;
-/// SDK 调用栈
-extern NSString * const kSAEventPresetPropertyLibDetail;
-/// 应用版本
-extern NSString * const kSAEventPresetPropertyAppVersion;
-
 extern NSString * const kSAEventPresetPropertyNetworkType;
 extern NSString * const kSAEventPresetPropertyWifi;
 /// 是否首日
@@ -42,10 +29,6 @@ extern NSString * const kSAEventPresetPropertyIsFirstDay;
 
 #pragma mark -
 @interface SAPresetProperty : NSObject
-
-@property (nonatomic, strong, readonly) NSMutableDictionary *automaticProperties;
-@property (nonatomic, copy, readonly) NSString *appVersion;
-@property (nonatomic, copy, readonly) NSString *anonymizationID;
 
 /**
  初始化方法
@@ -62,15 +45,6 @@ extern NSString * const kSAEventPresetPropertyIsFirstDay;
 
 /// 禁用 new 初始化
 + (instancetype)new NS_UNAVAILABLE;
-
-/**
-获取 lib 相关属性
-
-@param libMethod SDK 方法
-
-@return lib 相关属性
-*/
-- (NSDictionary *)libPropertiesWithLibMethod:(NSString *)libMethod;
 
 /// 是否为首日
 - (BOOL)isFirstDay;
