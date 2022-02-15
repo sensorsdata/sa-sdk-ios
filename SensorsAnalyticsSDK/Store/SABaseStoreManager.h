@@ -19,7 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAStorePlugin.h"
+#import <SAStorePlugin.h>
 
 NS_ASSUME_NONNULL_BEGIN
 

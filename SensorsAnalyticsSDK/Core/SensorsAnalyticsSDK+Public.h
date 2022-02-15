@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAConstants.h"
-#import "SAPropertyPluginProtocol.h"
+#import <SAConstants.h>
+#import <SAPropertyPluginProtocol.h>
 
 @class SensorsAnalyticsPeople;
 @class SASecurityPolicy;

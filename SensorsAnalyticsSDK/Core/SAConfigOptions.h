@@ -19,8 +19,8 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAStorePlugin.h"
-#import "SAConstants.h"
+#import <SAStorePlugin.h>
+#import <SAConstants.h>
 
 @class SASecretKey;
 @class SASecurityPolicy;
