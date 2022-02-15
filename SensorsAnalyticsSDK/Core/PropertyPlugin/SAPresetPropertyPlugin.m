@@ -31,6 +31,8 @@
 #import <UIKit/UIKit.h>
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #import <CoreTelephony/CTCarrier.h>
+#elif TARGET_OS_OSX
+#import <AppKit/AppKit.h>
 #endif
 
 //中国运营商 mcc 标识
