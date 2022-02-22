@@ -23,15 +23,21 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+@interface SAPageLeaveObject : NSObject
+
+@property (nonatomic, weak) UIViewController *viewController;
+@property (nonatomic, assign) NSTimeInterval timestamp;
+@property (nonatomic, copy) NSString *referrerURL;
+
+@end
+
 @interface SAAppPageLeaveTracker : SAAppTracker
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableDictionary *> *timestamp;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, SAPageLeaveObject *> *pageLeaveObjects;
 
 - (void)trackEvents;
 - (void)trackPageEnter:(UIViewController *)viewController;
 - (void)trackPageLeave:(UIViewController *)viewController;
-- (NSDictionary *)propertiesWithViewController:(UIViewController *)viewController;
-- (BOOL)shouldTrackViewController:(UIViewController *)viewController;
 
 @end
 

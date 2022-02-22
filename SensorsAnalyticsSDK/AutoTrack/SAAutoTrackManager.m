@@ -111,7 +111,7 @@
         [self registerPlugins];
         return;
     }
-    [self.appPageLeaveTracker.timestamp removeAllObjects];
+    [self.appPageLeaveTracker.pageLeaveObjects removeAllObjects];
     [self unregisterPlugins];
 }
 

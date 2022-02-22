@@ -181,30 +181,24 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
 
 + (NSInteger)itemIndexForResponder:(UIResponder *)responder {
     NSString *classString = NSStringFromClass(responder.class);
-    NSInteger count = 0;
+
     NSInteger index = -1;
     NSArray<UIResponder *> *brothersResponder = [self brothersElementForResponder:responder];
 
     for (UIResponder *res in brothersResponder) {
         if ([classString isEqualToString:NSStringFromClass(res.class)]) {
-            count++;
+            index ++;
         }
         if (res == responder) {
-            index = count - 1;
+            break;
         }
-    }
-    // 单个 UIViewController（即不存在其他兄弟 viewController） 拼接路径，不需要序号
-    if ([responder isKindOfClass:UIViewController.class] && ![responder isKindOfClass:UIAlertController.class] && count == 1) {
-        return -2;
     }
 
     /* 序号说明
-     -2：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
-     -1：同级只存在一个同类元素
+     -1：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
      >=0：元素序号
      */
-    // 如果 responder 是 UIViewController.view，此时 count = 0
-    return count == 0 || count == 1 ? count - 2 : index;
+    return index;
 }
 
 /// 寻找所有兄弟元素

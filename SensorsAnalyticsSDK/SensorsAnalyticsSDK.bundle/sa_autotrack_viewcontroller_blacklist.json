@@ -12,7 +12,9 @@
             "UIDocumentMenuViewController",
             "UIActivityViewController",
             "SLComposeViewController",
-            "UISplitViewController"
+            "UISplitViewController",
+            "UIDocumentPickerViewController",
+            "UIDocumentBrowserViewController"
         ],
         "private": [
             "UIApplicationRotationFollowingController",
@@ -72,7 +74,9 @@
             "_UIContextMenuActionsOnlyViewController",
             "UIPredictionViewController",
             "UISystemInputAssistantViewController",
-            "UICandidateViewController"
+            "UICandidateViewController",
+            "UIActivityContentViewController",
+            "SFAirDropViewController"
         ]
     },
     "$AppClick": {
@@ -141,7 +145,8 @@
             "PUUIMomentsGridViewController",
             "SFPasswordRemoteViewController",
             "UIWebRotatingAlertController",
-            "UIEditUserWordController"
+            "UIEditUserWordController",
+            "UIActivityContentViewController"
         ]
     }
 }

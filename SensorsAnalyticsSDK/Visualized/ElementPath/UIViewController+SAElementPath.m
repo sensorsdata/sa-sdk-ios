@@ -34,10 +34,6 @@
 
 @implementation UIViewController (SAElementPath)
 
-- (NSString *)sensorsdata_heatMapPath {
-    return [SAVisualizedUtils itemHeatMapPathForResponder:self];
-}
-
 - (NSArray *)sensorsdata_subElements {
     __block NSMutableArray *subElements = [NSMutableArray array];
     NSArray <UIViewController *> *childViewControllers = self.childViewControllers;
@@ -115,21 +111,13 @@
 
 @implementation UIAlertController (SAElementPath)
 
-- (NSString *)sensorsdata_itemPath {
+- (NSString *)sensorsdata_similarPath {
     NSString *className = NSStringFromClass(self.class);
     NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    if (index < -1) {
+    if (index < 0) { // -1
         return className;
     }
-
-    if (index < 0) {
-        index = 0;
-    }
     return [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    return self.sensorsdata_itemPath;
 }
 
 @end

@@ -54,12 +54,6 @@
                 "use_kvc": false
             },
             {
-                "name": "sensorsdata_elementSelector",
-                "key": "element_selector",
-                "type": "NSString",
-                "use_kvc": false
-            },
-            {
               "name": "sensorsdata_elementPosition",
               "key": "element_position",
               "type": "NSString",
@@ -133,6 +127,12 @@
                   "name": "listSelector",
                   "key": "list_selector",
                   "type": "NSString"
+              },
+              {
+                  "name": "sensorsdata_elementSelector",
+                  "key": "element_selector",
+                  "type": "NSString",
+                  "use_kvc": false
               }
           ]
         },

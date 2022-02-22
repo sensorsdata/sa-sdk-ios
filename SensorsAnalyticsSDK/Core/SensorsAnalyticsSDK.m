@@ -53,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.1"
+#define VERSION @"4.2.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -218,7 +218,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             // 此处更新 configOptions 中的 loginIDKey 和 SAIdentifier 中保持一致
             _configOptions.loginIDKey = _identifier.loginIDKey;
 
-            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue libVersion:[self libVersion]];
+            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
 
             _superProperty = [[SASuperProperty alloc] init];
             

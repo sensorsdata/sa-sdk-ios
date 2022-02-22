@@ -22,7 +22,6 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#include <sys/sysctl.h>
 #import "SAPresetProperty.h"
 #import "SAConstants+Private.h"
 #import "SAIdentifier.h"
@@ -35,11 +34,6 @@
 #import "SAValidator.h"
 #import "SAModuleManager.h"
 #import "SAJSONUtil.h"
-
-#if TARGET_OS_IOS
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#import <CoreTelephony/CTCarrier.h>
-#endif
 
 #pragma mark - state
 /// 网络类型
@@ -56,7 +50,6 @@ NSString * const kSAEventPresetPropertyIsFirstDay = @"$is_first_day";
 @property (nonatomic, strong) dispatch_queue_t queue;
 
 @property (nonatomic, copy) NSString *firstDay;
-@property (nonatomic, copy) NSString *libVersion;
 
 @end
 
@@ -64,13 +57,12 @@ NSString * const kSAEventPresetPropertyIsFirstDay = @"$is_first_day";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue libVersion:(NSString *)libVersion {
+- (instancetype)initWithQueue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
         _queue = queue;
         
         dispatch_async(self.queue, ^{
-            self.libVersion = libVersion;
             [self unarchiveFirstDay];
         });
     }

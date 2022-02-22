@@ -54,8 +54,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  通过响应链找到 对象的序号
 
- -2：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
- -1：同级只存在一个同类元素，兼容 $element_selector 逻辑
+ -1：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
  >=0：元素序号
 
  @param responder 响应链中的对象，可以是 UIView 或者 UIViewController

@@ -35,11 +35,18 @@
 
 typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
+// NB If you add any more fingerprint methods, increment this.
+static int kSAFingerprintVersion = 1;
 
 static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAIsDisableRNSubviewsInteractivePropertyName;
 
 #pragma mark - UIView
 @implementation UIView (SAElementPath)
+
+
+- (int)jjf_fingerprintVersion {
+	return kSAFingerprintVersion;
+}
 
 // 判断一个 view 是否显示
 - (BOOL)sensorsdata_isVisible {
@@ -133,14 +140,23 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     if (![SAVisualizedUtils isInteractiveEnabledRNView:self]) {
         return NO;
     }
-    
+
+    // 是否被忽略或黑名单屏蔽
+    if (self.sensorsdata_isIgnored) {
+        return NO;
+    }
+    UIViewController *viewController = self.sensorsdata_viewController;
+    if (viewController && viewController.sensorsdata_isIgnored) {
+        return NO;
+    }
+
     // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
         if (![segmentedControl isKindOfClass:UISegmentedControl.class]) {
             return NO;
         }
-        // 可能是 RN 框架 中 RCTSegmentedControl 内嵌 UISegment，再执行一次 RN 的可点击判断
+        // 可能是 RN 框架 中 RCTSegmentedControl 内嵌 UISegment，如果为 NO，再执行一次 RN 的可点击判断
         BOOL clickable = [SAVisualizedUtils isAutoTrackAppClickWithControl:segmentedControl];
         if (clickable){
             return YES;
@@ -203,29 +219,10 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
     NSString *className = NSStringFromClass(self.class);
     NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    if (index < -1) { // -2
+    if (index < 0) { // -1
         return className;
     }
-
-    if (index < 0) { // -1
-        index = 0;
-    }
     return [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    /* 忽略路径
-     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-     */
-    if ([NSStringFromClass(self.class) isEqualToString:@"UITableViewWrapperView"] || [NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-        return nil;
-    }
-
-    NSString *identifier = [SAVisualizedUtils viewIdentifierForView:self];
-    if (identifier) {
-        return identifier;
-    }
-    return [SAVisualizedUtils itemHeatMapPathForResponder:self];
 }
 
 - (NSString *)sensorsdata_similarPath {
@@ -295,42 +292,11 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
         UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
         if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
-            return [SAVisualizedUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController shouldSimilarPath:YES];
+            return [SAVisualizedUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
         }
     }
     // 支持自定义属性，可见元素均上传 elementPath
-    return [SAVisualizedUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController shouldSimilarPath:YES];
-}
-
-- (NSString *)sensorsdata_elementSelector {
-    // 处理特殊控件
-    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
-        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
-            /* 原始路径，都是类似以下结构：
-             UINavigationController/AutoTrackViewController/UIView/UISegmentedControl[(jjf_varB='fac459bd36d8326d9140192c7900decaf3744f5e')]/UISegment[0]
-             UISegment[0] 无法标识当前单元格当前显示的序号 index
-             */
-            NSString *elementSelector = [SAVisualizedUtils viewPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
-            // 解析 UISegment 的显示序号 index
-            NSString *postion = [self sensorsdata_elementPosition];
-            // 原始路径分割后的集合
-            NSMutableArray <NSString *> *viewPaths = [[elementSelector componentsSeparatedByString:@"/"] mutableCopy];
-            // 删除最后一个原始 UISegment 路径
-            [viewPaths removeLastObject];
-            // 添加使用位置拼接的正确路径
-            [viewPaths addObject:[NSString stringWithFormat:@"UISegment[%@]", postion]];
-            // 拼接完整路径信息
-            NSString *newElementSelector = [viewPaths componentsJoinedByString:@"/"];
-            return newElementSelector;
-        }
-    }
-    if (self.sensorsdata_enableAppClick) {
-        return [SAVisualizedUtils viewPathForView:self atViewController:self.sensorsdata_viewController];
-    } else {
-        return nil;
-    }
+    return [SAVisualizedUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController];
 }
 
 - (BOOL)sensorsdata_isFromWeb {
@@ -556,11 +522,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return [NSString stringWithFormat:@"%@/UISegment[-]", super.sensorsdata_itemPath];
 }
 
-- (NSString *)sensorsdata_heatMapPath {
-    NSString *subPath = [NSString stringWithFormat:@"UISegment[%ld]", (long)self.selectedSegmentIndex];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_heatMapPath, subPath];
-}
-
 @end
 
 @implementation UISlider (SAElementPath)
@@ -623,27 +584,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return super.sensorsdata_itemPath;
 }
 
-- (NSString *)sensorsdata_heatMapPath {
-    UIView *currentTableView = self.superview;
-    while (![currentTableView isKindOfClass:UITableView.class]) {
-        currentTableView = currentTableView.superview;
-        if (!currentTableView) {
-            return super.sensorsdata_heatMapPath;
-        }
-    }
-
-    UITableView *tableView = (UITableView *)currentTableView;
-    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
-        if (self == [tableView headerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
-        }
-        if (self == [tableView footerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
-        }
-    }
-    return super.sensorsdata_heatMapPath;
-}
-
 @end
 
 
@@ -698,14 +638,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return self.sensorsdata_itemPath;
 }
 
-- (NSString *)sensorsdata_heatMapPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [super sensorsdata_heatMapPath];
-}
-
 - (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
     return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
 }
@@ -756,14 +688,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     } else {
         return super.sensorsdata_similarPath;
     }
-}
-
-- (NSString *)sensorsdata_heatMapPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [super sensorsdata_heatMapPath];
 }
 
 - (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {

@@ -31,10 +31,13 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackManager.h"
 
+@implementation SAPageLeaveObject
+
+@end
+
 @interface SAAppPageLeaveTracker ()
 
-@property (nonatomic, copy, readwrite) NSDictionary *referrerProperties;
-@property (nonatomic, copy, readwrite) NSString *referrerURL;
+@property (nonatomic, copy) NSString *referrerURL;
 
 @end
 
@@ -53,13 +56,18 @@
 }
 
 - (void)trackEvents {
-    [self.timestamp enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSMutableDictionary * _Nonnull obj, BOOL * _Nonnull stop) {
+    [self.pageLeaveObjects enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SAPageLeaveObject * _Nonnull obj, BOOL * _Nonnull stop) {
+        if (!obj.viewController) {
+            return;
+        }
         NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-        NSNumber *timestamp = obj[kSAPageLeaveTimestamp];
-        NSTimeInterval startTimestamp = [timestamp doubleValue];
-        NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:obj[kSAPageLeaveAutoTrackProperties]];
+        NSTimeInterval startTimestamp = obj.timestamp;
+        NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:[self propertiesWithViewController:obj.viewController]];
         NSTimeInterval duration = (currentTimestamp - startTimestamp) < 24 * 60 * 60 ? (currentTimestamp - startTimestamp) : 0;
         tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", duration] floatValue]);
+        if (obj.referrerURL) {
+            tempProperties[kSAEventPropertyScreenReferrerUrl] = obj.referrerURL;
+        }
         [self trackWithProperties:[tempProperties copy]];
     }];
 }
@@ -69,13 +77,20 @@
         return;
     }
     NSString *address = [NSString stringWithFormat:@"%p", viewController];
-    if (self.timestamp[address]) {
+    if (self.pageLeaveObjects[address]) {
         return;
     }
-    NSMutableDictionary *properties = [[NSMutableDictionary alloc] init];
-    properties[kSAPageLeaveTimestamp] = @([[NSDate date] timeIntervalSince1970]);
-    properties[kSAPageLeaveAutoTrackProperties] = [self propertiesWithViewController:viewController];
-    self.timestamp[address] = properties;
+    SAPageLeaveObject *object = [[SAPageLeaveObject alloc] init];
+    object.timestamp = [[NSDate date] timeIntervalSince1970];
+    object.viewController = viewController;
+    NSString *currentURL;
+    if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(getScreenUrl)]) {
+        UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)viewController;
+        currentURL = [screenAutoTrackerController getScreenUrl];
+    }
+    currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
+    object.referrerURL = [self referrerURLWithURL:currentURL eventProperties:[SAAutoTrackUtils propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController]];
+    self.pageLeaveObjects[address] = object;
 }
 
 - (void)trackPageLeave:(UIViewController *)viewController {
@@ -83,18 +98,20 @@
         return;
     }
     NSString *address = [NSString stringWithFormat:@"%p", viewController];
-    if (!self.timestamp[address]) {
+    SAPageLeaveObject *object = self.pageLeaveObjects[address];
+    if (!object) {
         return;
     }
     NSTimeInterval currentTimestamp = [[NSDate date] timeIntervalSince1970];
-    NSMutableDictionary *properties = self.timestamp[address];
-    NSNumber *timestamp = properties[kSAPageLeaveTimestamp];
-    NSTimeInterval startTimestamp = [timestamp doubleValue];
-    NSMutableDictionary *tempProperties = [[NSMutableDictionary alloc] initWithDictionary:properties[kSAPageLeaveAutoTrackProperties]];
+    NSTimeInterval startTimestamp = object.timestamp;
+    NSMutableDictionary *tempProperties = [self propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)(object.viewController)];
     NSTimeInterval duration = (currentTimestamp - startTimestamp) < 24 * 60 * 60 ? (currentTimestamp - startTimestamp) : 0;
     tempProperties[kSAEventDurationProperty] = @([[NSString stringWithFormat:@"%.3f", duration] floatValue]);
+    if (object.referrerURL) {
+        tempProperties[kSAEventPropertyScreenReferrerUrl] = object.referrerURL;
+    }
     [self trackWithProperties:tempProperties];
-    [self.timestamp removeObjectForKey:address];
+    [self.pageLeaveObjects removeObjectForKey:address];
 }
 
 - (void)trackWithProperties:(NSDictionary *)properties {
@@ -107,37 +124,35 @@
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     // 冷（热）启动
     if (newState == SAAppLifecycleStateStart) {
-        [self.timestamp enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, NSMutableDictionary * _Nonnull obj, BOOL * _Nonnull stop) {
-            obj[kSAPageLeaveTimestamp] = @([[NSDate date] timeIntervalSince1970]);
+        [self.pageLeaveObjects enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SAPageLeaveObject * _Nonnull obj, BOOL * _Nonnull stop) {
+            obj.timestamp = [[NSDate date] timeIntervalSince1970];
         }];
         return;
     }
-
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
         [self trackEvents];
     }
 }
 
-- (NSDictionary *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
+- (NSMutableDictionary *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
     NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
-
+    if (eventProperties[kSAEventPropertyScreenUrl]) {
+        return eventProperties;
+    }
     NSString *currentURL;
     if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(getScreenUrl)]) {
         UIViewController<SAScreenAutoTracker> *screenAutoTrackerController = (UIViewController<SAScreenAutoTracker> *)viewController;
         currentURL = [screenAutoTrackerController getScreenUrl];
     }
     currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
-
-    // 添加 $url 和 $referrer 页面浏览相关属性
-    NSDictionary *newProperties = [self propertiesWithURL:currentURL eventProperties:eventProperties];
-
-    return newProperties;
+    eventProperties[kSAEventPropertyScreenUrl] = currentURL;
+    return eventProperties;
 }
 
-- (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
+- (NSString *)referrerURLWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
     NSString *referrerURL = self.referrerURL;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
 
@@ -151,9 +166,8 @@
     }
     // $referrer 内容以最终页面浏览事件中的 $url 为准
     self.referrerURL = newProperties[kSAEventPropertyScreenUrl];
-    self.referrerProperties = newProperties;
 
-    return newProperties;
+    return newProperties[kSAEventPropertyScreenReferrerUrl];
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)viewController {
@@ -173,11 +187,11 @@
     return NO;
 }
 
-- (NSMutableDictionary<NSString *,NSMutableDictionary *> *)timestamp {
-    if (!_timestamp) {
-        _timestamp = [[NSMutableDictionary alloc] init];
+- (NSMutableDictionary<NSString *,SAPageLeaveObject *> *)pageLeaveObjects {
+    if (!_pageLeaveObjects) {
+        _pageLeaveObjects = [[NSMutableDictionary alloc] init];
     }
-    return _timestamp;
+    return _pageLeaveObjects;
 }
 
 @end

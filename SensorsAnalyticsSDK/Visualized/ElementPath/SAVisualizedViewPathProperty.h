@@ -24,9 +24,6 @@
 #pragma mark - ViewPath
 @protocol SAAutoTrackViewPathProperty <NSObject>
 
-/// $AppClick 某个元素的相对路径，拼接 $element_selector。单个元素不包含序号
-@property (nonatomic, copy, readonly) NSString *sensorsdata_heatMapPath;
-
 @optional
 /// $AppClick 某个元素的相对路径，拼接 $element_path，单个元素包含序号
 @property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
@@ -53,7 +50,7 @@
 /// 当前元素的路径
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
 
-/// 当前元素的元素选择器
+/// App 内嵌 H5 元素的元素选择器
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementSelector;
 
 /// 相对 keywindow 的坐标

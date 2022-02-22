@@ -86,7 +86,6 @@ NSString * const kSAEventPropertyElementId = @"$element_id";
 NSString * const kSAEventPropertyScreenName = @"$screen_name";
 NSString * const kSAEventPropertyTitle = @"$title";
 NSString * const kSAEventPropertyElementPosition = @"$element_position";
-NSString * const kSAEventPropertyElementSelector = @"$element_selector";
 
 NSString * const kSAEeventPropertyReferrerTitle = @"$referrer_title";
 
@@ -162,8 +161,6 @@ NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sens
 NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsVisualizedMessageFromH5Notification";
 
 //page leave
-NSString * const kSAPageLeaveTimestamp = @"timestamp";
-NSString * const kSAPageLeaveAutoTrackProperties = @"properties";
 NSString * const kSAEventDurationProperty = @"event_duration";
 NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";
 

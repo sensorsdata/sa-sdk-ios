@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否为 H5 元素
 @property (nonatomic, assign) BOOL isFromH5;
 
-/// 元素选择器，老版使用
+/// 元素选择器，H5 元素不支持限定位置时匹配
 @property (nonatomic, copy) NSString *elementSelector;
 
 /// 元素内容

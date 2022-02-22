@@ -34,7 +34,7 @@
 #import "SAHTTPSession.h"
 #import "SAReachability.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
 #endif
 
@@ -144,7 +144,7 @@
     }
 
     SensorsAnalyticsNetworkType networkType = SensorsAnalyticsNetworkTypeNONE;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
     networkType = [self networkTypeWWANOptionsWithString:networkTypeString];
 #endif
     return networkType;
@@ -156,7 +156,7 @@
         if ([SAReachability sharedInstance].isReachableViaWiFi) {
             networkTypeString = @"WIFI";
         }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
         else {
             networkTypeString = [self networkTypeWWANString];
         }
@@ -167,7 +167,7 @@
     return networkTypeString;
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 + (SensorsAnalyticsNetworkType)networkTypeWWANOptionsWithString:(NSString *)networkTypeString {
     if ([@"2G" isEqualToString:networkTypeString]) {
         return SensorsAnalyticsNetworkType2G;

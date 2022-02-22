@@ -45,7 +45,7 @@
 /// 当前类型
 @property (nonatomic, assign) SensorsAnalyticsVisualizedType visualizedType;
 
-/// 指定开启可视化的 viewControllers 名称
+/// 指定开启可视化/点击分析的 viewControllers 名称
 @property (nonatomic, strong) NSMutableSet<NSString *> *visualizedViewControllers;
 
 /// 自定义属性采集
@@ -324,13 +324,10 @@
         return nil;
     }
 
-    // 1 获取 viewPath 相关属性
-    NSString *elementSelector = [SAVisualizedUtils viewPathForView:view atViewController:viewController];
-
-    NSString *elementPath = [SAVisualizedUtils viewSimilarPathForView:view atViewController:viewController shouldSimilarPath:YES];
+    // 获取 viewPath 相关属性
+    NSString *elementPath = [SAVisualizedUtils viewSimilarPathForView:view atViewController:viewController];
     
     NSMutableDictionary *viewPthProperties = [NSMutableDictionary dictionary];
-    viewPthProperties[kSAEventPropertyElementSelector] = elementSelector;
     viewPthProperties[kSAEventPropertyElementPath] = elementPath;
 
     return viewPthProperties.count > 0 ? viewPthProperties : nil;

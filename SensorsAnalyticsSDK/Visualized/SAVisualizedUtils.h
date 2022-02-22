@@ -94,47 +94,13 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isIgnoredItemPathWithView:(UIView *)view;
 
 /**
- 创建 view 的唯一标识符
-
- @param view 需要创建的对象
- @return 唯一标识符
- */
-+ (nullable NSString *)viewIdentifierForView:(UIView *)view;
-
-/**
-通过响应链找到 对象的点击图路径
-
-@param responder 响应链中的对象，可以是 UIView 或者 UIViewController
-@return 路径
-*/
-+ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder;
-
-/**
- 找到 view 的路径数组
-
- @param view 需要获取路径的 view
- @return 路径数组
- */
-+ (NSArray<NSString *> *)viewPathsForView:(UIView *)view;
-
-/**
- 获取 view 的路径字符串
-
- @param view 需要获取路径的 view
- @param viewController view 所在的 viewController
- @return 路径字符串
- */
-+ (nullable NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
-
-/**
 获取 view 的模糊路径
 
 @param view 需要获取路径的 view
 @param viewController view 所在的 viewController
-@param shouldSimilarPath 是否需要取相似路径
 @return 路径字符串
 */
-+ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath;
++ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController;
 
 /// 当前 view 所在同类页面序号
 + (NSInteger)pageIndexWithView:(UIView *)view;

@@ -212,14 +212,14 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
          层级结构如下
          UITextField
             _UITextFieldRoundedRectBackgroundViewNeue
-            UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层）
-                _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView (UIView 的子类)
+            UIFieldEditor（UIScrollView 的子类，只有编辑状态才包含此层，非编辑状态直接包含下面层级）
+                _UITextFieldCanvasView 或 _UISearchTextFieldCanvasView 或 _UITextLayoutCanvasView（模拟器出现） (UIView 的子类)
             _UITextFieldClearButton (可能存在)
          */
         UITextField *textField = (UITextField *)[self nextResponder];
         return [textField sensorsdata_propertyContent];
     }
-    if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"]) {
+    if ([NSStringFromClass(self.class) isEqualToString:@"_UITextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UISearchTextFieldCanvasView"] || [NSStringFromClass(self.class) isEqualToString:@"_UITextLayoutCanvasView"]) {
         
         UITextField *textField = (UITextField *)[self nextResponder];
         do {
@@ -275,12 +275,17 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 @implementation UITextField (PropertiesContent)
 
 - (NSString *)sensorsdata_propertyContent {
-    if (self.text) {
+	/*  兼容 RN 中输入框  placeholder 采集
+	 RCTUITextField，未输入元素内容， text 为 @""，而非 nil
+	 */
+    if (self.text.length > 0) {
         return self.text;
-    } else if (self.placeholder) {
-        return self.placeholder;
     }
-    return super.sensorsdata_propertyContent;
+    return self.placeholder;
+    /*
+     针对 UITextField，因为子元素最终仍会尝试向上遍历 nextResponder 使用 UITextField本身获取内容
+     如果再遍历子元素获取内容，会造成死循环调用而异常
+     */
 }
 
 @end

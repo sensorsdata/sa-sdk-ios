@@ -41,7 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign, readonly, getter=isValid) BOOL valid;
 
 /// 配置版本
-@property (nonatomic, assign, readonly) NSString *configVersion;
+@property (nonatomic, copy, readonly) NSString *configVersion;
 
 /// 配置原始 json
 @property (nonatomic, copy, readonly) NSDictionary *originalResponse;

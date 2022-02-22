@@ -1,6 +1,6 @@
 //
 // SAVisualizedDebugLogTracker.h
-// Pods-SensorsData
+// SensorsAnalyticsSDK
 //
 // Created by 储强盛 on 2021/3/3.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.

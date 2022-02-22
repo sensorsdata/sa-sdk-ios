@@ -1,9 +1,9 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.2.1"
+  s.version      = "4.2.2"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
-  s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" } 
+  s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
   s.license = { :type => "Apache License, Version 2.0" }
   s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
   s.ios.deployment_target = '8.0'
@@ -11,7 +11,7 @@ Pod::Spec.new do |s|
   s.default_subspec = 'Core'
   s.frameworks = 'Foundation', 'SystemConfiguration'
 
-  s.libraries = 'icucore', 'sqlite3', 'z'
+  s.libraries = 'icucore', 'z'
 
   s.subspec '__Store' do |ss|
     ss.source_files = 'SensorsAnalyticsSDK/Store/*.{h,m}'
@@ -39,7 +39,7 @@ Pod::Spec.new do |s|
     c.ios.source_files = 'SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}', 'SensorsAnalyticsSDK/ChannelMatch/**/*.{h,m}', 'SensorsAnalyticsSDK/Encrypt/**/*.{h,m}', 'SensorsAnalyticsSDK/Deeplink/**/*.{h,m}', 'SensorsAnalyticsSDK/DebugMode/**/*.{h,m}', 'SensorsAnalyticsSDK/Core/SAAlertController.h'
     c.ios.public_header_files = 'SensorsAnalyticsSDK/{Encrypt,RemoteConfig,ChannelMatch,Deeplink,DebugMode}/{SAConfigOptions,SensorsAnalyticsSDK}+*.h', 'SensorsAnalyticsSDK/Encrypt/SAEncryptProtocol.h', 'SensorsAnalyticsSDK/Encrypt/SASecretKey.h'
   end
-  
+
   s.subspec 'Core' do |c|
     c.ios.dependency 'SensorsAnalyticsSDK/Visualized'
     c.osx.dependency 'SensorsAnalyticsSDK/Common'

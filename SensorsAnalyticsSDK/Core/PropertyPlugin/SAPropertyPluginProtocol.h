@@ -41,7 +41,7 @@ typedef NS_OPTIONS(NSUInteger, SAPropertyPluginEventTypes) {
 typedef NS_ENUM(NSUInteger, SAPropertyPluginPriority) {
     SAPropertyPluginPriorityLow = 250,
     SAPropertyPluginPriorityDefault = 500,
-    SAPropertyPluginPriorityHight = 750,
+    SAPropertyPluginPriorityHigh = 750,
 };
 
 typedef void(^SAPropertyPluginCompletion)(NSDictionary<NSString *, id> *properties);

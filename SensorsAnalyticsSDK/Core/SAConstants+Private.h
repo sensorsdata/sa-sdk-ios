@@ -83,7 +83,6 @@ extern NSString * const kSAEventPropertyElementId;
 extern NSString * const kSAEventPropertyScreenName;
 extern NSString * const kSAEventPropertyTitle;
 extern NSString * const kSAEventPropertyElementPosition;
-extern NSString * const kSAEventPropertyElementSelector;
 extern NSString * const kSAEventPropertyElementPath;
 extern NSString * const kSAEventPropertyElementContent;
 extern NSString * const kSAEventPropertyElementType;
@@ -150,8 +149,6 @@ extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
 extern NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION;
 
 // page leave
-extern NSString * const kSAPageLeaveTimestamp;
-extern NSString * const kSAPageLeaveAutoTrackProperties;
 extern NSString * const kSAEventDurationProperty;
 extern NSString * const kSAEventNameAppPageLeave;
 

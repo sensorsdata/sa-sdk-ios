@@ -207,7 +207,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         }
         return [NSString stringWithFormat:@"%ld", (long)index];
     }
-
     return super.sensorsdata_elementPosition;
 }
 

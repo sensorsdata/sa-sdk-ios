@@ -101,7 +101,7 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
 
     SAPropertyPluginPriority priority = [plugin respondsToSelector:@selector(priority)] ? plugin.priority : SAPropertyPluginPriorityDefault;
     // 断言提示返回的优先级类型必须为 SAPropertyPluginPriority
-    NSAssert(priority == SAPropertyPluginPriorityLow || priority == SAPropertyPluginPriorityDefault || priority == SAPropertyPluginPriorityHight || priority == kSAPropertyPluginPrioritySuper, @"Invalid value: the `- priority` method must return `SAPropertyPluginPriority` type.");
+    NSAssert(priority == SAPropertyPluginPriorityLow || priority == SAPropertyPluginPriorityDefault || priority == SAPropertyPluginPriorityHigh || priority == kSAPropertyPluginPrioritySuper, @"Invalid value: the `- priority` method must return `SAPropertyPluginPriority` type.");
 
     if (priority == kSAPropertyPluginPrioritySuper) {
         for (id<SAPropertyPluginProtocol> object in self.superPlugins) {

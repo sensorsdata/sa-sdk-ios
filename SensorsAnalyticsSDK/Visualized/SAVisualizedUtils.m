@@ -25,7 +25,6 @@
 #import "SAVisualizedUtils.h"
 #import "SAWebElementView.h"
 #import "UIView+SAElementPath.h"
-#import "UIView+SAElementSelector.h"
 #import "SAVisualizedViewPathProperty.h"
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
@@ -494,47 +493,8 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
     return [ignoredItemClassNames containsObject:className];
 }
 
-+ (NSArray<NSString *> *)viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)viewController {
-    NSMutableArray *viewPaths = [NSMutableArray array];
-    do {
-        [viewPaths addObject:viewController.sensorsdata_heatMapPath];
-        viewController = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.parentViewController;
-    } while (viewController);
-
-    UIViewController<SAAutoTrackViewPathProperty> *vc = (UIViewController<SAAutoTrackViewPathProperty> *)viewController.presentingViewController;
-    if ([vc conformsToProtocol:@protocol(SAAutoTrackViewPathProperty)]) {
-        [viewPaths addObjectsFromArray:[self viewPathsForViewController:vc]];
-    }
-    return viewPaths;
-}
-
-+ (NSArray<NSString *> *)viewPathsForView:(UIView<SAAutoTrackViewPathProperty> *)view {
-    NSMutableArray *viewPathArray = [NSMutableArray array];
-    do { // 遍历 view 层级 路径
-        if (view.sensorsdata_heatMapPath) {
-            [viewPathArray addObject:view.sensorsdata_heatMapPath];
-        }
-    } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class] && ![view isKindOfClass:UIWindow.class]);
-
-    if ([view isKindOfClass:UIViewController.class] && [view conformsToProtocol:@protocol(SAAutoTrackViewPathProperty)]) {
-        // 遍历 controller 层 路径
-        [viewPathArray addObjectsFromArray:[self viewPathsForViewController:(UIViewController<SAAutoTrackViewPathProperty> *)view]];
-    }
-    return viewPathArray;
-}
-
-+ (NSString *)viewPathForView:(UIView *)view atViewController:(UIViewController *)viewController {
-    if ([self isIgnoredViewPathForViewController:viewController]) {
-        return nil;
-    }
-    NSArray *viewPaths = [[[self viewPathsForView:view] reverseObjectEnumerator] allObjects];
-    NSString *viewPath = [viewPaths componentsJoinedByString:@"/"];
-
-    return viewPath;
-}
-
 /// 获取模糊路径
-+ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController shouldSimilarPath:(BOOL)shouldSimilarPath {
++ (NSString *)viewSimilarPathForView:(UIView *)view atViewController:(UIViewController *)viewController {
     if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
@@ -543,7 +503,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
     BOOL isContainSimilarPath = NO;
 
     do {
-        if (isContainSimilarPath || !shouldSimilarPath) { // 防止 cell 嵌套，被拼上多个 [-]
+        if (isContainSimilarPath) { // 防止 cell 等列表嵌套，被拼上多个 [-]
             if (view.sensorsdata_itemPath) {
                 [viewPathArray addObject:view.sensorsdata_itemPath];
             }
@@ -551,7 +511,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
             NSString *currentSimilarPath = view.sensorsdata_similarPath;
             if (currentSimilarPath) {
                 [viewPathArray addObject:currentSimilarPath];
-                if ([currentSimilarPath rangeOfString:@"[-]"].location != NSNotFound) {
+                if ([currentSimilarPath containsString:@"[-]"]) {
                     isContainSimilarPath = YES;
                 }
             }
@@ -560,43 +520,12 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
 
     if ([view isKindOfClass:UIAlertController.class]) {
         UIViewController<SAAutoTrackViewPathProperty> *viewController = (UIViewController<SAAutoTrackViewPathProperty> *)view;
-        [viewPathArray addObject:viewController.sensorsdata_itemPath];
+        [viewPathArray addObject:viewController.sensorsdata_similarPath];
     }
 
     NSString *viewPath = [[[viewPathArray reverseObjectEnumerator] allObjects] componentsJoinedByString:@"/"];
 
     return viewPath;
-}
-
-+ (NSString *)viewIdentifierForView:(UIView *)view {
-    NSMutableArray *valueArray = [[NSMutableArray alloc] init];
-    NSString *value = [view jjf_varE];
-    if (value) {
-        [valueArray addObject:[NSString stringWithFormat:@"jjf_varE='%@'", value]];
-    }
-    value = [view jjf_varC];
-    if (value) {
-        [valueArray addObject:[NSString stringWithFormat:@"jjf_varC='%@'", value]];
-    }
-    value = [view jjf_varB];
-    if (value) {
-        [valueArray addObject:[NSString stringWithFormat:@"jjf_varB='%@'", value]];
-    }
-    value = [view jjf_varA];
-    if (value) {
-        [valueArray addObject:[NSString stringWithFormat:@"jjf_varA='%@'", value]];
-    }
-    if (valueArray.count == 0) {
-        return nil;
-    }
-    NSString *viewVarString = [valueArray componentsJoinedByString:@" AND "];
-    return [NSString stringWithFormat:@"%@[(%@)]", NSStringFromClass([view class]), viewVarString];
-}
-
-+ (NSString *)itemHeatMapPathForResponder:(UIResponder *)responder {
-    NSString *className = NSStringFromClass(responder.class);
-    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:responder];
-    return index < 0 ? className : [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
 }
 
 /// 当前 view 所在同类页面序号

@@ -34,11 +34,10 @@ extern NSString * const kSAEventPresetPropertyIsFirstDay;
  初始化方法
  
  @param queue 一个全局队列
- @param libVersion SDK 版本
  
  @return 初始化对象
  */
-- (instancetype)initWithQueue:(dispatch_queue_t)queue libVersion:(NSString *)libVersion NS_DESIGNATED_INITIALIZER;
+- (instancetype)initWithQueue:(dispatch_queue_t)queue NS_DESIGNATED_INITIALIZER;
 
 /// 禁用 init 初始化
 - (instancetype)init NS_UNAVAILABLE;
