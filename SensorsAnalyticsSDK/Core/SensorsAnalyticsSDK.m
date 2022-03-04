@@ -53,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.2"
+#define VERSION @"4.2.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -283,6 +283,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:appVersionPlugin];
 
         SADeviceIDPropertyPlugin *deviceIDPlugin = [[SADeviceIDPropertyPlugin alloc] init];
+        deviceIDPlugin.disableDeviceId = self.configOptions.disableDeviceId;
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:deviceIDPlugin];
     });
 }
@@ -629,8 +630,17 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     // 6. 添加 $event_session_id
     [object addSessionPropertiesWithObject:self.sessionProperty];
 
-    // 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id 属性, 因此需要将修正逻操作放在所有属性添加后
-    [object correctAnonymizationID:dic[kSADeviceIDPropertyPluginAnonymizationID]];
+    // 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id、$device_id 属性, 因此需要将修正逻操作放在所有属性添加后
+    if (self.configOptions.disableDeviceId) {
+        [object correctAnonymizationID:dic[kSADeviceIDPropertyPluginAnonymizationID]];
+        //不允许客户设置 $device_id
+        [object.properties removeObjectForKey:kSADeviceIDPropertyPluginDeviceID];
+    } else {
+        [object correctDeviceID:dic[kSADeviceIDPropertyPluginDeviceID]];
+        //不允许客户设置 $anonymization_id
+        [object.properties removeObjectForKey:kSADeviceIDPropertyPluginAnonymizationID];
+    }
+
 
     // 7. trackEventCallback 接口调用
     if (![self willEnqueueWithObject:object]) {
@@ -1362,49 +1372,42 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
 
-- (UInt64)flushInterval {
+- (NSInteger)flushInterval {
     @synchronized(self) {
         return self.configOptions.flushInterval;
     }
 }
 
-- (void)setFlushInterval:(UInt64)interval {
+- (void)setFlushInterval:(NSInteger)interval {
     @synchronized(self) {
-        if (interval < 5 * 1000) {
-            interval = 5 * 1000;
-        }
-        self.configOptions.flushInterval = (NSInteger)interval;
+        self.configOptions.flushInterval = interval;
     }
     [self flush];
     [self stopFlushTimer];
     [self startFlushTimer];
 }
 
-- (UInt64)flushBulkSize {
+- (NSInteger)flushBulkSize {
     @synchronized(self) {
         return self.configOptions.flushBulkSize;
     }
 }
 
-- (void)setFlushBulkSize:(UInt64)bulkSize {
+- (void)setFlushBulkSize:(NSInteger)bulkSize {
     @synchronized(self) {
-        //加上最小值保护，50
-        NSInteger newBulkSize = (NSInteger)bulkSize;
-        self.configOptions.flushBulkSize = newBulkSize >= 50 ? newBulkSize : 50;
+        self.configOptions.flushBulkSize = bulkSize;
     }
 }
 
-- (void)setMaxCacheSize:(UInt64)maxCacheSize {
+- (void)setMaxCacheSize:(NSInteger)maxCacheSize {
     @synchronized(self) {
-        //防止设置的值太小导致事件丢失
-        UInt64 temMaxCacheSize = maxCacheSize > 10000 ? maxCacheSize : 10000;
-        self.configOptions.maxCacheSize = (NSInteger)temMaxCacheSize;
+        self.configOptions.maxCacheSize = maxCacheSize;
     };
 }
 
-- (UInt64)maxCacheSize {
+- (NSInteger)maxCacheSize {
     @synchronized(self) {
-        return (UInt64)self.configOptions.maxCacheSize;
+        return self.configOptions.maxCacheSize;
     };
 }
 

@@ -57,7 +57,7 @@ typedef NSURLSessionAuthChallengeDisposition (^SAURLSessionTaskDidReceiveAuthent
         _delegateQueue.name = [NSString stringWithFormat:@"cn.sensorsdata.SAHTTPSession.%p", self];
         _delegateQueue.maxConcurrentOperationCount = 1;
 
-        NSURLSessionConfiguration *config = [NSURLSessionConfiguration defaultSessionConfiguration];
+        NSURLSessionConfiguration *config = [NSURLSessionConfiguration ephemeralSessionConfiguration];
         config.timeoutIntervalForRequest = 30.0;
         config.HTTPShouldUsePipelining = NO;
         _session = [NSURLSession sessionWithConfiguration:config delegate:self delegateQueue:_delegateQueue];

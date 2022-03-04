@@ -64,6 +64,11 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param anonymizationID anonymizationID
 - (void)correctAnonymizationID:(NSString *)anonymizationID;
 
+
+/// 修正 $device_id
+/// @param deviceID deviceID
+- (void)correctDeviceID:(NSString *)deviceID;
+
 @end
 
 NS_ASSUME_NONNULL_END

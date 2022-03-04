@@ -168,7 +168,11 @@ void *SAAppExtensionQueueTag = &SAAppExtensionQueueTag;
             NSDictionary *event = @{@"event": eventName, @"properties": properties?properties:@{}};
             NSString *path = [self filePathForApplicationGroupIdentifier:groupIdentifier];
             if(![[NSFileManager defaultManager] fileExistsAtPath:path]) {
-                [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:nil];
+                NSDictionary *attributes = nil;
+#if TARGET_OS_IOS
+                attributes = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
+#endif
+                [[NSFileManager defaultManager] createFileAtPath:path contents:nil attributes:attributes];
             }
             NSMutableArray *array = [[NSMutableArray alloc] initWithContentsOfFile:path];
             if (array.count) {

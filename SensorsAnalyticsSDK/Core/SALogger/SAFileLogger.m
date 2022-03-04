@@ -86,7 +86,11 @@
         NSLog(@"SAFileLogger file directory created failed");
         return nil;
     }
-    BOOL fileCreated = [[NSFileManager defaultManager] createFileAtPath:logfilePath contents:nil attributes:nil];
+    NSDictionary *attributes = nil;
+#if TARGET_OS_IOS
+    attributes = [NSDictionary dictionaryWithObject:NSFileProtectionComplete forKey:NSFileProtectionKey];
+#endif
+    BOOL fileCreated = [[NSFileManager defaultManager] createFileAtPath:logfilePath contents:nil attributes:attributes];
     if (!fileCreated) {
         NSLog(@"SAFileLogger file created failed");
         return nil;

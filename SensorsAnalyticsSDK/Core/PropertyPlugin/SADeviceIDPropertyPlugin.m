@@ -27,6 +27,7 @@
 #import "SAIdentifier.h"
 
 NSString * const kSADeviceIDPropertyPluginAnonymizationID = @"$anonymization_id";
+NSString *const kSADeviceIDPropertyPluginDeviceID = @"$device_id";
 
 @implementation SADeviceIDPropertyPlugin
 
@@ -39,9 +40,10 @@ NSString * const kSADeviceIDPropertyPluginAnonymizationID = @"$anonymization_id"
 }
 
 - (void)start {
-    NSData *data = [[SAIdentifier hardwareID] dataUsingEncoding:NSUTF8StringEncoding];
+    NSString *hardwareID = [SAIdentifier hardwareID];
+    NSData *data = [hardwareID dataUsingEncoding:NSUTF8StringEncoding];
     NSString *anonymizationID = [data base64EncodedStringWithOptions:0];
-    self.properties = @{kSADeviceIDPropertyPluginAnonymizationID: anonymizationID};
+    self.properties = self.disableDeviceId ? @{kSADeviceIDPropertyPluginAnonymizationID: anonymizationID} : @{kSADeviceIDPropertyPluginDeviceID: hardwareID};
 }
 
 @end

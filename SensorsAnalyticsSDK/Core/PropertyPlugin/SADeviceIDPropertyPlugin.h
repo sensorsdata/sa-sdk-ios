@@ -24,8 +24,11 @@
 NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kSADeviceIDPropertyPluginAnonymizationID;
+extern NSString * const kSADeviceIDPropertyPluginDeviceID;
 
 @interface SADeviceIDPropertyPlugin : NSObject <SAPropertyPluginProtocol>
+
+@property (nonatomic, assign) BOOL disableDeviceId;
 
 @property (nonatomic, strong) NSDictionary<NSString *, id> *properties;
 

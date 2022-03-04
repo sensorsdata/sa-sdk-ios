@@ -66,6 +66,8 @@
     // 用于保存当前存在的所有 ekey
     NSMutableArray *ekeys = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
+        if (!record.ekey) continue;
+
         NSInteger index = [ekeys indexOfObject:record.ekey];
         if (index == NSNotFound) {
             [record removePayload];

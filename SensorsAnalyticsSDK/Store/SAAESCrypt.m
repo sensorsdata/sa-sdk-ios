@@ -67,9 +67,11 @@
     size_t bufferSize = dataLength + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
 
-    unsigned char buf[16];
-    arc4random_buf(buf, sizeof(buf));
-    NSData *ivData = [NSData dataWithBytes:buf length:sizeof(buf)];
+    NSMutableData *iv = [NSMutableData dataWithLength:kCCBlockSizeAES128];
+    int result = SecRandomCopyBytes(kSecRandomDefault, kCCBlockSizeAES128, iv.mutableBytes);
+    if (result != errSecSuccess) {
+        return nil;
+    }
 
     size_t numBytesEncrypted = 0;
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
@@ -77,7 +79,7 @@
                                           kCCOptionPKCS7Padding,
                                           [self.key bytes],
                                           kCCBlockSizeAES128,
-                                          [ivData bytes],
+                                          [iv bytes],
                                           [data bytes],
                                           dataLength,
                                           buffer,
@@ -86,7 +88,7 @@
     if (cryptStatus == kCCSuccess) {
         // 获得加密内容后，在内容前添加 16 位随机字节，增加数据复杂度
         NSData *encryptData = [NSData dataWithBytes:buffer length:numBytesEncrypted];
-        NSMutableData *ivEncryptData = [NSMutableData dataWithData:ivData];
+        NSMutableData *ivEncryptData = [NSMutableData dataWithData:iv];
         [ivEncryptData appendData:encryptData];
 
         free(buffer);
@@ -112,12 +114,19 @@
     size_t bufferSize = dataLength + kCCBlockSizeAES128;
     void *buffer = malloc(bufferSize);
     size_t numBytesDecrypted = 0;
+
+    NSMutableData *iv = [NSMutableData dataWithLength:kCCBlockSizeAES128];
+    int result = SecRandomCopyBytes(kSecRandomDefault, kCCBlockSizeAES128, iv.mutableBytes);
+    if (result != errSecSuccess) {
+        return nil;
+    }
+
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt,
                                           kCCAlgorithmAES128,
                                           kCCOptionPKCS7Padding,
                                           [self.key bytes],
                                           kCCBlockSizeAES128,
-                                          NULL,
+                                          [iv bytes],
                                           [encryptedData bytes],
                                           [encryptedData length],
                                           buffer,

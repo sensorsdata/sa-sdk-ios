@@ -121,6 +121,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否进行 session 切割。默认 NO，不会进行 session 切割；设置 YES，会进行 session 切割
 @property (nonatomic, assign) BOOL enableSession;
 
+/// 是否禁用采集 deviceId
+@property (nonatomic, assign) BOOL disableDeviceId;
+
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
 
 @end

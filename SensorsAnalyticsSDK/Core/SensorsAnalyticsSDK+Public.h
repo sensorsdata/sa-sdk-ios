@@ -772,7 +772,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
-@property (atomic) UInt64 flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
+@property (atomic) NSInteger flushInterval __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushInterval")));
 
 /**
  * @property
@@ -789,7 +789,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */
-@property (atomic) UInt64 flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
+@property (atomic) NSInteger flushBulkSize __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 flushBulkSize")));
 
 /**
  * @abstract
@@ -799,7 +799,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * 默认为 10000 条事件
  *
  */
-@property (nonatomic) UInt64 maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
+@property (nonatomic) NSInteger maxCacheSize  __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 maxCacheSize")));
 
 /**
  * @abstract

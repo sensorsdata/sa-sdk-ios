@@ -133,6 +133,7 @@
      kSecAttrKeyClass];
     [publicKey setObject:[NSNumber numberWithBool:YES] forKey:(__bridge id)
      kSecReturnPersistentRef];
+    [publicKey setObject:(__bridge id)kSecAttrAccessibleAfterFirstUnlock forKey:(__bridge id)kSecAttrAccessible];
     
     CFTypeRef persistKey = nil;
     OSStatus status = SecItemAdd((__bridge CFDictionaryRef)publicKey, &persistKey);

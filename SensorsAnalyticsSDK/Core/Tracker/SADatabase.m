@@ -187,10 +187,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare update records query failure: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         SALogError(@"Failed to update records from database, error: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     sqlite3_finalize(stmt);
@@ -280,6 +282,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
     if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare delete records query failure: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     BOOL success = YES;
@@ -305,6 +308,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
     if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare delete records query failure: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     if (sqlite3_step(stmt) != SQLITE_DONE) {
@@ -363,6 +367,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
         int result = sqlite3_prepare_v2(_database, sql.UTF8String, -1, &stmt, NULL);
         if (result != SQLITE_OK) {
             SALogError(@"sqlite stmt prepare error (%d): %s", result, sqlite3_errmsg(_database));
+            sqlite3_finalize(stmt);
             return NULL;
         }
         CFDictionarySetValue(_dbStmtCache, (__bridge const void *)(sql), stmt);
@@ -385,6 +390,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     sqlite3_stmt *stmt;
     if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare PRAGMA table_info query failure: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return columns;
     }
 
@@ -412,10 +418,12 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 
     if (sqlite3_prepare_v2(_database, query.UTF8String, -1, &stmt, NULL) != SQLITE_OK) {
         SALogError(@"Prepare create column query failure: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     if (sqlite3_step(stmt) != SQLITE_DONE) {
         SALogError(@"Failed to create column, error: %s", sqlite3_errmsg(_database));
+        sqlite3_finalize(stmt);
         return NO;
     }
     sqlite3_finalize(stmt);

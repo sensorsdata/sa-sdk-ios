@@ -98,6 +98,9 @@ static long recordIndex = 0;
 }
 
 - (void)removePayload {
+    if (!_event[SAEncryptRecordKeyPayload]) {
+        return;
+    }
     _event[SAEncryptRecordKeyPayloads] = [NSMutableArray arrayWithObject:_event[SAEncryptRecordKeyPayload]];
     [_event removeObjectForKey:SAEncryptRecordKeyPayload];
 }
@@ -107,7 +110,6 @@ static long recordIndex = 0;
         return NO;
     }
     [(NSMutableArray *)_event[SAEncryptRecordKeyPayloads] addObject:record.event[SAEncryptRecordKeyPayload]];
-    [_event removeObjectForKey:SAEncryptRecordKeyPayload];
     return YES;
 }
 

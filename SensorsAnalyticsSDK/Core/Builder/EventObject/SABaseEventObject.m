@@ -139,6 +139,12 @@
     }
 }
 
+- (void)correctDeviceID:(NSString *)deviceID {
+    if (self.properties[@"$device_id"] && deviceID) {
+        self.properties[@"$device_id"] = deviceID;
+    }
+}
+
 - (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
     if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
         *error = SAPropertyError(10004, @"Property Key: %@ must be a string", key);
