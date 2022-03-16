@@ -408,8 +408,9 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     return columns;
 }
 
+//默认添加一个整型的默认值为 0 的一列
 - (BOOL)createColumn:(NSString *)columnName inTable:(NSString *)tableName {
-    if ([self columnExists:kDatabaseColumnStatus inTable:kDatabaseTableName]) {
+    if ([self columnExists:columnName inTable:tableName]) {
         return YES;
     }
 

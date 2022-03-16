@@ -53,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.3"
+#define VERSION @"4.2.4"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -64,9 +64,6 @@ NSString * const SensorsAnalyticsIdentityKeyMobile = @"$identity_mobile";
 NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 @interface SensorsAnalyticsSDK()
-
-// 在内部，重新声明成可读写的
-@property (atomic, strong) SensorsAnalyticsPeople *people;
 
 @property (nonatomic, strong) SANetwork *network;
 
@@ -198,8 +195,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             [self resgisterStorePlugins];
 
             _appLifecycle = [[SAAppLifecycle alloc] init];
-
-            _people = [[SensorsAnalyticsPeople alloc] init];
 
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
@@ -938,10 +933,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 #pragma mark - SensorsData  Analytics
 
-- (void)set:(NSDictionary *)profileDict {
-    [[self people] set:profileDict];
-}
-
 - (void)profilePushKey:(NSString *)pushTypeKey pushId:(NSString *)pushId {
     if ([pushTypeKey isKindOfClass:NSString.class] && pushTypeKey.length && [pushId isKindOfClass:NSString.class] && pushId.length) {
         NSString * keyOfPushId = [NSString stringWithFormat:@"sa_%@", pushTypeKey];
@@ -964,38 +955,61 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     }
 }
 
+- (void)set:(NSDictionary *)profileDict {
+    if (profileDict) {
+        [self profile:SA_PROFILE_SET properties:profileDict];
+    }
+}
+
 - (void)setOnce:(NSDictionary *)profileDict {
-    [[self people] setOnce:profileDict];
+    if (profileDict) {
+        [self profile:SA_PROFILE_SET_ONCE properties:profileDict];
+    }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
-    [[self people] set:profile to:content];
+    if (profile && content) {
+        [self profile:SA_PROFILE_SET properties:@{profile: content}];
+    }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
-    [[self people] setOnce:profile to:content];
+    if (profile && content) {
+        [self profile:SA_PROFILE_SET_ONCE properties:@{profile: content}];
+    }
 }
 
 - (void)unset:(NSString *) profile {
-    [[self people] unset:profile];
+    if (profile) {
+        [self profile:SA_PROFILE_UNSET properties:@{profile: @""}];
+    }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
-    [[self people] increment:profile by:amount];
+    if (profile && amount) {
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [self asyncTrackEventObject:object properties:@{profile: amount}];
+    }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
-    [[self people] increment:profileDict];
+    if (profileDict) {
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
+        [self asyncTrackEventObject:object properties:profileDict];
+    }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
-    if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-        [[self people] append:profile by:content];
+    if (profile && content) {
+        if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
+            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
+            [self asyncTrackEventObject:object properties:@{profile: content}];
+        }
     }
 }
 
 - (void)deleteUser {
-    [[self people] deleteUser];
+    [self profile:SA_PROFILE_DELETE properties:@{}];
 }
 
 - (void)enableLog:(BOOL)enableLog {
@@ -1302,69 +1316,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
     }
-}
-
-@end
-
-#pragma mark - People analytics
-
-@implementation SensorsAnalyticsPeople
-
-- (void)set:(NSDictionary *)profileDict {
-    if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_SET properties:profileDict];
-    }
-}
-
-- (void)setOnce:(NSDictionary *)profileDict {
-    if (profileDict) {
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_SET_ONCE properties:profileDict];
-    }
-}
-
-- (void)set:(NSString *) profile to:(id)content {
-    if (profile && content) {
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_SET properties:@{profile: content}];
-    }
-}
-
-- (void)setOnce:(NSString *) profile to:(id)content {
-    if (profile && content) {
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_SET_ONCE properties:@{profile: content}];
-    }
-}
-
-- (void)unset:(NSString *) profile {
-    if (profile) {
-        [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_UNSET properties:@{profile: @""}];
-    }
-}
-
-- (void)increment:(NSString *)profile by:(NSNumber *)amount {
-    if (profile && amount) {
-        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:@{profile: amount}];
-    }
-}
-
-- (void)increment:(NSDictionary *)profileDict {
-    if (profileDict) {
-        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:profileDict];
-    }
-}
-
-- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
-    if (profile && content) {
-        if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:@{profile: content}];
-        }
-    }
-}
-
-- (void)deleteUser {
-    [[SensorsAnalyticsSDK sharedInstance] profile:SA_PROFILE_DELETE properties:@{}];
 }
 
 @end

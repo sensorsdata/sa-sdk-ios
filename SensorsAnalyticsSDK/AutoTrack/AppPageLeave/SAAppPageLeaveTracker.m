@@ -176,7 +176,10 @@
     if ([self isViewController:viewController inBlackList:appViewScreenBlackList]) {
         return NO;
     }
-    if (SAAutoTrackManager.defaultManager.configOptions.enableAutoTrackChildViewScreen ||
+    if ([SAAutoTrackManager.defaultManager.configOptions.ignoredPageLeaveClasses containsObject:[viewController class]]) {
+        return NO;
+    }
+    if (SAAutoTrackManager.defaultManager.configOptions.enableTrackChildPageLeave ||
         !viewController.parentViewController ||
         [viewController.parentViewController isKindOfClass:[UITabBarController class]] ||
         [viewController.parentViewController isKindOfClass:[UINavigationController class]] ||

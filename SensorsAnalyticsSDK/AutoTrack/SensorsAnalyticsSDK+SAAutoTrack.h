@@ -195,6 +195,15 @@ NS_ASSUME_NONNULL_BEGIN
 ///开启自动采集页面浏览时长
 @property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
 
+
+/// 是否开启子页面的页面浏览时长
+@property (nonatomic, assign) BOOL enableTrackChildPageLeave API_UNAVAILABLE(macos);
+
+
+/// 忽略特定页面的页面浏览时长采集
+/// @param viewControllers 需要忽略的页面控制器的类
+- (void)ignorePageLeave:(NSArray<Class>*)viewControllers;
+
 /// 是否自动采集子页面的页面浏览事件
 ///
 /// 开启页面浏览事件采集时，有效。默认为不采集

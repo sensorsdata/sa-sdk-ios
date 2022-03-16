@@ -58,6 +58,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 /// 非对称加密器的公钥（RSA/ECC 的公钥）
 @property (nonatomic, strong) SASecretKey *secretKey;
 
+/// 防止 RSA 加密时卡住主线程, 所以新建串行队列处理
+@property (nonatomic, strong) dispatch_queue_t encryptQueue;
+
 @end
 
 @implementation SAEncryptManager
@@ -67,6 +70,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     static SAEncryptManager *manager = nil;
     dispatch_once(&onceToken, ^{
         manager = [[SAEncryptManager alloc] init];
+        manager.encryptQueue = dispatch_queue_create("cn.sensorsdata.SAEncryptManagerEncryptQueue", DISPATCH_QUEUE_SERIAL);
     });
     return manager;
 }
@@ -77,7 +81,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     _enable = enable;
 
     if (enable) {
-        [self updateEncryptor];
+        dispatch_async(self.encryptQueue, ^{
+            [self updateEncryptor];
+        });
     }
 }
 
@@ -207,6 +213,12 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 #pragma mark - handle remote config for secret key
 - (void)handleEncryptWithConfig:(NSDictionary *)encryptConfig {
+    dispatch_async(self.encryptQueue, ^{
+        [self updateEncryptorWithConfig:encryptConfig];
+    });
+}
+
+- (void)updateEncryptorWithConfig:(NSDictionary *)encryptConfig {
     if (!encryptConfig) {
         return;
     }

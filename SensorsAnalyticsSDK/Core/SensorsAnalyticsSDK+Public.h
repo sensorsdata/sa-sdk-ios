@@ -22,7 +22,6 @@
 #import "SAConstants.h"
 #import "SAPropertyPluginProtocol.h"
 
-@class SensorsAnalyticsPeople;
 @class SASecurityPolicy;
 @class SAConfigOptions;
 
@@ -41,17 +40,8 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  *
  * @discussion
  * 使用 SensorsAnalyticsSDK 类来跟踪用户行为，并且把数据发给所指定的 SensorsAnalytics 的服务。
- * 它也提供了一个 SensorsAnalyticsPeople 类型的 property，用来访问用户 Profile 相关的 API。
  */
 @interface SensorsAnalyticsSDK : NSObject
-
-/**
- * @property
- *
- * @abstract
- * 对 SensorsAnalyticsPeople 这个 API 的访问接口
- */
-@property (atomic, readonly, strong) SensorsAnalyticsPeople *people;
 
 /**
  * @property
@@ -630,126 +620,6 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  *
  */
 - (void)clearKeychainData API_UNAVAILABLE(macos);
-
-@end
-
-#pragma mark -
-/**
- * @class
- * SensorsAnalyticsPeople 类
- *
- * @abstract
- * 用于记录用户 Profile 的 API
- *
- * @discussion
- * <b>请不要自己来初始化这个类.</b> 请通过 SensorsAnalyticsSDK 提供的 people 这个 property 来调用
- */
-@interface SensorsAnalyticsPeople : NSObject
-
-/**
- * @abstract
- * 直接设置用户的一个或者几个 Profiles
- *
- * @discussion
- * 这些 Profile 的内容用一个 NSDictionary 来存储
- * 其中的 key 是 Profile 的名称，必须是 NSString
- * Value 则是 Profile 的内容，只支持 NSString、NSNumber、NSSet、NSArray、NSDate 这些类型
- * 特别的，NSSet 或者 NSArray 类型的 value 中目前只支持其中的元素是 NSString
- * 如果某个 Profile 之前已经存在了，则这次会被覆盖掉；不存在，则会创建
- *
- * @param profileDict 要替换的那些 Profile 的内容
- */
-- (void)set:(NSDictionary *)profileDict;
-
-/**
- * @abstract
- * 首次设置用户的一个或者几个 Profiles
- *
- * @discussion
- * 与set接口不同的是，如果该用户的某个 Profile 之前已经存在了，会被忽略；不存在，则会创建
- *
- * @param profileDict 要替换的那些 Profile 的内容
- */
-- (void)setOnce:(NSDictionary *)profileDict;
-
-/**
- * @abstract
- * 设置用户的单个 Profile 的内容
- *
- * @discussion
- * 如果这个 Profile 之前已经存在了，则这次会被覆盖掉；不存在，则会创建
- *
- * @param profile Profile 的名称
- * @param content Profile 的内容
- */
-- (void)set:(NSString *) profile to:(id)content;
-
-/**
- * @abstract
- * 首次设置用户的单个 Profile 的内容
- *
- * @discussion
- * 与 set 类接口不同的是，如果这个 Profile 之前已经存在了，则这次会被忽略；不存在，则会创建
- *
- * @param profile Profile 的名称
- * @param content Profile 的内容
- */
-- (void)setOnce:(NSString *) profile to:(id)content;
-
-/**
- * @abstract
- * 删除某个 Profile 的全部内容
- *
- * @discussion
- * 如果这个 Profile 之前不存在，则直接忽略
- *
- * @param profile Profile 的名称
- */
-- (void)unset:(NSString *) profile;
-
-/**
- * @abstract
- * 给一个数值类型的 Profile 增加一个数值
- *
- * @discussion
- * 只能对 NSNumber 类型的 Profile 调用这个接口，否则会被忽略
- * 如果这个 Profile 之前不存在，则初始值当做 0 来处理
- *
- * @param profile  待增加数值的 Profile 的名称
- * @param amount   要增加的数值
- */
-- (void)increment:(NSString *)profile by:(NSNumber *)amount;
-
-/**
- * @abstract
- * 给多个数值类型的 Profile 增加数值
- *
- * @discussion
- * profileDict 中，key是 NSString，value 是 NSNumber
- * 其它与 - (void)increment:by: 相同
- *
- * @param profileDict 多个
- */
-- (void)increment:(NSDictionary *)profileDict;
-
-/**
- * @abstract
- * 向一个 NSSet 或者 NSArray 类型的 value 添加一些值
- *
- * @discussion
- * 如前面所述，这个 NSSet 或者 NSArray 的元素必须是 NSString，否则，会忽略
- * 同时，如果要 append 的 Profile 之前不存在，会初始化一个空的 NSSet 或者 NSArray
- *
- * @param profile profile
- * @param content description
- */
-- (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content;
-
-/**
- * @abstract
- * 删除当前这个用户的所有记录
- */
-- (void)deleteUser;
 
 @end
 

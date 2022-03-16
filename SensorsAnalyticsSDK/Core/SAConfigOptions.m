@@ -53,6 +53,7 @@
 @property (nonatomic, assign) NSInteger maxRequestHourInterval;
 
 @property (nonatomic, assign) BOOL enableTrackPageLeave;
+@property (nonatomic, assign) BOOL enableTrackChildPageLeave;
 @property (nonatomic) BOOL enableAutoTrackChildViewScreen;
 @property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
 
@@ -109,6 +110,7 @@
         _enableAutoTrack = YES;
 
         _storePlugins = [NSMutableArray array];
+        _ignoredPageLeaveClasses = [NSSet set];
     }
     return self;
 }
@@ -162,6 +164,8 @@
     options.enableTrackPush = self.enableTrackPush;
     // 页面浏览时长
     options.enableTrackPageLeave = self.enableTrackPageLeave;
+    options.enableTrackChildPageLeave = self.enableTrackChildPageLeave;
+    options.ignoredPageLeaveClasses = self.ignoredPageLeaveClasses;
 
     //private switch
     options.enableRemoteConfig = self.enableRemoteConfig;
@@ -202,6 +206,13 @@
 
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin {
     [self.storePlugins addObject:plugin];
+}
+
+- (void)ignorePageLeave:(NSArray<Class> *)viewControllers {
+    if (![viewControllers isKindOfClass:[NSArray class]]) {
+        return;
+    }
+    self.ignoredPageLeaveClasses = [NSSet setWithArray:viewControllers];
 }
 
 @end
