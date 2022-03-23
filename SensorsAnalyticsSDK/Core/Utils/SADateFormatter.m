@@ -33,6 +33,7 @@ NSString * const kSAEventDateFormatter = @"yyyy-MM-dd HH:mm:ss.SSS";
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         dateFormatter = [[NSDateFormatter alloc] init];
+        dateFormatter.locale = [NSLocale localeWithLocaleIdentifier:@"en_US_POSIX"];
     });
     if (dateFormatter) {
         [dateFormatter setDateFormat:string];

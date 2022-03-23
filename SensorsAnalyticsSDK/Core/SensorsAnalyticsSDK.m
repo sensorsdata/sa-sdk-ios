@@ -53,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.4"
+#define VERSION @"4.2.5"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 

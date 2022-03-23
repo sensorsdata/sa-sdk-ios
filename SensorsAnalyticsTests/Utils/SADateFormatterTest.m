@@ -50,6 +50,24 @@
 //   NSString *current = [dateFormatter stringFromDate:[NSDate date]];
 }
 
+- (void)testLocaleIdentifier {
+    // 修复 iOS 15.4 中国大陆地区在 12 小时制格式化日期时包含 AM/PM 问题
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@""];
+    XCTAssertTrue([dateFormatter.locale.localeIdentifier isEqualToString:@"en_US_POSIX"]);
+}
+
+- (void)testDateFormatter {
+    NSString *formatter = @"yyyy-MM-dd HH:mm:ss";
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:formatter];
+    XCTAssertTrue([dateFormatter.dateFormat isEqualToString:formatter]);
+}
+
+-(void)testDateFromString {
+    NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"yyyy-MM-dd HH:mm:ss"];
+    NSString *dateString = @"2022-03-21 18:07:09";
+    XCTAssertNotNil([dateFormatter dateFromString:dateString]);
+}
+
 - (void)testDateFormatterWithNotDateFormatterString {
     NSDateFormatter *dateFormatter = [SADateFormatter dateFormatterFromString:@"jjjj"];
     NSString *current = [dateFormatter stringFromDate:[NSDate date]];
