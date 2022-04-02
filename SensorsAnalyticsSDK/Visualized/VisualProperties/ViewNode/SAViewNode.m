@@ -27,7 +27,7 @@
 #import "UIView+SAVisualProperties.h"
 #import "SACommonUtility.h"
 #import "UIView+SAElementPath.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
 #import "SAViewElementInfoFactory.h"

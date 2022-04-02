@@ -1,5 +1,5 @@
 //
-// UIScrollView+AutoTrack.m
+// UIScrollView+SAAutoTrack.m
 // SensorsAnalyticsSDK
 //
 // Created by 张敏超🍎 on 2019/6/19.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "UIScrollView+AutoTrack.h"
+#import "UIScrollView+SAAutoTrack.h"
 #import "SAScrollViewDelegateProxy.h"
 #import <objc/runtime.h>
 #import <objc/message.h>

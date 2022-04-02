@@ -1,8 +1,8 @@
 //
-// NSString+HashCode.h
+// UIScrollView+SAAutoTrack.h
 // SensorsAnalyticsSDK
 //
-// Created by 王灼洲 on 2017/7/6.
+// Created by 张敏超🍎 on 2019/6/19.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,8 +18,20 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@interface NSString (HashCode)
-- (int)sensorsdata_hashCode;
+NS_ASSUME_NONNULL_BEGIN
+
+@interface UITableView (AutoTrack)
+
+- (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
+
 @end
+
+@interface UICollectionView (AutoTrack)
+
+- (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
+
+@end
+
+NS_ASSUME_NONNULL_END

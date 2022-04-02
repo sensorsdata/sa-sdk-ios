@@ -24,7 +24,7 @@
 
 #import "SAAppViewScreenTracker.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SAAppLifecycle.h"
 #import "SAConstants+Private.h"
 #import "SAValidator.h"

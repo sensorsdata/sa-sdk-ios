@@ -24,8 +24,8 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SAAutoTrackUtils.h"
 #import "ElementViewController.h"
-#import "UIView+AutoTrack.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 
 @interface SAAutoTrackUtilsTest : XCTestCase
 @property (nonatomic, strong) UIWindow *window;

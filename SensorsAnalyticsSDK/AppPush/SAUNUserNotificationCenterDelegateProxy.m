@@ -24,7 +24,7 @@
 
 #import "SAUNUserNotificationCenterDelegateProxy.h"
 #import "SAClassHelper.h"
-#import "NSObject+DelegateProxy.h"
+#import "NSObject+SADelegateProxy.h"
 #import "SAAppPushConstants.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALog.h"

@@ -1,15 +1,15 @@
 //
-// UIViewController+AutoTrack.h
+// NSString+SAHashCode.h
 // SensorsAnalyticsSDK
 //
-// Created by 王灼洲 on 2017/10/18.
+// Created by 王灼洲 on 2017/7/6.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-// http://www.apache.org/licenses/LICENSE-2.0
+//     http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,18 +18,8 @@
 // limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
-#import "SAAutoTrackProperty.h"
+#import <Foundation/Foundation.h>
 
-@interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty>
-
-- (void)sa_autotrack_viewDidAppear:(BOOL)animated;
-
-@end
-
-@interface UINavigationController (AutoTrack)
-
-/// 上一次页面，防止侧滑/下滑重复采集 $AppViewScreen 事件
-@property (nonatomic, strong) UIViewController *sensorsdata_previousViewController;
-
+@interface NSString (HashCode)
+- (int)sensorsdata_hashCode;
 @end

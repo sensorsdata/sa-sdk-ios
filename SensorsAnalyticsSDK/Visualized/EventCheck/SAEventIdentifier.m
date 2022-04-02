@@ -23,7 +23,7 @@
 #endif
 
 #import "SAEventIdentifier.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SAConstants+Private.h"
 #import "SAAutoTrackUtils.h"
 

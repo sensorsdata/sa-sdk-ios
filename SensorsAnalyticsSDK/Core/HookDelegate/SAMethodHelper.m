@@ -26,7 +26,7 @@
 #import <objc/runtime.h>
 #import "SALog.h"
 #import "SASwizzle.h"
-#import "NSObject+DelegateProxy.h"
+#import "NSObject+SADelegateProxy.h"
 
 @implementation SAMethodHelper
 

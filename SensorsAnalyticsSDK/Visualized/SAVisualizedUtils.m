@@ -30,7 +30,7 @@
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAAutoTrackUtils.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAJavaScriptBridgeManager.h"
 #import "SALog.h"

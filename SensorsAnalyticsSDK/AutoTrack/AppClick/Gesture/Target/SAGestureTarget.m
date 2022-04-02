@@ -26,7 +26,7 @@
 #import "SAGestureViewProcessorFactory.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SAAutoTrackManager.h"
 

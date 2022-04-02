@@ -1,15 +1,15 @@
 //
-// UIScrollView+AutoTrack.h
+// UIViewController+SAAutoTrack.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2019/6/19.
+// Created by 王灼洲 on 2017/10/18.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
 //
-//     http://www.apache.org/licenses/LICENSE-2.0
+// http://www.apache.org/licenses/LICENSE-2.0
 //
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
@@ -19,19 +19,17 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "SAAutoTrackProperty.h"
 
-NS_ASSUME_NONNULL_BEGIN
+@interface UIViewController (AutoTrack) <SAAutoTrackViewControllerProperty>
 
-@interface UITableView (AutoTrack)
-
-- (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
-
-@end
-
-@interface UICollectionView (AutoTrack)
-
-- (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
+- (void)sa_autotrack_viewDidAppear:(BOOL)animated;
 
 @end
 
-NS_ASSUME_NONNULL_END
+@interface UINavigationController (AutoTrack)
+
+/// 上一次页面，防止侧滑/下滑重复采集 $AppViewScreen 事件
+@property (nonatomic, strong) UIViewController *sensorsdata_previousViewController;
+
+@end

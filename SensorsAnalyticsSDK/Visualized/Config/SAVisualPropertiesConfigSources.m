@@ -23,7 +23,7 @@
 #endif
 
 #import "SAVisualPropertiesConfigSources.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SAConstants+Private.h"
 #import "SAAutoTrackUtils.h"
 #import "SAReadWriteLock.h"

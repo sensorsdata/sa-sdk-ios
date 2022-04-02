@@ -38,6 +38,7 @@
 @interface SAAppPageLeaveTracker ()
 
 @property (nonatomic, copy) NSString *referrerURL;
+@property (nonatomic, assign) SAAppLifecycleState appState;
 
 @end
 
@@ -78,6 +79,11 @@
     }
     NSString *address = [NSString stringWithFormat:@"%p", viewController];
     if (self.pageLeaveObjects[address]) {
+        SAPageLeaveObject *object = self.pageLeaveObjects[address];
+        if (![object isKindOfClass:[SAPageLeaveObject class]]) {
+            return;
+        }
+        object.timestamp = [[NSDate date] timeIntervalSince1970];
         return;
     }
     SAPageLeaveObject *object = [[SAPageLeaveObject alloc] init];
@@ -110,8 +116,11 @@
     if (object.referrerURL) {
         tempProperties[kSAEventPropertyScreenReferrerUrl] = object.referrerURL;
     }
-    [self trackWithProperties:tempProperties];
     [self.pageLeaveObjects removeObjectForKey:address];
+    if (self.appState == SAAppLifecycleStateEnd || self.appState == SAAppLifecycleStateStartPassively) {
+        return;
+    }
+    [self trackWithProperties:tempProperties];
 }
 
 - (void)trackWithProperties:(NSDictionary *)properties {
@@ -122,6 +131,7 @@
 - (void)appLifecycleStateWillChange:(NSNotification *)notification {
     NSDictionary *userInfo = notification.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
+    self.appState = newState;
     // 冷（热）启动
     if (newState == SAAppLifecycleStateStart) {
         [self.pageLeaveObjects enumerateKeysAndObjectsUsingBlock:^(NSString * _Nonnull key, SAPageLeaveObject * _Nonnull obj, BOOL * _Nonnull stop) {

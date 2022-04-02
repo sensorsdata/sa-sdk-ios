@@ -1,5 +1,5 @@
 //
-// UIView+sa_autoTrack.m
+// UIView+SAAutoTrack.m
 // SensorsAnalyticsSDK
 //
 // Created by 向作为 on 2018/6/11.
@@ -22,7 +22,7 @@
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
 #endif
 
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import <objc/runtime.h>

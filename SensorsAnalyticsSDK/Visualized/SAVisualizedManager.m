@@ -27,7 +27,7 @@
 #import "SAAlertController.h"
 #import "UIViewController+SAElementPath.h"
 #import "SAConstants+Private.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAVisualizedUtils.h"
 #import "SAModuleManager.h"
 #import "SAJavaScriptBridgeManager.h"

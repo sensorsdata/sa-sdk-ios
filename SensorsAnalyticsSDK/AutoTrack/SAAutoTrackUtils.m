@@ -26,7 +26,7 @@
 #import "SAConstants+Private.h"
 #import "SACommonUtility.h"
 #import "SensorsAnalyticsSDK.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SALog.h"
 #import "SAAlertController.h"
 #import "SAModuleManager.h"

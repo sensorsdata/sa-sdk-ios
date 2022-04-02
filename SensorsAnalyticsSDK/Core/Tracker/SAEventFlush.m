@@ -23,7 +23,7 @@
 #endif
 
 #import "SAEventFlush.h"
-#import "NSString+HashCode.h"
+#import "NSString+SAHashCode.h"
 #import "SAGzipUtility.h"
 #import "SAModuleManager.h"
 #import "SAObject+SAConfigOptions.h"

@@ -1,5 +1,5 @@
 //
-// NSObject+DelegateProxy.h
+// NSObject+SADelegateProxy.h
 // SensorsAnalyticsSDK
 //
 // Created by yuqiang on 2020/11/5.

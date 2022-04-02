@@ -26,7 +26,7 @@
 #import "SAClassHelper.h"
 #import "SAMethodHelper.h"
 #import "SALog.h"
-#import "NSObject+DelegateProxy.h"
+#import "NSObject+SADelegateProxy.h"
 #import <objc/message.h>
 
 static NSString * const kSANSObjectRemoveObserverSelector = @"removeObserver:forKeyPath:";

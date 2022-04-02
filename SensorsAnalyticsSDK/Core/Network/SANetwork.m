@@ -27,7 +27,7 @@
 #import "SAModuleManager.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
-#import "NSString+HashCode.h"
+#import "NSString+SAHashCode.h"
 #import "SAGzipUtility.h"
 #import "SALog.h"
 #import "SAJSONUtil.h"

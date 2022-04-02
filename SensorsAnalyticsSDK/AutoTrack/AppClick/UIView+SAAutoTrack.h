@@ -1,5 +1,5 @@
 //
-// UIView+sa_autoTrack.h
+// UIView+SAAutoTrack.h
 // SensorsAnalyticsSDK
 //
 // Created by 向作为 on 2018/6/11.

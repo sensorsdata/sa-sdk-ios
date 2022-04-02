@@ -19,7 +19,7 @@
 //
 
 #import <XCTest/XCTest.h>
-#import "NSString+HashCode.h"
+#import "NSString+SAHashCode.h"
 
 @interface SAUtilsTest : XCTestCase
 @end

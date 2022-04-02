@@ -26,7 +26,7 @@
 #import "SAApplicationDelegateProxy.h"
 #import "SASwizzle.h"
 #import "SALog.h"
-#import "UIApplication+PushClick.h"
+#import "UIApplication+SAPushClick.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAMethodHelper.h"
 #import "SAConfigOptions+AppPush.h"

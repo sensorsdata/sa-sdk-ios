@@ -25,7 +25,7 @@
 #import "SAVisualPropertiesConfig.h"
 #import "UIView+SAElementPath.h"
 #import "SAVisualizedUtils.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAValidator.h"
 #import "SAViewNode.h"
 

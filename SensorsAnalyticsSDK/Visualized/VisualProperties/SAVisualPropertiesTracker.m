@@ -26,7 +26,7 @@
 #import <UIKit/UIKit.h>
 #import "SAVisualPropertiesConfigSources.h"
 #import "SAVisualizedUtils.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "UIView+SAElementPath.h"
 #import "SACommonUtility.h"
 #import "SAVisualizedDebugLogTracker.h"

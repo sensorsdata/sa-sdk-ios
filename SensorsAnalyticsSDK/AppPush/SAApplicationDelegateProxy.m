@@ -24,8 +24,8 @@
 
 #import "SAApplicationDelegateProxy.h"
 #import "SAClassHelper.h"
-#import "NSObject+DelegateProxy.h"
-#import "UIApplication+PushClick.h"
+#import "NSObject+SADelegateProxy.h"
+#import "UIApplication+SAPushClick.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAAppPushConstants.h"
 #import "SALog.h"

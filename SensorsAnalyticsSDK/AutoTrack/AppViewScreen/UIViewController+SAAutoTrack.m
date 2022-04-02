@@ -1,5 +1,5 @@
 //
-// UIViewController+AutoTrack.m
+// UIViewController+SAAutoTrack.m
 // SensorsAnalyticsSDK
 //
 // Created by 王灼洲 on 2017/10/18.
@@ -23,11 +23,11 @@
 #endif
 
 
-#import "UIViewController+AutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SACommonUtility.h"
 #import "SALog.h"
-#import "UIView+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
 #import "SAAutoTrackManager.h"
 #import "SAWeakPropertyContainer.h"
 #import <objc/runtime.h>

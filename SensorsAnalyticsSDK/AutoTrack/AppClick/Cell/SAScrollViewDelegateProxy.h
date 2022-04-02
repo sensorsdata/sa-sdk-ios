@@ -19,7 +19,7 @@
 //
 
 #import "SADelegateProxy.h"
-#import "NSObject+DelegateProxy.h"
+#import "NSObject+SADelegateProxy.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

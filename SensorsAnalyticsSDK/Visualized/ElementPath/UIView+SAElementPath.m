@@ -24,8 +24,8 @@
 
 #import <objc/runtime.h>
 #import "UIView+SAElementPath.h"
-#import "UIView+AutoTrack.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "UIViewController+SAElementPath.h"
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"

@@ -23,7 +23,7 @@
 #endif
 
 #import <XCTest/XCTest.h>
-#import "NSString+HashCode.h"
+#import "NSString+SAHashCode.h"
 
 @interface SANSStringHashCodeTest : XCTestCase
 

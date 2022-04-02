@@ -33,8 +33,8 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
 @implementation SAKeyChainItemWrapper
 + (NSString *)saUdid {
     NSDictionary *result = [self fetchPasswordWithAccount:kSAUdidAccount service:kSAService];
-    NSString *sa_udid =  [result objectForKey:(__bridge id)kSecValueData];
-    return sa_udid;
+    NSString *udid = [result objectForKey:(__bridge id)kSecValueData];
+    return udid;
 }
 
 + (NSString *)saveUdid:(NSString *)udid {

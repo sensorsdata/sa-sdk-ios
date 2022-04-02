@@ -1,5 +1,5 @@
 //
-// UIApplication+PushClick.h
+// UIApplication+SAPushClick.h
 // SensorsAnalyticsSDK
 //
 // Created by 陈玉国 on 2021/1/7.

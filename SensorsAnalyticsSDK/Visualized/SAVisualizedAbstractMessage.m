@@ -27,7 +27,7 @@
 #import "SAVisualizedAbstractMessage.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SALog.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"

@@ -29,8 +29,8 @@
 #import "SAConstants.h"
 #import "SAValidator.h"
 #import "SAAutoTrackUtils.h"
-#import "UIView+AutoTrack.h"
-#import "UIViewController+AutoTrack.h"
+#import "UIView+SAAutoTrack.h"
+#import "UIViewController+SAAutoTrack.h"
 #import "SAModuleManager.h"
 #import "SALog.h"
 
