@@ -23,13 +23,13 @@
 #endif
 
 #import <XCTest/XCTest.h>
+#import "SADeepLinkManager.h"
 #import "SensorsAnalyticsSDK+Deeplink.h"
-#import "SADeeplinkManager.h"
 #import "SAConfigOptions.h"
 
 @interface SALinkHandlerTests : XCTestCase
 
-@property (nonatomic, strong) SADeeplinkManager *linkHandler;
+@property (nonatomic, strong) SADeepLinkManager *linkHandler;
 
 @end
 

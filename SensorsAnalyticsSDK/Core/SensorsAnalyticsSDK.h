@@ -35,8 +35,8 @@
 #import "SensorsAnalyticsSDK+DebugMode.h"
 #endif
 
-#if __has_include("SensorsAnalyticsSDK+Deeplink.h")
-#import "SensorsAnalyticsSDK+Deeplink.h"
+#if __has_include("SensorsAnalyticsSDK+DeepLink.h")
+#import "SensorsAnalyticsSDK+DeepLink.h"
 #endif
 
 #if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")

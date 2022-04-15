@@ -45,6 +45,9 @@
 @property (nonatomic, copy) NSArray<NSString *> *sourceChannels;
 @property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent;
 
+/// 广告相关功能自定义地址
+@property (nonatomic, copy) NSString *customADChannelURL;
+
 @property (nonatomic) BOOL enableJavaScriptBridge;
 
 @property (nonatomic, copy) NSString *remoteConfigURL;
@@ -63,7 +66,7 @@
 @property (nonatomic, assign) BOOL enableRemoteConfig;
 @property (nonatomic, assign) BOOL enableChannelMatch;
 @property (nonatomic, assign) BOOL enableDebugMode;
-@property (nonatomic, assign) BOOL enableDeeplink;
+@property (nonatomic, assign) BOOL enableDeepLink;
 @property (nonatomic, assign) BOOL enableAutoTrack;
 
 
@@ -86,8 +89,6 @@
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
 
-        _loginIDKey = kSAIdentitiesLoginId;
-
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
         _enableAutoTrackChildViewScreen = YES;
 #endif
@@ -106,7 +107,7 @@
         _enableRemoteConfig = YES;
         _enableChannelMatch = YES;
         _enableDebugMode = YES;
-        _enableDeeplink = YES;
+        _enableDeepLink = YES;
         _enableAutoTrack = YES;
 
         _storePlugins = [NSMutableArray array];
@@ -129,7 +130,6 @@
     options.flushNetworkPolicy = self.flushNetworkPolicy;
     options.disableSDK = self.disableSDK;
     options.storePlugins = self.storePlugins;
-    options.loginIDKey = self.loginIDKey;
     options.enableSession = self.enableSession;
     options.disableDeviceId = self.disableDeviceId;
 
@@ -171,8 +171,10 @@
     options.enableRemoteConfig = self.enableRemoteConfig;
     options.enableChannelMatch = self.enableChannelMatch;
     options.enableDebugMode = self.enableDebugMode;
-    options.enableDeeplink = self.enableDeeplink;
+    options.enableDeepLink = self.enableDeepLink;
     options.enableAutoTrack = self.enableAutoTrack;
+
+    options.customADChannelURL = self.customADChannelURL;
 #endif
     
     return options;

@@ -141,7 +141,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 
 /// 当前获取到的设备 ID 为有效值
 - (BOOL)isValidOfDeviceInfo {
-    return ([SAIdentifier idfa].length > 0 || [self CAIDInfo].allKeys > 0);
+    return [SAIdentifier idfa].length > 0;
 }
 
 - (BOOL)isTrackedAppInstallWithDisableCallback:(BOOL)disableCallback {
@@ -217,7 +217,6 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 
 - (NSString *)appInstallSource {
     NSMutableDictionary *sources = [NSMutableDictionary dictionary];
-    [sources addEntriesFromDictionary:[self CAIDInfo]];
     sources[@"idfa"] = [SAIdentifier idfa];
     sources[@"idfv"] = [SAIdentifier idfv];
     NSMutableArray *result = [NSMutableArray array];
@@ -225,15 +224,6 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
         [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
     }
     return [result componentsJoinedByString:@"##"];
-}
-
-- (NSDictionary *)CAIDInfo {
-    Class cla = NSClassFromString(@"SACAIDUtils");
-    SEL sel = NSSelectorFromString(@"CAIDInfo");
-    if ([cla respondsToSelector:sel]) {
-        return ((NSDictionary * (*)(id, SEL))[cla methodForSelector:sel])(cla, sel);
-    }
-    return nil;
 }
 
 #pragma mark - 附加渠道信息
@@ -333,8 +323,6 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     NSMutableSet *deviceIdSet = [NSMutableSet setWithArray:[deviceId componentsSeparatedByString:@"##"]];
     // 当前设备的设备信息
     NSSet *installSourceSet = [NSSet setWithArray:[[self appInstallSource] componentsSeparatedByString:@"##"]];
-    // 当 IDFV 、IDFA caid、last_caid 都不一致，且只有 caid_version 一致时会出现匹配错误的情况
-    // 此场景在实际业务中出现概率较低，不考虑此问题
     [deviceIdSet intersectSet:installSourceSet];
     // 取交集，当交集不为空时，表示设备一致
     if (deviceIdSet.count > 0) {
@@ -431,7 +419,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 #pragma mark - Error Message
 - (void)showChannelDebugErrorMessage {
     NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
-    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackAppInstall 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。\n\n3. 若集成了 CAID SDK，请联系研发人员确认 trackAppInstall 接口是否在 “getCAIDAsyncly” 授权之后调用。\n\n";
+    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackAppInstall 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。\n\n";
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
     [alertController show];

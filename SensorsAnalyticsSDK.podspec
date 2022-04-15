@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.2.6"
+  s.version      = "4.3.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -43,14 +43,6 @@ Pod::Spec.new do |s|
   s.subspec 'Core' do |c|
     c.ios.dependency 'SensorsAnalyticsSDK/Visualized'
     c.osx.dependency 'SensorsAnalyticsSDK/Common'
-  end
-
-  # 支持 CAID 渠道匹配
-  s.subspec 'CAID' do |f|
-    f.ios.deployment_target = '8.0'
-    f.dependency 'SensorsAnalyticsSDK/Core'
-    f.source_files = "SensorsAnalyticsSDK/CAID/**/*.{h,m}"
-    f.private_header_files = 'SensorsAnalyticsSDK/CAID/**/*.h'
   end
 
   # 全埋点

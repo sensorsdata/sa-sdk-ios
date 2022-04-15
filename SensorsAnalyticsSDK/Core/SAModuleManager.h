@@ -67,7 +67,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark -
 
-@interface SAModuleManager (Deeplink) <SADeeplinkModuleProtocol>
+@interface SAModuleManager (DeepLink) <SADeepLinkModuleProtocol>
 
 @end
 

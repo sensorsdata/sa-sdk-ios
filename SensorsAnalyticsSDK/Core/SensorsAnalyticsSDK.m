@@ -53,7 +53,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.2.6"
+#define VERSION @"4.3.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -208,10 +208,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
             _trackTimer = [[SATrackTimer alloc] init];
 
-            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue loginIDKey:_configOptions.loginIDKey];
-            // SAIdentifier 中会校验 loginIDKey, 如果不合法会使用默认值
-            // 此处更新 configOptions 中的 loginIDKey 和 SAIdentifier 中保持一致
-            _configOptions.loginIDKey = _identifier.loginIDKey;
+            _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
 
             _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
 
@@ -389,13 +386,21 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties {
+    [self loginWithKey:kSAIdentitiesLoginId loginId:loginId properties:properties];
+}
+
+- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId {
+    [self loginWithKey:key loginId:loginId properties:nil];
+}
+
+- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId properties:(NSDictionary * _Nullable )properties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
-        if (![self.identifier isValidLoginId:loginId]) {
+        if (![self.identifier isValidForLogin:key value:loginId]) {
             return;
         }
-        [self.identifier login:loginId];
+        [self.identifier loginWithKey:key loginId:loginId];
         [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
         [self trackEventObject:object properties:properties];
     });
@@ -687,28 +692,32 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [self asyncTrackEventObject:object properties:properties];
 }
 
-- (void)bind:(NSString *)key value:(NSString *)value {
-    if (![self.identifier isValidIdentity:key value:value]) {
-        return;
-    }
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier bindIdentity:key value:value];
-    });
+- (NSDictionary *)identities {
+    return self.identifier.identities;
+}
 
+- (void)bind:(NSString *)key value:(NSString *)value {
     SABindEventObject *object = [[SABindEventObject alloc] initWithEventId:kSAEventNameBind];
-    [self asyncTrackEventObject:object properties:nil];
+    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        if (![self.identifier isValidForBind:key value:value]) {
+            return;
+        }
+        [self.identifier bindIdentity:key value:value];
+        [self trackEventObject:object properties:nil];
+    });
 }
 
 - (void)unbind:(NSString *)key value:(NSString *)value {
-    if (![self.identifier isValidIdentity:key value:value]) {
-        return;
-    }
-    dispatch_async(self.serialQueue, ^{
-        [self.identifier unbindIdentity:key value:value];
-    });
-
     SAUnbindEventObject *object = [[SAUnbindEventObject alloc] initWithEventId:kSAEventNameUnbind];
-    [self asyncTrackEventObject:object properties:nil];
+    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    dispatch_async(self.serialQueue, ^{
+        if (![self.identifier isValidForUnbind:key value:value]) {
+            return;
+        }
+        [self.identifier unbindIdentity:key value:value];
+        [self trackEventObject:object properties:nil];
+    });
 }
 
 - (void)track:(NSString *)event {
@@ -1278,30 +1287,50 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
         };
 
-        void(^loginBlock)(NSString *)  = ^(NSString *newLoginId){
-            if ([self.identifier isValidLoginId:newLoginId]) {
-                [self.identifier login:newLoginId];
-                enqueueEvent[kSAEventLoginId] = newLoginId;
+        void(^loginBlock)(NSString *, NSString *)  = ^(NSString *loginIDKey, NSString *newLoginId){
+            if ([self.identifier isValidForLogin:loginIDKey value:newLoginId]) {
+                [self.identifier loginWithKey:loginIDKey loginId:newLoginId];
+                // 传入的 newLoginId 为原始值，因此在这里做赋值时需要检查是否需要拼接
+                if ([loginIDKey isEqualToString:kSAIdentitiesLoginId]) {
+                    enqueueEvent[kSAEventLoginId] = newLoginId;
+                } else {
+                    enqueueEvent[kSAEventLoginId] = [NSString stringWithFormat:@"%@%@%@", loginIDKey, kSALoginIdSpliceKey, newLoginId];
+                }
                 trackBlock();
             }
         };
 
         if([type isEqualToString:kSAEventTypeSignup]) {
-            if (identities) {
-                // 3.0 版本需要从 identities 中获取 login_id 信息
-                NSString *newLoginId = identities[self.configOptions.loginIDKey];
-                if (newLoginId) {
-                    // 当可以从 identities 中获取到登录 ID 时正常处理登录逻辑
-                    loginBlock(newLoginId);
-                } else {
-                    // 当 identities 中无法获取到登录 ID 时，只触发事件不进行 loginId 处理
-                    // 场景示例 ：H5 和 App 端自定义 loginIDKey 不一致
-                    trackBlock();
-                }
-            } else {
+            NSString *distinctId = eventDict[kSAEventDistinctId];
+
+            if (!identities) {
                 // 2.0 版本逻辑，保持不变
-                loginBlock(eventDict[kSAEventDistinctId]);
+                loginBlock(self.identifier.loginIDKey, distinctId);
+                return;
             }
+            NSString *newLoginId = identities[self.identifier.loginIDKey];
+
+            NSMutableArray *array = [[distinctId componentsSeparatedByString:kSALoginIdSpliceKey] mutableCopy];
+            NSString *key = array.firstObject;
+            // 移除 firstObject 的 loginIDKey，然后拼接后续的内容为 loginId
+            [array removeObjectAtIndex:0];
+            NSString *value = [array componentsJoinedByString:kSALoginIdSpliceKey];
+            NSSet *validKeys = [identities keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
+                return [obj isEqualToString:distinctId];
+            }];
+            if (newLoginId) {
+                loginBlock(self.identifier.loginIDKey, newLoginId);
+            } else if ([identities[key] isEqualToString:value]) {
+                // 当前 H5 的 distinct_id 是 key+value 拼接格式的，通过截取得到 loginIDKey 和 loginId
+                loginBlock(key, value);
+            } else if (validKeys.count == 1) {
+                // 当前 H5 的登录 ID 不是拼接格式的，则直接从 identities 中查找对应的 loginIDKey，只存在一个 key 时作为 loginIDKey
+                loginBlock(validKeys.anyObject, distinctId);
+            } else {
+                // 当 identities 中无法获取到登录 ID 时，只触发事件不进行 loginId 处理
+                trackBlock();
+            }
+
         } else {
             // 打通场景下，除登录事件外其他事件
             enqueueEvent[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];

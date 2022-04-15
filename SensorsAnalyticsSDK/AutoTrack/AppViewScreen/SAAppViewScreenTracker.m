@@ -138,7 +138,7 @@
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
     if (autoTrack) {
-        // App 通过 Deeplink 启动时第一个页面浏览事件会添加 utms 属性
+        // App 通过 DeepLink 启动时第一个页面浏览事件会添加 utms 属性
         // 只需要处理全埋点的页面浏览事件
         [eventProperties addEntriesFromDictionary:SAModuleManager.sharedInstance.utmProperties];
         [SAModuleManager.sharedInstance clearUtmProperties];

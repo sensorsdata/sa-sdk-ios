@@ -1,5 +1,5 @@
 //
-// SADeeplinkManager.h
+// SADeepLinkManager.h
 // SensorsAnalyticsSDK
 //
 // Created by 彭远洋 on 2020/1/6.
@@ -18,31 +18,32 @@
 // limitations under the License.
 //
 
-#if ! __has_feature(objc_arc)
-#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
-#endif
-
 #import <Foundation/Foundation.h>
 #import "SAConfigOptions.h"
 #import "SAModuleProtocol.h"
+#import "SADeepLinkProcessor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAConfigOptions (DeeplinkPrivate)
+@interface SAConfigOptions (DeepLinkPrivate)
 
-@property (nonatomic, assign) BOOL enableDeeplink;
+@property (nonatomic, assign) BOOL enableDeepLink;
 
 @end
 
-typedef void(^SALinkHandlerCallback)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime);
-
-@interface SADeeplinkManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADeeplinkModuleProtocol>
+@interface SADeepLinkManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SADeepLinkModuleProtocol>
 
 + (instancetype)defaultManager;
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-@property (nonatomic, copy) SALinkHandlerCallback linkHandlerCallback;
+
+@property (nonatomic, copy) SADeepLinkCompletion oldCompletion;
+@property (nonatomic, copy) SADeepLinkCompletion completion;
+
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url;
+
+- (void)requestDeferredDeepLink:(NSDictionary *)properties;
 
 @end
 

@@ -1,9 +1,9 @@
 //
-// SACAIDUtils.h
+// SADeferredDeepLinkProcessor.h
 // SensorsAnalyticsSDK
 //
-// Created by 彭远洋 on 2021/3/4.
-// Copyright © 2021 Sensors Data Co., Ltd. All rights reserved.
+// Created by 彭远洋 on 2022/3/14.
+// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,11 +18,11 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SADeepLinkProcessor.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SACAIDUtils : NSObject
+@interface SADeferredDeepLinkProcessor : SADeepLinkProcessor
 
 @end
 

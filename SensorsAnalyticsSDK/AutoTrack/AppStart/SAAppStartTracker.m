@@ -71,7 +71,7 @@ static NSString * const kSAEventPropertyResumeFromBackground = @"$resume_from_ba
             eventProperties[kSAEventPropertyAppFirstStart] = self.isRelaunch ? @(NO) : @([self isFirstAppStart]);
             eventProperties[kSAEventPropertyResumeFromBackground] = self.isRelaunch ? @(YES) : @(NO);
         }
-        //添加 deeplink 相关渠道信息，可能不存在
+        //添加 deepLink 相关渠道信息，可能不存在
         [eventProperties addEntriesFromDictionary:properties];
 
         [self trackAutoTrackEventWithProperties:eventProperties];

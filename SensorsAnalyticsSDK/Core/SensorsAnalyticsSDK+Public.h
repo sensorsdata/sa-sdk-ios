@@ -147,6 +147,16 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties;
 
 /**
+ ID-Mapping 3.0 登录，设置当前用户的 loginIDKey 和 loginId
+
+ ⚠️ 此接口为 ID-Mapping 3.0 特殊场景下特定接口，请咨询确认后再使用
+
+ @param key 当前用户的登录 ID key
+ @param loginId 当前用户的登录 ID
+ */
+- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId;
+
+/**
  * @abstract
  * 注销，清空当前用户的 loginId
  *
@@ -182,6 +192,14 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  @param anonymousId 当前用户的 anonymousId
  */
 - (void)identify:(NSString *)anonymousId;
+
+#pragma mark - 业务 ID
+
+/**
+ @abstract
+ ID-Mapping 3.0 功能下已绑定的业务 ID 列表
+ */
+- (NSDictionary *)identities;
 
 /**
  @abstract

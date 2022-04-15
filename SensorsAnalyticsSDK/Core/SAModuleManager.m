@@ -37,7 +37,7 @@ static NSString * const kSAChannelMatchModuleName = @"ChannelMatch";
 static NSString * const kSAVisualizedModuleName = @"Visualized";
 
 static NSString * const kSAEncryptModuleName = @"Encrypt";
-static NSString * const kSADeeplinkModuleName = @"Deeplink";
+static NSString * const kSADeepLinkModuleName = @"DeepLink";
 static NSString * const kSANotificationModuleName = @"AppPush";
 static NSString * const kSAAutoTrackModuleName = @"AutoTrack";
 static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
@@ -124,7 +124,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 - (NSArray<NSString *> *)moduleNames {
     return @[kSAJavaScriptBridgeModuleName, kSANotificationModuleName, kSAChannelMatchModuleName,
-             kSADeeplinkModuleName, kSADebugModeModuleName, kSALocationModuleName,
+             kSADeepLinkModuleName, kSADebugModeModuleName, kSALocationModuleName,
              kSAAutoTrackModuleName, kSAVisualizedModuleName, kSAEncryptModuleName,
              kSADeviceOrientationModuleName, kSAExceptionModuleName, kSARemoteConfigModuleName];
 }
@@ -338,35 +338,27 @@ static NSString * const kSAExceptionModuleName = @"Exception";
 
 #pragma mark -
 
-@implementation SAModuleManager (Deeplink)
+@implementation SAModuleManager (DeepLink)
 
-- (id<SADeeplinkModuleProtocol>)deeplinkManager {
-    id module = [self moduleWithName:kSADeeplinkModuleName];
-    if ([module conformsToProtocol:@protocol(SADeeplinkModuleProtocol)] && [module conformsToProtocol:@protocol(SAModuleProtocol)]) {
-        id<SADeeplinkModuleProtocol, SAModuleProtocol> manager = module;
+- (id<SADeepLinkModuleProtocol>)deepLinkManager {
+    id module = [self moduleWithName:kSADeepLinkModuleName];
+    if ([module conformsToProtocol:@protocol(SADeepLinkModuleProtocol)] && [module conformsToProtocol:@protocol(SAModuleProtocol)]) {
+        id<SADeepLinkModuleProtocol, SAModuleProtocol> manager = module;
         return manager.isEnable ? manager : nil;
     }
     return nil;
 }
 
-- (void)setLinkHandlerCallback:(void (^ _Nonnull)(NSString * _Nullable, BOOL, NSInteger))linkHandlerCallback {
-    [self.deeplinkManager setLinkHandlerCallback:linkHandlerCallback];
-}
-
 - (NSDictionary *)latestUtmProperties {
-    return self.deeplinkManager.latestUtmProperties;
+    return self.deepLinkManager.latestUtmProperties;
 }
 
 - (NSDictionary *)utmProperties {
-    return self.deeplinkManager.utmProperties;
+    return self.deepLinkManager.utmProperties;
 }
 
 - (void)clearUtmProperties {
-    [self.deeplinkManager clearUtmProperties];
-}
-
-- (void)trackDeepLinkLaunchWithURL:(NSString *)url {
-    [self.deeplinkManager trackDeepLinkLaunchWithURL:url];
+    [self.deepLinkManager clearUtmProperties];
 }
 
 @end

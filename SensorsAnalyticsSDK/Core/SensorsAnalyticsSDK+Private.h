@@ -28,6 +28,7 @@
 #import "SATrackEventObject.h"
 #import "SAAppLifecycle.h"
 #import "SASuperProperty.h"
+#import "SAPresetProperty.h"
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -60,6 +61,7 @@
 @property (nonatomic, strong, readonly) SANetwork *network;
 @property (nonatomic, strong, readonly) SASuperProperty *superProperty;
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
+@property (nonatomic, strong, readonly) SAPresetProperty *presetProperty;
 
 @end
 

@@ -58,7 +58,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)setUp {
     NSString *label = [NSString stringWithFormat:@"sensorsdata.readWriteQueue.%p", self];
     _readWriteQueue = dispatch_queue_create([label UTF8String], DISPATCH_QUEUE_SERIAL);
-    _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue loginIDKey:kLoginId];
+    _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
     [_identifier logout];
     _deviceId = _identifier.anonymousId;
 }
@@ -111,7 +111,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     for (int i = 0; i < kSAPropertyValueMaxLength + 5; i++) {
         [str appendString:@"a"];
     }
-    XCTAssertTrue([_identifier isValidLoginId:str]);
+    XCTAssertTrue([_identifier isValidForLogin:kLoginId value:str]);
 }
 
 - (void)testLoginIdLessThanMaxLength {
@@ -119,35 +119,35 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     for (int i = 0; i < kSAPropertyValueMaxLength - 5; i++) {
         [str appendString:@"a"];
     }
-    XCTAssertTrue([_identifier isValidLoginId:str]);
+    XCTAssertTrue([_identifier isValidForLogin:kLoginId value:str]);
 }
 
 - (void)testLoginWithLoginId {
-    [_identifier login:@"new_login_id"];
-    XCTAssertFalse([_identifier isValidLoginId:_identifier.loginId]);
+    [_identifier loginWithKey:kLoginId loginId:@"new_login_id"];
+    XCTAssertFalse([_identifier isValidForLogin:kLoginId value:_identifier.loginId]);
 }
 
 - (void)testLoginWithAnonymousId {
-    XCTAssertFalse([_identifier isValidLoginId:_identifier.anonymousId]);
+    XCTAssertFalse([_identifier isValidForLogin:kLoginId value:_identifier.anonymousId]);
 }
 
 - (void)testLoginIdAfterLogin {
-    [_identifier login:@"new_login_id"];
+    [_identifier loginWithKey:kLoginId loginId:@"new_login_id"];
     XCTAssertTrue([_identifier.loginId isEqualToString:@"new_login_id"]);
 }
 
 - (void)testDistinctIdAfterLogin {
-    [_identifier login:@"new_login_id"];
+    [_identifier loginWithKey:kLoginId loginId:@"new_login_id"];
     XCTAssertTrue([_identifier.distinctId isEqualToString:@"new_login_id"]);
 }
 
 - (void)testLoginIdAfterLoginEmptyString {
-    BOOL result = [_identifier isValidLoginId:@""];
+    BOOL result = [_identifier isValidForLogin:kLoginId value:@""];
     XCTAssertFalse(result);
 }
 
 - (void)testDistinctIdAfterLoginEmptyString {
-    [_identifier login:@""];
+    [_identifier loginWithKey:kLoginId loginId:@""];
     XCTAssertTrue([_identifier.distinctId isEqualToString:_identifier.anonymousId]);
 }
 
@@ -157,7 +157,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 }
 
 - (void)testLogout {
-    [_identifier login:@"new_login_id"];
+    [_identifier loginWithKey:kLoginId loginId:@"new_login_id"];
     [_identifier logout];
     XCTAssertNil(_identifier.loginId);
 }
@@ -166,7 +166,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testAddIdentityForInvalidKey {
     NSArray *array = @[@"111", @"date", kIDFV, kAnonymousId, kLoginId, kUUID, @{}, @"xcx###"];
     for (NSString *key in array) {
-        BOOL result = [_identifier isValidIdentity:key value:@""];
+        BOOL result = [_identifier isValidForBind:key value:@""];
         XCTAssertFalse(result);
     }
 }
@@ -174,25 +174,25 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testAddIdentityForValidKey {
     NSArray *array = @[@"xxx111", kMobile];
     for (NSString *key in array) {
-        BOOL result = [_identifier isValidIdentity:key value:@"value"];
+        BOOL result = [_identifier isValidForBind:key value:@"value"];
         XCTAssertTrue(result);
     }
 }
 
 - (void)testAddIdentityForInvalidValue {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSArray *array = @[@"", kLoginIdValue, @{}];
     for (NSString *value in array) {
-        BOOL result = [_identifier isValidIdentity:kLoginId value:value];
+        BOOL result = [_identifier isValidForBind:kLoginId value:value];
         XCTAssertFalse(result);
     }
 }
 
 - (void)testAddIdentityForValidValue {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSArray *array = @[kCustomKey, @"newLoginId11"];
     for (NSString *value in array) {
-        BOOL result = [_identifier isValidIdentity:kCustomKey value:value];
+        BOOL result = [_identifier isValidForBind:kCustomKey value:value];
         XCTAssertTrue(result);
     }
 }
@@ -200,7 +200,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testRemoveIdentityForInvalidKey {
     NSArray *array = @[@"111", @"date", kIDFV, kAnonymousId, kLoginId, kUUID, @{}, @"xcx###"];
     for (NSString *key in array) {
-        BOOL result = [_identifier isValidIdentity:key value:@""];
+        BOOL result = [_identifier isValidForBind:key value:@""];
         XCTAssertFalse(result);
     }
 }
@@ -208,37 +208,37 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testRemoveIdentityForValidKey {
     NSArray *array = @[@"xxx111", kMobile, kEmail];
     for (NSString *key in array) {
-        BOOL result = [_identifier isValidIdentity:key value:@"value"];
+        BOOL result = [_identifier isValidForBind:key value:@"value"];
         XCTAssertTrue(result);
     }
 }
 
 - (void)testRemoveIdentityForInvalidValue {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSArray *array = @[@"", kLoginIdValue, @{}];
     for (NSString *value in array) {
-        BOOL result = [_identifier isValidIdentity:kLoginId value:value];
+        BOOL result = [_identifier isValidForBind:kLoginId value:value];
         XCTAssertFalse(result);
     }
 }
 
 - (void)testRemoveIdentityForValidValue {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSArray *array = @[kCustomKey, @"newLoginId11"];
     for (NSString *value in array) {
-        BOOL result = [_identifier isValidIdentity:kCustomKey value:value];
+        BOOL result = [_identifier isValidForBind:kCustomKey value:value];
         XCTAssertTrue(result);
     }
 }
 
 #pragma mark - identities - login & logout
 - (void)testIdentitiesAfterLogin {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     XCTAssertTrue([_identifier.identities[kLoginId] isEqualToString:kLoginIdValue]);
 }
 
 - (void)testIdentitiesAfterLogout {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     [_identifier logout];
     XCTAssertNil(_identifier.identities[kLoginId]);
 }
@@ -277,7 +277,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 }
 
 - (void)testAddIdentityForDifferentLoginId {
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSString *newId = @"xxxLoginId";
     [_identifier bindIdentity:kLoginId value:newId];
     XCTAssertTrue([_identifier.identities[kLoginId] isEqualToString:newId]);
@@ -326,7 +326,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     [_identifier bindIdentity:kEmail value:kEmailValue];
     [_identifier bindIdentity:kCustomKey value:kCustomValue];
 
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     // 登录事件
     NSDictionary *identities = [_identifier identitiesWithEventType:kSAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 5);
@@ -495,7 +495,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
 - (void)testH5EventAfterSignUpForNotSign {
     // H5 登录事件
-    [_identifier login:kLoginIdValue];
+    [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:kLoginIdValue} eventType:kSAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kLoginId] isEqualToString:kLoginIdValue]);
@@ -519,10 +519,10 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testH5EventAfterSignUpForSigned {
     NSString *oldValue = kLoginIdValue;
     NSString *newValue = @"xxxNewLoginId";
-    [_identifier login:oldValue];
+    [_identifier loginWithKey:kLoginId loginId:oldValue];
     // H5 登录事件
 
-    [_identifier login:newValue];
+    [_identifier loginWithKey:kLoginId loginId:newValue];
     NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:newValue} eventType:kSAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kLoginId] isEqualToString:newValue]);
@@ -544,7 +544,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 }
 
 - (void)testH5EventAfterNativeSignUpAndBind {
-    [_identifier login:kLoginId];
+    [_identifier loginWithKey:kLoginId loginId:kLoginId];
     [_identifier bindIdentity:kCustomKey value:kCustomValue];
 
     // H5 事件

@@ -51,6 +51,8 @@ NSString * const kSAIdentitiesUUID = @"$identity_ios_uuid";
 NSString * const kSALoginIDKey = @"com.sensorsdata.loginidkey";
 NSString * const kSAIdentitiesCacheType = @"Base64:";
 
+NSString * const kSALoginIdSpliceKey = @"+";
+
 @interface SAIdentifier ()
 
 @property (nonatomic, strong) dispatch_queue_t queue;
@@ -58,6 +60,9 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 @property (nonatomic, copy, readwrite) NSString *loginId;
 @property (nonatomic, copy, readwrite) NSString *anonymousId;
 @property (nonatomic, copy, readwrite) NSString *loginIDKey;
+
+// ID-Mapping 3.0 拼接前客户传入的原始 LoginID
+@property (nonatomic, copy) NSString *originalLoginId;
 
 @property (nonatomic, copy, readwrite) NSDictionary *identities;
 @property (nonatomic, copy) NSDictionary *removedIdentity;
@@ -68,32 +73,23 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
 #pragma mark - Life Cycle
 
-- (instancetype)initWithQueue:(dispatch_queue_t)queue loginIDKey:(NSString *)loginIDKey {
+- (instancetype)initWithQueue:(dispatch_queue_t)queue {
     self = [super init];
     if (self) {
         _queue = queue;
-
-        NSError *error = nil;
-        [SAValidator validKey:loginIDKey error:&error];
-        if (error) {
-            SALogError(@"%@",error.localizedDescription);
-            if (error.code != SAValidatorErrorOverflow) {
-                loginIDKey = kSAIdentitiesLoginId;
-            }
-        }
-
-        if (![loginIDKey isEqualToString:kSAIdentitiesLoginId] && [self isPresetKey:loginIDKey]) {
-            SALogError(@"LoginIDKey [ %@ ] is invalid", loginIDKey);
-            loginIDKey = kSAIdentitiesLoginId;
-        }
-        _loginIDKey = loginIDKey;
-
         dispatch_async(_queue, ^{
             // 获取 self.identities 需要判断当前本地文件是否存在 anonymousId
             // 获取 self.anonymousId 会写入本地文件，因此需要先获取 self.identities
-            self.identities = [self unarchiveIdentities];
+            self.loginIDKey = [self unarchiveLoginIDKey];
+            self.identities = [self unarchiveIdentitiesWithKey:self.loginIDKey];
             self.anonymousId = [self unarchiveAnonymousId];
-            self.loginId = [[SAStoreManager sharedInstance] objectForKey:kSAEventLoginId];
+            NSString *cacheLoginId = [[SAStoreManager sharedInstance] objectForKey:kSAEventLoginId];
+            self.originalLoginId = cacheLoginId;
+            if ([self.loginIDKey isEqualToString:kSAIdentitiesLoginId]) {
+                self.loginId = cacheLoginId;
+            } else {
+                self.loginId = [NSString stringWithFormat:@"%@%@%@", self.loginIDKey, kSALoginIdSpliceKey, cacheLoginId];
+            }
         });
     }
     return self;
@@ -157,57 +153,82 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         SALogError(@"LoginId is empty");
         return NO;
     }
-
     if ([loginId length] > kSAPropertyValueMaxLength) {
         SALogWarn(@"LoginId: %@'s length is longer than %ld", loginId, kSAPropertyValueMaxLength);
     }
-
-    if ([loginId isEqualToString:self.loginId]) {
-        return NO;
-    }
-
     // 为了避免将匿名 ID 作为 LoginID 传入
     if ([loginId isEqualToString:self.anonymousId]) {
         return NO;
     }
-
-    NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
-    // 当 loginIDKey 发生变化时，不需要检查 loginId 是否相同
-    if ([cachedKey isEqualToString:self.loginIDKey] && [loginId isEqualToString:self.loginId]) {
-        return NO;
-    }
-
     return YES;
 }
 
-- (void)login:(NSString *)loginId {
-    [self updateLoginId:loginId];
-    [self bindIdentity:self.loginIDKey value:loginId];
+- (BOOL)isValidLoginIDKey:(NSString *)key {
+    NSError *error = nil;
+    [SAValidator validKey:key error:&error];
+    if (error) {
+        SALogError(@"%@",error.localizedDescription);
+        if (error.code != SAValidatorErrorOverflow) {
+            return NO;
+        }
+    }
+    if ([self isDeviceIDKey:key] || [self isAnonymousIDKey:key]) {
+        SALogError(@"LoginIDKey [ %@ ] is invalid", key);
+        return NO;
+    }
+    return YES;
 }
 
-- (void)updateLoginId:(NSString *)loginId {
+- (BOOL)isValidForLogin:(NSString *)key value:(NSString *)value {
+    if (![self isValidLoginIDKey:key]) {
+        return NO;
+    }
+    if (![self isValidLoginId:value]) {
+        return NO;
+    }
+    // 当 loginIDKey 和 loginId 均未发生变化时，不需要触发事件
+    if ([self.loginIDKey isEqualToString:key] && [self.originalLoginId isEqualToString:value]) {
+        return NO;
+    }
+    return  YES;
+}
+
+- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId {
+    [self updateLoginInfo:key loginId:loginId];
+    [self bindIdentity:key value:loginId];
+}
+
+- (void)updateLoginInfo:(NSString *)loginIDKey loginId:(NSString *)loginId {
     dispatch_async(self.queue, ^{
-        self.loginId = loginId;
+        if ([loginIDKey isEqualToString:kSAIdentitiesLoginId]) {
+            self.loginId = loginId;
+        } else {
+            self.loginId = [NSString stringWithFormat:@"%@%@%@", loginIDKey, kSALoginIdSpliceKey,loginId];
+        }
+        self.originalLoginId = loginId;
+        self.loginIDKey = loginIDKey;
+        // 本地缓存的 login_id 值为原始值，在初始化时处理拼接逻辑
         [[SAStoreManager sharedInstance] setObject:loginId forKey:kSAEventLoginId];
         // 登录时本地保存当前的 loginIDKey 字段，字段存在时表示 v3.0 版本 SDK 已进行过登录
-        [[SAStoreManager sharedInstance] setObject:self.loginIDKey forKey:kSALoginIDKey];
+        [[SAStoreManager sharedInstance] setObject:loginIDKey forKey:kSALoginIDKey];
     });
 }
 
 - (void)logout {
-    [self clearLoginId];
+    [self clearLoginInfo];
     [self resetIdentities];
 }
 
-- (void)clearLoginId {
+- (void)clearLoginInfo {
     dispatch_async(self.queue, ^{
         self.loginId = nil;
+        self.originalLoginId = nil;
+        self.loginIDKey = kSAIdentitiesLoginId;
         [[SAStoreManager sharedInstance] removeObjectForKey:kSAEventLoginId];
         // 退出登录时清除本地保存的 loginIDKey 字段，字段不存在时表示 v3.0 版本 SDK 已退出登录
         [[SAStoreManager sharedInstance] removeObjectForKey:kSALoginIDKey];
     });
 }
-
 
 #if TARGET_OS_IOS
 + (NSString *)idfa {
@@ -305,6 +326,14 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     return loginId;
 }
 
+- (NSString *)originalLoginId {
+    __block NSString *originalLoginId;
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        originalLoginId = _originalLoginId;
+    });
+    return originalLoginId;
+}
+
 - (NSString *)anonymousId {
     __block NSString *anonymousId;
     sensorsdata_dispatch_safe_sync(self.queue, ^{
@@ -336,6 +365,14 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     return identities;
 }
 
+- (NSString *)loginIDKey {
+    __block NSString *loginIDKey;
+    sensorsdata_dispatch_safe_sync(self.queue, ^{
+        loginIDKey = _loginIDKey;
+    });
+    return loginIDKey;
+}
+
 - (NSDictionary *)removedIdentity {
     __block NSDictionary *removedIdentity;
     sensorsdata_dispatch_safe_sync(self.queue, ^{
@@ -348,7 +385,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 - (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(NSString *)eventType {
     if ([eventType isEqualToString:kSAEventTypeUnbind]) {
         NSString *key = identities.allKeys.firstObject;
-        if (![self isValidIdentity:key value:identities[key]]) {
+        if (![self isValidForUnbind:key value:identities[key]]) {
             return @{};
         }
         [self unbindIdentity:key value:identities[key]];
@@ -381,20 +418,26 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     return newIdentities;
 }
 
-- (BOOL)isPresetKey:(NSString *)key {
-    // IDFV 和 ios_uuid 为 SDK 生成的设备唯一标识，不允许客户绑定与解绑
-    // $identity_anonymous_id 为兼容 2.0 identify() 的产物，也不允许客户绑定与解绑
-    // $identity_login_id 为业务唯一标识，不允许客户绑定或解绑，只能通过 login 接口关联
+- (BOOL)isDeviceIDKey:(NSString *)key {
     return ([key isEqualToString:kSAIdentitiesUniqueID] ||
-            [key isEqualToString:kSAIdentitiesUUID] ||
-            [key isEqualToString:kSAIdentitiesLoginId] ||
-#if TARGET_OS_OSX
-            [key isEqualToString:kSAIdentitiesOldUniqueID] ||
-#endif
-            [key isEqualToString:kSAIdentitiesAnonymousId]);
+            [key isEqualToString:kSAIdentitiesUUID]
+       #if TARGET_OS_OSX
+            || [key isEqualToString:kSAIdentitiesOldUniqueID]
+       #endif
+            );
 }
 
-- (BOOL)isValidIdentity:(NSString *)key value:(NSString *)value {
+- (BOOL)isAnonymousIDKey:(NSString *)key {
+    // $identity_anonymous_id 为兼容 2.0 identify() 的产物，也不允许客户绑定与解绑
+    return [key isEqualToString:kSAIdentitiesAnonymousId];
+}
+
+- (BOOL)isLoginIDKey:(NSString *)key {
+    // $identity_login_id 为业务唯一标识，不允许客户绑定或解绑，只能通过 login 接口关联
+    return [key isEqualToString:kSAIdentitiesLoginId];
+}
+
+- (BOOL)isValidForBind:(NSString *)key value:(NSString *)value {
     if (![key isKindOfClass:NSString.class]) {
         SALogError(@"Key [%@] must be string", key);
         return NO;
@@ -403,6 +446,30 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
         SALogError(@"Key is empty");
         return NO;
     }
+    if ([self isDeviceIDKey:key] || [self isAnonymousIDKey:key] || [self isLoginIDKey:key]) {
+        SALogError(@"Key [ %@ ] is invalid", key);
+        return NO;
+    }
+    if ([key isEqualToString:self.loginIDKey]) {
+        SALogError(@"Key [ %@ ] is invalid", key);
+        return NO;
+    }
+    return [self isValidIdentity:key value:value];
+}
+
+- (BOOL)isValidForUnbind:(NSString *)key value:(NSString *)value {
+    if (![key isKindOfClass:NSString.class]) {
+        SALogError(@"Key [%@] must be string", key);
+        return NO;
+    }
+    if (key.length <= 0) {
+        SALogError(@"Key is empty");
+        return NO;
+    }
+    return [self isValidIdentity:key value:value];
+}
+
+- (BOOL)isValidIdentity:(NSString *)key value:(NSString *)value {
     NSError *error = nil;
     [SAValidator validKey:key error:&error];
     if (error) {
@@ -411,11 +478,8 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     if (error && error.code != SAValidatorErrorOverflow) {
         return NO;
     }
-    if ([self isPresetKey:key]) {
-        SALogError(@"Key [ %@ ] is invalid", key);
-        return NO;
-    }
-    if ([key isEqualToString:self.loginIDKey]) {
+    // 不允许绑定/解绑 $identity_anonymous_id 和 $identity_login_id
+    if ([self isAnonymousIDKey:key] || [self isLoginIDKey:key]) {
         SALogError(@"Key [ %@ ] is invalid", key);
         return NO;
     }
@@ -447,13 +511,20 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 - (void)unbindIdentity:(NSString *)key value:(NSString *)value {
     NSMutableDictionary *removed = [NSMutableDictionary dictionary];
     removed[key] = value;
-    if (![value isEqualToString:self.identities[key]]) {
+    if (![value isEqualToString:self.identities[key]] || [self isDeviceIDKey:key]) {
         // 当 identities 中不存在需要解绑的字段时，不需要进行删除操作
         dispatch_async(self.queue, ^{
             self.removedIdentity = removed;
         });
         return;
     }
+
+    // 当解绑自定义 loginIDKey 时，需要同步清除 2.0 的 login_id 信息
+    NSString *result = [NSString stringWithFormat:@"%@%@%@", key, kSALoginIdSpliceKey, value];
+    if ([result isEqualToString:self.loginId]) {
+        [self clearLoginInfo];
+    }
+
     NSMutableDictionary *identities = [self.identities mutableCopy];
     [identities removeObjectForKey:key];
     dispatch_async(self.queue, ^{
@@ -468,7 +539,7 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     identities[kSAIdentitiesUniqueID] = self.identities[kSAIdentitiesUniqueID];
     identities[kSAIdentitiesUUID] = self.identities[kSAIdentitiesUUID];
     // 当 loginId 存在时需要添加 loginId
-    identities[self.loginIDKey] = self.loginId;
+    identities[self.loginIDKey] = self.originalLoginId;
     dispatch_async(self.queue, ^{
         self.identities = identities;
         [self archiveIdentities:identities];
@@ -490,7 +561,16 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     return identities;
 }
 
-- (NSDictionary *)unarchiveIdentities {
+- (NSString *)unarchiveLoginIDKey {
+    NSString *content = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
+    if (content.length < 1) {
+        content = kSAIdentitiesLoginId;
+        [[SAStoreManager sharedInstance] setObject:content forKey:kSALoginIDKey];
+    }
+    return content;
+}
+
+- (NSDictionary *)unarchiveIdentitiesWithKey:(NSString *)loginIDKey {
     NSDictionary *cache = [self decodeIdentities];
     NSMutableDictionary *identities = [NSMutableDictionary dictionaryWithDictionary:cache];
 
@@ -533,27 +613,14 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
     NSString *loginId = [[SAStoreManager sharedInstance] objectForKey:kSAEventLoginId];
     // 本地存在 loginId 时表示 v2.0 版本为登录状态，可能需要将登录状态同步 v3.0 版本的 identities 中
     // 为了避免客户升级 v3.0 后又降级至 v2.0，然后又升级至 v3.0 版本的兼容问题，这里每次冷启动都处理一次
+
+    // 当 v3.0 版本进行过登录操作时，本地一定会存在登录时使用的 loginIDKey 内容
+    NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
     if (loginId) {
-        // 当 v3.0 版本进行过登录操作时，本地一定会存在登录时使用的 loginIDKey 内容
-        NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
-        // 场景 1：
-        // v3.0 版本设置 loginIDKey 为 a_id 并进行登录 123, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后 loginIDKey 仍为 a_id
-        // 此时 identities 中存在 a_id 内容，需要更新 a_id 内容
-
-        // 场景 2：
-        // v3.0 版本设置 loginIDKey 为 a_id 并进行登录 123, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后设置 loginIDKey 为 b_id
-        // 此时 identities 中存在 a_id 内容且不存在 b_id 内容，因此只需要更新 a_id 内容
-
-        // 场景 3：
-        // v3.0 版本设置 loginIDKey 为 a_id 且未进行登录, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后 loginIDKey 仍为 a_id
-        // 此时 identities 中不存在 cacheKey 对应内容，表示 v3.0 版本未进行过登录操作。要将 v2.0 版本登录状态 { a_id:456 } 同步至 v3.0 版本的 identities 中
-
-        // 场景 4：
-        // v3.0 版本设置 loginIDKey 为 a_id 且未进行登录, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后设置 loginIDKey 为 b_id
-        // 此时 identities 中不存在 cacheKey 对应内容，表示 v3.0 版本未进行过登录操作。要将 v2.0 版本登录状态 { b_id:456 } 同步至 v3.0 版本的 identities 中
-
         if (identities[cachedKey]) {
-            // 场景 1 和 场景 2 对应逻辑
+            // 场景：
+            // v3.0 版本设置 loginIDKey 为 a_id 并进行登录 123, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后 loginIDKey 仍为 a_id
+            // 此时 identities 中存在 a_id 内容，需要更新 a_id 内容
             if (![identities[cachedKey] isEqualToString:loginId]) {
                 // 当 identities 中 cachedKey 内容和 v2.0 版本 loginId 内容不一致时，表示登录用户发生了变化，需要更新 cachedKey 对应内容并清空其他所有业务 ID
                 NSMutableDictionary *newIdentities = [NSMutableDictionary dictionary];
@@ -564,20 +631,19 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
                 identities = newIdentities;
             }
         } else {
-            // 场景 3 和 场景 4 对应逻辑
-            // 当 identities 中不存在 cacheKey 内容时，即表示 v3.0 版本未进行过登录，需要同步 v2.0 版本登录状态至 v3.0 版本 identities 中
+            // 场景：
+            // v3.0 版本设置 loginIDKey 为 $identity_login_id 且未进行登录, 降级至 v2.0 版本并重新登录 456, 再次升级至 v3.0 版本后 loginIDKey 仍为 $identity_login_id
+            // 此时 identities 中不存在 cacheKey 对应内容，表示 v3.0 版本未进行过登录操作。要将 v2.0 版本登录状态 { $identity_login_id:456 } 同步至 v3.0 版本的 identities 中
             NSMutableDictionary *newIdentities = [NSMutableDictionary dictionary];
             newIdentities[kSAIdentitiesUniqueID] = identities[kSAIdentitiesUniqueID];
             newIdentities[kSAIdentitiesUUID] = identities[kSAIdentitiesUUID];
-            newIdentities[self.loginIDKey] = loginId;
+            newIdentities[loginIDKey] = loginId;
             identities = newIdentities;
 
             // 此时相当于进行登录操作，需要保存登录时设置的 loginIDKey 内容至本地文件中
-            [[SAStoreManager sharedInstance] setObject:self.loginIDKey forKey:kSALoginIDKey];
+            [[SAStoreManager sharedInstance] setObject:loginIDKey forKey:kSALoginIDKey];
         }
     } else {
-        NSString *cachedKey = [[SAStoreManager sharedInstance] objectForKey:kSALoginIDKey];
-        // 当 identities 中存在 cachedKey 内容时，表示当前 identities 中是登录状态
         if (identities[cachedKey]) {
             // 场景：v3.0 版本登录时，降级至 v2.0 版本并退出登录，然后再升级至 v3.0 版本
             // 此时 identities 中仍为登录状态，需要进行退出登录操作
@@ -588,7 +654,6 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
             newIdentities[kSAIdentitiesAnonymousId] = identities[kSAIdentitiesAnonymousId];
             identities = newIdentities;
         }
-
         // 当 v2.0 版本状态为未登录状态时，直接清空本地保存的 loginIDKey 文件内容
         // v3.0 版本清空本地保存的 loginIDKey 会在 logout 中处理
         [[SAStoreManager sharedInstance] removeObjectForKey:kSALoginIDKey];
@@ -607,6 +672,9 @@ NSString * const kSAIdentitiesCacheType = @"Base64:";
 
 - (NSDictionary *)decodeIdentities {
     NSString *content = [[SAStoreManager sharedInstance] objectForKey:kSAIdentities];
+    if (![content isKindOfClass:NSString.class]) {
+        return nil;
+    }
     NSData *data;
     if ([content hasPrefix:kSAIdentitiesCacheType]) {
         NSString *value = [content substringFromIndex:kSAIdentitiesCacheType.length];

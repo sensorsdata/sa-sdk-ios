@@ -45,7 +45,7 @@ static NSString * const kSAFileStorePluginType = @"cn.sensorsdata.File.";
 #pragma mark - SAStorePlugin
 
 - (NSArray<NSString *> *)storeKeys {
-    return @[@"com.sensorsdata.caid.cache", @"$channel_device_info", @"login_id", @"distinct_id", @"com.sensorsdata.loginidkey", @"com.sensorsdata.identities", @"first_day", @"super_properties", @"latest_utms", @"SAEncryptSecretKey", @"SAVisualPropertiesConfig", @"SASessionModel"];
+    return @[@"$channel_device_info", @"login_id", @"distinct_id", @"com.sensorsdata.loginidkey", @"com.sensorsdata.identities", @"first_day", @"super_properties", @"latest_utms", @"SAEncryptSecretKey", @"SAVisualPropertiesConfig", @"SASessionModel"];
 }
 
 - (NSString *)type {
