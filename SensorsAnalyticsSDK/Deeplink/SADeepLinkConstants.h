@@ -59,6 +59,8 @@ extern NSString *const kSARequestPropertyProject;
 extern NSString *const kSAResponsePropertySLinkID;
 
 extern NSString *const kSAResponsePropertyCode;
+extern NSString *const kSAResponsePropertyErrorMessage;
+extern NSString *const kSAResponsePropertyErrorMsg;
 extern NSString *const kSAResponsePropertyMessage;
 
 // DeepLink

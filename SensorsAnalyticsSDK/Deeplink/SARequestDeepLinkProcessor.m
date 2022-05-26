@@ -62,7 +62,24 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
     if (pathComponents.count < 2 || ![pathComponents[1] isEqualToString:@"slink"]) {
         return NO;
     }
-    return ([url.host isEqualToString:kSchemeDeepLinkHost] || [url.host isEqualToString:components.host]);
+
+    NSString *primaryDomain = [self primaryDomainForURL:url];
+    NSString *channelPrimaryDomain = [self primaryDomainForURL:components.URL];
+
+    if (!channelPrimaryDomain) {
+        return NO;
+    }
+    return ([url.host isEqualToString:kSchemeDeepLinkHost] || [primaryDomain isEqualToString:channelPrimaryDomain]);
+}
+
++ (NSString *)primaryDomainForURL:(NSURL *)url {
+    NSArray *hostArray = [url.host componentsSeparatedByString:@"."];
+    if (hostArray.count < 2) {
+        return nil;
+    }
+    NSMutableArray *primaryDomainArray = [hostArray mutableCopy];
+    [primaryDomainArray removeObjectAtIndex:0];
+    return [primaryDomainArray componentsJoinedByString:@"."];
 }
 
 - (BOOL)canWakeUp {
@@ -81,17 +98,17 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
     NSString *channelURL = SensorsAnalyticsSDK.sharedInstance.configOptions.customADChannelURL;
     SANetwork *network = SensorsAnalyticsSDK.sharedInstance.network;
     NSString *key = self.URL.lastPathComponent;
+    NSString *project = SensorsAnalyticsSDK.sharedInstance.network.project;
 
     if ([self.class isCustomDeepLinkURL:self.URL]) {
         components = [[NSURLComponents alloc] initWithString:channelURL];
         components.path = [components.path stringByAppendingPathComponent:@"/slink/config/query"];
-        components.query = [NSString stringWithFormat:@"key=%@", key];
     } else if ([self.class isNormalDeepLinkURL:self.URL]) {
         components = network.baseURLComponents;
         components.path = [network.baseURLComponents.path stringByAppendingPathComponent:@"/sdk/deeplink/param"];
-        NSString *project = SensorsAnalyticsSDK.sharedInstance.network.project;
-        components.query = [NSString stringWithFormat:@"key=%@&project=%@&system_type=IOS", key, project];
     }
+
+    components.query = [NSString stringWithFormat:@"key=%@&project=%@&system_type=IOS", key, project];
 
     if (!components) {
         return nil;
@@ -124,7 +141,8 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
         if (response.statusCode == 200 && data) {
             NSDictionary *result = [SAJSONUtil JSONObjectWithData:data];
             properties[kSAEventPropertyDeepLinkOptions] = result[kSAResponsePropertyParams];
-            properties[kSAEventPropertyDeepLinkFailReason] = result[kSAResponsePropertyMessage];
+            NSString *errorMsg = result[kSAResponsePropertyErrorMessage] ?: result[kSAResponsePropertyErrorMsg];
+            properties[kSAEventPropertyDeepLinkFailReason] = errorMsg;
             properties[kSAEventPropertyADSLinkID] = result[kSAResponsePropertySLinkID];
 
             // Result 事件中只需要添加 $utm_content 等属性，不需要添加 $latest_utm_content 等属性
@@ -135,7 +153,8 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
             latestChannels = [self acquireLatestChannels:result[kSAResponsePropertyChannelParams]];
 
             obj.params = result[kSAResponsePropertyParams];
-            obj.success = ([result[kSAResponsePropertyCode] integerValue] == 0);
+            NSInteger code = [result[kSAResponsePropertyCode] integerValue];
+            obj.success = (code == 0 && errorMsg.length == 0);
         } else {
             NSString *codeMsg = [NSString stringWithFormat:@"http status code: %@",@(response.statusCode)];
             properties[kSAEventPropertyDeepLinkFailReason] = error.localizedDescription ?: codeMsg;

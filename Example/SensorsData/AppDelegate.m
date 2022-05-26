@@ -20,7 +20,6 @@
 
 #import "AppDelegate.h"
 #import <SensorsAnalyticsSDK/SensorsAnalyticsSDK.h>
-#import <SensorsAnalyticsExtension/SensorsAnalyticsExtension.h>
 
 static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0";
 
@@ -111,7 +110,6 @@ static NSString* Sa_Default_ServerURL = @"http://sdk-test.cloud.sensorsdata.cn:8
     //[[SAAppExtensionDataManager sharedInstance]readAllEventsWithGroupIdentifier:NULL];
     //[[SAAppExtensionDataManager sharedInstance]writeEvent:@"eee" properties:@"" groupIdentifier:@"ff"];
     //[[SAAppExtensionDataManager sharedInstance]fileDataCountForGroupIdentifier:@"ff"];
-    [[SAAppExtensionDataManager sharedInstance]fileDataArrayWithPath:@"fff" limit:-1];
 }
 
 - (void)applicationWillTerminate:(UIApplication *)application {

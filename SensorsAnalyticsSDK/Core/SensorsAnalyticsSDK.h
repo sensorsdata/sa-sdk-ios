@@ -91,5 +91,9 @@
 #import "SensorsAnalyticsSDK+WebView.h"
 #endif
 
+#if __has_include("SensorsAnalyticsSDK+SAAppExtension.h")
+#import "SensorsAnalyticsSDK+SAAppExtension.h"
+#endif
+
 
 #import "SAAESStorePlugin.h"

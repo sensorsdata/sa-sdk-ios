@@ -29,8 +29,6 @@
 static NSString * const kSAEventPropertySessionID = @"$event_session_id";
 /// session 数据模型
 static NSString * const kSASessionModelKey = @"SASessionModel";
-/// session 中事件最大间隔 30 分钟（单位为毫秒）
-static const NSUInteger kSASessionMaxInterval = 30 * 60 * 1000;
 /// session 最大时长是 12 小时（单位为毫秒）
 static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
 
@@ -86,6 +84,7 @@ static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
 @interface SASessionProperty ()
 
 @property (nonatomic, strong) SASessionModel *sessionModel;
+@property (nonatomic, assign) NSInteger sessionMaxInterval;
 
 @end
 
@@ -97,8 +96,16 @@ static const NSUInteger kSASessionMaxDuration = 12 * 60 * 60 * 1000;
     [[SAStoreManager sharedInstance] removeObjectForKey:kSASessionModelKey];
 }
 
+- (instancetype)initWithMaxInterval:(NSInteger)maxInterval {
+    self = [super init];
+    if (self) {
+        _sessionMaxInterval = maxInterval;
+    }
+    return self;
+}
+
 - (NSDictionary *)sessionPropertiesWithEventTime:(NSNumber *)eventTime {
-    NSNumber *maxIntervalEventTime = @(self.sessionModel.lastEventTime.unsignedLongLongValue + kSASessionMaxInterval);
+    NSNumber *maxIntervalEventTime = @(self.sessionModel.lastEventTime.unsignedLongLongValue + self.sessionMaxInterval);
     NSNumber *maxDurationEventTime = @(self.sessionModel.firstEventTime.unsignedLongLongValue + kSASessionMaxDuration);
     
     // 重新生成 session

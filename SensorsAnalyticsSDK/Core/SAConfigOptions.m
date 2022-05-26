@@ -24,7 +24,9 @@
 
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
-#import "SAIdentifier.h"
+
+/// session 中事件最大间隔 5 分钟（单位为秒）
+static const NSUInteger kSASessionMaxInterval = 5 * 60;
 
 @interface SAConfigOptions ()<NSCopying>
 
@@ -89,6 +91,8 @@
         _minRequestHourInterval = 24;
         _maxRequestHourInterval = 48;
 
+        _eventSessionTimeout = kSASessionMaxInterval;
+
 #ifdef SENSORS_ANALYTICS_ENABLE_AUTOTRACK_CHILD_VIEWSCREEN
         _enableAutoTrackChildViewScreen = YES;
 #endif
@@ -131,6 +135,7 @@
     options.disableSDK = self.disableSDK;
     options.storePlugins = self.storePlugins;
     options.enableSession = self.enableSession;
+    options.eventSessionTimeout = self.eventSessionTimeout;
     options.disableDeviceId = self.disableDeviceId;
 
 #if TARGET_OS_IOS
@@ -203,6 +208,12 @@
 - (void)setMaxRequestHourInterval:(NSInteger)maxRequestHourInterval {
     if (maxRequestHourInterval > 0) {
         _maxRequestHourInterval = MIN(maxRequestHourInterval, 7*24);
+    }
+}
+
+- (void)setEventSessionTimeout:(NSInteger)eventSessionTimeout {
+    if (eventSessionTimeout > 0) {
+        _eventSessionTimeout = eventSessionTimeout;
     }
 }
 

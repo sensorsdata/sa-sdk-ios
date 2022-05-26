@@ -1,8 +1,8 @@
 //
-// SASessionProperty.h
+// SensorsAnalyticsSDK+SAAppExtension.h
 // SensorsAnalyticsSDK
 //
-// Created by wenquan on 2021/12/23.
+// Created by 陈玉国 on 2022/5/16.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,22 +18,20 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SensorsAnalyticsSDK.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SASessionProperty : NSObject
+@interface SensorsAnalyticsSDK (SAAppExtension)
 
-/// 设置事件间隔最大时长，默认值为 5 * 60 * 1000 毫秒。单位为毫秒
-- (instancetype)initWithMaxInterval:(NSInteger)maxInterval NS_DESIGNATED_INITIALIZER;
-- (instancetype)init NS_UNAVAILABLE;
-
-/// 移除本地保存的 session 信息
-+ (void)removeSessionModel;
-
-/// 获取 session 相关属性
-/// @param eventTime 事件触发的时间
-- (NSDictionary *)sessionPropertiesWithEventTime:(NSNumber *)eventTime;
+/**
+ @abstract
+ * Track App Extension groupIdentifier 中缓存的数据
+ *
+ * @param groupIdentifier groupIdentifier
+ * @param completion  完成 track 后的 callback
+ */
+- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
 
 @end
 

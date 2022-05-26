@@ -62,6 +62,8 @@ NSString *const kSARequestPropertyProject = @"project";
 #pragma mark - Response Property
 
 NSString *const kSAResponsePropertyCode = @"code";
+NSString *const kSAResponsePropertyErrorMessage = @"errorMsg";
+NSString *const kSAResponsePropertyErrorMsg = @"error_msg";
 NSString *const kSAResponsePropertyMessage = @"msg";
 
 NSString *const kSAResponsePropertySLinkID = @"ad_slink_id";

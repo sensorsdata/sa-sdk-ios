@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.3.0"
+  s.version      = "4.3.1"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -22,7 +22,7 @@ Pod::Spec.new do |s|
     core_dir = "SensorsAnalyticsSDK/Core/"
     b.source_files = core_dir + "**/*.{h,m}"
     b.exclude_files = core_dir + "SAAlertController.h", core_dir + "SAAlertController.m"
-    b.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SAAppExtensionDataManager.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", core_dir + "PropertyPlugin/SAPropertyPluginProtocol.h"
+    b.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", core_dir + "PropertyPlugin/SAPropertyPluginProtocol.h"
     b.ios.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
     b.ios.frameworks = 'CoreTelephony'
     b.dependency 'SensorsAnalyticsSDK/__Store'
@@ -110,6 +110,12 @@ Pod::Spec.new do |s|
     w.dependency 'SensorsAnalyticsSDK/Core'
     w.source_files  =  "SensorsAnalyticsSDK/WKWebView/**/*.{h,m}"
     w.public_header_files = 'SensorsAnalyticsSDK/WKWebView/SensorsAnalyticsSDK+WKWebView.h'
+  end
+
+  s.subspec 'ApplicationExtension' do |e|
+    e.dependency 'SensorsAnalyticsSDK/Extension'
+  	e.source_files = 'SensorsAnalyticsSDK/AppExtension/*.{h,m}'
+  	e.public_header_files = 'SensorsAnalyticsSDK/AppExtension/SensorsAnalyticsSDK+SAAppExtension.h'
   end
 
 end

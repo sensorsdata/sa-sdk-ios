@@ -354,15 +354,6 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 - (NSDictionary *)getLastScreenTrackProperties API_UNAVAILABLE(macos);
 
 /**
- @abstract
- * Track App Extension groupIdentifier 中缓存的数据
- *
- * @param groupIdentifier groupIdentifier
- * @param completion  完成 track 后的 callback
- */
-- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion;
-
-/**
  * @abstract
  * 修改入库之前的事件属性
  *

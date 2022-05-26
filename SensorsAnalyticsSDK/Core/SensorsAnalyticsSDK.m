@@ -23,7 +23,6 @@
 #endif
 
 #import "SensorsAnalyticsSDK.h"
-#import "SAAppExtensionDataManager.h"
 #import "SAKeyChainItemWrapper.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
@@ -53,7 +52,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.3.0"
+#define VERSION @"4.3.1"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -215,7 +214,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             _superProperty = [[SASuperProperty alloc] init];
             
             if (_configOptions.enableSession) {
-                _sessionProperty = [[SASessionProperty alloc] init];
+                _sessionProperty = [[SASessionProperty alloc] initWithMaxInterval:_configOptions.eventSessionTimeout * 1000];
             } else {
                 [SASessionProperty removeSessionModel];
             }
@@ -917,27 +916,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (SensorsAnalyticsDebugMode)debugMode {
     return SAModuleManager.sharedInstance.debugMode;
-}
-
-- (void)trackEventFromExtensionWithGroupIdentifier:(NSString *)groupIdentifier completion:(void (^)(NSString *groupIdentifier, NSArray *events)) completion {
-    @try {
-        if (groupIdentifier == nil || [groupIdentifier isEqualToString:@""]) {
-            return;
-        }
-        NSArray *eventArray = [[SAAppExtensionDataManager sharedInstance] readAllEventsWithGroupIdentifier:groupIdentifier];
-        if (eventArray) {
-            for (NSDictionary *dict in eventArray) {
-                SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:dict[kSAEventName]];
-                [self asyncTrackEventObject:object properties:dict[kSAEventProperties]];
-            }
-            [[SAAppExtensionDataManager sharedInstance] deleteEventsWithGroupIdentifier:groupIdentifier];
-            if (completion) {
-                completion(groupIdentifier, eventArray);
-            }
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@ error: %@", self, exception);
-    }
 }
 
 #pragma mark - SensorsData  Analytics
