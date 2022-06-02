@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.3.1"
+  s.version      = "4.3.2"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -116,6 +116,13 @@ Pod::Spec.new do |s|
     e.dependency 'SensorsAnalyticsSDK/Extension'
   	e.source_files = 'SensorsAnalyticsSDK/AppExtension/*.{h,m}'
   	e.public_header_files = 'SensorsAnalyticsSDK/AppExtension/SensorsAnalyticsSDK+SAAppExtension.h'
+  end
+
+  s.subspec 'DeprecatedCellClick' do |d|
+    d.ios.deployment_target = '8.0'
+    d.dependency 'SensorsAnalyticsSDK/Core'
+    d.source_files = 'CellClick_HookDelegate_Deprecated/*.{h,m}'
+    d.project_header_files = 'CellClick_HookDelegate_Deprecated/*.h'
   end
 
 end
