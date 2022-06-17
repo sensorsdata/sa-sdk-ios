@@ -28,7 +28,6 @@
 #import "SAVisualizedUtils.h"
 #import "UIView+SAAutoTrack.h"
 #import "UIView+SAElementPath.h"
-#import "SACommonUtility.h"
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
 #import "SAJavaScriptBridgeManager.h"
@@ -37,6 +36,7 @@
 #import "UIView+SAVisualProperties.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SAConstants+Private.h"
 
 @interface SAVisualPropertiesTracker()
 
@@ -169,7 +169,7 @@
     for (SAVisualPropertiesPropertyConfig *propertyConfig in config.properties) {
         // 合法性校验
         if (propertyConfig.regular.length == 0 || propertyConfig.name.length == 0 || propertyConfig.elementPath.length == 0) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"属性配置" message:@"属性 %@ 无效", propertyConfig];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"property configuration" message:@"property %@ invalid", propertyConfig];
             SALogError(@"SAVisualPropertiesPropertyConfig error, %@", logMessage);
             continue;
         }
@@ -227,7 +227,7 @@
     if (content.length == 0) {
         // 打印 view 需要在主线程
         dispatch_async(dispatch_get_main_queue(), ^{
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 获取元素内容失败, %@", config.name, view];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"parse property" message:@"property %@ failed to get element content, %@", config.name, view];
             SALogWarn(@"%@", logMessage);
         });
         return nil;
@@ -240,7 +240,7 @@
     // 仅取出第一条匹配记录
     NSTextCheckingResult *firstResult = [regex firstMatchInString:content options:0 range:NSMakeRange(0, [content length])];
     if (!firstResult) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"元素内容 %@ 正则解析属性失败，属性名：%@，正则为：%@", content,  config.name, config.regular];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"parse property" message:@"element content %@ regex parsing property failed, property name is: %@，regex is: %@", content, config.name, config.regular];
         SALogWarn(@"%@", logMessage);
         return nil;
     }
@@ -254,7 +254,7 @@
     // 1. 获取属性元素
     UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
     if (!view) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"属性 %@ 未找到对应属性元素", propertyConfig.name];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get property element" message:@"property %@ property element not found", propertyConfig.name];
         SALogDebug(@"%@", logMessage);
         return nil;
     }
@@ -277,7 +277,7 @@
     NSDecimalNumber *propertyNumber = [NSDecimalNumber decimalNumberWithString:propertyValue];
     // 判断转换后是否为 NAN
     if ([propertyNumber isEqualToNumber:NSDecimalNumber.notANumber]) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@"属性 %@ 正则解析后为：%@，数值型转换失败", propertyConfig.name, propertyValue];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"parse property" message:@"property %@ the result after regex parsing is: %@, numeric conversion failed", propertyConfig.name, propertyValue];
         SALogWarn(@"%@", logMessage);
         return nil;
     }
@@ -349,7 +349,7 @@
 
     UIView *view = [self.viewNodeTree viewWithPropertyConfig:propertyConfig];
     if (![view isKindOfClass:WKWebView.class]) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取属性元素" message:@"App 内嵌 H5 属性 %@ 未找到对应 WKWebView 元素", propertyConfig.name];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get property element" message:@"App embedded H5 property %@ did not find the corresponding WKWebView element", propertyConfig.name];
         SALogDebug(@"%@", logMessage);
         completionHandler(nil);
         return;
@@ -373,7 +373,7 @@
             if ([results isKindOfClass:NSDictionary.class]) {
                 completionHandler(results);
             } else {
-                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"解析属性" message:@" 调用 JS 方法 %@，解析 App 内嵌 H5 属性失败", javaScriptSource];
+                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"parse property" message:@"the JS method %@ was called, failed to parse App embedded H5 property", javaScriptSource];
                 SALogDebug(@"%@", logMessage);
                 completionHandler(nil);
             }
@@ -426,13 +426,13 @@
     }
     // 未开启 enableLog，弹框提示
     __weak SAVisualPropertiesTracker *weakSelf = self;
-    self.enableLogAlertController = [[SAAlertController alloc] initWithTitle:@"提示" message:@"可视化全埋点进入 Debug 模式，需要开启日志打印用于收集调试信息，退出 Debug 模式关闭日志打印，是否需要开启呢？" preferredStyle:SAAlertControllerStyleAlert];
-    [self.enableLogAlertController addActionWithTitle:@"开启日志打印" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+    self.enableLogAlertController = [[SAAlertController alloc] initWithTitle:SALocalizedString(@"SAAlertHint") message:SALocalizedString(@"SAVisualizedEnableLogHint") preferredStyle:SAAlertControllerStyleAlert];
+    [self.enableLogAlertController addActionWithTitle:SALocalizedString(@"SAVisualizedEnableLogAction") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
         [[SensorsAnalyticsSDK sharedInstance] enableLog:YES];
         
         weakSelf.debugLogTracker = [[SAVisualizedDebugLogTracker alloc] init];
     }];
-    [self.enableLogAlertController addActionWithTitle:@"暂不开启" style:SAAlertActionStyleCancel handler:nil];
+    [self.enableLogAlertController addActionWithTitle:SALocalizedString(@"SAVisualizedTemporarilyDisabled") style:SAAlertActionStyleCancel handler:nil];
     [self.enableLogAlertController show];
 }
 

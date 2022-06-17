@@ -203,22 +203,23 @@
     BOOL isEqualProject = [[SensorsAnalyticsSDK sharedInstance].network.project isEqualToString:project];
     if (!isEqualProject) {
         if ([self isHeatMapURL:url]) {
-            [SAVisualizedManager showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行点击分析"];
+            [SAVisualizedManager showAlterViewWithTitle:SALocalizedString(@"SAAlertHint") message:SALocalizedString(@"SAAppClicksAnalyticsProjectError")];
         } else if([self isVisualizedAutoTrackURL:url]){
-            [SAVisualizedManager showAlterViewWithTitle:@"提示" message:@"App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点"];
+            [SAVisualizedManager showAlterViewWithTitle:SALocalizedString(@"SAAlertHint") message:SALocalizedString(@"SAVisualizedProjectError")];
         }
         return YES;
     }
 
     // 未开启点击图
     if ([url.host isEqualToString:@"heatmap"] && ![[SensorsAnalyticsSDK sharedInstance] isHeatMapEnabled]) {
-        [SAVisualizedManager showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启点击分析"];
+        [SAVisualizedManager showAlterViewWithTitle:SALocalizedString(@"SAAlertHint") message:SALocalizedString(@"SAAppClicksAnalyticsSDKError")];
         return YES;
     }
 
     // 未开启可视化全埋点
     if ([url.host isEqualToString:@"visualized"] && ![[SensorsAnalyticsSDK sharedInstance] isVisualizedAutoTrackEnabled]) {
-        [SAVisualizedManager showAlterViewWithTitle:@"提示" message:@"SDK 没有被正确集成，请联系贵方技术人员开启可视化全埋点"];
+        [SAVisualizedManager showAlterViewWithTitle:SALocalizedString(@"SAAlertHint") message:SALocalizedString(@"SAVisualizedSDKError")];
+        
         return YES;
     }
     if (featureCode && postURLStr && self.isEnable) {
@@ -226,28 +227,28 @@
         return YES;
     }
     //feature_code url 参数错误
-    [SAVisualizedManager showAlterViewWithTitle:@"ERROR" message:@"参数错误"];
+    [SAVisualizedManager showAlterViewWithTitle:@"ERROR" message:SALocalizedString(@"SAVisualizedParameterError")];
     return NO;
 }
 
 + (void)showAlterViewWithTitle:(NSString *)title message:(NSString *)message {
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:message preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleDefault handler:nil];
     [alertController show];
 }
 
 - (void)showOpenAlertWithURL:(NSURL *)URL featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
-    NSString *alertTitle = @"提示";
+    NSString *alertTitle = SALocalizedString(@"SAAlertHint");
     NSString *alertMessage = [self alertMessageWithURL:URL];
 
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
 
-    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:^(SAAlertAction *_Nonnull action) {
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertCancel") style:SAAlertActionStyleCancel handler:^(SAAlertAction *_Nonnull action) {
         [self.visualizedConnection close];
         self.visualizedConnection = nil;
     }];
 
-    [alertController addActionWithTitle:@"继续" style:SAAlertActionStyleDefault handler:^(SAAlertAction *_Nonnull action) {
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertContinue") style:SAAlertActionStyleDefault handler:^(SAAlertAction *_Nonnull action) {
         // 关闭之前的连接
         [self.visualizedConnection close];
         // start
@@ -271,13 +272,13 @@
 - (NSString *)alertMessageWithURL:(NSURL *)URL{
     NSString *alertMessage = nil;
     if ([self isHeatMapURL:URL]) {
-        alertMessage = @"正在连接 App 点击分析";
+        alertMessage = SALocalizedString(@"SAAppClicksAnalyticsConnect");
     } else {
-        alertMessage = @"正在连接 App 可视化全埋点";
+        alertMessage = SALocalizedString(@"SAVisualizedConnect");
     }
 
     if (![SAReachability sharedInstance].isReachableViaWiFi) {
-        alertMessage = [alertMessage stringByAppendingString: @"，建议在 WiFi 环境下使用"];
+        alertMessage = [alertMessage stringByAppendingString:SALocalizedString(@"SAVisualizedWifi")];
     }
     return alertMessage;
 }

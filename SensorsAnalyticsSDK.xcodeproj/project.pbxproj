@@ -1919,6 +1919,7 @@
 			knownRegions = (
 				en,
 				Base,
+				"zh-Hans",
 			);
 			mainGroup = CB30BD4A22840CA40004061D;
 			productRefGroup = CB30BD5522840CA40004061D /* Products */;

@@ -24,6 +24,7 @@
 
 #import "SAConstants.h"
 #import "SAConstants+Private.h"
+#import "SensorsAnalyticsSDK+Private.h"
 
 #pragma mark - Track Timer
 NSString *const kSAEventIdSuffix = @"_SATimer";
@@ -138,6 +139,26 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
     } else {
         dispatch_sync(queue, block);
     }
+}
+
+#pragma mark - Localization
+NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
+    static NSBundle *languageBundle = nil;
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        // 获取语言资源的 Bundle
+        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
+        NSString *path = [sensorsBundle pathForResource:@"sa_language" ofType:@"lproj"];
+        if (path) {
+            languageBundle = [NSBundle bundleWithPath:path];
+        }
+    });
+    
+    NSString *result = value;
+    if (languageBundle) {
+        result = [languageBundle localizedStringForKey:key value:value table:@"SALocalizable"];
+    }
+    return result;
 }
 
 #pragma mark - SF related notifications

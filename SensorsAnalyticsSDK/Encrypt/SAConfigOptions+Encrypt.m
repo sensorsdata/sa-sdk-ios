@@ -37,7 +37,7 @@
 
 - (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor {
     if (![self isValidEncryptor:encryptor]) {
-        NSString *format = @"\n 您使用了自定义加密插件 [ %@ ]，但是并没有实现加密协议相关方法。请正确实现自定义加密插件相关功能后再运行项目。\n";
+        NSString *format = @"\n You used a custom encryption plugin [ %@ ], but no encryption protocol related methods are implemented. Please correctly implement the related functions of the custom encryption plugin before running the project. \n";
         NSString *message = [NSString stringWithFormat:format, NSStringFromClass(encryptor.class)];
         NSAssert(NO, message);
         return;

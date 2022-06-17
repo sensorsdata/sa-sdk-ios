@@ -26,21 +26,37 @@
 #import "SAAutoTrackUtils.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
+#import "UIScrollView+SAAutoTrack.h"
 #import "SAAutoTrackManager.h"
 #import <objc/message.h>
 
 @implementation SAScrollViewDelegateProxy
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    // 防止某些场景下循环调用
+    if (tableView.sensorsdata_indexPath == indexPath) {
+        return;
+    }
+    tableView.sensorsdata_indexPath = indexPath;
+
     SEL methodSelector = @selector(tableView:didSelectRowAtIndexPath:);
     [SAScrollViewDelegateProxy trackEventWithTarget:self scrollView:tableView atIndexPath:indexPath];
     [SAScrollViewDelegateProxy invokeWithTarget:self selector:methodSelector, tableView, indexPath];
+
+    tableView.sensorsdata_indexPath = nil;
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
+    if (collectionView.sensorsdata_indexPath == indexPath) {
+        return;
+    }
+    collectionView.sensorsdata_indexPath = indexPath;
+
     SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     [SAScrollViewDelegateProxy trackEventWithTarget:self scrollView:collectionView atIndexPath:indexPath];
     [SAScrollViewDelegateProxy invokeWithTarget:self selector:methodSelector, collectionView, indexPath];
+
+    collectionView.sensorsdata_indexPath = nil;
 }
 
 + (void)trackEventWithTarget:(NSObject *)target scrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath {

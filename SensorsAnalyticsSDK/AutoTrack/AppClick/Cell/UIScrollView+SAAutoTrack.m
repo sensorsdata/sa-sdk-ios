@@ -29,7 +29,18 @@
 #import "SAConstants+Private.h"
 #import "SAAutoTrackManager.h"
 
+static const void *kSATableViewIndexPath = &kSATableViewIndexPath;
+static const void *kSACollectionViewIndexPath = &kSACollectionViewIndexPath;
+
 @implementation UITableView (AutoTrack)
+
+- (void)setSensorsdata_indexPath:(NSIndexPath *)indexPath {
+    objc_setAssociatedObject(self, kSATableViewIndexPath, indexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSIndexPath *)sensorsdata_indexPath {
+    return  objc_getAssociatedObject(self, kSATableViewIndexPath);
+}
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
     //resolve optional selectors
@@ -54,6 +65,14 @@
 
 
 @implementation UICollectionView (AutoTrack)
+
+- (void)setSensorsdata_indexPath:(NSIndexPath *)indexPath {
+    objc_setAssociatedObject(self, kSACollectionViewIndexPath, indexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+}
+
+- (NSIndexPath *)sensorsdata_indexPath {
+    return  objc_getAssociatedObject(self, kSACollectionViewIndexPath);
+}
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {
     //resolve optional selectors

@@ -140,7 +140,7 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
         }
         //判断当前设备定位服务是否打开
         if (![CLLocationManager locationServicesEnabled]) {
-            SALogWarn(@"设备尚未打开定位服务");
+            SALogWarn(@"location service is not enabled on the device");
             return;
         }
 

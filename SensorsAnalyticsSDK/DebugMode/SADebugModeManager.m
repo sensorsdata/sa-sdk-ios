@@ -31,6 +31,7 @@
 #import "SANetwork.h"
 #import "SALog.h"
 #import "SAApplication.h"
+#import "SAConstants+Private.h"
 
 @interface SADebugModeManager ()
 
@@ -100,9 +101,9 @@
     // 打开debug模式，弹出提示
     NSString *alertMessage = nil;
     if (_debugMode == SensorsAnalyticsDebugOnly) {
-        alertMessage = @"现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+        alertMessage = SALocalizedString(@"SADebugNowInDebugOnlyMode");
     } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-        alertMessage = @"现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+        alertMessage = SALocalizedString(@"SADebugNowInDebugAndTrackMode");
     }
     [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
 }
@@ -119,25 +120,25 @@
 
             NSString *alterViewMessage = @"";
             if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
-                alterViewMessage = @"开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
+                alterViewMessage = SALocalizedString(@"SADebugAndTrackModeTurnedOn");
             } else if (self.debugMode == SensorsAnalyticsDebugOnly) {
-                alterViewMessage = @"开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
+                alterViewMessage = SALocalizedString(@"SADebugOnlyModeTurnedOn");
             } else {
-                alterViewMessage = @"已关闭调试模式，重新扫描二维码开启";
+                alterViewMessage = SALocalizedString(@"SADebugModeTurnedOff");
             }
             SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"" message:alterViewMessage preferredStyle:SAAlertControllerStyleAlert];
-            [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:nil];
+            [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleCancel handler:nil];
             [alertController show];
         };
 
-        NSString *alertTitle = @"SDK 调试模式选择";
+        NSString *alertTitle = SALocalizedString(@"SADebugMode");
         NSString *alertMessage = @"";
         if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
-            alertMessage = @"当前为 调试模式（导入数据）";
+            alertMessage = SALocalizedString(@"SADebugCurrentlyInDebugAndTrack");
         } else if (self.debugMode == SensorsAnalyticsDebugOnly) {
-            alertMessage = @"当前为 调试模式（不导入数据）";
+            alertMessage = SALocalizedString(@"SADebugCurrentlyInDebugOnly");
         } else {
-            alertMessage = @"调试模式已关闭";
+            alertMessage = SALocalizedString(@"SADebugOff");
         }
         SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
         void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
@@ -145,13 +146,13 @@
             alterViewBlock();
             [self debugModeCallbackWithDistinctId:[SensorsAnalyticsSDK sharedInstance].distinctId params:params];
         };
-        [alertController addActionWithTitle:@"开启调试模式（导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+        [alertController addActionWithTitle:SALocalizedString(@"SADebugAndTrack") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
             handler(SensorsAnalyticsDebugAndTrack);
         }];
-        [alertController addActionWithTitle:@"开启调试模式（不导入数据）" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+        [alertController addActionWithTitle:SALocalizedString(@"SADebugOnly") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
             handler(SensorsAnalyticsDebugOnly);
         }];
-        [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+        [alertController addActionWithTitle:SALocalizedString(@"SAAlertCancel") style:SAAlertActionStyleCancel handler:nil];
         [alertController show];
     });
 }
@@ -193,13 +194,13 @@
             return;
         }
         self.debugAlertViewHasShownNumber += 1;
-        NSString *alertTitle = @"SensorsData 重要提示";
+        NSString *alertTitle = SALocalizedString(@"SADebugNotes");
         SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:message preferredStyle:SAAlertControllerStyleAlert];
-        [alertController addActionWithTitle:@"确定" style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
+        [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleCancel handler:^(SAAlertAction * _Nonnull action) {
             self.debugAlertViewHasShownNumber -= 1;
         }];
         if (showNoMore) {
-            [alertController addActionWithTitle:@"不再显示" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+            [alertController addActionWithTitle:SALocalizedString(@"SAAlertNotRemind") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
                 self.showDebugAlertView = NO;
             }];
         }

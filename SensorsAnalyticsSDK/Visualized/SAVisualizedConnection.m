@@ -182,7 +182,7 @@
 
         [task resume];
     } else {
-        SALogWarn(@"Not sending message as we are not connected: %@", [message debugDescription]);
+        SALogWarn(@"No message will be sent because there is no connection: %@", [message debugDescription]);
     }
 }
 
@@ -198,12 +198,12 @@
     // 是否关闭自定义属性
     BOOL disableConfig = [message[@"visualized_config_disabled"] boolValue];
     if (disableConfig) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"开关控制" message:@"轮询接口返回，运维配置，关闭自定义属性"];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"switch control" message:@"the result returned by the polling interface, close custom properties through operations configuration"];
         SALogDebug(@"%@", logMessage);
 
         [SAVisualizedManager.defaultManager.configSources setupConfigWithDictionary:nil disableConfig:YES];
     } else if (configDic.count > 0) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"轮询接口更新可视化全埋点配置，%@", configDic];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"polling interface update visualized configuration, %@", configDic];
         SALogInfo(@"%@", logMessage);
 
         [SAVisualizedManager.defaultManager.configSources setupConfigWithDictionary:configDic disableConfig:NO];

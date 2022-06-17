@@ -70,7 +70,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @protocol SAScreenAutoTracker <SAAutoTracker>
 
-@required
+@optional
+- (BOOL)isIgnoredAutoTrackViewScreen;
 - (NSString *)getScreenUrl;
 
 @end

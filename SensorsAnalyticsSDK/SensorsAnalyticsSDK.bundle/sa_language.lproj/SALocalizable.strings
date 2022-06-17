@@ -1,0 +1,95 @@
+/* 
+  Localizable.strings
+  SensorsAnalyticsSDK
+
+  Created by wenquan on 2022/6/5.
+  Copyright © 2022 Sensors Data Co., Ltd. All rights reserved.
+*/
+
+// 调试模式
+"SADebugMode" = "SDK 调试模式选择";
+"SADebugOnly" = "开启调试模式（不导入数据）";
+"SADebugAndTrack" = "开启调试模式（导入数据）";
+"SADebugOff" = "调试模式已关闭";
+"SADebugCurrentlyInDebugOnly" = "当前为调试模式（不导入数据）";
+"SADebugCurrentlyInDebugAndTrack" = "当前为调试模式（导入数据）";
+"SADebugModeTurnedOff" = "已关闭调试模式，重新扫描二维码开启";
+"SADebugOnlyModeTurnedOn" = "开启调试模式，校验数据，但不进行数据导入；\n关闭 App 进程后，将自动关闭调试模式。";
+"SADebugAndTrackModeTurnedOn" = "开启调试模式，校验数据，并将数据导入神策分析中；\n关闭 App 进程后，将自动关闭调试模式。";
+"SADebugNowInDebugOnlyMode" = "现在您打开了'DEBUG_ONLY'模式，此模式下只校验数据但不导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+"SADebugNowInDebugAndTrackMode" = "现在您打开了'DEBUG_AND_TRACK'模式，此模式下会校验数据并且导入数据，数据出错时会以提示框的方式提示开发者，请上线前一定关闭。";
+"SADebugNotes" = "SensorsData 重要提示";
+
+// 可视化全埋点
+"SAVisualizedConnect" = "正在连接 App 可视化全埋点";
+"SAVisualizedWifi" = "，建议在 WiFi 环境下使用";
+"SAVisualizedProjectError" = "App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点";
+"SAVisualizedEnableLogHint" = "可视化全埋点进入 Debug 模式，需要开启日志打印用于收集调试信息，退出 Debug 模式关闭日志打印，是否需要开启呢？";
+"SAVisualizedEnableLogAction" = "开启日志打印";
+"SAVisualizedTemporarilyDisabled" = "暂不开启";
+"SAVisualizedPageErrorTitle" = "当前页面无法进行可视化全埋点";
+"SAVisualizedPageErrorMessage" = "此页面不是 WKWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
+"SAVisualizedConfigurationDocument" = "配置文档";
+"SAVisualizedJSError" = "此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
+"SAVisualizedSDKError" = "SDK 没有被正确集成，请联系贵方技术人员开启可视化全埋点";
+"SAVisualizedParameterError" = "参数错误";
+"SAVisualizedAutoTrack" = "可视化全埋点";
+
+// 点击分析
+"SAAppClicksAnalyticsConnect" = "正在连接 App 点击分析";
+"SAAppClicksAnalyticsSDKError" = "SDK 没有被正确集成，请联系贵方技术人员开启点击分析";
+"SAAppClicksAnalyticsProjectError" = "App 集成的项目与电脑浏览器打开的项目不同，无法进行点击分析";
+"SAAppClicksAnalyticsPageErrorTitle" = "当前页面无法进行点击分析";
+"SAAppClicksAnalyticsPageErrorMessage" = "此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
+"SAAppClicksAnalytics" = "点击分析";
+
+// 远程配置
+"SARemoteConfigStart" = "开始获取采集控制信息";
+"SARemoteConfigObtainFailed" = "远程配置获取失败，请稍后重新扫描二维码";
+"SARemoteConfigProjectError" = "App 集成的项目与二维码对应的项目不同，无法进行调试";
+"SARemoteConfigOSError" = "App 与二维码对应的操作系统不同，无法进行调试";
+"SARemoteConfigAppError" = "当前 App 与二维码对应的 App 不同，无法进行调试";
+"SARemoteConfigQRError" = "二维码信息校验失败，请检查采集控制是否配置正确";
+"SARemoteConfigNetworkError" = "网络连接失败，请检查设备网络，确认网络畅通后，请重新扫描二维码进行调试";
+"SARemoteConfigWrongVersion" = "版本不一致";
+"SARemoteConfigLoaded" = "采集控制加载完成，可以通过 Xcode 控制台日志来调试";
+"SARemoteConfigCompareVersion" = "获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码";
+
+// 密钥
+"SAEncryptSelectedKeyInvalid" = "密钥验证不通过，所选密钥无效";
+"SAEncryptNotEnabled" = "当前 App 未开启加密，请开启加密后再试";
+"SAEncryptAppKeyEmpty" = "密钥验证不通过，App 端密钥为空";
+"SAEncryptKeyVerificationPassed" = "密钥验证通过，所选密钥与 App 端密钥相同";
+"SAEncryptKeyTypeVerificationFailed" = "密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥对称算法类型：%@，非对称算法类型：%@，App 端对称算法类型：%@，非对称算法类型：%@";
+"SAEncryptKeyVersionVerificationFailed" = "密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥版本：%@，App 端密钥版本：%@";
+
+// 渠道
+"SAChannelReconnectError" = "无法重连，请检查是否更换了联调手机";
+"SAChannelServerURLError" = "数据接收地址错误，无法使用联调诊断工具";
+"SAChannelProjectError" = "App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具";
+"SAChannelEnableJointDebugging" = "即将开启联调模式";
+"SAChannelNetworkError" = "当前网络不可用，请检查网络！";
+"SAChannelRequestWhitelistFailed" = "添加白名单请求失败，请联系神策技术支持人员排查问题！";
+"SAChannelSuccessfullyEnabled" = "成功开启联调模式";
+"SAChannelTriggerActivation" = "此模式下不需要卸载 App，点击“激活”按钮可反复触发激活。";
+"SAChannelActivate" = "激活";
+"SAChannelDeviceCodeEmpty" = "检测到“设备码为空”，可能的原因如下，请排查：";
+"SAChannelTroubleshooting" = "\n1.手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackAppInstall 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。\n\n";
+"SAChannelNetworkException" = "网络异常，请求失败！";
+
+// DeepLink
+"SADeepLinkCallback" = "未调用 setDeepLinkCompletion 方法设置回调函数";
+
+// 弹框按钮
+"SAAlertCancel" = "取消";
+"SAAlertContinue" = "继续";
+"SAAlertHint" = "提示";
+"SAAlertOK" = "确定";
+"SAAlertNotRemind" = "不再提示";
+
+// 预置属性
+"SAPresetPropertyCarrierMobile" = "中国移动";
+"SAPresetPropertyCarrierUnicom" = "中国联通";
+"SAPresetPropertyCarrierTelecom" = "中国电信";
+"SAPresetPropertyCarrierSatellite" = "中国卫通";
+"SAPresetPropertyCarrierTietong" = "中国铁通";

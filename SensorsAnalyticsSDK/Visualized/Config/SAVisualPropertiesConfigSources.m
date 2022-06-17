@@ -92,7 +92,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     // 更新最新缓存，并清除本地配置
     [self cleanConfig];
 
-    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"重设 serverURL，并清除配置缓存"];
+    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"reset serverURL and clear configuration cache"];
     SALogDebug(@"%@", logMessage);
 
     [self updateConfigStatus];
@@ -163,7 +163,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
             @try {
                 NSDictionary *dic = [SAJSONUtil JSONObjectWithData:data];
                 if (dic) {
-                    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"获取可视化全埋点配置成功 %@", dic];
+                    NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"get visualized configuration success %@", dic];
                     SALogInfo(@"【request visualProperties config】%@", logMessage);
                 }
                 
@@ -175,7 +175,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
                 // 更新配置状态
                 [self updateConfigStatus];
             } @catch (NSException *exception) {
-                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"获取可视化全埋点配置，JSON 解析失败 %@", exception];
+                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"get visualized configuration, JSON parsing failed %@", exception];
                 SALogError(@"【request visualProperties config】%@", logMessage);
             }
         } else if (statusCode == 205) { // 配置不存在（未创建可视化全埋点事件或运维关闭自定义属性）
@@ -184,19 +184,19 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
             // 更新配置状态
             [self updateConfigStatus];
 
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"配置不存在（当前项目未创建可视化全埋点事件或运维关闭自定义属性），statusCode = %ld", (long)statusCode];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"configuration does not exist (the current project has not created visualized events or the operations closed custom properties), statusCode = %ld", (long)statusCode];
             SALogDebug(@"【request visualProperties config】%@", logMessage);
         } else if (statusCode > 200 && statusCode < 300) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"请求配置异常，statusCode = %ld",(long)statusCode];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"request configuration exception, statusCode = %ld",(long)statusCode];
             SALogWarn(@"【request visualProperties config】%@", logMessage);
         } else if (statusCode == 304) { // 未更新
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"可视化全埋点配置未更新，statusCode = %ld", (long)statusCode];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"visualized configuration is not updated, statusCode = %ld", (long)statusCode];
             SALogDebug(@"【request visualProperties config】%@", logMessage);
         } else if (statusCode == 404) {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:[NSString stringWithFormat:@"请求配置失败，当前环境可能暂不支持自定义属性，statusCode = %ld", (long)statusCode]];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:[NSString stringWithFormat:@"request configuration failed, the current environment may not support custom properties, statusCode = %ld", (long)statusCode]];
             SALogDebug(@"【request visualProperties config】%@", logMessage);
         } else {
-            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"请求配置出错，error: %@",error];
+            NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"request configuration error: %@",error];
             SALogError(@"【request visualProperties config】%@", logMessage);
         }
         completionHandler(success, config);
@@ -209,7 +209,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 
     NSURLComponents *components = SensorsAnalyticsSDK.sharedInstance.network.baseURLComponents;
     if (!components) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"数据接收地址无效，serverURL: %@", SensorsAnalyticsSDK.sharedInstance.network.serverURL];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"serverURL is invalid: %@", SensorsAnalyticsSDK.sharedInstance.network.serverURL];
         SALogError(@"%@", logMessage);
         return nil;
     }
@@ -247,7 +247,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     SAVisualPropertiesResponse *config = [NSKeyedUnarchiver unarchiveObjectWithData:data];
 
     if (!config) {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"本地可视化全埋点无配置缓存"];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"there is no visualized configuration cache locally"];
         SALogDebug(@"%@", logMessage);
         return;
     }
@@ -256,10 +256,10 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     if ([config.project isEqualToString:project] && [config.os isEqualToString:@"iOS"]) {
         self.configResponse = config;
 
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"获取本地配置成功：%@", config.originalResponse];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"get local configuration successfully: %@", config.originalResponse];
         SALogInfo(@"%@", logMessage);
     } else {
-        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"获取配置" message:@"本地缓存可视化全埋点配置校验失败，App 当前 project 为 %@，缓存配置 project 为 %@，配置 os 为 %@", project, config.project, config.os];
+        NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"get configuration" message:@"the local cache visualized configuration verification failed, the App project is %@, the cache configuration project is %@, the cache configuration os is %@", project, config.project, config.os];
         SALogWarn(@"%@", logMessage);
     }
 }

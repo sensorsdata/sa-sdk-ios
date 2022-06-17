@@ -291,13 +291,13 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 
     SANetwork *network = [SensorsAnalyticsSDK sharedInstance].network;
     if (!network.serverURL.absoluteString.length) {
-        [self showErrorMessage:@"数据接收地址错误，无法使用联调诊断工具"];
+        [self showErrorMessage:SALocalizedString(@"SAChannelServerURLError")];
         return NO;
     }
     NSString *project = [SAURLUtils queryItemsWithURLString:url.absoluteString][@"project_name"] ?: @"default";
     BOOL isEqualProject = [network.project isEqualToString:project];
     if (!isEqualProject) {
-        [self showErrorMessage:@"App 集成的项目与电脑浏览器打开的项目不同，无法使用联调诊断工具"];
+        [self showErrorMessage:SALocalizedString(@"SAChannelProjectError")];
         return NO;
     }
     // 如果是重连二维码功能，直接进入重连二维码流程
@@ -328,15 +328,15 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     if (deviceIdSet.count > 0) {
         [self showChannelDebugInstall];
     } else {
-        [self showErrorMessage:@"无法重连，请检查是否更换了联调手机"];
+        [self showErrorMessage:SALocalizedString(@"SAChannelReconnectError")];
     }
 }
 
 #pragma mark - Auth Alert
 - (void)showAuthorizationAlertWithURL:(NSURL *)url {
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"即将开启联调模式" message:nil preferredStyle:SAAlertControllerStyleAlert];
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:SALocalizedString(@"SAChannelEnableJointDebugging") message:nil preferredStyle:SAAlertControllerStyleAlert];
     __weak SAChannelMatchManager *weakSelf = self;
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
         __strong SAChannelMatchManager *strongSelf = weakSelf;
         if ([strongSelf isValidForChannelDebug] && [strongSelf isValidOfDeviceInfo]) {
             NSDictionary *qureyItems = [SAURLUtils queryItemsWithURL:url];
@@ -345,13 +345,13 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
             [strongSelf showChannelDebugErrorMessage];
         }
     }];
-    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertCancel") style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
 }
 
 - (void)uploadUserInfoIntoWhiteList:(NSDictionary *)qureyItems {
     if (![SAReachability sharedInstance].isReachable) {
-        [self showErrorMessage:@"当前网络不可用，请检查网络！"];
+        [self showErrorMessage:SALocalizedString(@"SAChannelNetworkError")];
         return;
     }
     NSURLComponents *components = SensorsAnalyticsSDK.sharedInstance.network.baseURLComponents;
@@ -387,10 +387,10 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
                 } else {
                     NSString *message = dict[@"message"];
                     SALogError(@"%@", message);
-                    [self showErrorMessage:@"添加白名单请求失败，请联系神策技术支持人员排查问题！"];
+                    [self showErrorMessage:SALocalizedString(@"SAChannelRequestWhitelistFailed")];
                 }
             } else {
-                [self showErrorMessage:@"网络异常,请求失败！"];
+                [self showErrorMessage:SALocalizedString(@"SAChannelNetworkException")];
             }
         });
     }];
@@ -399,10 +399,10 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 
 #pragma mark - ChannelDebugInstall Alert
 - (void)showChannelDebugInstall {
-    NSString *title = @"成功开启联调模式";
-    NSString *content = @"此模式下不需要卸载 App，点击“激活”按钮可反复触发激活。";
+    NSString *title = SALocalizedString(@"SAChannelSuccessfullyEnabled");
+    NSString *content = SALocalizedString(@"SAChannelTriggerActivation");
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"激活" style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
+    [alertController addActionWithTitle:SALocalizedString(@"SAChannelActivate") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
         dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
         NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
         dispatch_async(serialQueue, ^{
@@ -412,22 +412,22 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 
         [self showChannelDebugInstall];
     }];
-    [alertController addActionWithTitle:@"取消" style:SAAlertActionStyleCancel handler:nil];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertCancel") style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
 }
 
 #pragma mark - Error Message
 - (void)showChannelDebugErrorMessage {
-    NSString *title = @"检测到“设备码为空”，可能的原因如下，请排查：";
-    NSString *content = @"\n1. 手机系统设置中「隐私->广告-> 限制广告追踪」；\n\n2.若手机系统为 iOS 14 ，请联系研发人员确认 trackAppInstall 接口是否在 “跟踪” 授权之后调用。\n\n排查修复后，请重新扫码进行联调。\n\n";
+    NSString *title = SALocalizedString(@"SAChannelDeviceCodeEmpty");
+    NSString *content = SALocalizedString(@"SAChannelTroubleshooting");
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
 }
 
 - (void)showErrorMessage:(NSString *)errorMessage {
-    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:@"提示" message:errorMessage preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleCancel handler:nil];
+    SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:SALocalizedString(@"SAAlertHint") message:errorMessage preferredStyle:SAAlertControllerStyleAlert];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleCancel handler:nil];
     [alertController show];
 }
 

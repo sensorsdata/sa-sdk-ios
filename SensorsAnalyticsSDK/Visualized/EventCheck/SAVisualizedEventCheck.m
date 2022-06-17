@@ -79,7 +79,7 @@ NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
         if (!config.event) {
             continue;
         }
-        SALogDebug(@"调试模式，匹配到可视化全埋点事件 %@", config.eventName);
+        SALogDebug(@"Debug mode, matching to visualized event %@", config.eventName);
         [self cacheVisualEvent:config.eventName eventInfo:trackEventInfo];
     }
 }

@@ -23,6 +23,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/**
+ SAReachability 是参考 AFNetworkReachabilityManager 实现
+ 感谢 AFNetworking: https://github.com/AFNetworking/AFNetworking
+ */
 @interface SAReachability : NSObject
 
 /// 是否有网络连接

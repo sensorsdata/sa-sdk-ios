@@ -35,6 +35,7 @@
 #import "SAConfigOptions+Encrypt.h"
 #import "SASecretKey.h"
 #import "SASecretKeyFactory.h"
+#import "SAConstants+Private.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
@@ -90,7 +91,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     _configOptions = configOptions;
     if (configOptions.enableEncrypt) {
-        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) || (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"存储公钥和获取公钥的回调需要全部实现或者全部不实现。");
+        NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) || (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"Block saveSecretKey and loadSecretKey need to be fully implemented or not implemented at all.");
     }
 
     NSMutableArray *encryptors = [NSMutableArray array];
@@ -112,7 +113,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (BOOL)handleURL:(nonnull NSURL *)url {
-    NSString *message = @"当前 App 未开启加密，请开启加密后再试";
+    NSString *message = SALocalizedString(@"SAEncryptNotEnabled");
 
     if (self.enable) {
         NSDictionary *paramDic = [SAURLUtils queryItemsWithURL:url];
@@ -136,22 +137,22 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
                 [secretKey.symmetricEncryptType isEqualToString:symmetricType];
                 // 这里为了兼容老版本 SA 未下发秘钥类型，当某一个类型不存在时即当做老版本 SA 处理
                 if (!asymmetricType || !symmetricType || typeMatched) {
-                    message = @"密钥验证通过，所选密钥与 App 端密钥相同";
+                    message = SALocalizedString(@"SAEncryptKeyVerificationPassed");
                 } else {
-                    message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥对称算法类型:%@，非对称算法类型:%@, App 端对称算法类型:%@, 非对称算法类型:%@", symmetricType, asymmetricType, secretKey.symmetricEncryptType, secretKey.asymmetricEncryptType];
+                    message = [NSString stringWithFormat:SALocalizedString(@"SAEncryptKeyTypeVerificationFailed"), symmetricType, asymmetricType, secretKey.symmetricEncryptType, secretKey.asymmetricEncryptType];
                 }
             } else if (![SAValidator isValidString:currentKey]) {
-                message = @"密钥验证不通过，App 端密钥为空";
+                message = SALocalizedString(@"SAEncryptAppKeyEmpty");
             } else {
-                message = [NSString stringWithFormat:@"密钥验证不通过，所选密钥与 App 端密钥不相同。所选密钥版本:%@，App 端密钥版本:%@", urlVersion, loadVersion];
+                message = [NSString stringWithFormat:SALocalizedString(@"SAEncryptKeyVersionVerificationFailed"), urlVersion, loadVersion];
             }
         } else {
-            message = @"密钥验证不通过，所选密钥无效";
+            message = SALocalizedString(@"SAEncryptSelectedKeyInvalid");
         }
     }
 
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:nil message:message preferredStyle:SAAlertControllerStyleAlert];
-    [alertController addActionWithTitle:@"确认" style:SAAlertActionStyleDefault handler:nil];
+    [alertController addActionWithTitle:SALocalizedString(@"SAAlertOK") style:SAAlertActionStyleDefault handler:nil];
     [alertController show];
     return YES;
 }
@@ -294,7 +295,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (id<SAEncryptProtocol>)filterEncrptor:(SASecretKey *)secretKey {
     id<SAEncryptProtocol> encryptor = [self encryptorWithSecretKey:secretKey];
     if (!encryptor) {
-        NSString *format = @"\n您使用了 [%@]  密钥，但是并没有注册对应加密插件。\n • 若您使用的是 EC+AES 或 SM2+SM4 加密方式，请检查是否正确集成 'SensorsAnalyticsEncrypt' 模块，且已注册对应加密插件。\n";
+        NSString *format = @"\n You used a [%@] key, but the corresponding encryption plugin is not registered. \n • If you are using EC+AES or SM2+SM4 encryption, please check that the 'SensorsAnalyticsEncrypt' module is correctly integrated and that the corresponding encryption plugin is registered. \n";
         NSString *type = [NSString stringWithFormat:@"%@+%@", secretKey.asymmetricEncryptType, secretKey.symmetricEncryptType];
         NSString *message = [NSString stringWithFormat:format, type];
         NSAssert(NO, message);

@@ -52,7 +52,7 @@
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
 
-#define VERSION @"4.3.2"
+#define VERSION @"4.3.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -101,8 +101,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 #pragma mark - Initialization
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
-    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"神策 iOS SDK 必须在主线程里进行初始化，否则会引发无法预料的问题（比如丢失 $AppStart 事件）。");
-
+    NSAssert(sensorsdata_is_same_queue(dispatch_get_main_queue()), @"The iOS SDK must be initialized in the main thread, otherwise it will cause unexpected problems (such as missing $AppStart event).");
+    
     dispatch_once(&sdkInitializeOnceToken, ^{
         sharedInstance = [[SensorsAnalyticsSDK alloc] initWithConfigOptions:configOptions];
         [SAModuleManager startWithConfigOptions:sharedInstance.configOptions];
@@ -111,7 +111,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
-    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
+    NSAssert(sharedInstance, @"Please use startWithConfigOptions: to initialize the SDK first.");
     if ([SAModuleManager.sharedInstance isDisableSDK]) {
         SALogDebug(@"SDK is disabled");
         return nil;
@@ -120,7 +120,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 + (SensorsAnalyticsSDK *)sdkInstance {
-    NSAssert(sharedInstance, @"请先使用 startWithConfigOptions: 初始化 SDK");
+    NSAssert(sharedInstance, @"Please use startWithConfigOptions: to initialize the SDK first.");
     return sharedInstance;
 }
 

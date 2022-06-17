@@ -123,7 +123,7 @@
                 NSMutableDictionary *eventLogInfo = [self.debugLogInfos lastObject];
                 eventLogInfo[@"objects"] = nodeMessage;
             } @catch (NSException *exception) {
-                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"诊断信息" message:@"log node tree error: %@", exception];
+                NSString *logMessage = [SAVisualizedLogger buildLoggerMessageWithTitle:@"diagnostic information" message:@"log node tree error: %@", exception];
                 SALogWarn(@"%@", logMessage);
             }
         });

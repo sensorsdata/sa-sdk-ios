@@ -48,9 +48,9 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _title = @"提示";
+        _title = SALocalizedString(@"SAAlertHint");
         _message = nil;
-        _defaultStyleTitle = @"确定";
+        _defaultStyleTitle = SALocalizedString(@"SAAlertOK");
         _defaultStyleHandler = nil;
         _cancelStyleTitle = nil;
         _cancelStyleHandler = nil;
@@ -99,16 +99,16 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     BOOL isCheckPassed = NO;
     NSString *message = nil;
     if (![urlProject isEqualToString:currentProject]) {
-        message = @"App 集成的项目与二维码对应的项目不同，无法进行调试";
+        message = SALocalizedString(@"SARemoteConfigProjectError");
     } else if (![urlOS isEqualToString:currentOS]) {
-        message = @"App 与二维码对应的操作系统不同，无法进行调试";
+        message = SALocalizedString(@"SARemoteConfigOSError");
     } else if (![urlAppID isEqualToString:currentAppID]) {
-        message = @"当前 App 与二维码对应的 App 不同，无法进行调试";
+        message = SALocalizedString(@"SARemoteConfigAppError");
     } else if (!urlVersion) {
-        message = @"二维码信息校验失败，请检查采集控制是否配置正确";
+        message = SALocalizedString(@"SARemoteConfigQRError");
     } else {
         isCheckPassed = YES;
-        message = @"开始获取采集控制信息";
+        message = SALocalizedString(@"SARemoteConfigStart");
     }
     [self showURLCheckAlertWithMessage:message isCheckPassed:isCheckPassed urlVersion:urlVersion];
 
@@ -121,7 +121,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
 
 - (void)showNetworkErrorAlert {
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.message = @"网络连接失败，请检查设备网络，确认网络畅通后，请重新扫描二维码进行调试";
+    model.message = SALocalizedString(@"SARemoteConfigNetworkError");
     [self showAlertWithModel:model];
 }
 
@@ -129,21 +129,21 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
     model.message = message;
     if (isCheckPassed) {
-        model.defaultStyleTitle = @"继续";
+        model.defaultStyleTitle = SALocalizedString(@"SAAlertContinue");
         __weak typeof(self) weakSelf = self;
         model.defaultStyleHandler = ^(SAAlertAction *action) {
             __strong typeof(weakSelf) strongSelf = weakSelf;
 
             [strongSelf requestRemoteConfigWithURLVersion:urlVersion];
         };
-        model.cancelStyleTitle = @"取消";
+        model.cancelStyleTitle = SALocalizedString(@"SAAlertCancel");
     }
     [self showAlertWithModel:model];
 }
 
 - (void)showRequestRemoteConfigFailedAlert {
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.message = @"远程配置获取失败，请稍后重新扫描二维码";
+    model.message = SALocalizedString(@"SARemoteConfigObtainFailed");
     [self showAlertWithModel:model];
 }
 
@@ -151,8 +151,8 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     BOOL isEqual = [currentVersion isEqualToString:urlVersion];
     
     SARemoteConfigCheckAlertModel *model = [[SARemoteConfigCheckAlertModel alloc] init];
-    model.title = isEqual ? @"提示" : @"信息版本不一致";
-    model.message = isEqual ? @"采集控制加载完成，可以通过 Xcode 控制台日志来调试" : [NSString stringWithFormat:@"获取到采集控制信息的版本：%@，二维码信息的版本：%@，请稍后重新扫描二维码", currentVersion, urlVersion];
+    model.title = isEqual ? SALocalizedString(@"SAAlertHint") : SALocalizedString(@"SARemoteConfigWrongVersion");
+    model.message = isEqual ? SALocalizedString(@"SARemoteConfigLoaded") : [NSString stringWithFormat:SALocalizedString(@"SARemoteConfigCompareVersion"), currentVersion, urlVersion];
     [self showAlertWithModel:model];
 }
 

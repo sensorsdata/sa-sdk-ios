@@ -24,11 +24,15 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface UITableView (AutoTrack)
 
+@property (nonatomic, strong, nullable) NSIndexPath *sensorsdata_indexPath;
+
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate;
 
 @end
 
 @interface UICollectionView (AutoTrack)
+
+@property (nonatomic, strong, nullable) NSIndexPath *sensorsdata_indexPath;
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate;
 

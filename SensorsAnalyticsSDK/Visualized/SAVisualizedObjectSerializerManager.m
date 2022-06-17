@@ -27,6 +27,7 @@
 #import "SALog.h"
 #import "SAVisualizedManager.h"
 #import "SACommonUtility.h"
+#import "SAConstants+Private.h"
 
 @implementation SAVisualizedWebPageInfo
 
@@ -206,7 +207,7 @@
         NSMutableArray <NSDictionary *>* alertNewDatas = [NSMutableArray array];
         for (NSDictionary *alertDic in alertDatas) {
             NSMutableDictionary <NSString *, NSString *>* alertNewDic = [NSMutableDictionary dictionaryWithDictionary:alertDic];
-            alertNewDic[@"title"] = [alertDic[@"title"] stringByReplacingOccurrencesOfString:@"可视化全埋点" withString:@"点击分析"];
+            alertNewDic[@"title"] = [alertDic[@"title"] stringByReplacingOccurrencesOfString:SALocalizedString(@"SAVisualizedAutoTrack") withString:SALocalizedString(@"SAAppClicksAnalytics")];
             [alertNewDatas addObject:alertNewDic];
         };
         alertDatas = [alertNewDatas copy];

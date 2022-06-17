@@ -28,6 +28,7 @@
 #import "SAJSONUtil.h"
 #import "SANetwork.h"
 #import "SAUserAgent.h"
+#import "SAConstants+Private.h"
 
 @implementation SADeferredDeepLinkProcessor
 
@@ -99,7 +100,7 @@
                 completion = [self.delegate sendChannels:nil latestChannels:latestChannels isDeferredDeepLink:YES];
             }
             if (obj.success && !completion) {
-                properties[kSAEventPropertyDeepLinkFailReason] = @"未调用 setDeepLinkCompletion 方法设置回调函数";
+                properties[kSAEventPropertyDeepLinkFailReason] = SALocalizedString(@"SADeepLinkCallback");
             }
             [self trackDeepLinkMatchedResult:properties];
 

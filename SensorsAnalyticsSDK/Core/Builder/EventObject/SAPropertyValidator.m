@@ -24,7 +24,6 @@
 
 #import "SAPropertyValidator.h"
 #import "SAConstants+Private.h"
-#import "SACommonUtility.h"
 #import "SADateFormatter.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALog.h"
@@ -111,7 +110,7 @@
 
 - (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
     if (![key conformsToProtocol:@protocol(SAPropertyKeyProtocol)]) {
-        *error = SAPropertyError(10004, @"Property Key: %@ must be a string", key);
+        *error = SAPropertyError(10004, @"Property Key: %@ must be NSString", key);
         return nil;
     }
 

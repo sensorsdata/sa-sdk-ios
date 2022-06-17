@@ -128,6 +128,14 @@ BOOL sensorsdata_is_same_queue(dispatch_queue_t queue);
 void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,
                                     DISPATCH_NOESCAPE dispatch_block_t block);
 
+#pragma mark - Localization
+NSString* sensorsdata_localized_string(NSString* key, NSString* value);
+
+#define SALocalizedString(key) \
+        sensorsdata_localized_string((key), @"")
+#define SALocalizedStringWithDefaultValue(key, value) \
+        sensorsdata_localized_string((key), (value))
+
 #pragma mark - SF related notifications
 extern NSNotificationName const SA_TRACK_EVENT_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_LOGIN_NOTIFICATION;

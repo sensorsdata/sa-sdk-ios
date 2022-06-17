@@ -122,7 +122,7 @@ static void SAReachabilityReleaseCallback(const void *info) {
 }
 
 + (instancetype)reachabilityInstance {
-#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000)
+#if (defined(__IPHONE_OS_VERSION_MIN_REQUIRED) && __IPHONE_OS_VERSION_MIN_REQUIRED >= 90000) || (defined(__MAC_OS_X_VERSION_MIN_REQUIRED) && __MAC_OS_X_VERSION_MIN_REQUIRED >= 101100)
     struct sockaddr_in6 address;
     bzero(&address, sizeof(address));
     address.sin6_len = sizeof(address);
@@ -150,7 +150,6 @@ static void SAReachabilityReleaseCallback(const void *info) {
         if (reachability != NULL) {
             _networkReachability = CFRetain(reachability);
         }
-
         self.reachabilityStatus = SAReachabilityStatusNotReachable;
     }
     return self;
@@ -186,10 +185,12 @@ static void SAReachabilityReleaseCallback(const void *info) {
     SCNetworkReachabilityScheduleWithRunLoop(self.networkReachability, CFRunLoopGetMain(), kCFRunLoopCommonModes);
 
     // 获取网络状态
-    SCNetworkReachabilityFlags flags;
-    if (SCNetworkReachabilityGetFlags(self.networkReachability, &flags)) {
-        SAPostReachabilityStatusChange(flags, callback);
-    }
+    dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0),^{
+        SCNetworkReachabilityFlags flags;
+        if (SCNetworkReachabilityGetFlags(self.networkReachability, &flags)) {
+            SAPostReachabilityStatusChange(flags, callback);
+        }
+    });
 }
 
 - (void)stopMonitoring {

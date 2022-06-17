@@ -26,6 +26,7 @@
 #include <sys/sysctl.h>
 #import "SALog.h"
 #import "SAJSONUtil.h"
+#import "SAConstants+Private.h"
 
 #if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
@@ -217,29 +218,29 @@ NSString * const kSAEventPresetPropertyPluginLib = @"$lib";
             NSString *countryCode = [carrier mobileCountryCode];
 
             // 中国运营商 mcc 标识
-            NSString *carrierChinaMCC = @"460";
+            NSString *carrierMCC = @"460";
 
             //中国运营商
-            if (countryCode && [countryCode isEqualToString:carrierChinaMCC] && networkCode) {
+            if (countryCode && [countryCode isEqualToString:carrierMCC] && networkCode) {
                 //中国移动
                 if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                    carrierName = @"中国移动";
+                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierMobile");
                 }
                 //中国联通
                 if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                    carrierName = @"中国联通";
+                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierUnicom");
                 }
                 //中国电信
                 if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                    carrierName = @"中国电信";
+                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierTelecom");
                 }
                 //中国卫通
                 if ([networkCode isEqualToString:@"04"]) {
-                    carrierName = @"中国卫通";
+                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierSatellite");
                 }
                 //中国铁通
                 if ([networkCode isEqualToString:@"20"]) {
-                    carrierName = @"中国铁通";
+                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierTietong");
                 }
             } else if (countryCode && networkCode) { //国外运营商解析
                 //加载当前 bundle

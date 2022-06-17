@@ -31,6 +31,7 @@
 #import "SAAutoTrackUtils.h"
 #import "SAReferrerManager.h"
 #import "SAModuleManager.h"
+#import "SensorsAnalyticsSDK+SAAutoTrack.h"
 
 @interface SAAppViewScreenTracker ()
 
@@ -58,8 +59,13 @@
     if ([self isViewControllerIgnored:viewController]) {
         return NO;
     }
-
-    return ![self isBlackListContainsViewController:viewController];
+    if ([self isBlackListContainsViewController:viewController]) {
+        return NO;
+    }
+    if ([viewController conformsToProtocol:@protocol(SAScreenAutoTracker)] && [viewController respondsToSelector:@selector(isIgnoredAutoTrackViewScreen)]) {
+        return ![(UIViewController<SAScreenAutoTracker> *)viewController isIgnoredAutoTrackViewScreen];
+    }
+    return YES;
 }
 
 #pragma mark - Public Methods
