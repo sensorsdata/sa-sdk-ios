@@ -148,7 +148,7 @@ NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
     dispatch_once(&onceToken, ^{
         // 获取语言资源的 Bundle
         NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        NSString *path = [sensorsBundle pathForResource:@"sa_language" ofType:@"lproj"];
+        NSString *path = [sensorsBundle pathForResource:@"zh-Hans" ofType:@"lproj"];
         if (path) {
             languageBundle = [NSBundle bundleWithPath:path];
         }
@@ -156,7 +156,7 @@ NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
     
     NSString *result = value;
     if (languageBundle) {
-        result = [languageBundle localizedStringForKey:key value:value table:@"SALocalizable"];
+        result = [languageBundle localizedStringForKey:key value:value table:nil];
     }
     return result;
 }
