@@ -29,9 +29,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SATrackTimer.h"
 #import "SAReachability.h"
-#import "SAEventTracker.h"
 #import "SAIdentifier.h"
-#import "SAPresetProperty.h"
 #import "SAValidator.h"
 #import "SALog+Private.h"
 #import "SAConsoleLogger.h"
@@ -51,8 +49,20 @@
 #import "SAFileStorePlugin.h"
 #import "SAUserDefaultsStorePlugin.h"
 #import "SASessionProperty.h"
+#import "SAFlowManager.h"
+#import "SANetworkInfoPropertyPlugin.h"
+#import "SACarrierNamePropertyPlugin.h"
+#import "SAEventObjectFactory.h"
+#import "SASuperPropertyPlugin.h"
+#import "SADynamicSuperPropertyPlugin.h"
+#import "SAReferrerTitlePropertyPlugin.h"
+#import "SAEventDurationPropertyPlugin.h"
+#import "SAFirstDayPropertyPlugin.h"
+#import "SAModulePropertyPlugin.h"
+#import "SASessionPropertyPlugin.h"
+#import "SAEventStore.h"
 
-#define VERSION @"4.3.4"
+#define VERSION @"4.4.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -66,7 +76,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 @property (nonatomic, strong) SANetwork *network;
 
-@property (nonatomic, strong) SAEventTracker *eventTracker;
+@property (nonatomic, strong) SAEventStore *eventStore;
 
 @property (nonatomic, strong) dispatch_queue_t serialQueue;
 @property (nonatomic, strong) dispatch_queue_t readWriteQueue;
@@ -84,10 +94,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 @property (nonatomic, copy) BOOL (^trackEventCallback)(NSString *, NSMutableDictionary<NSString *, id> *);
 
 @property (nonatomic, strong) SAIdentifier *identifier;
-
-@property (nonatomic, strong) SAPresetProperty *presetProperty;
-
-@property (nonatomic, strong) SASuperProperty *superProperty;
 
 @property (nonatomic, strong) SASessionProperty *sessionProperty;
 
@@ -204,15 +210,13 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
             _network = [[SANetwork alloc] init];
 
-            _eventTracker = [[SAEventTracker alloc] initWithQueue:_serialQueue];
+            NSString *path = [SAFileStorePlugin filePath:kSADatabaseDefaultFileName];
+            _eventStore = [SAEventStore eventStoreWithFilePath:path];
+
             _trackTimer = [[SATrackTimer alloc] init];
 
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
 
-            _presetProperty = [[SAPresetProperty alloc] initWithQueue:_readWriteQueue];
-
-            _superProperty = [[SASuperProperty alloc] init];
-            
             if (_configOptions.enableSession) {
                 _sessionProperty = [[SASessionProperty alloc] initWithMaxInterval:_configOptions.eventSessionTimeout * 1000];
             } else {
@@ -236,6 +240,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             if ([SAApplication isAppExtension]) {
                 [self startFlushTimer];
             }
+
+            [SAFlowManager sharedInstance].configOptions = self.configOptions;
+
+            [SAFlowManager.sharedInstance loadFlows];
         }
         
     } @catch(NSException *exception) {
@@ -266,16 +274,58 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)registerPropertyPlugin {
+    SANetworkInfoPropertyPlugin *networkInfoPlugin = [[SANetworkInfoPropertyPlugin alloc] init];
+    SACarrierNamePropertyPlugin *carrierPlugin = [[SACarrierNamePropertyPlugin alloc] init];
+
     dispatch_async(self.serialQueue, ^{
+        // 预置属性
         SAPresetPropertyPlugin *presetPlugin = [[SAPresetPropertyPlugin alloc] initWithLibVersion:VERSION];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:presetPlugin];
 
+        // 应用版本
         SAAppVersionPropertyPlugin *appVersionPlugin = [[SAAppVersionPropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:appVersionPlugin];
 
+        // deviceID，super 优先级，不能被覆盖
         SADeviceIDPropertyPlugin *deviceIDPlugin = [[SADeviceIDPropertyPlugin alloc] init];
         deviceIDPlugin.disableDeviceId = self.configOptions.disableDeviceId;
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:deviceIDPlugin];
+
+        // 运营商信息
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:carrierPlugin];
+
+        // 静态公共属性
+        SASuperPropertyPlugin *superPropertyPlugin = [[SASuperPropertyPlugin alloc] init];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:superPropertyPlugin];
+
+        // 动态公共属性
+        SADynamicSuperPropertyPlugin *dynamicSuperPropertyPlugin = [SADynamicSuperPropertyPlugin sharedDynamicSuperPropertyPlugin];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:dynamicSuperPropertyPlugin];
+
+        // 网络相关信息
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:networkInfoPlugin];
+
+        // 事件时长，根据 event 计算，不支持 H5
+        SAEventDurationPropertyPlugin *eventDurationPropertyPlugin = [[SAEventDurationPropertyPlugin alloc] initWithTrackTimer:self.trackTimer];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:eventDurationPropertyPlugin];
+
+        // ReferrerTitle
+        SAReferrerTitlePropertyPlugin *referrerTitlePropertyPlugin = [[SAReferrerTitlePropertyPlugin alloc] init];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:referrerTitlePropertyPlugin];
+
+        // IsFirstDay
+        SAFirstDayPropertyPlugin *firstDayPropertyPlugin = [[SAFirstDayPropertyPlugin alloc] initWithQueue:self.readWriteQueue];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:firstDayPropertyPlugin];
+
+        // SAModuleManager.sharedInstance.properties
+        SAModulePropertyPlugin *modulePropertyPlugin = [[SAModulePropertyPlugin alloc] init];
+        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:modulePropertyPlugin];
+
+        // sessionProperty
+        if (self.sessionProperty) {
+            SASessionPropertyPlugin *sessionPropertyPlugin = [[SASessionPropertyPlugin alloc] initWithSessionProperty:self.sessionProperty];
+            [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:sessionPropertyPlugin];
+        }
     });
 }
 
@@ -329,7 +379,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (NSDictionary *)getPresetProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     void(^block)(void) = ^{
-        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[[SAPresetPropertyPlugin class], [SADeviceIDPropertyPlugin class]]];
+        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[SAPresetPropertyPlugin.class, SADeviceIDPropertyPlugin.class, SACarrierNamePropertyPlugin.class, SANetworkInfoPropertyPlugin.class, SAFirstDayPropertyPlugin.class]];
         [properties addEntriesFromDictionary:dic];
     };
     if (sensorsdata_is_same_queue(self.serialQueue)) {
@@ -337,7 +387,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     } else {
         dispatch_sync(self.serialQueue, block);
     }
-    [properties addEntriesFromDictionary:[self.presetProperty currentPresetProperties]];
     return properties;
 }
 
@@ -357,7 +406,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (NSString *)serverUrl {
-    return self.network.serverURL.absoluteString;
+    return self.configOptions.serverURL;
 }
 
 - (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig {
@@ -394,7 +443,9 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId properties:(NSDictionary * _Nullable )properties {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
-    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    // 入队列前，执行动态公共属性采集 block
+    [self buildDynamicSuperProperties];
+
     dispatch_async(self.serialQueue, ^{
         if (![self.identifier isValidForLogin:key value:loginId]) {
             return;
@@ -440,16 +491,15 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)flush {
-    dispatch_async(self.serialQueue, ^{
-        [self.eventTracker flushAllEventRecords];
-    });
+    [self flushAllEventRecords];
 }
 
 - (void)deleteAll {
     dispatch_async(self.serialQueue, ^{
-        [self.eventTracker.eventStore deleteAllRecords];
+        [self.eventStore deleteAllRecords];
     });
 }
+
 
 #pragma mark - AppLifecycle
 
@@ -524,8 +574,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
 
         dispatch_async(self.serialQueue, ^{
-            // 上传所有的数据
-            [self.eventTracker flushAllEventRecordsWithCompletion:^{
+            [self flushAllEventRecordsWithCompletion:^{
                 // 结束后台任务
                 endBackgroundTask();
             }];
@@ -579,80 +628,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 #pragma mark - track event
-- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
-    dispatch_async(self.serialQueue, ^{
-        [self trackEventObject:object properties:properties];
-    });
-}
 
-- (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    // 1. 远程控制校验
-    if ([SAModuleManager.sharedInstance isIgnoreEventObject:object]) {
-        return;
-    }
-
-    // 2. 事件名校验
-    NSError *error = nil;
-    [object validateEventWithError:&error];
-    if (error) {
-        SALogError(@"%@", error.localizedDescription);
-        [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
-    }
-
-    // 3. 设置用户关联信息
-    NSString *anonymousId = self.anonymousId;
-    object.distinctId = self.distinctId;
-    object.loginId = self.loginId;
-    object.anonymousId = anonymousId;
-    object.originalId = anonymousId;
-    object.identities = [self.identifier identitiesWithEventType:object.type];
-
-    // 4. 添加属性
-    NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] propertiesWithEvent:object.event type:object.type properties:properties];
-    [object.properties addEntriesFromDictionary:dic];
-    
-    [object addSuperProperties:self.superProperty.currentSuperProperties];
-    [object addEventProperties:object.dynamicSuperProperties];
-    [object addEventProperties:self.presetProperty.currentNetworkProperties];
-    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:object.eventId currentSysUpTime:object.currentSystemUpTime];
-    [object addDurationProperty:eventDuration];
-    [object addLatestUtmProperties:SAModuleManager.sharedInstance.latestUtmProperties];
-    [object addChannelProperties:[SAModuleManager.sharedInstance channelInfoWithEvent:object.event]];
-
-    [object addReferrerTitleProperty:[SAReferrerManager sharedInstance].referrerTitle];
-
-    // 5. 添加的自定义属性需要校验
-    [object addCustomProperties:[properties copy]];
-    [object addModuleProperties:@{kSAEventPresetPropertyIsFirstDay: @(self.presetProperty.isFirstDay)}];
-    [object addModuleProperties:SAModuleManager.sharedInstance.properties];
-    // 6. 添加 $event_session_id
-    [object addSessionPropertiesWithObject:self.sessionProperty];
-
-    // 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id、$device_id 属性, 因此需要将修正逻操作放在所有属性添加后
-    if (self.configOptions.disableDeviceId) {
-        [object correctAnonymizationID:dic[kSADeviceIDPropertyPluginAnonymizationID]];
-        //不允许客户设置 $device_id
-        [object.properties removeObjectForKey:kSADeviceIDPropertyPluginDeviceID];
-    } else {
-        [object correctDeviceID:dic[kSADeviceIDPropertyPluginDeviceID]];
-        //不允许客户设置 $anonymization_id
-        [object.properties removeObjectForKey:kSADeviceIDPropertyPluginAnonymizationID];
-    }
-
-
-    // 7. trackEventCallback 接口调用
-    if (![self willEnqueueWithObject:object]) {
-        return;
-    }
-
-    // 8. 发送通知 & 事件采集
-    NSDictionary *result = [object jsonObject];
-    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_NOTIFICATION object:nil userInfo:result];
-    [self.eventTracker trackEvent:result isSignUp:object.isSignUp];
-    SALogDebug(@"\n【track event】:\n%@", result);
-}
-
+/// Native 触发事件属性校验
 - (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
     NSString *eventName = obj.event;
     if (!self.trackEventCallback || !eventName) {
@@ -660,7 +637,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     }
     BOOL willEnque = self.trackEventCallback(eventName, obj.properties);
     if (!willEnque) {
-        SALogDebug(@"\n【track event】: %@ can not enter database.", eventName);
+        SALogDebug(@"\n【track event】: %@ can not insert database.", eventName);
         return NO;
     }
     // 校验 properties
@@ -669,6 +646,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     return YES;
 }
 
+/// H5 打通事件校验
 - (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
     if (!self.trackEventCallback || !e[@"event"]) {
         return [e copy];
@@ -677,7 +655,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     NSMutableDictionary<NSString *, id> *originProperties = event[@"properties"];
     BOOL isIncluded = self.trackEventCallback(event[@"event"], originProperties);
     if (!isIncluded) {
-        SALogDebug(@"\n【track event】: %@ can not enter database.", event[@"event"]);
+        SALogDebug(@"\n【track event】: %@ are not allowed insert database by callback", event[@"event"]);
         return nil;
     }
     // 校验 properties
@@ -688,7 +666,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-    [self asyncTrackEventObject:object properties:properties];
+
+    [self trackEventObject:object properties:properties];
 }
 
 - (NSDictionary *)identities {
@@ -697,7 +676,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)bind:(NSString *)key value:(NSString *)value {
     SABindEventObject *object = [[SABindEventObject alloc] initWithEventId:kSAEventNameBind];
-    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    // 入队列前，执行动态公共属性采集 block
+    [self buildDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
         if (![self.identifier isValidForBind:key value:value]) {
             return;
@@ -709,7 +689,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)unbind:(NSString *)key value:(NSString *)value {
     SAUnbindEventObject *object = [[SAUnbindEventObject alloc] initWithEventId:kSAEventNameUnbind];
-    object.dynamicSuperProperties = [self.superProperty acquireDynamicSuperProperties];
+    // 入队列前，执行动态公共属性采集 block
+    [self buildDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
         if (![self.identifier isValidForUnbind:key value:value]) {
             return;
@@ -725,7 +706,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-    [self asyncTrackEventObject:object properties:propertieDict];
+
+    [self trackEventObject:object properties:propertieDict];
 }
 
 - (void)setCookie:(NSString *)cookie withEncode:(BOOL)encode {
@@ -768,7 +750,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-    [self asyncTrackEventObject:object properties:propertyDict];
+
+    [self trackEventObject:object properties:propertyDict];
 }
 
 - (void)trackTimerPause:(NSString *)event {
@@ -822,30 +805,55 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     return VERSION;
 }
 
++ (NSString *)libVersion {
+    return VERSION;
+}
+
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     dispatch_async(self.serialQueue, ^{
-        [self.superProperty registerSuperProperties:propertyDict];
+        SASuperPropertyPlugin *superPropertyPlugin = (SASuperPropertyPlugin *)[[SAPropertyPluginManager sharedInstance] pluginsWithPluginClass:SASuperPropertyPlugin.class];
+
+        if (superPropertyPlugin) {
+            [superPropertyPlugin registerSuperProperties:propertyDict];
+        }
     });
 }
 
 - (void)registerDynamicSuperProperties:(NSDictionary<NSString *, id> *(^)(void)) dynamicSuperProperties {
-    [self.superProperty registerDynamicSuperProperties:dynamicSuperProperties];
+    SADynamicSuperPropertyPlugin *dynamicSuperPropertyPlugin = [SADynamicSuperPropertyPlugin sharedDynamicSuperPropertyPlugin];
+    [dynamicSuperPropertyPlugin registerDynamicSuperPropertiesBlock:dynamicSuperProperties];
 }
 
 - (void)unregisterSuperProperty:(NSString *)property {
     dispatch_async(self.serialQueue, ^{
-        [self.superProperty unregisterSuperProperty:property];
+        SASuperPropertyPlugin *superPropertyPlugin = (SASuperPropertyPlugin *)[[SAPropertyPluginManager sharedInstance] pluginsWithPluginClass:SASuperPropertyPlugin.class];
+        if (superPropertyPlugin) {
+            [superPropertyPlugin unregisterSuperProperty:property];
+        }
     });
 }
 
 - (void)clearSuperProperties {
     dispatch_async(self.serialQueue, ^{
-        [self.superProperty clearSuperProperties];
+        SASuperPropertyPlugin *superPropertyPlugin = (SASuperPropertyPlugin *)[[SAPropertyPluginManager sharedInstance] pluginsWithPluginClass:SASuperPropertyPlugin.class];
+        if (superPropertyPlugin) {
+            [superPropertyPlugin clearSuperProperties];
+        }
     });
 }
 
 - (NSDictionary *)currentSuperProperties {
-    return [self.superProperty currentSuperProperties];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    void(^block)(void) = ^{
+        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[[SASuperPropertyPlugin class]]];
+        [properties addEntriesFromDictionary:dic];
+    };
+    if (sensorsdata_is_same_queue(self.serialQueue)) {
+        block();
+    } else {
+        dispatch_sync(self.serialQueue, block);
+    }
+    return properties;
 }
 
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback {
@@ -858,7 +866,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     });
 }
 
-- (void)registerPropertyPlugin:(id<SAPropertyPluginProtocol>)plugin {
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin {
     dispatch_async(self.serialQueue, ^{
         [SAPropertyPluginManager.sharedInstance registerPropertyPlugin:plugin];
     });
@@ -915,7 +923,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
-    return SAModuleManager.sharedInstance.debugMode;
+    return self.configOptions.debugMode;
 }
 
 #pragma mark - SensorsData  Analytics
@@ -944,59 +952,62 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)set:(NSDictionary *)profileDict {
     if (profileDict) {
-        [self profile:SA_PROFILE_SET properties:profileDict];
+        [self profile:kSAProfileSet properties:profileDict];
     }
 }
 
 - (void)setOnce:(NSDictionary *)profileDict {
     if (profileDict) {
-        [self profile:SA_PROFILE_SET_ONCE properties:profileDict];
+        [self profile:kSAProfileSetOnce properties:profileDict];
     }
 }
 
 - (void)set:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [self profile:SA_PROFILE_SET properties:@{profile: content}];
+        [self profile:kSAProfileSet properties:@{profile: content}];
     }
 }
 
 - (void)setOnce:(NSString *) profile to:(id)content {
     if (profile && content) {
-        [self profile:SA_PROFILE_SET_ONCE properties:@{profile: content}];
+        [self profile:kSAProfileSetOnce properties:@{profile: content}];
     }
 }
 
 - (void)unset:(NSString *) profile {
     if (profile) {
-        [self profile:SA_PROFILE_UNSET properties:@{profile: @""}];
+        [self profile:kSAProfileUnset properties:@{profile: @""}];
     }
 }
 
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
-        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        [self asyncTrackEventObject:object properties:@{profile: amount}];
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:kSAProfileIncrement];
+
+        [self trackEventObject:object properties:@{profile: amount}];
     }
 }
 
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
-        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:SA_PROFILE_INCREMENT];
-        [self asyncTrackEventObject:object properties:profileDict];
+        SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:kSAProfileIncrement];
+
+        [self trackEventObject:object properties:profileDict];
     }
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:SA_PROFILE_APPEND];
-            [self asyncTrackEventObject:object properties:@{profile: content}];
+            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:kSAProfileAppend];
+
+            [self trackEventObject:object properties:@{profile: content}];
         }
     }
 }
 
 - (void)deleteUser {
-    [self profile:SA_PROFILE_DELETE properties:@{}];
+    [self profile:kSAProfileDelete properties:@{}];
 }
 
 - (void)enableLog:(BOOL)enableLog {
@@ -1010,6 +1021,39 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)clearKeychainData {
     [SAKeyChainItemWrapper deletePasswordWithAccount:kSAUdidAccount service:kSAService];
+}
+
+#pragma mark - setup Flow
+
+- (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+
+    SAFlowData *input = [[SAFlowData alloc] init];
+    input.eventObject = object;
+    input.properties = properties;
+    input.identifier = self.identifier;
+    //    input.param
+    [SAFlowManager.sharedInstance startWithFlowID:kSATrackFlowId input:input completion:nil];
+}
+
+- (void)flushAllEventRecords {
+    [self flushAllEventRecordsWithCompletion:nil];
+}
+
+- (void)flushAllEventRecordsWithCompletion:(void(^)(void))completion {
+
+    SAFlowData *input = [[SAFlowData alloc] init];
+    input.cookie = [self getCookieWithDecode:NO];
+    [SAFlowManager.sharedInstance startWithFlowID:kSAFlushFlowId input:input completion:^(SAFlowData * _Nonnull output) {
+        // 上传完成
+        if (completion) {
+            completion();
+        }
+    }];
+}
+
+- (void)buildDynamicSuperProperties {
+    SADynamicSuperPropertyPlugin *dynamicSuperPropertyPlugin = [SADynamicSuperPropertyPlugin sharedDynamicSuperPropertyPlugin];
+    [dynamicSuperPropertyPlugin buildDynamicSuperProperties];
 }
 
 #pragma mark - RemoteConfig
@@ -1029,7 +1073,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     @try {
         BOOL isDisableDebugMode = [[sender.object valueForKey:@"disableDebugMode"] boolValue];
         if (isDisableDebugMode) {
-            SAModuleManager.sharedInstance.debugMode = SensorsAnalyticsDebugOff;
+            self.configOptions.debugMode = SensorsAnalyticsDebugOff;
         }
 
         BOOL isDisableSDK = [[sender.object valueForKey:@"disableSDK"] boolValue];
@@ -1108,54 +1152,13 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         }
     }
 
+    SABaseEventObject *object = [SAEventObjectFactory eventObjectWithH5Event:eventDict];
     dispatch_async(self.serialQueue, ^{
-        NSString *type = eventDict[kSAEventType];
-        NSMutableDictionary *propertiesDict = eventDict[kSAEventProperties];
 
-        if([type isEqualToString:kSAEventTypeSignup]) {
-            eventDict[@"original_id"] = self.anonymousId;
-        } else {
-            eventDict[kSAEventDistinctId] = self.distinctId;
-        }
-        eventDict[kSAEventTrackId] = @(arc4random());
-
-        NSMutableDictionary *libMDic = eventDict[kSAEventLib];
-
-        //update lib $app_version from super properties
-        NSDictionary *superProperties = [self.superProperty currentSuperProperties];
-        NSDictionary *appVersionProperties = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[[SAAppVersionPropertyPlugin class]]];
-        id appVersion = superProperties[kSAEventPresetPropertyAppVersion] ?: appVersionProperties[kSAEventPresetPropertyAppVersion];
-        if (appVersion) {
-            libMDic[kSAEventPresetPropertyAppVersion] = appVersion;
-        }
-
-        NSMutableDictionary *automaticPropertiesCopy = [[SAPropertyPluginManager sharedInstance] propertiesWithEvent:eventDict[kSAEventName] type:type properties:nil];
-        [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLib];
-        [automaticPropertiesCopy removeObjectForKey:kSAEventPresetPropertyLibVersion];
-
-        BOOL isTrackEvent = [type isEqualToString:kSAEventTypeTrack] || [type isEqualToString:kSAEventTypeSignup] || [type isEqualToString:kSAEventTypeBind] || [type isEqualToString:kSAEventTypeUnbind];
-        if (isTrackEvent) {
-            // track / track_signup 类型的请求，还是要加上各种公共property
-            // 这里注意下顺序，按照优先级从低到高，依次是automaticProperties, superProperties,dynamicSuperPropertiesDict,propertieDict
-            [propertiesDict addEntriesFromDictionary:automaticPropertiesCopy];
-
-            NSDictionary *dynamicSuperPropertiesDict = [self.superProperty acquireDynamicSuperProperties];
-            [propertiesDict addEntriesFromDictionary:self.superProperty.currentSuperProperties];
-            [propertiesDict addEntriesFromDictionary:dynamicSuperPropertiesDict];
-
-            // 每次 track 时手机网络状态
-            [propertiesDict addEntriesFromDictionary:[self.presetProperty currentNetworkProperties]];
-
-            [propertiesDict removeObjectForKey:@"_nocache"];
-        }
-        [eventDict removeObjectForKey:@"_nocache"];
-        [eventDict removeObjectForKey:@"server_url"];
-
-        NSString *visualProperties = eventDict[kSAEventProperties][@"sensorsdata_app_visual_properties"];
-        // 是否包含自定义属性配置
-        if (!visualProperties || ![eventDict[kSAEventName] isEqualToString:kSAEventNameWebClick]) {
-            eventDict[kSAEventProperties] = propertiesDict;
-            [self trackFromH5WithEventDict:eventDict isTrackEvent:isTrackEvent];
+        NSString *visualProperties = eventDict[kSAEventProperties][kSAAppVisualProperties];
+        // 是否包含自定义属性配置，根据配置采集 App 属性内容
+        if (!visualProperties || ![object.event isEqualToString:kSAEventNameWebClick]) {
+            [self trackFromH5WithEventObject:object properties:nil];
             return;
         }
 
@@ -1163,166 +1166,21 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         NSArray <NSDictionary *> *visualPropertyConfigs = [SAJSONUtil JSONObjectWithData:data];
 
         // 查询 App 自定义属性值
-        NSDate *currentTime = [NSDate date];
         [SAModuleManager.sharedInstance queryVisualPropertiesWithConfigs:visualPropertyConfigs completionHandler:^(NSDictionary *_Nullable properties) {
 
             // 切换到 serialQueue 执行
             dispatch_async(self.serialQueue, ^{
-                if (properties.count > 0) {
-                    [propertiesDict addEntriesFromDictionary:properties];
-                }
-
-                // 设置 $time，自定义时间，防止事件序列错误
-                if (!propertiesDict[kSAEventCommonOptionalPropertyTime]) {
-                    propertiesDict[kSAEventCommonOptionalPropertyTime] = currentTime;
-                }
-                [propertiesDict removeObjectForKey:@"sensorsdata_app_visual_properties"];
-                eventDict[kSAEventProperties] = propertiesDict;
-                [self trackFromH5WithEventDict:eventDict isTrackEvent:isTrackEvent];
+                [self trackFromH5WithEventObject:object properties:properties];
             });
         }];
     });
 }
-- (void)trackFromH5WithEventDict:(NSMutableDictionary *)eventDict isTrackEvent:(BOOL)isTrackEvent {
-    NSNumber *timeStamp = @([[self class] getCurrentTime]);
-    NSString *type = eventDict[kSAEventType];
-    @try {
-        // 校验 properties
-        NSMutableDictionary *propertiesDict = [SAPropertyValidator validProperties:eventDict[kSAEventProperties]];
 
-        // 可视化自定义属性中可能存在同名属性，因此要在设置完可视化自定义属性后再处理如下逻辑
-        // track\sign_up\bind\unbind 事件都需要添加首日访问和 DeepLink 渠道参数
-        if (isTrackEvent) {
-            // 是否首日访问，只有 track/bind/unbind 事件添加 $is_first_day 属性
-            if (![type isEqualToString:kSAEventTypeSignup]) {
-                propertiesDict[kSAEventPresetPropertyIsFirstDay] = @([self.presetProperty isFirstDay]);
-            }
-            // 添加 DeepLink 来源渠道参数。优先级最高，覆盖 H5 传过来的同名字段
-            [propertiesDict addEntriesFromDictionary:SAModuleManager.sharedInstance.latestUtmProperties];
-        }
-
-        // $project & $token
-        NSString *project = propertiesDict[kSAEventCommonOptionalPropertyProject];
-        NSString *token = propertiesDict[kSAEventCommonOptionalPropertyToken];
-        id timeNumber = propertiesDict[kSAEventCommonOptionalPropertyTime];
-
-        if (project) {
-            [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyProject];
-            eventDict[kSAEventProject] = project;
-        }
-        if (token) {
-            [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyToken];
-            eventDict[kSAEventToken] = token;
-        }
-        if (timeNumber) {     //包含 $time
-            NSNumber *customTime = nil;
-            if ([timeNumber isKindOfClass:[NSDate class]]) {
-                customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
-            } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
-                customTime = timeNumber;
-            }
-
-            if (!customTime) {
-                SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
-            } else if ([customTime compare:@(kSAEventCommonOptionalPropertyTimeInt)] == NSOrderedAscending) {
-                SALogError(@"H5 $time error %@，Please check the value", timeNumber);
-            } else {
-                timeStamp = @([customTime unsignedLongLongValue]);
-            }
-            [propertiesDict removeObjectForKey:kSAEventCommonOptionalPropertyTime];
-        }
-        
-        // 添加 $event_session_id
-        if (isTrackEvent && self.sessionProperty) {
-            [propertiesDict addEntriesFromDictionary:[self.sessionProperty sessionPropertiesWithEventTime:timeStamp]];
-        }
-
-        eventDict[kSAEventProperties] = propertiesDict;
-        eventDict[kSAEventTime] = timeStamp;
-
-        //JS SDK Data add _hybrid_h5 flag
-        eventDict[kSAEventHybridH5] = @(YES);
-
-        NSMutableDictionary *enqueueEvent = [[self willEnqueueWithType:type andEvent:eventDict] mutableCopy];
-
-        if (!enqueueEvent) {
-            return;
-        }
-        // 只有当本地 loginId 不为空时才覆盖 H5 数据
-        if (self.loginId) {
-            enqueueEvent[kSAEventLoginId] = self.loginId;
-        }
-        enqueueEvent[kSAEventAnonymousId] = self.anonymousId;
-
-        NSDictionary *identities = enqueueEvent[kSAEventIdentities];
-
-        dispatch_block_t trackBlock = ^{
-            // 先设置 loginId 后再设置 identities。identities 对 loginId 有依赖
-            enqueueEvent[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
-            [self.eventTracker trackEvent:enqueueEvent isSignUp:YES];
-            SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-        };
-
-        void(^loginBlock)(NSString *, NSString *)  = ^(NSString *loginIDKey, NSString *newLoginId){
-            if ([self.identifier isValidForLogin:loginIDKey value:newLoginId]) {
-                [self.identifier loginWithKey:loginIDKey loginId:newLoginId];
-                // 传入的 newLoginId 为原始值，因此在这里做赋值时需要检查是否需要拼接
-                if ([loginIDKey isEqualToString:kSAIdentitiesLoginId]) {
-                    enqueueEvent[kSAEventLoginId] = newLoginId;
-                } else {
-                    enqueueEvent[kSAEventLoginId] = [NSString stringWithFormat:@"%@%@%@", loginIDKey, kSALoginIdSpliceKey, newLoginId];
-                }
-                trackBlock();
-            }
-        };
-
-        if([type isEqualToString:kSAEventTypeSignup]) {
-            NSString *distinctId = eventDict[kSAEventDistinctId];
-
-            if (!identities) {
-                // 2.0 版本逻辑，保持不变
-                loginBlock(self.identifier.loginIDKey, distinctId);
-                return;
-            }
-            NSString *newLoginId = identities[self.identifier.loginIDKey];
-
-            NSMutableArray *array = [[distinctId componentsSeparatedByString:kSALoginIdSpliceKey] mutableCopy];
-            NSString *key = array.firstObject;
-            // 移除 firstObject 的 loginIDKey，然后拼接后续的内容为 loginId
-            [array removeObjectAtIndex:0];
-            NSString *value = [array componentsJoinedByString:kSALoginIdSpliceKey];
-            NSSet *validKeys = [identities keysOfEntriesPassingTest:^BOOL(id key, id obj, BOOL *stop) {
-                return [obj isEqualToString:distinctId];
-            }];
-            if (newLoginId) {
-                loginBlock(self.identifier.loginIDKey, newLoginId);
-            } else if ([identities[key] isEqualToString:value]) {
-                // 当前 H5 的 distinct_id 是 key+value 拼接格式的，通过截取得到 loginIDKey 和 loginId
-                loginBlock(key, value);
-            } else if (validKeys.count == 1) {
-                // 当前 H5 的登录 ID 不是拼接格式的，则直接从 identities 中查找对应的 loginIDKey，只存在一个 key 时作为 loginIDKey
-                loginBlock(validKeys.anyObject, distinctId);
-            } else {
-                // 当 identities 中无法获取到登录 ID 时，只触发事件不进行 loginId 处理
-                trackBlock();
-            }
-
-        } else {
-            // 打通场景下，除登录事件外其他事件
-            enqueueEvent[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
-            eventDict[kSAEventIdentities] = [self.identifier mergeH5Identities:identities eventType:type];
-
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_EVENT_H5_NOTIFICATION object:nil userInfo:[enqueueEvent copy]];
-
-            [eventDict[kSAEventProperties] removeObjectForKey:@"sensorsdata_web_visual_eventName"];
-            [self.eventTracker trackEvent:enqueueEvent];
-            SALogDebug(@"\n【track event from H5】:\n%@", enqueueEvent);
-        }
-    } @catch (NSException *exception) {
-        SALogError(@"%@: %@", self, exception);
+- (void)trackFromH5WithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    if (object.isSignUp) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
     }
+    [self trackEventObject:object properties:properties];
 }
 
 @end
@@ -1376,7 +1234,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    SAModuleManager.sharedInstance.debugMode = debugMode;
+    self.configOptions.debugMode = debugMode;
 }
 
 - (void)trackTimer:(NSString *)event {

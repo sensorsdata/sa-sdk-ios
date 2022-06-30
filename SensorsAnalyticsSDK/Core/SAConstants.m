@@ -34,6 +34,7 @@ NSString * const kSAEventTime = @"time";
 NSString * const kSAEventTrackId = @"_track_id";
 NSString * const kSAEventName = @"event";
 NSString * const kSAEventDistinctId = @"distinct_id";
+NSString * const kSAEventOriginalId = @"original_id";
 NSString * const kSAEventProperties = @"properties";
 NSString * const kSAEventType = @"type";
 NSString * const kSAEventLib = @"lib";
@@ -45,8 +46,8 @@ NSString * const kSAEventAnonymousId = @"anonymous_id";
 NSString * const kSAEventIdentities = @"identities";
 
 #pragma mark - Item
-NSString * const SA_EVENT_ITEM_SET = @"item_set";
-NSString * const SA_EVENT_ITEM_DELETE = @"item_delete";
+NSString * const kSAEventItemSet = @"item_set";
+NSString * const kSAEventItemDelete = @"item_delete";
 
 #pragma mark - event name
 // App 启动或激活
@@ -75,9 +76,9 @@ NSString * const kSAEventNameBind = @"$BindID";
 NSString * const kSAEventNameUnbind = @"$UnbindID";
 
 #pragma mark - app install property
-NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE = @"$ios_install_source";
-NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK = @"$ios_install_disable_callback";
-NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME = @"$first_visit_time";
+NSString * const kSAEventPropertyInstallSource = @"$ios_install_source";
+NSString * const kSAEventPropertyInstallDisableCallback = @"$ios_install_disable_callback";
+NSString * const kSAEventPropertyAppInstallFirstVisitTime = @"$first_visit_time";
 #pragma mark - autoTrack property
 // App 浏览页面 Url
 NSString * const kSAEventPropertyScreenUrl = @"$url";
@@ -115,12 +116,12 @@ NSString * const kSAEventTypeBind = @"track_id_bind";
 NSString * const kSAEventTypeUnbind = @"track_id_unbind";
 
 #pragma mark - profile
-NSString * const SA_PROFILE_SET = @"profile_set";
-NSString * const SA_PROFILE_SET_ONCE = @"profile_set_once";
-NSString * const SA_PROFILE_UNSET = @"profile_unset";
-NSString * const SA_PROFILE_DELETE = @"profile_delete";
-NSString * const SA_PROFILE_APPEND = @"profile_append";
-NSString * const SA_PROFILE_INCREMENT = @"profile_increment";
+NSString * const kSAProfileSet = @"profile_set";
+NSString * const kSAProfileSetOnce = @"profile_set_once";
+NSString * const kSAProfileUnset = @"profile_unset";
+NSString * const kSAProfileDelete = @"profile_delete";
+NSString * const kSAProfileAppend = @"profile_append";
+NSString * const kSAProfileIncrement = @"profile_increment";
 
 #pragma mark - bridge name
 NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME = @"sensorsdataNativeTracker";
@@ -188,3 +189,14 @@ NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";
 //event name、property key、value max length
 NSInteger kSAEventNameMaxLength = 100;
 NSInteger kSAPropertyValueMaxLength = 1024;
+
+#pragma mark - SA Visualized
+/// 埋点校验中，$WebClick 匹配可视化全埋点的事件名（集合）
+NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
+
+/// App 内嵌 H5 的 Web 事件，属性配置中，需要 App 采集的属性
+NSString * const kSAAppVisualProperties = @"sensorsdata_app_visual_properties";
+
+/// App 内嵌 H5 的 Native 事件，属性配置中，需要 web 采集的属性
+NSString * const kSAWebVisualProperties = @"sensorsdata_js_visual_properties";
+

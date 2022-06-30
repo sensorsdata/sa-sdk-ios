@@ -30,8 +30,7 @@
 - (instancetype)initWithType:(NSString *)type {
     self = [super init];
     if (self) {
-        self.type = type;
-        self.lib.method = kSALibMethodCode;
+        self.type = [SABaseEventObject eventTypeWithType:type];
     }
     return self;
 }

@@ -45,13 +45,13 @@
 
 - (void)testEventObjectWithEmptyType {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:@""];
-    XCTAssert([object.type isEqualToString:@""]);
+    XCTAssert(object.type & SAEventTypeDefault);
 }
 
 - (void)testEventObjectWithNilType {
     NSString *type = nil;
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-    XCTAssertNil(object.type);
+    XCTAssert(object.type & SAEventTypeDefault);
 }
 
 - (void)testEventObjectWithNotStringType {
@@ -62,7 +62,7 @@
 
 - (void)testEventObjectWithStringType {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:@"ABC"];
-    XCTAssert([object.type isEqualToString:@"ABC"]);
+    XCTAssert(object.type & SAEventTypeDefault);
 }
 
 - (void)testExample {

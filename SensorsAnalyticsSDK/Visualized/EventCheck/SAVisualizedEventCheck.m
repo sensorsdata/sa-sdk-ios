@@ -27,7 +27,6 @@
 #import "SAEventIdentifier.h"
 #import "SALog.h"
 
-NSString * const kSAWebVisualEventName = @"sensorsdata_web_visual_eventName";
 
 @interface SAVisualizedEventCheck()
 @property (nonatomic, strong) SAVisualPropertiesConfigSources *configSources;

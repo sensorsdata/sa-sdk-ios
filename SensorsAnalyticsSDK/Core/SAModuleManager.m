@@ -288,20 +288,8 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return nil;
 }
 
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode {
-    self.debugModeManager.debugMode = debugMode;
-}
-
-- (SensorsAnalyticsDebugMode)debugMode {
-    return self.debugModeManager.debugMode;
-}
-
 - (void)setShowDebugAlertView:(BOOL)isShow {
     [self.debugModeManager setShowDebugAlertView:isShow];
-}
-
-- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode {
-    [self.debugModeManager handleDebugMode:mode];
 }
 
 - (void)showDebugModeWarning:(NSString *)message {

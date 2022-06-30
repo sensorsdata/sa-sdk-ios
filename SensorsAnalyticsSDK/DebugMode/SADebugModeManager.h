@@ -26,7 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (DebugModePrivate)
 
-@property (nonatomic, assign) BOOL enableDebugMode;
+@property (nonatomic, assign) SensorsAnalyticsDebugMode debugMode;
 
 @end
 
@@ -36,7 +36,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign, getter=isEnable) BOOL enable;
 @property (nonatomic, strong) SAConfigOptions *configOptions;
-@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 @property (nonatomic) BOOL showDebugAlertView;
 
 @end

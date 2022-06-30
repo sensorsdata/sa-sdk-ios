@@ -382,8 +382,8 @@ NSString * const kSALoginIdSpliceKey = @"+";
 }
 
 #pragma mark - Identities
-- (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(NSString *)eventType {
-    if ([eventType isEqualToString:kSAEventTypeUnbind]) {
+- (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(SAEventType)eventType {
+    if (eventType & SAEventTypeUnbind) {
         NSString *key = identities.allKeys.firstObject;
         if (![self isValidForUnbind:key value:identities[key]]) {
             return @{};
@@ -400,14 +400,14 @@ NSString * const kSALoginIdSpliceKey = @"+";
     // 当 identities 不存在（ 2.0 版本）或 identities 中包含自定义 login_id （3.0 版本）时
     // 即表示有效登录，需要重置 identities 内容
     BOOL reset = (!identities || identities[self.loginIDKey]);
-    if ([eventType isEqualToString:kSAEventTypeSignup] && reset) {
+    if ((eventType & SAEventTypeSignup) && reset) {
         // 当前逻辑需要在调用 login 后执行才是有效的，重置 identities 时需要使用 login_id
         // 触发登录事件切换用户时，清空后续事件中的已绑定参数
         [self resetIdentities];
     }
 
     // 当为绑定事件时，Native 需要把绑定的业务 ID 持久化
-    if ([eventType isEqualToString:kSAEventTypeBind]) {
+    if ((eventType & SAEventTypeBind)) {
         dispatch_async(self.queue, ^{
             NSMutableDictionary *archive = [newIdentities mutableCopy];
             [archive removeObjectForKey:kSAIdentitiesCookieId];
@@ -546,16 +546,16 @@ NSString * const kSALoginIdSpliceKey = @"+";
     });
 }
 
-- (NSDictionary *)identitiesWithEventType:(NSString *)eventType {
+- (NSDictionary *)identitiesWithEventType:(SAEventType)eventType {
     // 提前拷贝当前事件的 identities 内容，避免登录事件时被清空其他业务 ID
     NSDictionary *identities = [self.identities copy];
 
-    if ([eventType isEqualToString:kSAEventTypeUnbind]) {
+    if (eventType & SAEventTypeUnbind) {
         identities = [self.removedIdentity copy];
         self.removedIdentity = nil;
     }
     // 客户业务场景下切换用户后，需要清除其他已绑定业务 ID
-    if ([eventType isEqualToString:kSAEventTypeSignup]) {
+    if (eventType & SAEventTypeSignup) {
         [self resetIdentities];
     }
     return identities;

@@ -146,6 +146,9 @@
 
 + (id)JSONObjectWithData:(NSData *)data options:(NSJSONReadingOptions)options {
     id jsonObject = nil;
+    if (![SAValidator isValidData:data]) {
+        return nil;
+    }
     @try {
         NSError *jsonError = nil;
         jsonObject = [NSJSONSerialization JSONObjectWithData:data options:options error:&jsonError];

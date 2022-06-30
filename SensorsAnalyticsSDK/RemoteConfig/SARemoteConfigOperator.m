@@ -135,7 +135,8 @@
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {
     NSString *eventConfigString = [SAJSONUtil stringWithJSONObject:remoteConfig];
     SARemoteConfigEventObject *object = [[SARemoteConfigEventObject alloc] initWithEventId:kSAEventNameAppRemoteConfigChanged];
-    [SensorsAnalyticsSDK.sdkInstance asyncTrackEventObject:object properties:@{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""}];
+
+    [SensorsAnalyticsSDK.sdkInstance trackEventObject:object properties:@{kSAEventPropertyAppRemoteConfig : eventConfigString ?: @""}];
     // 触发 $AppRemoteConfigChanged 时 flush 一次
     [SensorsAnalyticsSDK.sdkInstance flush];
 }

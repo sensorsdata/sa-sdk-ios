@@ -41,6 +41,8 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 @property (nonatomic, assign) BOOL isCreatedTable;
 @property (nonatomic, assign) NSUInteger count;
 
+@property (nonatomic, assign) NSUInteger flushRecordCount;
+
 @end
 
 @implementation SADatabase {
@@ -167,6 +169,11 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
 }
 
 - (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status {
+    if (status == SAEventRecordStatusFlush) {
+        self.flushRecordCount += recordIDs.count;
+    } else {
+        self.flushRecordCount -= recordIDs.count;
+    }
     NSString *sql = [NSString stringWithFormat:@"UPDATE %@ SET %@ = %d WHERE id IN (%@);", kDatabaseTableName, kDatabaseColumnStatus, status, [recordIDs componentsJoinedByString:@","]];
     return [self execUpdateSQL:sql];
 }
@@ -197,6 +204,13 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     sqlite3_finalize(stmt);
     return YES;
+}
+
+- (NSUInteger)recordCountWithStatus:(SAEventRecordStatus)status {
+    if (status == SAEventRecordStatusFlush) {
+        return self.flushRecordCount;
+    }
+    return self.count - self.flushRecordCount;
 }
 
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {
@@ -292,6 +306,7 @@ static const NSUInteger kRemoveFirstRecordsDefaultCount = 100; // 超过最大�
     }
     sqlite3_finalize(stmt);
     self.count = [self messagesCount];
+    self.flushRecordCount -= recordIDs.count;
     return success;
 }
 

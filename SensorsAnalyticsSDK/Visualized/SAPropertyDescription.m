@@ -69,7 +69,6 @@
 @implementation SAPropertyDescription
 
 + (NSValueTransformer *)valueTransformerForType:(NSString *)typeName {
-    // TODO: lookup transformer by type
     for (NSString *toTypeName in @[@"NSDictionary", @"NSNumber", @"NSString"]) {
         NSString *toTransformerName = [NSString stringWithFormat:@"SA%@To%@ValueTransformer", typeName, toTypeName];
         NSValueTransformer *toTransformer = [NSValueTransformer valueTransformerForName:toTransformerName];

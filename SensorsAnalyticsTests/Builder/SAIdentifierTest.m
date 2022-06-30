@@ -328,7 +328,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
     [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
     // 登录事件
-    NSDictionary *identities = [_identifier identitiesWithEventType:kSAEventTypeSignup];
+    NSDictionary *identities = [_identifier identitiesWithEventType:SAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 5);
     XCTAssertTrue([identities[kMobile] isEqualToString:kMobileValue]);
     XCTAssertTrue([identities[kEmail] isEqualToString:kEmailValue]);
@@ -337,7 +337,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(identities[kIDFV]);
 
     // 登录后事件
-    NSDictionary *after = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 2);
     XCTAssertTrue([after[kLoginId] isEqualToString:kLoginIdValue]);
     XCTAssertNotNil(after[kIDFV]);
@@ -348,14 +348,14 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     [_identifier bindIdentity:kEmail value:kEmailValue];
 
     // 绑定事件
-    NSDictionary *identities = [_identifier identitiesWithEventType:kSAEventTypeBind];
+    NSDictionary *identities = [_identifier identitiesWithEventType:SAEventTypeBind];
     XCTAssertTrue(identities.allKeys.count == 3);
     XCTAssertTrue([identities[kMobile] isEqualToString:kMobileValue]);
     XCTAssertTrue([identities[kEmail] isEqualToString:kEmailValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
     // 绑定后事件
-    NSDictionary *after = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 3);
     XCTAssertTrue([after[kMobile] isEqualToString:kMobileValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -368,12 +368,12 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
     [_identifier unbindIdentity:kEmail value:kEmailValue];
     // 解绑事件
-    NSDictionary *identities = [_identifier identitiesWithEventType:kSAEventTypeUnbind];
+    NSDictionary *identities = [_identifier identitiesWithEventType:SAEventTypeUnbind];
     XCTAssertTrue(identities.allKeys.count == 1);
     XCTAssertTrue([identities[kEmail] isEqualToString:kEmailValue]);
 
     // 解绑后事件
-    NSDictionary *after = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 2);
     XCTAssertTrue([after[kMobile] isEqualToString:kMobileValue]);
     XCTAssertNotNil(after[kIDFV]);
@@ -386,12 +386,12 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     NSString *newEmail = @"163.com";
     [_identifier unbindIdentity:kEmail value:newEmail];
     // 解绑事件
-    NSDictionary *identities = [_identifier identitiesWithEventType:kSAEventTypeUnbind];
+    NSDictionary *identities = [_identifier identitiesWithEventType:SAEventTypeUnbind];
     XCTAssertTrue(identities.allKeys.count == 1);
     XCTAssertTrue([identities[kEmail] isEqualToString:newEmail]);
 
     // 解绑后事件
-    NSDictionary *after = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 3);
     XCTAssertTrue([after[kMobile] isEqualToString:kMobileValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -403,18 +403,18 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     [_identifier bindIdentity:kMobile value:kMobileValue];
 
     // H5 解绑事件
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile:kMobileValue} eventType:kSAEventTypeUnbind];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile:kMobileValue} eventType:SAEventTypeUnbind];
     XCTAssertTrue(identities.allKeys.count == 1);
     XCTAssertTrue([identities[kMobile] isEqualToString:kMobileValue]);
 
     // H5 解绑后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 3);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
     XCTAssertNotNil(after[kIDFV]);
     XCTAssertNotNil(after[kCookieId]);
     // Native 解绑后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 1);
     XCTAssertNotNil(native[kIDFV]);
 }
@@ -425,12 +425,12 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
     // H5 解绑事件
     NSString *unbindValue = @"151";
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile:unbindValue} eventType:kSAEventTypeUnbind];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile:unbindValue} eventType:SAEventTypeUnbind];
     XCTAssertTrue(identities.allKeys.count == 1);
     XCTAssertTrue([identities[kMobile] isEqualToString:unbindValue]);
 
     // H5 解绑后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
     XCTAssertTrue([after[kMobile] isEqualToString:existValue]);
@@ -438,7 +438,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(after[kCookieId]);
 
     // Native 解绑后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 2);
     XCTAssertTrue([native[kMobile] isEqualToString:existValue]);
     XCTAssertNotNil(native[kIDFV]);
@@ -446,14 +446,14 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
 - (void)testH5EventAfterBindForNewKey {
     NSString *bindValue = kMobileValue;
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: bindValue} eventType:kSAEventTypeBind];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: bindValue} eventType:SAEventTypeBind];
     // H5 绑定事件
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kMobile] isEqualToString:bindValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
     // H5 绑定后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kMobile] isEqualToString:bindValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -461,7 +461,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(after[kCookieId]);
 
     // Native 绑定后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 2);
     XCTAssertTrue([native[kMobile] isEqualToString:bindValue]);
     XCTAssertNotNil(native[kIDFV]);
@@ -473,13 +473,13 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 
     // H5 绑定事件
     NSString *newValue = @"151";
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: newValue} eventType:kSAEventTypeBind];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kMobile: newValue} eventType:SAEventTypeBind];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kMobile] isEqualToString:oldValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
     // H5 绑定后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kMobile] isEqualToString:oldValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -487,7 +487,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(after[kCookieId]);
 
     // Native 绑定后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 2);
     XCTAssertTrue([native[kMobile] isEqualToString:oldValue]);
     XCTAssertNotNil(native[kIDFV]);
@@ -496,13 +496,13 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testH5EventAfterSignUpForNotSign {
     // H5 登录事件
     [_identifier loginWithKey:kLoginId loginId:kLoginIdValue];
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:kLoginIdValue} eventType:kSAEventTypeSignup];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:kLoginIdValue} eventType:SAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kLoginId] isEqualToString:kLoginIdValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
     // H5 登录后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kLoginId] isEqualToString:kLoginIdValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -510,7 +510,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(after[kCookieId]);
 
     // Native 登录后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 2);
     XCTAssertTrue([native[kLoginId] isEqualToString:kLoginIdValue]);
     XCTAssertNotNil(native[kIDFV]);
@@ -523,13 +523,13 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     // H5 登录事件
 
     [_identifier loginWithKey:kLoginId loginId:newValue];
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:newValue} eventType:kSAEventTypeSignup];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kLoginId:newValue} eventType:SAEventTypeSignup];
     XCTAssertTrue(identities.allKeys.count == 2);
     XCTAssertTrue([identities[kLoginId] isEqualToString:newValue]);
     XCTAssertNotNil(identities[kIDFV]);
 
     // H5 登录后事件
-    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:kSAEventTypeTrack];
+    NSDictionary *after = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue, kEmail:kEmailValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(after.allKeys.count == 4);
     XCTAssertTrue([after[kLoginId] isEqualToString:newValue]);
     XCTAssertTrue([after[kEmail] isEqualToString:kEmailValue]);
@@ -537,7 +537,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(after[kCookieId]);
 
     // Native 登录后事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 2);
     XCTAssertTrue([native[kLoginId] isEqualToString:newValue]);
     XCTAssertNotNil(native[kIDFV]);
@@ -548,7 +548,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     [_identifier bindIdentity:kCustomKey value:kCustomValue];
 
     // H5 事件
-    NSDictionary *identities = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue} eventType:kSAEventTypeTrack];
+    NSDictionary *identities = [_identifier mergeH5Identities:@{kCookieId:kCookieIdValue} eventType:SAEventTypeTrack];
     XCTAssertTrue(identities.allKeys.count == 4);
     XCTAssertTrue([identities[kLoginId] isEqualToString:kLoginId]);
     XCTAssertTrue([identities[kCustomKey] isEqualToString:kCustomValue]);
@@ -556,7 +556,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(identities[kCookieId]);
 
     // Native 事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 3);
     XCTAssertTrue([native[kLoginId] isEqualToString:kLoginId]);
     XCTAssertTrue([native[kCustomKey] isEqualToString:kCustomValue]);
@@ -566,7 +566,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 - (void)testH5EventForNativeInitial {
     // H5 事件
     NSDictionary *h5Dic = @{kCookieId:kCookieIdValue, kMobile:kMobileValue, kEmail:kEmailValue};
-    NSDictionary *identities = [_identifier mergeH5Identities:h5Dic eventType:kSAEventTypeTrack];
+    NSDictionary *identities = [_identifier mergeH5Identities:h5Dic eventType:SAEventTypeTrack];
     XCTAssertTrue(identities.allKeys.count == 4);
     XCTAssertTrue([identities[kMobile] isEqualToString:kMobileValue]);
     XCTAssertTrue([identities[kEmail] isEqualToString:kEmailValue]);
@@ -574,7 +574,7 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(identities[kCookieId]);
 
     // Native 事件
-    NSDictionary *native = [_identifier identitiesWithEventType:kSAEventTypeTrack];
+    NSDictionary *native = [_identifier identitiesWithEventType:SAEventTypeTrack];
     XCTAssertTrue(native.allKeys.count == 1);
     XCTAssertNotNil(native[kIDFV]);
 }

@@ -27,6 +27,10 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// 默认存储表名和文件名
+extern NSString * const kSADatabaseNameKey;
+extern NSString * const kSADatabaseDefaultFileName;
+
 @interface SAEventStore : NSObject
 
 //serial queue for database read and write
@@ -44,6 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
  *  @return 初始化的结果
  */
 - (instancetype)initWithFilePath:(NSString *)filePath;
+
++ (instancetype)eventStoreWithFilePath:(NSString *)filePath;
 
 /// fetch first records with a certain size
 /// @param recordSize record size
@@ -65,6 +71,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// delete all records from database
 - (BOOL)deleteAllRecords;
+
+- (NSUInteger)recordCountWithStatus:(SAEventRecordStatus)status;
 
 @end
 

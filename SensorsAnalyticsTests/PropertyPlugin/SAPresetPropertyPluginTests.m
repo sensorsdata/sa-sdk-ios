@@ -38,7 +38,7 @@ static NSString * const kSALibVersion = @"1.0.1";
 
 - (void)setUp {
     _plugin = [[SAPresetPropertyPlugin alloc] initWithLibVersion:kSALibVersion];
-    [_plugin start];
+    [_plugin prepare];
 }
 
 - (void)tearDown {
@@ -120,7 +120,7 @@ static NSString * const kSALibVersion = @"1.0.1";
 
 - (void)testPerformanceStart {
     [self measureBlock:^{
-        [self.plugin start];
+        [self.plugin prepare];
     }];
 }
 

@@ -24,45 +24,18 @@
 
 #import "SAPropertyPluginManager.h"
 #import "SAConstants+Private.h"
+#import "SAPropertyPlugin+SAPrivate.h"
 
 const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
-
-@interface SAPropertyPluginFilter : NSObject
-
-/// 用于保存筛选的事件名
-@property (nonatomic, copy) NSString *event;
-/// 用于保存筛选类型
-@property (nonatomic, copy) NSString *type;
-/// 用于保存筛选的属性名
-@property (nonatomic, copy) NSDictionary<NSString *, id> *properties;
-
-/// 用于筛选类名为 classes 数组中的属性插件（不包含自定义属性插件）
-@property (nonatomic, strong) NSArray<Class> *classes;
-
-- (instancetype)initWithClasses:(NSArray<Class> *)classes;
-
-@end
-
-@implementation SAPropertyPluginFilter
-
-- (instancetype)initWithClasses:(NSArray<Class> *)classes {
-    self = [super init];
-    if (self) {
-        _classes = classes;
-    }
-    return self;
-}
-
-@end
 
 #pragma mark -
 
 @interface SAPropertyPluginManager ()
 
-@property (nonatomic, strong) NSMutableArray<id<SAPropertyPluginProtocol>> *plugins;
-@property (nonatomic, strong) NSMutableArray<id<SAPropertyPluginProtocol>> *superPlugins;
+@property (nonatomic, strong) NSMutableArray<SAPropertyPlugin *> *plugins;
+@property (nonatomic, strong) NSMutableArray<SAPropertyPlugin *> *superPlugins;
 
-@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableArray<id<SAPropertyPluginProtocol>> *> *customPlugins;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, NSMutableArray<SAPropertyPlugin *> *> *customPlugins;
 
 @end
 
@@ -91,7 +64,7 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
 
 #pragma mark - Public
 
-- (void)registerPropertyPlugin:(id<SAPropertyPluginProtocol>)plugin {
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin {
     // 断言提示必须实现 properties 方法
     BOOL isResponds = [plugin respondsToSelector:@selector(properties)];
     NSAssert(isResponds, @"You must implement `- properties` method!");
@@ -104,7 +77,7 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
     NSAssert(priority == SAPropertyPluginPriorityLow || priority == SAPropertyPluginPriorityDefault || priority == SAPropertyPluginPriorityHigh || priority == kSAPropertyPluginPrioritySuper, @"Invalid value: the `- priority` method must return `SAPropertyPluginPriority` type.");
 
     if (priority == kSAPropertyPluginPrioritySuper) {
-        for (id<SAPropertyPluginProtocol> object in self.superPlugins) {
+        for (SAPropertyPlugin *object in self.superPlugins) {
             if (object.class == plugin.class) {
                 [self.superPlugins removeObject:object];
                 break;
@@ -112,7 +85,7 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
         }
         [self.superPlugins addObject:plugin];
     } else {
-        for (id<SAPropertyPluginProtocol> object in self.plugins) {
+        for (SAPropertyPlugin *object in self.plugins) {
             if (object.class == plugin.class) {
                 [self.plugins removeObject:object];
                 break;
@@ -121,13 +94,31 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
         [self.plugins addObject:plugin];
     }
 
-    // 开始属性采集
-    if ([plugin respondsToSelector:@selector(start)]) {
-        [plugin start];
+    if ([plugin respondsToSelector:@selector(prepare)]) {
+        [plugin prepare];
     }
 }
 
-- (void)registerCustomPropertyPlugin:(id<SAPropertyPluginProtocol>)plugin {
+- (void)unregisterPropertyPluginWithPluginClass:(Class)cla {
+    if (!cla) {
+        return;
+    }
+    [self.superPlugins enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(SAPropertyPlugin * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:cla]) {
+            [self.superPlugins removeObject:obj];
+            *stop = YES;
+        }
+    }];
+    
+    [self.plugins enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(SAPropertyPlugin * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([obj isKindOfClass:cla]) {
+            [self.plugins removeObject:obj];
+            *stop = YES;
+        }
+    }];
+}
+
+- (void)registerCustomPropertyPlugin:(SAPropertyPlugin *)plugin {
     NSString *key = NSStringFromClass(plugin.class);
 
     NSAssert([plugin respondsToSelector:@selector(properties)], @"You must implement `- properties` method!");
@@ -136,259 +127,157 @@ const NSUInteger kSAPropertyPluginPrioritySuper = 1431656640;
     }
     [self.customPlugins[key] addObject:plugin];
 
-    // 开始属性采集
-    if ([plugin respondsToSelector:@selector(start)]) {
-        [plugin start];
-    }
+    if ([plugin respondsToSelector:@selector(prepare)]) {
+        [plugin prepare];
+    };
 }
 
 - (NSMutableDictionary<NSString *, id> *)currentPropertiesForPluginClasses:(NSArray<Class> *)classes {
-    SAPropertyPluginFilter *filter = [[SAPropertyPluginFilter alloc] initWithClasses:classes];
-    // 获取匹配的属性插件
-    NSArray *plugins = [self pluginsWithFilter:filter];
+    NSMutableArray *plugins = [NSMutableArray array];
+    for (SAPropertyPlugin *plugin in self.plugins) {
+        if ([classes containsObject:plugin.class]) {
+            [plugins addObject:plugin];
+        }
+    }
     // 获取属性插件采集的属性
-    NSMutableDictionary *pluginProperties = [self propertiesWithPlugins:plugins];
+    NSMutableDictionary *pluginProperties = [self propertiesWithPlugins:plugins filter:nil];
 
-    // 获取匹配的属性插件
-    NSArray *superPlugins = [self superPluginsWithFilter:filter];
-    [pluginProperties addEntriesFromDictionary:[self propertiesWithPlugins:superPlugins]];
+    NSMutableArray *superPlugins = [NSMutableArray array];
+    for (SAPropertyPlugin *plugin in self.superPlugins) {
+        if ([classes containsObject:plugin.class]) {
+            [superPlugins addObject:plugin];
+        }
+    }
+    [pluginProperties addEntriesFromDictionary:[self propertiesWithPlugins:superPlugins filter:nil]];
 
     return pluginProperties;
 }
 
-- (NSMutableDictionary<NSString *, id> *)propertiesWithEvent:(NSString *)name type:(NSString *)type properties:(NSDictionary<NSString *,id> *)properties {
-    // 创建 Filter 对象
-    SAPropertyPluginFilter *filter = [[SAPropertyPluginFilter alloc] init];
-    filter.event = name;
-    filter.type = type;
-    return [self propertiesWithFilter:filter properties:properties];
+- (SAPropertyPlugin *)pluginsWithPluginClass:(Class)cla {
+    if (!cla) {
+        return nil;
+    }
+    NSMutableArray <SAPropertyPlugin *>*allPlugins = [NSMutableArray array];
+    // 获取自定义属性插件
+    for (NSArray *customPlugins in self.customPlugins.allValues) {
+        // 可能是空数组
+        if (customPlugins.count > 0) {
+            [allPlugins addObject:customPlugins.firstObject];
+        }
+    }
+    [allPlugins addObjectsFromArray:self.plugins];
+    [allPlugins addObjectsFromArray:self.superPlugins];
+
+    for (SAPropertyPlugin *plugin in allPlugins) {
+        if ([plugin isKindOfClass:cla]) {
+            return plugin;
+        }
+    }
+    return nil;
 }
 
 #pragma mark - Properties
+- (NSMutableDictionary<NSString *,id> *)propertiesWithFilter:(id<SAPropertyPluginEventFilter>)filter {
+    NSMutableArray <SAPropertyPlugin *>*allPlugins = [NSMutableArray array];
 
-- (NSMutableDictionary<NSString *, id> *)propertiesWithFilter:(SAPropertyPluginFilter *)filter properties:(NSDictionary<NSString *,id> *)properties {
     // 获取匹配的自定义属性插件
     NSArray *customPlugins = [self customPluginsWithFilter:filter];
+    if (customPlugins.count > 0) {
+        [allPlugins addObjectsFromArray:customPlugins];
+    }
 
-    filter.properties = properties;
+    // 获取普通属性采集插件
+    NSArray *presetPlugins = [self pluginsWithFilter:filter];
+    if (presetPlugins.count > 0) {
+        [allPlugins addObjectsFromArray:presetPlugins];
+    }
 
-    // 获取匹配的属性插件
-    NSMutableArray *plugins = [self pluginsWithFilter:filter];
-    [plugins addObjectsFromArray:customPlugins];
-
-    // 获取匹配的属性插件
-    [plugins addObjectsFromArray:[self superPluginsWithFilter:filter]];
-
-    // 获取属性插件采集的属性
-    return [self propertiesWithPlugins:plugins];
+    // 添加特殊优先级的属性插件采集的属性
+    NSArray *superPlugins = [self superPluginsWithFilter:filter];
+    if (superPlugins.count > 0) {
+        [allPlugins addObjectsFromArray:superPlugins];
+    }
+    
+    NSMutableDictionary *properties = [self propertiesWithPlugins:allPlugins filter:filter];
+    return properties;
 }
 
-- (NSMutableDictionary *)propertiesWithPlugins:(NSArray<id<SAPropertyPluginProtocol>> *)plugins {
+- (NSMutableDictionary *)propertiesWithPlugins:(NSArray<SAPropertyPlugin *> *)plugins filter:(id<SAPropertyPluginEventFilter>)filter {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
-    // 按优先级排序
-    [plugins sortedArrayUsingComparator:^NSComparisonResult(id<SAPropertyPluginProtocol> obj1, id<SAPropertyPluginProtocol> obj2) {
+    // 按优先级升序排序
+    NSArray<SAPropertyPlugin *> *sortedPlugins = [plugins sortedArrayUsingComparator:^NSComparisonResult(SAPropertyPlugin *obj1, SAPropertyPlugin *obj2) {
         SAPropertyPluginPriority priority1 = [obj1 respondsToSelector:@selector(priority)] ? obj1.priority : SAPropertyPluginPriorityDefault;
         SAPropertyPluginPriority priority2 = [obj2 respondsToSelector:@selector(priority)] ? obj2.priority : SAPropertyPluginPriorityDefault;
-        return priority1 < priority2;
-    }];
-    // 获取匹配的插件属性
-    dispatch_semaphore_t semaphore;
-    for (id<SAPropertyPluginProtocol> plugin in plugins) {
-        if ([plugin respondsToSelector:@selector(setPropertyPluginCompletion:)]) {
-            // 如果插件异步获取属性，创建信号量
-            semaphore = dispatch_semaphore_create(0);
-            [plugin setPropertyPluginCompletion:^(NSDictionary<NSString *,id> * _Nonnull p) {
-                [properties addEntriesFromDictionary:p];
-                // 插件采集完成，释放信号量
-                dispatch_semaphore_signal(semaphore);
-            }];
+        
+        if (priority1 <= priority2) {
+            return NSOrderedAscending;
         }
-        NSDictionary *pluginProperties = [plugin respondsToSelector:@selector(properties)] ? plugin.properties : nil;
-        if (pluginProperties) {
-            [properties addEntriesFromDictionary:pluginProperties];
-        } else if (semaphore) {
+        return NSOrderedDescending;
+    }];
+    
+    // 创建信号量
+    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    SAPropertyPluginHandler handler = ^(NSDictionary<NSString *,id> * _Nonnull p) {
+        [properties addEntriesFromDictionary:p];
+        // 插件采集完成，释放信号量
+        dispatch_semaphore_signal(semaphore);
+    };
+    for (SAPropertyPlugin *plugin in sortedPlugins) {
+        // 设置属性处理完成回调
+        plugin.handler = handler;
+        plugin.filter = filter;
+        
+        // 获取匹配的插件属性
+        NSDictionary *pluginProperties = plugin.properties;
+        // 避免插件未实现 prepare 接口，并且 properties 返回 nil 导致的阻塞问题
+        if ([plugin respondsToSelector:@selector(prepare)] && !pluginProperties) {
             // 等待插件采集完成
             dispatch_semaphore_wait(semaphore, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)));
+        } else if (pluginProperties) {
+            [properties addEntriesFromDictionary:pluginProperties];
         }
-        // 将信号量置空
-        semaphore = nil;
+        
+        // 清空 filter，防止影响其他采集
+        plugin.filter = nil;
     }
     return properties;
 }
 
 #pragma mark - Plugins
 
-- (NSMutableArray<id<SAPropertyPluginProtocol>> *)customPluginsWithFilter:(SAPropertyPluginFilter *)filter {
+- (NSMutableArray<SAPropertyPlugin *> *)customPluginsWithFilter:(id<SAPropertyPluginEventFilter>)filter {
     NSDictionary *dic = [self.customPlugins copy];
-    NSMutableArray<id<SAPropertyPluginProtocol>> *matchPlugins = [NSMutableArray array];
-    [dic enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSMutableArray<id<SAPropertyPluginProtocol>> *obj, BOOL *stop) {
-        if ([self isMatchedWithPlugin:obj.firstObject filter:filter]) {
+    NSMutableArray<SAPropertyPlugin *> *matchPlugins = [NSMutableArray array];
+    [dic enumerateKeysAndObjectsUsingBlock:^(NSString *key, NSMutableArray<SAPropertyPlugin *> *obj, BOOL *stop) {
+        if ([obj.firstObject isMatchedWithFilter:filter]) {
             [matchPlugins addObject:obj.firstObject];
+            // 自定义属性插件，单次生效后移除
             [self.customPlugins[key] removeObjectAtIndex:0];
         }
     }];
     return matchPlugins;
 }
 
-- (NSMutableArray<id<SAPropertyPluginProtocol>> *)pluginsWithFilter:(SAPropertyPluginFilter *)filter {
+- (NSMutableArray<SAPropertyPlugin *> *)pluginsWithFilter:(id<SAPropertyPluginEventFilter>)filter {
     NSArray *array = [self.plugins copy];
-    NSMutableArray<id<SAPropertyPluginProtocol>> *matchPlugins = [NSMutableArray array];
-    for (id<SAPropertyPluginProtocol> obj in array) {
-        if ([self isMatchedWithPlugin:obj filter:filter]) {
+    NSMutableArray<SAPropertyPlugin *> *matchPlugins = [NSMutableArray array];
+    for (SAPropertyPlugin *obj in array) {
+        if ([obj isMatchedWithFilter:filter]) {
             [matchPlugins addObject:obj];
         }
     }
     return matchPlugins;
 }
 
-- (NSMutableArray<id<SAPropertyPluginProtocol>> *)superPluginsWithFilter:(SAPropertyPluginFilter *)filter {
+- (NSMutableArray<SAPropertyPlugin *> *)superPluginsWithFilter:(id<SAPropertyPluginEventFilter>)filter {
     NSArray *array = [self.superPlugins copy];
-    NSMutableArray<id<SAPropertyPluginProtocol>> *matchPlugins = [NSMutableArray array];
-    for (id<SAPropertyPluginProtocol> obj in array) {
-        if ([self isMatchedWithPlugin:obj filter:filter]) {
+    NSMutableArray<SAPropertyPlugin *> *matchPlugins = [NSMutableArray array];
+    for (SAPropertyPlugin *obj in array) {
+        if ([obj isMatchedWithFilter:filter]) {
             [matchPlugins addObject:obj];
         }
     }
     return matchPlugins;
-}
-
-#pragma mark - Matched
-
-- (BOOL)isMatchedWithPlugin:(id<SAPropertyPluginProtocol>)plugin filter:(SAPropertyPluginFilter *)filter {
-    if (!plugin) {
-        return NO;
-    }
-    for (Class cla in filter.classes) {
-        if ([plugin isKindOfClass:cla]) {
-            return YES;
-        }
-    }
-    // 事件名是否匹配
-    // 事件类型是否匹配
-    // 事件自定义属性是否匹配
-    return [self isMatchedWithPlugin:plugin eventName:filter.event] && [self isMatchedWithPlugin:plugin eventType:filter.type] && [self isMatchedWithPlugin:plugin properties:filter.properties];
-}
-
-- (BOOL)isMatchedWithPlugin:(id<SAPropertyPluginProtocol>)plugin properties:(NSDictionary<NSString *,id> *)properties {
-    if (![plugin respondsToSelector:@selector(propertyKeyFilter)]) {
-        return YES;
-    }
-    NSArray *propertyKeyFilter = plugin.propertyKeyFilter;
-    if (![propertyKeyFilter isKindOfClass:[NSArray class]]) {
-        return YES;
-    }
-    for (NSString *key in propertyKeyFilter) {
-        if (!properties[key]) {
-            return NO;
-        }
-    }
-    return YES;
-}
-
-- (BOOL)isMatchedWithPlugin:(id<SAPropertyPluginProtocol>)plugin eventName:(NSString *)name {
-    if (![plugin respondsToSelector:@selector(eventNameFilter)]) {
-        return YES;
-    }
-    NSArray *eventNameFilter = plugin.eventNameFilter;
-    if (![eventNameFilter isKindOfClass:[NSArray class]]) {
-        return YES;
-    }
-    return [eventNameFilter containsObject:name];
-}
-
-- (BOOL)isMatchedWithPlugin:(id<SAPropertyPluginProtocol>)plugin eventType:(NSString *)type {
-    if (![plugin respondsToSelector:@selector(eventTypeFilter)]) {
-        // 默认为 track
-        return [type isEqualToString:kSAEventTypeTrack];
-    }
-    SAPropertyPluginEventTypes eventTypeFilter = plugin.eventTypeFilter;
-    if (eventTypeFilter == SAPropertyPluginEventTypeAll) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeTrack &&
-        [type isEqualToString:kSAEventTypeTrack]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeSignup &&
-        [type isEqualToString:kSAEventTypeSignup]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeProfileSet &&
-        [type isEqualToString:SA_PROFILE_SET]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeProfileSetOnce &&
-        [type isEqualToString:SA_PROFILE_SET_ONCE]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeProfileUnset &&
-        [type isEqualToString:SA_PROFILE_UNSET]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeProfileDelete &&
-        [type isEqualToString:SA_PROFILE_DELETE]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeProfileAppend &&
-        [type isEqualToString:SA_PROFILE_APPEND]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeIncrement &&
-        [type isEqualToString:SA_PROFILE_INCREMENT]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeItemSet &&
-        [type isEqualToString:SA_EVENT_ITEM_SET]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeItemDelete &&
-        [type isEqualToString:SA_EVENT_ITEM_DELETE]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeBind &&
-        [type isEqualToString:kSAEventTypeBind]) {
-        return YES;
-    }
-    if (eventTypeFilter & SAPropertyPluginEventTypeUnbind &&
-        [type isEqualToString:kSAEventTypeUnbind]) {
-        return YES;
-    }
-
-    return NO;
-}
-
-+ (SAPropertyPluginEventTypes)propertyPluginEventTypeWithEventType:(NSString *)type {
-    if ([type isEqualToString:kSAEventTypeTrack]) {
-        return SAPropertyPluginEventTypeTrack;
-    }
-    if ([type isEqualToString:kSAEventTypeSignup]) {
-        return SAPropertyPluginEventTypeSignup;
-    }
-    if ([type isEqualToString:SA_PROFILE_SET]) {
-        return SAPropertyPluginEventTypeProfileSet;
-    }
-    if ([type isEqualToString:SA_PROFILE_SET_ONCE]) {
-        return SAPropertyPluginEventTypeProfileSetOnce;
-    }
-    if ([type isEqualToString:SA_PROFILE_UNSET]) {
-        return SAPropertyPluginEventTypeProfileUnset;
-    }
-    if ([type isEqualToString:SA_PROFILE_DELETE]) {
-        return SAPropertyPluginEventTypeProfileDelete;
-    }
-    if ([type isEqualToString:SA_PROFILE_APPEND]) {
-        return SAPropertyPluginEventTypeProfileAppend;
-    }
-    if ([type isEqualToString:SA_PROFILE_INCREMENT]) {
-        return SAPropertyPluginEventTypeIncrement;
-    }
-    if ([type isEqualToString:SA_EVENT_ITEM_SET]) {
-        return SAPropertyPluginEventTypeItemSet;
-    }
-    if ([type isEqualToString:SA_EVENT_ITEM_DELETE]) {
-        return SAPropertyPluginEventTypeItemDelete;
-    }
-    return SAPropertyPluginEventTypeAll;
 }
 
 @end

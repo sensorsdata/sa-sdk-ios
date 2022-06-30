@@ -358,7 +358,7 @@
     WKWebView *webView = (WKWebView *)view;
     NSMutableDictionary *webMessageInfo = [NSMutableDictionary dictionary];
     webMessageInfo[@"platform"] = @"ios";
-    webMessageInfo[@"sensorsdata_js_visual_properties"] = propertyConfigs;
+    webMessageInfo[kSAWebVisualProperties] = propertyConfigs;
 
     // 注入待查询的属性配置信息
     NSString *javaScriptSource = [SAJavaScriptBridgeBuilder buildCallJSMethodStringWithType:SAJavaScriptCallJSTypeWebVisualProperties jsonObject:webMessageInfo];

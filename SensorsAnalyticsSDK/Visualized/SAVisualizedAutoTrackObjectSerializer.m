@@ -253,7 +253,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 /// 添加弹框信息
 - (void)addNotWKWebViewAlertInfo {
     [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithWebInfo:nil];
-
+    
     NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
     alertInfo[@"title"] = SALocalizedString(@"SAVisualizedPageErrorTitle");
     alertInfo[@"message"] = SALocalizedString(@"SAVisualizedPageErrorMessage");
@@ -262,7 +262,7 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     if ([SAVisualizedManager defaultManager].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
         alertInfo[@"title"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorTitle");
         alertInfo[@"message"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorMessage");
-        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-16286049.html";
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_ios_super-81297507.html";
     }
     [[SAVisualizedObjectSerializerManager sharedInstance] registWebAlertInfos:@[alertInfo]];
 }

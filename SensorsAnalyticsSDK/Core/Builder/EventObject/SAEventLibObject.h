@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAPropertyPlugin.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -33,7 +34,7 @@ extern NSString * const kSAEventPresetPropertyLibDetail;
 /// 应用版本
 extern NSString * const kSAEventPresetPropertyAppVersion;
 
-@interface SAEventLibObject : NSObject
+@interface SAEventLibObject : NSObject <SAPropertyPluginLibFilter>
 
 @property (nonatomic, copy) NSString *lib;
 @property (nonatomic, copy) NSString *method;
@@ -42,6 +43,8 @@ extern NSString * const kSAEventPresetPropertyAppVersion;
 @property (nonatomic, copy, nullable) NSString *detail;
 
 - (NSMutableDictionary *)jsonObject;
+
+- (instancetype)initWithH5Lib:(NSDictionary *)lib;
 
 @end
 

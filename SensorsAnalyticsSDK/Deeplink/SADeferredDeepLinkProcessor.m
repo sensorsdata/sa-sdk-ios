@@ -28,6 +28,7 @@
 #import "SAJSONUtil.h"
 #import "SANetwork.h"
 #import "SAUserAgent.h"
+#import "SANetworkInfoPropertyPlugin.h"
 #import "SAConstants+Private.h"
 
 @implementation SADeferredDeepLinkProcessor
@@ -117,7 +118,9 @@
             NSMutableDictionary *jumpProps = [NSMutableDictionary dictionary];
             jumpProps[kSAEventPropertyDeepLinkOptions] = obj.params;
             jumpProps[kSAEventPropertyADSLinkID] = slinkID;
-            [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:jumpProps];
+
+            [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:jumpProps];
+
         });
     }];
     [task resume];
@@ -144,7 +147,8 @@
     params[kSARequestPropertyOS] = @"iOS";
     params[kSARequestPropertyOSVersion] = UIDevice.currentDevice.systemVersion;
     params[kSARequestPropertyModel] = UIDevice.currentDevice.model;
-    params[kSARequestPropertyNetwork] = [SANetwork networkTypeString];
+    SANetworkInfoPropertyPlugin *plugin = [[SANetworkInfoPropertyPlugin alloc] init];
+    params[kSARequestPropertyNetwork] = [plugin networkTypeString];
     NSInteger timestamp = [@([[NSDate date] timeIntervalSince1970] * 1000) integerValue];
     params[kSARequestPropertyTimestamp] = @(timestamp);
     params[kSARequestPropertyAppID] = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];

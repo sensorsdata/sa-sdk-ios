@@ -1,0 +1,9 @@
+[{
+    "id": "sensorsdata_track_flow",
+    "name": "Track and flush",
+    "tasks": ["dynamic_property", "serial_queue", "track_task", "flush_task"]
+}, {
+    "id": "sensorsdata_flush_flow",
+    "name": "Record flush",
+    "tasks": ["serial_queue", "flush_task"]
+}]

@@ -36,7 +36,7 @@
 
 - (void)setUp {
     _plugin = [[SADeviceIDPropertyPlugin alloc] init];
-    [_plugin start];
+    [_plugin prepare];
 }
 
 - (void)tearDown {
@@ -46,12 +46,6 @@
 
 - (void)testPriority {
     XCTAssertTrue([self.plugin priority] == 1431656640);
-}
-
-- (void)testAnonymizationID {
-    NSData *data = [[SAIdentifier hardwareID] dataUsingEncoding:NSUTF8StringEncoding];
-    NSString *anonymizationID = [data base64EncodedStringWithOptions:0];
-    XCTAssertTrue([self.plugin.properties[@"$anonymization_id"] isEqualToString:anonymizationID]);
 }
 
 - (void)testPerformanceExample {

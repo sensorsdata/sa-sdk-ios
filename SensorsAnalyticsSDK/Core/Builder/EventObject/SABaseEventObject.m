@@ -24,7 +24,6 @@
 
 #import "SABaseEventObject.h"
 #import "SAConstants+Private.h"
-#import "SAPresetProperty.h"
 #import "SALog.h"
 
 @implementation SABaseEventObject
@@ -32,13 +31,65 @@
 - (instancetype)init {
     self = [super init];
     if (self) {
+        _type = SAEventTypeTrack;
         _lib = [[SAEventLibObject alloc] init];
-        _timeStamp = [[NSDate date] timeIntervalSince1970] * 1000;
+        _time = [[NSDate date] timeIntervalSince1970] * 1000;
         _trackId = @(arc4random());
         _properties = [NSMutableDictionary dictionary];
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
         
         _ignoreRemoteConfig = NO;
+        _hybridH5 = NO;
+    }
+    return self;
+}
+
+- (instancetype)initWithH5Event:(NSDictionary *)event {
+    self = [super init];
+    if (self) {
+        NSString *type = event[kSAEventType];
+        _type = [SABaseEventObject eventTypeWithType:type];
+        _lib = [[SAEventLibObject alloc] initWithH5Lib:event[kSAEventLib]];
+        _time = [[NSDate date] timeIntervalSince1970] * 1000;
+        _trackId = @(arc4random());
+        _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
+
+        _ignoreRemoteConfig = NO;
+
+        _hybridH5 = YES;
+
+        _eventId = event[kSAEventName];
+        _loginId = event[kSAEventLoginId];
+        _anonymousId = event[kSAEventAnonymousId];
+        _distinctId = event[kSAEventDistinctId];
+        _originalId = event[kSAEventOriginalId];
+        _identities = event[kSAEventIdentities];
+        NSMutableDictionary *properties = [event[kSAEventProperties] mutableCopy];
+        [properties removeObjectForKey:@"_nocache"];
+
+        _project = properties[kSAEventProject];
+        _token = properties[kSAEventToken];
+
+        id timeNumber = properties[kSAEventCommonOptionalPropertyTime];
+        if (timeNumber) {     //包含 $time
+            NSNumber *customTime = nil;
+            if ([timeNumber isKindOfClass:[NSDate class]]) {
+                customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
+            } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
+                customTime = timeNumber;
+            }
+
+            if (!customTime) {
+                SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
+            } else if ([customTime compare:@(kSAEventCommonOptionalPropertyTimeInt)] == NSOrderedAscending) {
+                SALogError(@"H5 $time error %@，Please check the value", timeNumber);
+            } else {
+                _time = [customTime unsignedLongLongValue];
+            }
+        }
+
+        [properties removeObjectsForKeys:@[@"_nocache", @"server_url", kSAAppVisualProperties, kSAEventProject, kSAEventToken, kSAEventCommonOptionalPropertyTime]];
+        _properties = properties;
     }
     return self;
 }
@@ -65,84 +116,17 @@
     eventInfo[kSAEventDistinctId] = self.distinctId;
     eventInfo[kSAEventLoginId] = self.loginId;
     eventInfo[kSAEventAnonymousId] = self.anonymousId;
-    eventInfo[kSAEventType] = self.type;
-    eventInfo[kSAEventTime] = @(self.timeStamp);
+    eventInfo[kSAEventType] = [SABaseEventObject typeWithEventType:self.type];
+    eventInfo[kSAEventTime] = @(self.time);
     eventInfo[kSAEventLib] = [self.lib jsonObject];
     eventInfo[kSAEventTrackId] = self.trackId;
     eventInfo[kSAEventName] = self.event;
     eventInfo[kSAEventProject] = self.project;
     eventInfo[kSAEventToken] = self.token;
     eventInfo[kSAEventIdentities] = self.identities;
+    // App 内嵌 H5 事件标记
+    eventInfo[kSAEventHybridH5] = self.hybridH5 ? @(self.hybridH5) : nil;
     return eventInfo;
-}
-
-#pragma makr - SAEventBuildStrategy
-- (void)addEventProperties:(NSDictionary *)properties {
-}
-
-- (void)addLatestUtmProperties:(NSDictionary *)properties {
-}
-
-- (void)addChannelProperties:(NSDictionary *)properties {
-}
-
-- (void)addModuleProperties:(NSDictionary *)properties {
-}
-
-- (void)addSuperProperties:(NSDictionary *)properties {
-}
-
-- (void)addCustomProperties:(NSDictionary *)properties {
-    NSMutableDictionary *props = [SAPropertyValidator validProperties:properties validator:self];
-
-    [self.properties addEntriesFromDictionary:props];
-    
-    // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
-    self.project = (NSString *)self.properties[kSAEventCommonOptionalPropertyProject];
-    self.token = (NSString *)self.properties[kSAEventCommonOptionalPropertyToken];
-    id originalTime = self.properties[kSAEventCommonOptionalPropertyTime];
-    if ([originalTime isKindOfClass:NSDate.class]) {
-        NSDate *customTime = (NSDate *)originalTime;
-        int64_t customTimeInt = [customTime timeIntervalSince1970] * 1000;
-        if (customTimeInt >= kSAEventCommonOptionalPropertyTimeInt) {
-            self.timeStamp = customTimeInt;
-        } else {
-            SALogError(@"$time error %lld, Please check the value", customTimeInt);
-        }
-    } else if (originalTime) {
-        SALogError(@"$time '%@' invalid, Please check the value", originalTime);
-    }
-    
-    // $project, $token, $time 处理完毕后需要移除
-    NSArray<NSString *> *needRemoveKeys = @[kSAEventCommonOptionalPropertyProject,
-                                            kSAEventCommonOptionalPropertyToken,
-                                            kSAEventCommonOptionalPropertyTime];
-    [self.properties removeObjectsForKeys:needRemoveKeys];
-}
-
-- (void)addSessionPropertiesWithObject:(id)object {
-}
-
-- (void)addReferrerTitleProperty:(NSString *)referrerTitle {
-}
-
-- (void)addDurationProperty:(NSNumber *)duration {
-}
-
-- (void)correctAnonymizationID:(NSString *)anonymizationID {
-    // 修正 $anonymization_id
-    // 1. 公共属性, 动态公共属性, 自定义属性不允许修改 $anonymization_id
-    // 2. trackEventCallback 可以修改 $anonymization_id
-    // 3. profile 操作中若传入 $anonymization_id, 也需要进行修正
-    if (self.properties[@"$anonymization_id"] && anonymizationID) {
-        self.properties[@"$anonymization_id"] = anonymizationID;
-    }
-}
-
-- (void)correctDeviceID:(NSString *)deviceID {
-    if (self.properties[@"$device_id"] && deviceID) {
-        self.properties[@"$device_id"] = deviceID;
-    }
 }
 
 - (id)sensorsdata_validKey:(NSString *)key value:(id)value error:(NSError *__autoreleasing  _Nullable *)error {
@@ -164,6 +148,87 @@
 
     // value 转换
     return [(id <SAPropertyValueProtocol>)value sensorsdata_propertyValueWithKey:key error:error];
+}
+
++ (SAEventType)eventTypeWithType:(NSString *)type {
+    if ([type isEqualToString:kSAEventTypeTrack]) {
+        return SAEventTypeTrack;
+    }
+    if ([type isEqualToString:kSAEventTypeSignup]) {
+        return SAEventTypeSignup;
+    }
+    if ([type isEqualToString:kSAEventTypeBind]) {
+        return SAEventTypeBind;
+    }
+    if ([type isEqualToString:kSAEventTypeUnbind]) {
+        return SAEventTypeUnbind;
+    }
+    if ([type isEqualToString:kSAProfileSet]) {
+        return SAEventTypeProfileSet;
+    }
+    if ([type isEqualToString:kSAProfileSetOnce]) {
+        return SAEventTypeProfileSetOnce;
+    }
+    if ([type isEqualToString:kSAProfileUnset]) {
+        return SAEventTypeProfileUnset;
+    }
+    if ([type isEqualToString:kSAProfileDelete]) {
+        return SAEventTypeProfileDelete;
+    }
+    if ([type isEqualToString:kSAProfileAppend]) {
+        return SAEventTypeProfileAppend;
+    }
+    if ([type isEqualToString:kSAProfileIncrement]) {
+        return SAEventTypeIncrement;
+    }
+    if ([type isEqualToString:kSAEventItemSet]) {
+        return SAEventTypeItemSet;
+    }
+    if ([type isEqualToString:kSAEventItemDelete]) {
+        return SAEventTypeItemDelete;
+    }
+    return SAEventTypeDefault;
+}
+
++ (NSString *)typeWithEventType:(SAEventType)type {
+    if (type & SAEventTypeTrack) {
+        return kSAEventTypeTrack;
+    }
+    if (type & SAEventTypeSignup) {
+        return kSAEventTypeSignup;
+    }
+    if (type & SAEventTypeProfileSet) {
+        return kSAProfileSet;
+    }
+    if (type & SAEventTypeProfileSetOnce) {
+        return kSAProfileSetOnce;
+    }
+    if (type & SAEventTypeProfileUnset) {
+        return kSAProfileUnset;
+    }
+    if (type & SAEventTypeProfileDelete) {
+        return kSAProfileDelete;
+    }
+    if (type & SAEventTypeProfileAppend) {
+        return kSAProfileAppend;
+    }
+    if (type & SAEventTypeIncrement) {
+        return kSAProfileIncrement;
+    }
+    if (type & SAEventTypeItemSet) {
+        return kSAEventItemSet;
+    }
+    if (type & SAEventTypeItemDelete) {
+        return kSAEventItemDelete;
+    }
+    if (type & SAEventTypeBind) {
+        return kSAEventTypeBind;
+    }
+    if (type & SAEventTypeUnbind) {
+        return kSAEventTypeUnbind;
+    }
+
+    return nil;
 }
 
 @end

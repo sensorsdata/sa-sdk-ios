@@ -104,8 +104,8 @@
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     [eventProperties addEntriesFromDictionary:properties];
     eventProperties[kSAEventPropertyDeepLinkURL] = self.URL.absoluteString;
-    eventProperties[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+    eventProperties[kSAEventPropertyInstallSource] = [self appInstallSource];
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:eventProperties];
 }
 
 - (void)trackDeepLinkMatchedResult:(NSDictionary *)properties {
@@ -113,7 +113,8 @@
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     [eventProperties addEntriesFromDictionary:properties];
     eventProperties[kSAEventPropertyDeepLinkURL] = self.URL.absoluteString;
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:eventProperties];
+
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:eventProperties];
 }
 
 @end

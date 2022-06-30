@@ -29,6 +29,7 @@ extern NSString * const kSAEventTime;
 extern NSString * const kSAEventTrackId;
 extern NSString * const kSAEventName;
 extern NSString * const kSAEventDistinctId;
+extern NSString * const kSAEventOriginalId;
 extern NSString * const kSAEventProperties;
 extern NSString * const kSAEventType;
 extern NSString * const kSAEventLib;
@@ -40,8 +41,8 @@ extern NSString * const kSAEventAnonymousId;
 extern NSString * const kSAEventIdentities;
 
 #pragma mark - Item
-extern NSString * const SA_EVENT_ITEM_SET;
-extern NSString * const SA_EVENT_ITEM_DELETE;
+extern NSString * const kSAEventItemSet;
+extern NSString * const kSAEventItemDelete;
 
 #pragma mark--evnet nanme
 
@@ -70,9 +71,9 @@ extern NSString * const kSAEventNameBind;
 extern NSString * const kSAEventNameUnbind;
 
 #pragma mark--app install property
-extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_SOURCE;
-extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK;
-extern NSString * const SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME;
+extern NSString * const kSAEventPropertyInstallSource;
+extern NSString * const kSAEventPropertyInstallDisableCallback;
+extern NSString * const kSAEventPropertyAppInstallFirstVisitTime;
 
 #pragma mark--autoTrack property
 // App 浏览页面 Url
@@ -109,12 +110,12 @@ extern NSString * const kSAEventTypeBind;
 extern NSString * const kSAEventTypeUnbind;
 
 #pragma mark--profile
-extern NSString * const SA_PROFILE_SET;
-extern NSString * const SA_PROFILE_SET_ONCE;
-extern NSString * const SA_PROFILE_UNSET;
-extern NSString * const SA_PROFILE_DELETE;
-extern NSString * const SA_PROFILE_APPEND;
-extern NSString * const SA_PROFILE_INCREMENT;
+extern NSString * const kSAProfileSet;
+extern NSString * const kSAProfileSetOnce;
+extern NSString * const kSAProfileUnset;
+extern NSString * const kSAProfileDelete;
+extern NSString * const kSAProfileAppend;
+extern NSString * const kSAProfileIncrement;
 
 #pragma mark - bridge name
 extern NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME;
@@ -164,3 +165,11 @@ extern NSString * const kSAEventNameAppPageLeave;
 //event name、property key、value max length
 extern NSInteger kSAEventNameMaxLength;
 extern NSInteger kSAPropertyValueMaxLength;
+
+#pragma mark - SA Visualized
+/// H5 可视化全埋点事件标记
+extern NSString * const kSAWebVisualEventName;
+/// 内嵌 H5 可视化全埋点 App 自定义属性配置
+extern NSString * const kSAAppVisualProperties;
+/// 内嵌 H5 可视化全埋点 Web 自定义属性配置
+extern NSString * const kSAWebVisualProperties;

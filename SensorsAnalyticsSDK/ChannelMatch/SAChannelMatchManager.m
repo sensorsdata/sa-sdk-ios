@@ -36,6 +36,8 @@
 #import "SensorsAnalyticsSDK+SAChannelMatch.h"
 #import "SAApplication.h"
 #import "SAProfileEventObject.h"
+#import "SAPropertyPluginManager.h"
+#import "SAChannelInfoPropertyPlugin.h"
 
 NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
@@ -71,6 +73,10 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     }
     _configOptions = configOptions;
     self.enable = configOptions.enableChannelMatch;
+
+    // 注册渠道相关属性插件 Channel
+    SAChannelInfoPropertyPlugin *channelInfoPropertyPlugin = [[SAChannelInfoPropertyPlugin alloc] init];
+    [SensorsAnalyticsSDK.sharedInstance registerPropertyPlugin:channelInfoPropertyPlugin];
 }
 
 #pragma mark -
@@ -161,16 +167,14 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 }
 
 #pragma mark - 激活事件
-- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback dynamicProperties:(NSDictionary *)dynamicProperties {
+- (void)trackAppInstall:(NSString *)event properties:(NSDictionary *)properties disableCallback:(BOOL)disableCallback{
     // 采集激活事件
     SAPresetEventObject *eventObject = [[SAPresetEventObject alloc] initWithEventId:event];
-    eventObject.dynamicSuperProperties = dynamicProperties;
     NSDictionary *eventProps = [self eventProperties:properties disableCallback:disableCallback];
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:eventObject properties:eventProps];
 
     // 设置用户属性
-    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:SA_PROFILE_SET_ONCE];
-    profileObject.dynamicSuperProperties = dynamicProperties;
+    SAProfileEventObject *profileObject = [[SAProfileEventObject alloc] initWithType:kSAProfileSetOnce];
     NSDictionary *profileProps = [self profileProperties:properties];
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:profileObject properties:profileProps];
 }
@@ -182,14 +186,14 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     }
 
     if (disableCallback) {
-        result[SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK] = @YES;
+        result[kSAEventPropertyInstallDisableCallback] = @YES;
     }
 
     if ([result[kSAEventPropertyUserAgent] length] == 0) {
         result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
 
-    result[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+    result[kSAEventPropertyInstallSource] = [self appInstallSource];
 
     return result;
 }
@@ -204,13 +208,13 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
         result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
 
-    result[SA_EVENT_PROPERTY_APP_INSTALL_SOURCE] = [self appInstallSource];
+    result[kSAEventPropertyInstallSource] = [self appInstallSource];
 
     // 用户属性中不需要添加 $ios_install_disable_callback，这里主动移除掉
     // (也会移除自定义属性中的 $ios_install_disable_callback, 和原有逻辑保持一致)
-    [result removeObjectForKey:SA_EVENT_PROPERTY_APP_INSTALL_DISABLE_CALLBACK];
+    [result removeObjectForKey:kSAEventPropertyInstallDisableCallback];
 
-    [result setValue:[NSDate date] forKey:SA_EVENT_PROPERTY_APP_INSTALL_FIRST_VISIT_TIME];
+    [result setValue:[NSDate date] forKey:kSAEventPropertyAppInstallFirstVisitTime];
 
     return result;
 }
@@ -404,9 +408,11 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:title message:content preferredStyle:SAAlertControllerStyleAlert];
     [alertController addActionWithTitle:SALocalizedString(@"SAChannelActivate") style:SAAlertActionStyleDefault handler:^(SAAlertAction * _Nonnull action) {
         dispatch_queue_t serialQueue = SensorsAnalyticsSDK.sharedInstance.serialQueue;
-        NSDictionary *dynamicProperties = [SensorsAnalyticsSDK.sharedInstance.superProperty acquireDynamicSuperProperties];
+        // 入队列前，执行动态公共属性采集 block
+        [SensorsAnalyticsSDK.sharedInstance buildDynamicSuperProperties];
+
         dispatch_async(serialQueue, ^{
-            [self trackAppInstall:kSAChannelDebugInstallEventName properties:nil disableCallback:NO dynamicProperties:dynamicProperties];
+            [self trackAppInstall:kSAChannelDebugInstallEventName properties:nil disableCallback:NO];
         });
         [SensorsAnalyticsSDK.sharedInstance flush];
 

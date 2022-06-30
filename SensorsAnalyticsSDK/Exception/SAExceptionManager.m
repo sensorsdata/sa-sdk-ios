@@ -149,9 +149,9 @@ static void SAHandleException(NSException *exception) {
             properties[kSAAppCrashedReason] = [NSString stringWithFormat:@"%@ %@", exception.reason, [NSThread.callStackSymbols componentsJoinedByString:@"\n"]];
         }
         SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppCrashed];
-        [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
 
-        //TODO: 去除对 SAModuleManager 的引用
+        [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:properties];
+
         //触发页面浏览时长事件
         [[SAModuleManager sharedInstance] trackPageLeaveWhenCrashed];
 

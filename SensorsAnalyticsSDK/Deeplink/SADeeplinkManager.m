@@ -39,6 +39,10 @@
 #import "SADeepLinkProcessor.h"
 #import "SADeferredDeepLinkProcessor.h"
 #import "SADeepLinkEventProcessor.h"
+#import "SAFirstDayPropertyPlugin.h"
+#import "SAPropertyPluginManager.h"
+#import "SALatestUtmPropertyPlugin.h"
+
 
 @interface SADeepLinkManager () <SADeepLinkProcessorDelegate>
 
@@ -73,9 +77,15 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
 - (instancetype)init {
     self = [super init];
     if (self) {
+        //  注册渠道相关属性插件，LatestUtm
+        SALatestUtmPropertyPlugin *latestUtmPropertyPlugin = [[SALatestUtmPropertyPlugin alloc] init];
+        [SensorsAnalyticsSDK.sharedInstance registerPropertyPlugin:latestUtmPropertyPlugin];
+
         _channels = [NSMutableDictionary dictionary];
         NSInteger status = [self deferredDeepLinkStatus];
-        BOOL isFirstDay = [SensorsAnalyticsSDK.sharedInstance.presetProperty isFirstDay];
+
+        SAFirstDayPropertyPlugin *firstDayPlugin = [[SAFirstDayPropertyPlugin alloc] init];
+        BOOL isFirstDay = [firstDayPlugin isFirstDay];
         // isFirstDay 是为了避免用户版本升级场景下，不需要触发 Deferred DeepLink 逻辑的问题
         if (isFirstDay && status == SADeferredDeepLinkStatusInit) {
             [self enableDeferredDeepLink];

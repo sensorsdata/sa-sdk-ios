@@ -23,9 +23,6 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-extern NSString * const kSAEventItemSet;
-extern NSString * const kSAEventItemDelete;
-
 @interface SAItemEventObject : SABaseEventObject
 
 @property (nonatomic, copy, nullable) NSString *itemType;

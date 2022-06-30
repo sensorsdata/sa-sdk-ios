@@ -61,10 +61,10 @@
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
     if ([SAApplication isAppExtension]) {
-        configOptions.enableDebugMode = NO;
+        configOptions.debugMode = SensorsAnalyticsDebugOff;
     }
     _configOptions = configOptions;
-    self.enable = configOptions.enableDebugMode;
+    self.enable = configOptions.debugMode != SensorsAnalyticsDebugOff;
 }
 
 #pragma mark - SAOpenURLProtocol
@@ -88,26 +88,6 @@
 
 #pragma mark - SADebugModeModuleProtocol
 
-- (void)handleDebugMode:(SensorsAnalyticsDebugMode)mode {
-    if (_debugMode == mode) {
-        return;
-    }
-    _debugMode = mode;
-
-    if (_debugMode == SensorsAnalyticsDebugOff) {
-        return;
-    }
-
-    // 打开debug模式，弹出提示
-    NSString *alertMessage = nil;
-    if (_debugMode == SensorsAnalyticsDebugOnly) {
-        alertMessage = SALocalizedString(@"SADebugNowInDebugOnlyMode");
-    } else if (_debugMode == SensorsAnalyticsDebugAndTrack) {
-        alertMessage = SALocalizedString(@"SADebugNowInDebugAndTrackMode");
-    }
-    [self showDebugModeWarning:alertMessage withNoMoreButton:NO];
-}
-
 - (void)showDebugModeWarning:(NSString *)message {
     [self showDebugModeWarning:message withNoMoreButton:YES];
 }
@@ -119,9 +99,9 @@
         dispatch_block_t alterViewBlock = ^{
 
             NSString *alterViewMessage = @"";
-            if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+            if (self.configOptions.debugMode == SensorsAnalyticsDebugAndTrack) {
                 alterViewMessage = SALocalizedString(@"SADebugAndTrackModeTurnedOn");
-            } else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+            } else if (self.configOptions.debugMode == SensorsAnalyticsDebugOnly) {
                 alterViewMessage = SALocalizedString(@"SADebugOnlyModeTurnedOn");
             } else {
                 alterViewMessage = SALocalizedString(@"SADebugModeTurnedOff");
@@ -133,16 +113,16 @@
 
         NSString *alertTitle = SALocalizedString(@"SADebugMode");
         NSString *alertMessage = @"";
-        if (self.debugMode == SensorsAnalyticsDebugAndTrack) {
+        if (self.configOptions.debugMode == SensorsAnalyticsDebugAndTrack) {
             alertMessage = SALocalizedString(@"SADebugCurrentlyInDebugAndTrack");
-        } else if (self.debugMode == SensorsAnalyticsDebugOnly) {
+        } else if (self.configOptions.debugMode == SensorsAnalyticsDebugOnly) {
             alertMessage = SALocalizedString(@"SADebugCurrentlyInDebugOnly");
         } else {
             alertMessage = SALocalizedString(@"SADebugOff");
         }
         SAAlertController *alertController = [[SAAlertController alloc] initWithTitle:alertTitle message:alertMessage preferredStyle:SAAlertControllerStyleAlert];
         void(^handler)(SensorsAnalyticsDebugMode) = ^(SensorsAnalyticsDebugMode debugMode) {
-            self.debugMode = debugMode;
+            self.configOptions.debugMode = debugMode;
             alterViewBlock();
             [self debugModeCallbackWithDistinctId:[SensorsAnalyticsSDK sharedInstance].distinctId params:params];
         };
@@ -182,7 +162,7 @@
             return;
         }
 
-        if (self.debugMode == SensorsAnalyticsDebugOff) {
+        if (self.configOptions.debugMode == SensorsAnalyticsDebugOff) {
             return;
         }
 

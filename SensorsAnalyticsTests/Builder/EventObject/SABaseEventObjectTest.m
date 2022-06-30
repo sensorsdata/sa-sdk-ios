@@ -28,6 +28,8 @@
 
 @interface SABaseEventObjectTest : XCTestCase
 
+@property (nonatomic, strong) NSDictionary *h5Event;
+
 @end
 
 @implementation SABaseEventObjectTest
@@ -105,18 +107,6 @@
     XCTAssertTrue([jsonObject isKindOfClass:[NSDictionary class]]);
     XCTAssertGreaterThan(jsonObject.count, 0);
     XCTAssertTrue([jsonObject[@"event"] isEqualToString:@"ABC"]);
-}
-
-- (void)testExample {
-    // This is an example of a functional test case.
-    // Use XCTAssert and related functions to verify your tests produce the correct results.
-}
-
-- (void)testPerformanceExample {
-    // This is an example of a performance test case.
-    [self measureBlock:^{
-        // Put the code you want to measure the time of here.
-    }];
 }
 
 @end

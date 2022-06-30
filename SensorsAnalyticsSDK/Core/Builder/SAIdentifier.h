@@ -19,6 +19,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "SAConstants.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -124,10 +125,10 @@ extern NSString * const kSALoginIdSpliceKey;
 - (void)unbindIdentity:(NSString *)key value:(NSString *)value;
 
 /// 获取当前事件的业务 ID
-- (NSDictionary *)identitiesWithEventType:(NSString *)eventType;
+- (NSDictionary *)identitiesWithEventType:(SAEventType)eventType;
 
 /// 用于合并 H5 传过来的业务 ID
-- (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(NSString *)eventType;
+- (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(SAEventType)eventType;
 
 @end
 

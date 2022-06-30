@@ -67,6 +67,8 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param status status
 - (BOOL)updateRecords:(NSArray<NSString *> *)recordIDs status:(SAEventRecordStatus)status;
 
+- (NSUInteger)recordCountWithStatus:(SAEventRecordStatus)status;
+
 /// delete records with IDs
 /// @param recordIDs event record IDs
 - (BOOL)deleteRecords:(NSArray<NSString *> *)recordIDs;

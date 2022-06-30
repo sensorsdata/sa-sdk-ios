@@ -103,3 +103,24 @@ typedef NS_OPTIONS(NSInteger, SensorsAnalyticsNetworkType) {
     SensorsAnalyticsNetworkType5G API_UNAVAILABLE(macos)   = 1 << 4
 #endif
 };
+
+/// 事件类型
+typedef NS_OPTIONS(NSUInteger, SAEventType) {
+    SAEventTypeTrack = 1 << 0,
+    SAEventTypeSignup = 1 << 1,
+    SAEventTypeBind = 1 << 2,
+    SAEventTypeUnbind = 1 << 3,
+
+    SAEventTypeProfileSet = 1 << 4,
+    SAEventTypeProfileSetOnce = 1 << 5,
+    SAEventTypeProfileUnset = 1 << 6,
+    SAEventTypeProfileDelete = 1 << 7,
+    SAEventTypeProfileAppend = 1 << 8,
+    SAEventTypeIncrement = 1 << 9,
+
+    SAEventTypeItemSet = 1 << 10,
+    SAEventTypeItemDelete = 1 << 11,
+
+    SAEventTypeDefault = 0xF,
+    SAEventTypeAll = 0xFFFFFFFF,
+};

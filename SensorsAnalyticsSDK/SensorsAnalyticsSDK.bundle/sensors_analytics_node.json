@@ -1,0 +1,92 @@
+[{
+    "id": "dynamic_property",
+    "name": "Builder dynamic superProperty",
+    "interceptor": "SADynamicSuperPropertyInterceptor"
+}, {
+    "id": "serial_queue",
+    "name": "Switch serialQueue",
+    "interceptor": "SASerialQueueInterceptor"
+}, {
+    "id": "remote_config",
+    "name": "RemoteConfig",
+    "interceptor": "SARemoteConfigInterceptor"
+}, {
+    "id": "event_validate",
+    "name": "Data verification",
+    "interceptor": "SAEventValidateInterceptor"
+}, {
+    "id": "ID-Mapping",
+    "name": "ID-Mapping",
+    "interceptor": "SAIDMappingInterceptor"
+}, {
+    "id": "correct_userId",
+    "name": "CorrectUserInfo",
+    "interceptor": "SACorrectUserIdInterceptor"
+}, {
+    "id": "properties",
+    "name": "Properties acquisition",
+    "interceptor": "SAPropertyInterceptor"
+}, {
+    "id": "event_callback",
+    "name": "Callback",
+    "interceptor": "SAEventCallbackInterceptor"
+}, {
+    "id": "event_result",
+    "name": "Event Result build finish",
+    "interceptor": "SAEventResultInterceptor"
+}, {
+    "id": "encrypt",
+    "name": "Encryption",
+    "interceptor": "SAEncryptInterceptor"
+}, {
+    "id": "insert",
+    "name": "InsertRecord",
+    "interceptor": "SAInsertRecordInterceptor"
+}, {
+    "id": "serial_queue",
+    "name": "Switch serialQueue",
+    "interceptor": "SASerialQueueInterceptor"
+}, {
+    "id": "can_flush",
+    "name": "Can flush",
+    "interceptor": "SACanFlushInterceptor"
+}, {
+    "id": "select_records",
+    "name": "Query record",
+    "interceptor": "SAQueryRecordInterceptor"
+}, {
+    "id": "encrypt_records",
+    "name": "Encrypt record",
+    "interceptor": "SAEncryptInterceptor"
+}, {
+    "id": "update_records_status",
+    "name": "Update record in database",
+    "interceptor": "SAUpdateRecordInterceptor"
+}, {
+    "id": "flush_json",
+    "name": "Build flush json",
+    "interceptor": "SAFlushJSONInterceptor"
+}, {
+    "id": "flush_http_body",
+    "name": "Build flush HTTPBody",
+    "interceptor": "SAFlushHTTPBodyInterceptor"
+}, {
+    "id": "flush",
+    "name": "flush",
+    "interceptor": "SAFlushInterceptor"
+}, {
+    "id": "serial_queue_sync",
+    "name": "Switch serialQueue",
+    "interceptor": "SASerialQueueInterceptor",
+    "param": {
+        "sync": true
+    }
+}, {
+    "id": "flush_end",
+    "name": "Flush end",
+    "interceptor": "SADeleteRecordInterceptor"
+}, {
+    "id": "repeat_flush",
+    "name": "Repeat flush",
+    "interceptor": "SARepeatFlushInterceptor"
+}]

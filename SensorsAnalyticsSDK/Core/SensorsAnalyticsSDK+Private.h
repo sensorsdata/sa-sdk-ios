@@ -27,8 +27,7 @@
 #import "SAHTTPSession.h"
 #import "SATrackEventObject.h"
 #import "SAAppLifecycle.h"
-#import "SASuperProperty.h"
-#import "SAPresetProperty.h"
+
 
 @interface SensorsAnalyticsSDK(Private)
 
@@ -44,24 +43,27 @@
  */
 + (SensorsAnalyticsSDK *)sdkInstance;
 
-#pragma mark - method
++ (NSString *)libVersion;
 
-/// 事件采集: 切换到 serialQueue 中执行
-/// @param object 事件对象
-/// @param properties 事件属性
-- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
+#pragma mark - method
 
 /// 触发事件
 /// @param object 事件对象
 /// @param properties 事件属性
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties;
 
+/// 准备采集动态公共属性
+///
+/// 需要在队列外执行
+- (void)buildDynamicSuperProperties;
+
+/// 注册属性插件
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
+
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;
-@property (nonatomic, strong, readonly) SASuperProperty *superProperty;
 @property (nonatomic, strong, readonly) dispatch_queue_t serialQueue;
-@property (nonatomic, strong, readonly) SAPresetProperty *presetProperty;
 
 @end
 
@@ -76,6 +78,8 @@
 
 /// App 启动的 launchOptions
 @property(nonatomic, strong) id launchOptions;
+
+@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
 @property (nonatomic, strong) NSMutableArray *storePlugins;
 

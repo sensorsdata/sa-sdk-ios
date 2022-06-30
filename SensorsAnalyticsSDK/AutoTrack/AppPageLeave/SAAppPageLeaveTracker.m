@@ -125,7 +125,8 @@
 
 - (void)trackWithProperties:(NSDictionary *)properties {
     SAPresetEventObject *object = [[SAPresetEventObject alloc] initWithEventId:kSAEventNameAppPageLeave];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
+
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:properties];
 }
 
 - (void)appLifecycleStateWillChange:(NSNotification *)notification {

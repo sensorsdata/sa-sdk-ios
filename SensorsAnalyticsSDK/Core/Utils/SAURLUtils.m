@@ -23,6 +23,8 @@
 #endif
 
 #import "SAURLUtils.h"
+#import "SAValidator.h"
+#import "SALog.h"
 
 @implementation SAURLUtils
 
@@ -109,4 +111,24 @@
     }
 }
 
++ (NSURL *)buildServerURLWithURLString:(NSString *)urlString debugMode:(SensorsAnalyticsDebugMode)debugMode {
+    if (![SAValidator isValidString:urlString]) {
+        return nil;
+    }
+
+    NSURL *serverURL = [NSURL URLWithString:urlString];
+    // 将 Server URI Path 替换成 Debug 模式的 '/debug'
+    if (debugMode != SensorsAnalyticsDebugOff) {
+        if (serverURL.lastPathComponent.length > 0) {
+            serverURL = [serverURL URLByDeletingLastPathComponent];
+        }
+        serverURL = [serverURL URLByAppendingPathComponent:@"debug"];
+        if (serverURL.host && [serverURL.host rangeOfString:@"_"].location != NSNotFound) { //包含下划线日志提示
+            NSString *referenceURL = @"https://en.wikipedia.org/wiki/Hostname";
+            SALogWarn(@"Server url:%@ contains '_'  is not recommend,see details:%@", serverURL, referenceURL);
+        }
+    }
+
+    return serverURL;
+}
 @end

@@ -52,12 +52,14 @@
 
 - (void)trackAutoTrackEventWithProperties:(NSDictionary *)properties {
     SAAutoTrackEventObject *object = [[SAAutoTrackEventObject alloc] initWithEventId:[self eventId]];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
+
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:properties];
 }
 
 - (void)trackPresetEventWithProperties:(NSDictionary *)properties {
     SAPresetEventObject *object  = [[SAPresetEventObject alloc] initWithEventId:[self eventId]];
-    [SensorsAnalyticsSDK.sharedInstance asyncTrackEventObject:object properties:properties];
+
+    [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:properties];
 }
 
 - (BOOL)shouldTrackViewController:(UIViewController *)viewController {

@@ -72,7 +72,7 @@
 
 - (void)testSignUpEventObject {
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:@"ABC"];
-    XCTAssertTrue([object.type isEqualToString:kSAEventTypeSignup]);
+    XCTAssertTrue(object.type & SAEventTypeDefault);
     XCTAssertTrue(object.isSignUp);
 }
 

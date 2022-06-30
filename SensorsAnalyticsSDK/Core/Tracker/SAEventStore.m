@@ -29,6 +29,9 @@
 static void * const SAEventStoreContext = (void*)&SAEventStoreContext;
 static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 
+NSString * const kSADatabaseNameKey = @"database_name";
+NSString * const kSADatabaseDefaultFileName = @"message-v2";
+
 @interface SAEventStore ()
 
 @property (nonatomic, strong) SADatabase *database;
@@ -53,6 +56,20 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
     return self;
 }
 
++ (instancetype)eventStoreWithFilePath:(NSString *)filePath {
+    static dispatch_once_t onceToken;
+    static NSMutableDictionary<NSString *, SAEventStore *> *eventStores = nil;
+    dispatch_once(&onceToken, ^{
+        eventStores = [NSMutableDictionary dictionary];
+    });
+    if (eventStores[filePath]) {
+        return eventStores[filePath];
+    }
+    SAEventStore *eventStore = [[SAEventStore alloc] initWithFilePath:filePath];
+    eventStores[filePath] = eventStore;
+    return eventStore;
+}
+
 - (void)dealloc {
     [self.database removeObserver:self forKeyPath:SAEventStoreObserverKeyPath];
     self.database = nil;
@@ -67,6 +84,16 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
 
 - (NSUInteger)count {
     return self.database.count + self.recordCaches.count;
+}
+
+- (NSUInteger)recordCountWithStatus:(SAEventRecordStatus)status {
+    NSUInteger count = 0;
+    for (SAEventRecord *record in self.recordCaches) {
+        if (record.status == status) {
+            count++;
+        }
+    }
+    return [self.database recordCountWithStatus:status] + count;
 }
 
 #pragma mark - observe
@@ -169,12 +196,6 @@ static NSString * const SAEventStoreObserverKeyPath = @"isCreatedTable";
         return YES;
     }
     return [self.database deleteAllRecords];
-}
-
-- (void)fetchRecords:(NSUInteger)recordSize completion:(void (^)(NSArray<SAEventRecord *> *records))completion {
-    dispatch_async(self.serialQueue, ^{
-        completion([self.database selectRecords:recordSize]);
-    });
 }
 
 - (void)insertRecords:(NSArray<SAEventRecord *> *)records completion:(void (^)(BOOL))completion {

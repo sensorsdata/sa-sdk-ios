@@ -145,7 +145,7 @@
     
     if (@available(iOS 15.0, *)) {
         XCTAssertNil([SAJSONUtil JSONObjectWithData:[NSData data] options:NSJSONReadingJSON5Allowed]);
-        XCTAssertNotNil([SAJSONUtil JSONObjectWithData:[NSData data] options:NSJSONReadingTopLevelDictionaryAssumed]);
+        XCTAssertNil([SAJSONUtil JSONObjectWithData:[NSData data] options:NSJSONReadingTopLevelDictionaryAssumed]);
     }
 }
 

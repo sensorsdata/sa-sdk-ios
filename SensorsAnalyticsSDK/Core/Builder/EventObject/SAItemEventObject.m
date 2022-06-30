@@ -28,15 +28,12 @@
 static NSString * const kSAEventItemType = @"item_type";
 static NSString * const kSAEventItemID = @"item_id";
 
-NSString * const kSAEventItemSet = @"item_set";
-NSString * const kSAEventItemDelete = @"item_delete";
-
 @implementation SAItemEventObject
 
 - (instancetype)initWithType:(NSString *)type itemType:(NSString *)itemType itemID:(NSString *)itemID {
     self = [super init];
     if (self) {
-        self.type = type;
+        self.type = [SAItemEventObject eventTypeWithType:type];
         _itemType = itemType;
         _itemID = itemID;
     }
@@ -62,11 +59,11 @@ NSString * const kSAEventItemDelete = @"item_delete";
 
 - (NSMutableDictionary *)jsonObject {
     NSMutableDictionary *eventInfo = [NSMutableDictionary dictionary];
-    eventInfo[kSAEventProperties] = [self.type isEqualToString:kSAEventItemDelete] ? nil : self.properties;
+    eventInfo[kSAEventProperties] = (self.type & SAEventTypeItemDelete) ? nil : self.properties;
     eventInfo[kSAEventItemType] = self.itemType;
     eventInfo[kSAEventItemID] = self.itemID;
-    eventInfo[kSAEventType] = self.type;
-    eventInfo[kSAEventTime] = @(self.timeStamp);
+    eventInfo[kSAEventType] = [SABaseEventObject typeWithEventType:self.type];
+    eventInfo[kSAEventTime] = @(self.time);
     eventInfo[kSAEventLib] = [self.lib jsonObject];
     eventInfo[kSAEventProject] = self.project;
     eventInfo[kSAEventToken] = self.token;

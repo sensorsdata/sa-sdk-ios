@@ -24,7 +24,6 @@
 
 #import "SATrackEventObject.h"
 #import "SAConstants+Private.h"
-#import "SAPresetProperty.h"
 #import "SAValidator.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
@@ -44,62 +43,6 @@
     [SAValidator validKey:self.eventId error:error];
 }
 
-#pragma makr - SAEventBuildStrategy
-- (void)addEventProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-}
-
-- (void)addLatestUtmProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-}
-
-- (void)addModuleProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-}
-
-- (void)addSuperProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-    // 从公共属性中更新 lib 节点中的 $app_version 值
-    id appVersion = properties[kSAEventPresetPropertyAppVersion];
-    if (appVersion) {
-        self.lib.appVersion = appVersion;
-    }
-}
-
-- (void)addCustomProperties:(NSDictionary *)properties {
-    [super addCustomProperties:properties];
-    
-    // 如果传入自定义属性中的 $lib_method 为 String 类型，需要进行修正处理
-    id libMethod = self.properties[kSAEventPresetPropertyLibMethod];
-    if (!libMethod || [libMethod isKindOfClass:NSString.class]) {
-        if (![libMethod isEqualToString:kSALibMethodCode] &&
-            ![libMethod isEqualToString:kSALibMethodAuto]) {
-            libMethod = kSALibMethodCode;
-        }
-    }
-    self.properties[kSAEventPresetPropertyLibMethod] = libMethod;
-    self.lib.method = libMethod;
-}
-
-- (void)addSessionPropertiesWithObject:(id)object {
-    if (![object isKindOfClass:[SASessionProperty class]]) {
-        return;
-    }
-    
-    NSDictionary *properties = [(SASessionProperty *)object sessionPropertiesWithEventTime:@(self.timeStamp)];
-    [self.properties addEntriesFromDictionary:properties];
-}
-
-- (void)addReferrerTitleProperty:(NSString *)referrerTitle {
-    self.properties[kSAEeventPropertyReferrerTitle] = referrerTitle;
-}
-
-- (void)addDurationProperty:(NSNumber *)duration {
-    if (duration) {
-        self.properties[@"event_duration"] = duration;
-    }
-}
-
 @end
 
 @implementation SASignUpEventObject
@@ -107,14 +50,22 @@
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super initWithEventId:eventId];
     if (self) {
-        self.type = kSAEventTypeSignup;
+        self.type = SAEventTypeSignup;
+    }
+    return self;
+}
+
+- (instancetype)initWithH5Event:(NSDictionary *)event {
+    self = [super initWithH5Event:event];
+    if (self) {
+        self.type = SAEventTypeSignup;
     }
     return self;
 }
 
 - (NSMutableDictionary *)jsonObject {
     NSMutableDictionary *jsonObject = [super jsonObject];
-    jsonObject[@"original_id"] = self.originalId;
+    jsonObject[kSAEventOriginalId] = self.originalId;
     return jsonObject;
 }
 
@@ -130,18 +81,6 @@
 
 @implementation SACustomEventObject
 
-- (instancetype)initWithEventId:(NSString *)eventId {
-    self = [super initWithEventId:eventId];
-    if (self) {
-        self.type = kSAEventTypeTrack;
-    }
-    return self;
-}
-
-- (void)addChannelProperties:(NSDictionary *)properties {
-    [self.properties addEntriesFromDictionary:properties];
-}
-
 @end
 
 @implementation SAAutoTrackEventObject
@@ -149,36 +88,15 @@
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super initWithEventId:eventId];
     if (self) {
-        self.type = kSAEventTypeTrack;
+        self.type = SAEventTypeTrack;
+        self.lib.method = kSALibMethodAuto;
     }
     return self;
-}
-
-- (void)addCustomProperties:(NSDictionary *)properties {
-    [super addCustomProperties:properties];
-    self.properties[kSAEventPresetPropertyLibMethod] = kSALibMethodAuto;
-    self.lib.method = kSALibMethodAuto;
-
-    // 不考虑 $AppClick 或者 $AppViewScreen 的计时采集，所以这里的 event 不会出现是 trackTimerStart 返回值的情况
-    // 仅在全埋点的元素点击和页面浏览事件中添加 $lib_detail
-    BOOL isAppClick = [self.eventId isEqualToString:kSAEventNameAppClick];
-    BOOL isViewScreen = [self.eventId isEqualToString:kSAEventNameAppViewScreen];
-    if (isAppClick || isViewScreen) {
-        self.lib.detail = [NSString stringWithFormat:@"%@######", properties[kSAEventPropertyScreenName] ?: @""];
-    }
 }
 
 @end
 
 @implementation SAPresetEventObject
-
-- (instancetype)initWithEventId:(NSString *)eventId {
-    self = [super initWithEventId:eventId];
-    if (self) {
-        self.type = kSAEventTypeTrack;
-    }
-    return self;
-}
 
 @end
 
@@ -188,7 +106,15 @@
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super initWithEventId:eventId];
     if (self) {
-        self.type = kSAEventTypeBind;
+        self.type = SAEventTypeBind;
+    }
+    return self;
+}
+
+- (instancetype)initWithH5Event:(NSDictionary *)event {
+    self = [super initWithH5Event:event];
+    if (self) {
+        self.type = SAEventTypeBind;
     }
     return self;
 }
@@ -201,7 +127,15 @@
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super initWithEventId:eventId];
     if (self) {
-        self.type = kSAEventTypeUnbind;
+        self.type = SAEventTypeUnbind;
+    }
+    return self;
+}
+
+- (instancetype)initWithH5Event:(NSDictionary *)event {
+    self = [super initWithH5Event:event];
+    if (self) {
+        self.type = SAEventTypeUnbind;
     }
     return self;
 }
