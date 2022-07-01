@@ -582,7 +582,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #else
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
-            [self.eventTracker flushAllEventRecords];
+            [self flushAllEventRecords];
         });
 #endif
 

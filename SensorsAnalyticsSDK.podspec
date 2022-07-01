@@ -23,7 +23,7 @@ Pod::Spec.new do |s|
     b.source_files = core_dir + "**/*.{h,m}"
     b.exclude_files = core_dir + "SAAlertController.h", core_dir + "SAAlertController.m"
     b.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", core_dir + "PropertyPlugin/SAPropertyPluginProtocol.h"
-    b.ios.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
+    b.resource = 'SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle'
     b.ios.frameworks = 'CoreTelephony'
     b.dependency 'SensorsAnalyticsSDK/__Store'
   end
