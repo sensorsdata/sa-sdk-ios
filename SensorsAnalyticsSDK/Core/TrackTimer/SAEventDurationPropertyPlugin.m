@@ -25,6 +25,7 @@
 #import "SAEventDurationPropertyPlugin.h"
 #import "SAConstants+Private.h"
 #import "SAPropertyPlugin+SAPrivate.h"
+#import "SABaseEventObject.h"
 
 @interface SAEventDurationPropertyPlugin()
 @property (nonatomic, weak) SATrackTimer *trackTimer;
@@ -57,10 +58,12 @@
 }
 
 - (NSDictionary<NSString *,id> *)properties {
-    if (!self.filter) {
+    if (![self.filter isKindOfClass:SABaseEventObject.class]) {
         return nil;
     }
-    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:self.filter.event currentSysUpTime:self.filter.currentSystemUpTime];
+
+    SABaseEventObject *eventObject = (SABaseEventObject *)self.filter;
+    NSNumber *eventDuration = [self.trackTimer eventDurationFromEventId:eventObject.eventId currentSysUpTime:eventObject.currentSystemUpTime];
     if (!eventDuration) {
         return nil;
     }

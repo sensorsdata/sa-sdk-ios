@@ -62,7 +62,7 @@
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
 
-#define VERSION @"4.4.0"
+#define VERSION @"4.4.1"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -1187,6 +1187,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 #pragma mark - Deprecated
 @implementation SensorsAnalyticsSDK (Deprecated)
+
+// 广告 SDK 调用，暂时保留
+- (void)asyncTrackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    [self trackEventObject:object properties:properties];
+}
 
 - (NSInteger)flushInterval {
     @synchronized(self) {

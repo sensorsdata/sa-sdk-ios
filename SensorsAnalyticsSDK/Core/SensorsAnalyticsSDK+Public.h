@@ -20,6 +20,7 @@
 
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
+#import "SAPropertyPlugin.h"
 
 @class SASecurityPolicy;
 @class SAConfigOptions;
@@ -416,6 +417,14 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @return 当前的 superProperty 的副本
  */
 - (NSDictionary *)currentSuperProperties;
+
+/**
+ * @abstract
+ * 注册属性插件
+ *
+ * @param plugin 属性插件对象
+ */
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
 
 /**
  * @abstract

@@ -57,9 +57,6 @@
 /// 需要在队列外执行
 - (void)buildDynamicSuperProperties;
 
-/// 注册属性插件
-- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
-
 #pragma mark - property
 @property (nonatomic, strong, readonly) SAConfigOptions *configOptions;
 @property (nonatomic, strong, readonly) SANetwork *network;

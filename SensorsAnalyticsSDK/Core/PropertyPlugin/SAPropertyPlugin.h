@@ -48,8 +48,6 @@ typedef NS_ENUM(NSUInteger, SAPropertyPluginPriority) {
 @property (nonatomic, copy, readonly) NSString *event;
 @property (nonatomic, assign, readonly) SAEventType type;
 @property (nonatomic, assign, readonly) UInt64 time;
-/// 开机时间，用于统计事件时长
-@property (nonatomic, assign, readonly) UInt64 currentSystemUpTime;
 
 @property (nonatomic, strong, readonly) id<SAPropertyPluginLibFilter> lib;
 

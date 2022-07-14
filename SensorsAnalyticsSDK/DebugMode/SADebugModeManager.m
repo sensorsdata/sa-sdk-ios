@@ -67,6 +67,13 @@
     self.enable = configOptions.debugMode != SensorsAnalyticsDebugOff;
 }
 
+- (BOOL)isEnable {
+    if ([SAApplication isAppExtension]) {
+        return NO;
+    }
+    return self.configOptions.debugMode != SensorsAnalyticsDebugOff;
+}
+
 #pragma mark - SAOpenURLProtocol
 
 - (BOOL)canHandleURL:(nonnull NSURL *)url {

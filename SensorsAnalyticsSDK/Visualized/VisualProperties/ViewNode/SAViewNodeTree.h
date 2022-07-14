@@ -36,7 +36,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 禁用默认初始化
 - (instancetype)init NS_UNAVAILABLE;
 /// 禁用默认初始化
-- (instancetype)new NS_UNAVAILABLE;
++ (instancetype)new NS_UNAVAILABLE;
 
 /// 视图添加或移除
 - (void)didMoveToSuperviewWithView:(UIView *)view;

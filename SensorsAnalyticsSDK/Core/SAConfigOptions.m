@@ -67,11 +67,8 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 @property (nonatomic, assign) BOOL enableDeviceOrientation;
 @property (nonatomic, assign) BOOL enableRemoteConfig;
 @property (nonatomic, assign) BOOL enableChannelMatch;
-@property (nonatomic, assign) BOOL enableDebugMode;
 @property (nonatomic, assign) BOOL enableDeepLink;
 @property (nonatomic, assign) BOOL enableAutoTrack;
-
-//@property (nonatomic) SensorsAnalyticsDebugMode debugMode;
 
 @end
 
@@ -111,7 +108,6 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
         //default private switch
         _enableRemoteConfig = YES;
         _enableChannelMatch = YES;
-        _enableDebugMode = YES;
         _enableDeepLink = YES;
         _enableAutoTrack = YES;
 
@@ -178,7 +174,6 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     //private switch
     options.enableRemoteConfig = self.enableRemoteConfig;
     options.enableChannelMatch = self.enableChannelMatch;
-    options.enableDebugMode = self.enableDebugMode;
     options.enableDeepLink = self.enableDeepLink;
     options.enableAutoTrack = self.enableAutoTrack;
     options.customADChannelURL = self.customADChannelURL;

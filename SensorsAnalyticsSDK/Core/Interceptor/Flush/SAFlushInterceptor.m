@@ -83,7 +83,6 @@ NSString * const kSAFlushServerURL = @"serverURL";
     SAURLSessionTaskCompletionHandler handler = ^(NSData * _Nullable data, NSHTTPURLResponse * _Nullable response, NSError * _Nullable error) {
         if (error || ![response isKindOfClass:[NSHTTPURLResponse class]]) {
             input.message = [NSString stringWithFormat:@"%@ network failure: %@", self, error ? error : @"Unknown error"];
-            input.state = SAFlowStateStop;
             return completion(NO);
         }
 
@@ -115,9 +114,8 @@ NSString * const kSAFlushServerURL = @"serverURL";
         BOOL flushSuccess = input.configOptions.debugMode != SensorsAnalyticsDebugOff || successCode;
         if (!flushSuccess) {
             input.message = [NSString stringWithFormat:@"flush failed, statusCode: %ld",statusCode];
-            input.state = SAFlowStateStop;
         }
-        completion(YES);
+        completion(flushSuccess);
     };
 
     NSURLRequest *request = [self buildFlushRequestWithInput:input];
