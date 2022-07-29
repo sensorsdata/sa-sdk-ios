@@ -62,7 +62,7 @@
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
 
-#define VERSION @"4.4.1"
+#define VERSION @"4.4.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -628,41 +628,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 #pragma mark - track event
-
-/// Native 触发事件属性校验
-- (BOOL)willEnqueueWithObject:(SABaseEventObject *)obj {
-    NSString *eventName = obj.event;
-    if (!self.trackEventCallback || !eventName) {
-        return YES;
-    }
-    BOOL willEnque = self.trackEventCallback(eventName, obj.properties);
-    if (!willEnque) {
-        SALogDebug(@"\n【track event】: %@ can not insert database.", eventName);
-        return NO;
-    }
-    // 校验 properties
-    NSMutableDictionary *properties = [SAPropertyValidator validProperties:obj.properties];
-    obj.properties = properties;
-    return YES;
-}
-
-/// H5 打通事件校验
-- (NSDictionary<NSString *, id> *)willEnqueueWithType:(NSString *)type andEvent:(NSDictionary *)e {
-    if (!self.trackEventCallback || !e[@"event"]) {
-        return [e copy];
-    }
-    NSMutableDictionary *event = [e mutableCopy];
-    NSMutableDictionary<NSString *, id> *originProperties = event[@"properties"];
-    BOOL isIncluded = self.trackEventCallback(event[@"event"], originProperties);
-    if (!isIncluded) {
-        SALogDebug(@"\n【track event】: %@ are not allowed insert database by callback", event[@"event"]);
-        return nil;
-    }
-    // 校验 properties
-    NSDictionary *validProperties = [SAPropertyValidator validProperties:originProperties];
-    event[@"properties"] = validProperties;
-    return event;
-}
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];

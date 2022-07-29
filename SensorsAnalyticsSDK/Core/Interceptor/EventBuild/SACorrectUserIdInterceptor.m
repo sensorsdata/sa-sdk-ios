@@ -23,6 +23,7 @@
 #endif
 
 #import "SACorrectUserIdInterceptor.h"
+#import "SAValidator.h"
 
 #pragma mark userId
 // A/B Testing 触发 $ABTestTrigge 事件修正属性
@@ -43,17 +44,20 @@ static NSString * const SFPlanPopupDisplayEventName = @"$PlanPopupDisplay";
 
 - (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
     NSParameterAssert(input.eventObject);
-
+    if (!input.properties) {
+        return completion(input);
+    }
+    
     SABaseEventObject *object = input.eventObject;
     NSString *eventName = object.event;
     NSMutableDictionary *properties = [input.properties mutableCopy];
-
+    
     // item 操作，不采集用户 Id 信息
     BOOL isNeedCorrectUserId = [eventName isEqualToString:kSABTriggerEventName] || [eventName isEqualToString:SFPlanPopupDisplayEventName];
-    if (![eventName isKindOfClass:NSString.class] || !isNeedCorrectUserId || ![properties isKindOfClass:[NSDictionary class]]) {
+    if (![SAValidator isValidString:eventName] || !isNeedCorrectUserId) {
         return completion(input);
     }
-
+    
     // $ABTestTrigger 事件修正
     if ([eventName isEqualToString:kSABTriggerEventName]) {
         // 修改 loginId, distinctId,anonymousId
@@ -61,18 +65,18 @@ static NSString * const SFPlanPopupDisplayEventName = @"$PlanPopupDisplay";
             object.loginId = properties[kSABLoginId];
             [properties removeObjectForKey:kSABLoginId];
         }
-
+        
         if (properties[kSABDistinctId]) {
             object.distinctId = properties[kSABDistinctId];
             [properties removeObjectForKey:kSABDistinctId];
         }
-
+        
         if (properties[kSABAnonymousId]) {
             object.anonymousId = properties[kSABAnonymousId];
             [properties removeObjectForKey:kSABAnonymousId];
         }
     }
-
+    
     // $PlanPopupDisplay 事件修正
     if ([eventName isEqualToString:SFPlanPopupDisplayEventName]) {
         // 修改 loginId, distinctId,anonymousId
@@ -80,18 +84,18 @@ static NSString * const SFPlanPopupDisplayEventName = @"$PlanPopupDisplay";
             object.loginId = properties[kSFLoginId];
             [properties removeObjectForKey:kSFLoginId];
         }
-
+        
         if (properties[kSFDistinctId]) {
             object.distinctId = properties[kSFDistinctId];
             [properties removeObjectForKey:kSFDistinctId];
         }
-
+        
         if (properties[kSFAnonymousId]) {
             object.anonymousId = properties[kSFAnonymousId];
             [properties removeObjectForKey:kSFAnonymousId];
         }
     }
-
+    
     input.properties = [properties copy];
     completion(input);
 }

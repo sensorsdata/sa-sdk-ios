@@ -94,7 +94,7 @@
 }
 
 - (void)trackEventWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties {
-    if (!viewController) {
+    if (!viewController || ![viewController isKindOfClass:UIViewController.class]) {
         return;
     }
 

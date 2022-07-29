@@ -46,7 +46,13 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
         return NO;
     }
     NSString *host = SensorsAnalyticsSDK.sharedInstance.network.serverURL.host;
-    return ([url.host isEqualToString:kSchemeDeepLinkHost] || [url.host isEqualToString:host]);
+    if ([url.host caseInsensitiveCompare:kSchemeDeepLinkHost] == NSOrderedSame) {
+        return YES;
+    }
+    if (!host) {
+        return NO;
+    }
+    return [url.host caseInsensitiveCompare:host] == NSOrderedSame;
 }
 
 /// URL 的 Path 符合特定规则。示例：https://{ 自定义域名}/slink/{appId}/{key} 或 {scheme}://sensorsdata/slink/{key}
@@ -66,10 +72,13 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
     NSString *primaryDomain = [self primaryDomainForURL:url];
     NSString *channelPrimaryDomain = [self primaryDomainForURL:components.URL];
 
+    if ([url.host caseInsensitiveCompare:kSchemeDeepLinkHost] == NSOrderedSame) {
+        return YES;
+    }
     if (!channelPrimaryDomain) {
         return NO;
     }
-    return ([url.host isEqualToString:kSchemeDeepLinkHost] || [primaryDomain isEqualToString:channelPrimaryDomain]);
+    return [primaryDomain caseInsensitiveCompare:channelPrimaryDomain] == NSOrderedSame;
 }
 
 + (NSString *)primaryDomainForURL:(NSURL *)url {

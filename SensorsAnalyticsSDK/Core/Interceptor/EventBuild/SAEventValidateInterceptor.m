@@ -24,18 +24,23 @@
 
 #import "SAEventValidateInterceptor.h"
 #import "SAModuleManager.h"
+#import "SAPropertyValidator.h"
 
 @implementation SAEventValidateInterceptor
 
 - (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
     NSParameterAssert(input.eventObject);
-    
+
+    // 事件名校验
     NSError *error = nil;
     [input.eventObject validateEventWithError:&error];
     if (error) {
         [SAModuleManager.sharedInstance showDebugModeWarning:error.localizedDescription];
     }
     input.message = error.localizedDescription;
+
+    // 传入 properties 校验
+    input.properties = [SAPropertyValidator validProperties:input.properties];
     completion(input);
 }
 
