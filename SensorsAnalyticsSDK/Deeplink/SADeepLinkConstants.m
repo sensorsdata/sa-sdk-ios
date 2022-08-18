@@ -80,3 +80,48 @@ NSString *const kSAResponsePropertyADChannel = @"ad_channel";
 NSSet* sensorsdata_preset_channel_keys(void) {
     return [NSSet setWithObjects:@"utm_campaign", @"utm_content", @"utm_medium", @"utm_source", @"utm_term", nil];
 }
+
+//dynamic slink related code
+NSInteger kSADynamicSlinkStatusCodeSuccess= 0;
+NSInteger kSADynamicSlinkStatusCodeLessParams = 10001;
+NSInteger kSADynamicSlinkStatusCodeNoNetwork = 10002;
+NSInteger kSADynamicSlinkStatusCodeoNoDomain = 10003;
+NSInteger kSADynamicSlinkStatusCodeResponseError = 10004;
+
+//dynamic slink event name and properties
+NSString *const kSADynamicSlinkEventName = @"$AdDynamicSlinkCreate";
+NSString *const kSADynamicSlinkEventPropertyChannelType = @"$ad_dynamic_slink_channel_type";
+NSString *const kSADynamicSlinkEventPropertyChannelName = @"$ad_dynamic_slink_channel_name";
+NSString *const kSADynamicSlinkEventPropertySource = @"$ad_dynamic_slink_source";
+NSString *const kSADynamicSlinkEventPropertyData = @"$ad_dynamic_slink_data";
+NSString *const kSADynamicSlinkEventPropertyShortURL = @"$ad_dynamic_slink_short_url";
+NSString *const kSADynamicSlinkEventPropertyStatus = @"$ad_dynamic_slink_status";
+NSString *const kSADynamicSlinkEventPropertyMessage = @"$ad_dynamic_slink_msg";
+NSString *const kSADynamicSlinkEventPropertyID = @"$ad_slink_id";
+NSString *const kSADynamicSlinkEventPropertyTemplateID = @"$ad_slink_template_id";
+NSString *const kSADynamicSlinkEventPropertyType = @"$ad_slink_type";
+NSString *const kSADynamicSlinkEventPropertyTypeDynamic = @"dynamic";
+
+//dynamic slink API path
+NSString *const kSADynamicSlinkAPIPath = @"slink/dynamic/links";
+
+//dynamic slink API params
+NSString *const kSADynamicSlinkParamProject = @"project_name";
+NSString *const kSADynamicSlinkParamTemplateID = @"slink_template_id";
+NSString *const kSADynamicSlinkParamType = @"slink_type";
+NSString *const kSADynamicSlinkParamName = @"name";
+NSString *const kSADynamicSlinkParamChannelType = @"channel_type";
+NSString *const kSADynamicSlinkParamChannelName = @"channel_name";
+NSString *const kSADynamicSlinkParamFixedUTM = @"fixed_param";
+NSString *const kSADynamicSlinkParamUTMSource = @"channel_utm_source";
+NSString *const kSADynamicSlinkParamUTMCampaign = @"channel_utm_campaign";
+NSString *const kSADynamicSlinkParamUTMMedium = @"channel_utm_medium";
+NSString *const kSADynamicSlinkParamUTMTerm = @"channel_utm_term";
+NSString *const kSADynamicSlinkParamUTMContent = @"channel_utm_content";
+NSString *const kSADynamicSlinkParamCustom = @"custom_param";
+NSString *const kSADynamicSlinkParamRoute = @"route_param";
+NSString *const kSADynamicSlinkParamURIScheme = @"uri_scheme_suffix";
+NSString *const kSADynamicSlinkParamLandingPageType = @"landing_page_type";
+NSString *const kSADynamicSlinkParamLandingPage = @"other_landing_page_map";
+NSString *const kSADynamicSlinkParamJumpAddress = @"jump_address";
+

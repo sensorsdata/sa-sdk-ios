@@ -42,6 +42,7 @@
 #import "SAFirstDayPropertyPlugin.h"
 #import "SAPropertyPluginManager.h"
 #import "SALatestUtmPropertyPlugin.h"
+#import "SADeviceWhiteList.h"
 
 
 @interface SADeepLinkManager () <SADeepLinkProcessorDelegate>
@@ -54,6 +55,8 @@
 @property (nonatomic, copy) NSSet *customChannelKeys;
 /// 本次冷启动时的 DeepLinkURL
 @property (nonatomic, strong) NSURL *deepLinkURL;
+
+@property (nonatomic, strong) SADeviceWhiteList *whiteList;
 
 @end
 
@@ -93,6 +96,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
         } else {
             [self disableDeferredDeepLink];
         }
+        _whiteList = [[SADeviceWhiteList alloc] init];
     }
     return self;
 }
@@ -265,11 +269,17 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     if (![url isKindOfClass:NSURL.class]) {
         return NO;
     }
+    if ([self.whiteList canHandleURL:url]) {
+        return YES;
+    }
     SADeepLinkProcessor *processor = [SADeepLinkProcessorFactory processorFromURL:url customChannelKeys:self.customChannelKeys];
     return processor.canWakeUp;
 }
 
 - (BOOL)handleURL:(NSURL *)url {
+    if ([self.whiteList canHandleURL:url]) {
+        return [self.whiteList handleURL:url];
+    }
     // 当 url 和 _deepLinkURL 相同时，则表示本次触发是冷启动触发,已通过 acquireColdLaunchDeepLinkInfo 方法处理，这里不需要重复处理
     NSString *absoluteString = _deepLinkURL.absoluteString;
     _deepLinkURL = nil;

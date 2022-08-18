@@ -62,7 +62,7 @@
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
 
-#define VERSION @"4.4.2"
+#define VERSION @"4.4.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 

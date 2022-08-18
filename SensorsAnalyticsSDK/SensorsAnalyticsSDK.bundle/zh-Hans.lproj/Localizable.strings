@@ -93,3 +93,20 @@
 "SAPresetPropertyCarrierTelecom" = "中国电信";
 "SAPresetPropertyCarrierSatellite" = "中国卫通";
 "SAPresetPropertyCarrierTietong" = "中国铁通";
+
+//dynamic slink and device whitelist
+
+"SADeviceWhiteListTitle" = "添加设备白名单";
+"SADeviceWhiteListMessageProject" = "设备白名单配置项目与事件上报项目不一致";
+"SADeviceWhiteListMessageDeviceType" = "请使用 iOS 设备类型扫码";
+"SADeviceWhiteListMessageRequestSuccess" = "请求成功";
+"SADeviceWhiteListMessageRequestFailure" = "请求失败，请重新扫码";
+
+"SADynamicSlinkMessageNoNetwork" = "没有检测到网络连接";
+"SADynamicSlinkMessageNoTemplateID" = "Slink 模板 ID 缺少";
+"SADynamicSlinkMessageNoChannelName" = "渠道名缺少";
+"SADynamicSlinkMessageNoAccessToken" = "token 缺少";
+"SADynamicSlinkMessageNoProject" = "获取不到数据埋点地址的项目名称";
+"SADynamicSlinkMessageNoRedirectURI" = "通用跳转链接缺少";
+"SADynamicSlinkMessageNoDomain" = "自定义域名缺少或者填写格式不对";
+"SADynamicSlinkMessageResponseError" = "后端返回数据异常";

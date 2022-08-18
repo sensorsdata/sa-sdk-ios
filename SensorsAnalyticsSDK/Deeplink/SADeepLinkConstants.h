@@ -72,3 +72,49 @@ extern NSString *const kSAResponsePropertyParameter;
 extern NSString *const kSAResponsePropertyADChannel;
 
 NSSet* sensorsdata_preset_channel_keys(void);
+
+//dynamic slink related message
+
+//dynamic slink related code
+extern NSInteger kSADynamicSlinkStatusCodeSuccess;
+extern NSInteger kSADynamicSlinkStatusCodeLessParams;
+extern NSInteger kSADynamicSlinkStatusCodeNoNetwork;
+extern NSInteger kSADynamicSlinkStatusCodeoNoDomain;
+extern NSInteger kSADynamicSlinkStatusCodeResponseError;
+
+//dynamic slink event name and properties
+extern NSString *const kSADynamicSlinkEventName;
+extern NSString *const kSADynamicSlinkEventPropertyChannelType;
+extern NSString *const kSADynamicSlinkEventPropertyChannelName;
+extern NSString *const kSADynamicSlinkEventPropertySource;
+extern NSString *const kSADynamicSlinkEventPropertyData;
+extern NSString *const kSADynamicSlinkEventPropertyShortURL;
+extern NSString *const kSADynamicSlinkEventPropertyStatus;
+extern NSString *const kSADynamicSlinkEventPropertyMessage;
+extern NSString *const kSADynamicSlinkEventPropertyID;
+extern NSString *const kSADynamicSlinkEventPropertyTemplateID;
+extern NSString *const kSADynamicSlinkEventPropertyType;
+extern NSString *const kSADynamicSlinkEventPropertyTypeDynamic;
+
+//dynamic slink API path
+extern NSString *const kSADynamicSlinkAPIPath;
+
+//dynamic slink API params
+extern NSString *const kSADynamicSlinkParamProject;
+extern NSString *const kSADynamicSlinkParamTemplateID;
+extern NSString *const kSADynamicSlinkParamType;
+extern NSString *const kSADynamicSlinkParamName;
+extern NSString *const kSADynamicSlinkParamChannelType;
+extern NSString *const kSADynamicSlinkParamChannelName;
+extern NSString *const kSADynamicSlinkParamFixedUTM;
+extern NSString *const kSADynamicSlinkParamUTMSource;
+extern NSString *const kSADynamicSlinkParamUTMCampaign;
+extern NSString *const kSADynamicSlinkParamUTMMedium;
+extern NSString *const kSADynamicSlinkParamUTMTerm;
+extern NSString *const kSADynamicSlinkParamUTMContent;
+extern NSString *const kSADynamicSlinkParamCustom;
+extern NSString *const kSADynamicSlinkParamRoute;
+extern NSString *const kSADynamicSlinkParamURIScheme;
+extern NSString *const kSADynamicSlinkParamLandingPageType;
+extern NSString *const kSADynamicSlinkParamLandingPage;
+extern NSString *const kSADynamicSlinkParamJumpAddress;

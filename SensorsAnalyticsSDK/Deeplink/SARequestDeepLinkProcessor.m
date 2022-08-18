@@ -26,6 +26,7 @@
 #import "SADeepLinkConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAJSONUtil.h"
+#import "SAConstants+Private.h"
 
 static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
 
@@ -153,6 +154,8 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
             NSString *errorMsg = result[kSAResponsePropertyErrorMessage] ?: result[kSAResponsePropertyErrorMsg];
             properties[kSAEventPropertyDeepLinkFailReason] = errorMsg;
             properties[kSAEventPropertyADSLinkID] = result[kSAResponsePropertySLinkID];
+            properties[kSADynamicSlinkEventPropertyTemplateID] = result[kSADynamicSlinkParamTemplateID];
+            properties[kSADynamicSlinkEventPropertyType] = result[kSADynamicSlinkParamType];
 
             // Result 事件中只需要添加 $utm_content 等属性，不需要添加 $latest_utm_content 等属性
             NSDictionary *channels = [self acquireChannels:result[kSAResponsePropertyChannelParams]];

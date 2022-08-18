@@ -78,6 +78,8 @@
             properties[kSAEventPropertyADChannel] = result[kSAResponsePropertyADChannel];
             properties[kSAEventPropertyDeepLinkFailReason] = result ? result[kSAResponsePropertyMessage] : @"response is null";
             properties[kSAEventPropertyADSLinkID] = result[kSAResponsePropertySLinkID];
+            properties[kSADynamicSlinkEventPropertyTemplateID] = result[kSADynamicSlinkParamTemplateID];
+            properties[kSADynamicSlinkEventPropertyType] = result[kSADynamicSlinkParamType];;
             obj.params = result[kSAResponsePropertyParameter];
             obj.adChannels = result[kSAResponsePropertyADChannel];
             obj.success = (result[kSAResponsePropertyCode] && [result[kSAResponsePropertyCode] integerValue] == 0);
@@ -118,6 +120,8 @@
             NSMutableDictionary *jumpProps = [NSMutableDictionary dictionary];
             jumpProps[kSAEventPropertyDeepLinkOptions] = obj.params;
             jumpProps[kSAEventPropertyADSLinkID] = slinkID;
+            jumpProps[kSADynamicSlinkEventPropertyTemplateID] = properties[kSADynamicSlinkEventPropertyTemplateID];
+            jumpProps[kSADynamicSlinkEventPropertyType] = properties[kSADynamicSlinkEventPropertyType];
 
             [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:jumpProps];
 
