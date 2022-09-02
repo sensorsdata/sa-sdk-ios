@@ -138,9 +138,16 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
         if (self.isUpdatingLocation) {
             return;
         }
-        //判断当前设备定位服务是否打开
-        if (![CLLocationManager locationServicesEnabled]) {
-            SALogWarn(@"location service is not enabled on the device");
+        
+        // 判断当前设备定位授权的状态
+        CLAuthorizationStatus status;
+        if (@available(iOS 14.0, *)) {
+            status = self.locationManager.authorizationStatus;
+        } else {
+            status = [CLLocationManager authorizationStatus];
+        }
+        if ((status == kCLAuthorizationStatusDenied) || (status == kCLAuthorizationStatusRestricted)) {
+            SALogWarn(@"location authorization status is denied or restricted");
             return;
         }
 

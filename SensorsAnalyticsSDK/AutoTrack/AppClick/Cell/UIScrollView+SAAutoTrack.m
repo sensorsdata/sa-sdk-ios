@@ -29,17 +29,22 @@
 #import "SAConstants+Private.h"
 #import "SAAutoTrackManager.h"
 
-static const void *kSATableViewIndexPath = &kSATableViewIndexPath;
-static const void *kSACollectionViewIndexPath = &kSACollectionViewIndexPath;
+static const void *kSATableViewDelegateHashTable = &kSATableViewDelegateHashTable;
+static const void *kSACollectionViewDelegateHashTable = &kSACollectionViewDelegateHashTable;
 
 @implementation UITableView (AutoTrack)
 
-- (void)setSensorsdata_indexPath:(NSIndexPath *)indexPath {
-    objc_setAssociatedObject(self, kSATableViewIndexPath, indexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSensorsdata_delegateHashTable:(NSHashTable *)delegateHashTable {
+    objc_setAssociatedObject(self, kSATableViewDelegateHashTable, delegateHashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSIndexPath *)sensorsdata_indexPath {
-    return  objc_getAssociatedObject(self, kSATableViewIndexPath);
+- (NSHashTable *)sensorsdata_delegateHashTable {
+    NSHashTable *delegateHashTable = objc_getAssociatedObject(self, kSATableViewDelegateHashTable);
+    if (!delegateHashTable) {
+        delegateHashTable = [NSHashTable weakObjectsHashTable];
+        self.sensorsdata_delegateHashTable = delegateHashTable;
+    }
+    return delegateHashTable;
 }
 
 - (void)sensorsdata_setDelegate:(id <UITableViewDelegate>)delegate {
@@ -66,12 +71,17 @@ static const void *kSACollectionViewIndexPath = &kSACollectionViewIndexPath;
 
 @implementation UICollectionView (AutoTrack)
 
-- (void)setSensorsdata_indexPath:(NSIndexPath *)indexPath {
-    objc_setAssociatedObject(self, kSACollectionViewIndexPath, indexPath, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (void)setSensorsdata_delegateHashTable:(NSHashTable *)delegateHashTable {
+    objc_setAssociatedObject(self, kSACollectionViewDelegateHashTable, delegateHashTable, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-- (NSIndexPath *)sensorsdata_indexPath {
-    return  objc_getAssociatedObject(self, kSACollectionViewIndexPath);
+- (NSHashTable *)sensorsdata_delegateHashTable {
+    NSHashTable *delegateHashTable = objc_getAssociatedObject(self, kSACollectionViewDelegateHashTable);
+    if (!delegateHashTable) {
+        delegateHashTable = [NSHashTable weakObjectsHashTable];
+        self.sensorsdata_delegateHashTable = delegateHashTable;
+    }
+    return delegateHashTable;
 }
 
 - (void)sensorsdata_setDelegate:(id <UICollectionViewDelegate>)delegate {

@@ -34,29 +34,30 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     // 防止某些场景下循环调用
-    if (tableView.sensorsdata_indexPath == indexPath) {
+    if ([tableView.sensorsdata_delegateHashTable containsObject:self]) {
         return;
     }
-    tableView.sensorsdata_indexPath = indexPath;
-
+    [tableView.sensorsdata_delegateHashTable addObject:self];
+    
     SEL methodSelector = @selector(tableView:didSelectRowAtIndexPath:);
     [SAScrollViewDelegateProxy trackEventWithTarget:self scrollView:tableView atIndexPath:indexPath];
     [SAScrollViewDelegateProxy invokeWithTarget:self selector:methodSelector, tableView, indexPath];
-
-    tableView.sensorsdata_indexPath = nil;
+    
+    [tableView.sensorsdata_delegateHashTable removeAllObjects];
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (collectionView.sensorsdata_indexPath == indexPath) {
+    // 防止某些场景下循环调用
+    if ([collectionView.sensorsdata_delegateHashTable containsObject:self]) {
         return;
     }
-    collectionView.sensorsdata_indexPath = indexPath;
-
+    [collectionView.sensorsdata_delegateHashTable addObject:self];
+    
     SEL methodSelector = @selector(collectionView:didSelectItemAtIndexPath:);
     [SAScrollViewDelegateProxy trackEventWithTarget:self scrollView:collectionView atIndexPath:indexPath];
     [SAScrollViewDelegateProxy invokeWithTarget:self selector:methodSelector, collectionView, indexPath];
-
-    collectionView.sensorsdata_indexPath = nil;
+    
+    [collectionView.sensorsdata_delegateHashTable removeAllObjects];
 }
 
 + (void)trackEventWithTarget:(NSObject *)target scrollView:(UIScrollView *)scrollView atIndexPath:(NSIndexPath *)indexPath {
