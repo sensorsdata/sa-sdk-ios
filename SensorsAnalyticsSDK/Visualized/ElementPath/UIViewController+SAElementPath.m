@@ -35,50 +35,50 @@
 @implementation UIViewController (SAElementPath)
 
 - (NSArray *)sensorsdata_subElements {
-    __block NSMutableArray *subElements = [NSMutableArray array];
-    NSArray <UIViewController *> *childViewControllers = self.childViewControllers;
     UIViewController *presentedViewController = self.presentedViewController;
-
     if (presentedViewController) {
-        [subElements addObject:presentedViewController];
-        return subElements;
+        return @[presentedViewController];
     }
 
-    if (childViewControllers.count > 0 && ![self isKindOfClass:UIAlertController.class]) {
-        // UIAlertController 如果添加 TextField 也会嵌套 childViewController，直接返回 .view 即可
-        UIWindow *keyWindow = UIApplication.sharedApplication.keyWindow;
-        subElements = [NSMutableArray arrayWithArray:self.view.subviews];
-        // 是否包含全屏视图
-        __block BOOL isContainFullScreen = NO;
-        //逆序遍历
-        [childViewControllers enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIViewController *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if (obj.isViewLoaded) {
-                UIView *objSuperview = obj.view;
-                if ([subElements containsObject:objSuperview]) {
-                    NSInteger index = [subElements indexOfObject:objSuperview];
-                    if (objSuperview.sensorsdata_isVisible && !isContainFullScreen) {
-                        [subElements replaceObjectAtIndex:index withObject:obj];
-                    } else {
-                        [subElements removeObject:objSuperview];
-                    }
-                }
-                CGRect rect = [obj.view convertRect:obj.view.bounds toView:nil];
-               // 是否全屏
-                BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, keyWindow.bounds.size);
-               // 正在全屏显示
-                if (isFullScreenShow && obj.view.sensorsdata_isVisible) {
-                    isContainFullScreen = YES;
-                }
-            }
-        }];
-        return subElements;
+    if (self.childViewControllers.count == 0 || [self isKindOfClass:UIAlertController.class]) {
+        if (!self.isViewLoaded) {
+            return nil;
+        }
+
+        UIView *currentView = self.view;
+        if (currentView && currentView.sensorsdata_isVisible) {
+            return @[currentView];
+        } else {
+            return nil;
+        }
     }
 
-    UIView *currentView = self.view;
-    if (currentView && self.isViewLoaded && currentView.sensorsdata_isVisible) {
-        [subElements addObject:currentView];
-    }
-    return subElements;
+    CGSize fullScreenSize = UIScreen.mainScreen.bounds.size;
+    NSMutableArray *subElements = [NSMutableArray array];
+    //逆序遍历，从而确保从最上层开始查找，直到全屏 view 停止
+    [self.view.subviews enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(__kindof UIView * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        // 跳过不可见元素
+        if (![obj sensorsdata_isVisible]) {
+            return;
+        }
+
+        // 通过 viewController.view 添加的子视图，优先获取 viewController 自身
+        if ([obj.nextResponder isKindOfClass:UIViewController.class]) {
+            [subElements addObject:obj.nextResponder];
+        } else {
+            [subElements addObject:obj];
+        }
+
+        CGRect rect = [obj convertRect:obj.bounds toView:nil];
+        // 是否全屏
+        BOOL isFullScreenShow = CGPointEqualToPoint(rect.origin, CGPointZero) && CGSizeEqualToSize(rect.size, fullScreenSize);
+        // 正在全屏显示
+        if (isFullScreenShow) {
+            *stop = YES;
+        }
+    }];
+    // 逆序翻转，保证和显示优先级一致
+    return [[subElements reverseObjectEnumerator] allObjects];
 }
 
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated {

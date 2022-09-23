@@ -33,7 +33,7 @@
 
 /// 解码并解析 URL 参数
 /// @param url url 对象
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url;
++ (NSDictionary<NSString *, NSString *> *)decodeQueryItemsWithURL:(NSURL *)url;
 
 + (NSURL *)buildServerURLWithURLString:(NSString *)urlString debugMode:(SensorsAnalyticsDebugMode)debugMode;
 @end

@@ -34,7 +34,7 @@
 - (instancetype)initWithEventId:(NSString *)eventId {
     self = [super init];
     if (self) {
-        self.eventId = eventId && ![eventId isKindOfClass:[NSString class]] ? [NSString stringWithFormat:@"%@", eventId] : eventId;
+        self.eventId = eventId ? [NSString stringWithFormat:@"%@", eventId] : nil;
     }
     return self;
 }

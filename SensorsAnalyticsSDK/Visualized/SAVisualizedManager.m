@@ -194,7 +194,7 @@
         return NO;
     }
 
-    NSDictionary *queryItems = [SAURLUtils decodeRueryItemsWithURL:url];
+    NSDictionary *queryItems = [SAURLUtils decodeQueryItemsWithURL:url];
     NSString *featureCode = queryItems[@"feature_code"];
     NSString *postURLStr = queryItems[@"url"];
 

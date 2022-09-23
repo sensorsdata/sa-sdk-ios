@@ -145,7 +145,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
     [self sensorsdata_visualize_setSelectedItem:selectedItem];
 
     // 当前已经是选中状态，即未切换 tab 修改页面，不需更新
-    if (!isSwitchTab) {
+    if (isSwitchTab) {
         return;
     }
     if (!SAVisualizedManager.defaultManager.visualPropertiesTracker) {
@@ -153,10 +153,9 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
     }
 
     SAViewNode *tabBarNode = self.sensorsdata_viewNode;
-    NSString *itemIndex = [NSString stringWithFormat:@"%lu", (unsigned long)[self.items indexOfObject:selectedItem]];
     for (SAViewNode *node in tabBarNode.subNodes) {
         // 只需更新切换 item 对应 node 页面名称即可
-        if ([node isKindOfClass:SATabBarButtonNode.class] && [node.elementPosition isEqualToString:itemIndex]) {
+        if ([node isKindOfClass:SATabBarButtonNode.class] && [node.elementContent isEqualToString:selectedItem.title]) {
             // 共用自定义属性查询队列，从而保证更新页面信息后，再进行属性元素遍历
             dispatch_async(SAVisualizedManager.defaultManager.visualPropertiesTracker.serialQueue, ^{
                 [node refreshSubNodeScreenName];

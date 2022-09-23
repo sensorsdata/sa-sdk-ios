@@ -44,7 +44,7 @@ static NSString * const kSADeviceWhiteListQueryParamApiUrl = @"apiurl";
 }
 
 - (BOOL)handleURL:(NSURL *)url {
-    NSDictionary *query = [SAURLUtils decodeRueryItemsWithURL:url];
+    NSDictionary *query = [SAURLUtils decodeQueryItemsWithURL:url];
     if (!query) {
         return NO;
     }

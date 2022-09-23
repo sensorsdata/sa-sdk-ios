@@ -95,10 +95,16 @@
 }
 
 - (NSString *)event {
+    if (![self.eventId isKindOfClass:[NSString class]]) {
+        return nil;
+    }
     if (![self.eventId hasSuffix:kSAEventIdSuffix]) {
         return self.eventId;
     }
     //eventId 结构为 {eventName}_D3AC265B_3CC2_4C45_B8F0_3E05A83A9DAE_SATimer，新增后缀长度为 44
+    if (self.eventId.length < 45) {
+        return nil;
+    }
     NSString *eventName = [self.eventId substringToIndex:(self.eventId.length - 1) - 44];
     return eventName;
 }

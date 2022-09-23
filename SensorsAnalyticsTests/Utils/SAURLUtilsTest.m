@@ -162,27 +162,27 @@
 }
 
 - (void)testDecodeQueryItemsWithNilURL {
-    XCTAssertNil([SAURLUtils decodeRueryItemsWithURL:nil]);
+    XCTAssertNil([SAURLUtils decodeQueryItemsWithURL:nil]);
 }
 
 - (void)testDecodeQueryItemsWithEmptyURL {
-    XCTAssertNil([SAURLUtils decodeRueryItemsWithURL:[[NSURL alloc] init]]);
+    XCTAssertNil([SAURLUtils decodeQueryItemsWithURL:[[NSURL alloc] init]]);
 }
 
 - (void)testDecodeQueryItemsWithURL {
     NSURL *url = [NSURL URLWithString:@"https:www"];
-    XCTAssertNil([SAURLUtils decodeRueryItemsWithURL:url]);
+    XCTAssertNil([SAURLUtils decodeQueryItemsWithURL:url]);
 }
 
 - (void)testDecodeQueryItemsWithNoItemURL {
     NSURL *url = [NSURL URLWithString:@"https://www.sensorsdata.cn/auto"];
-    XCTAssertNil([SAURLUtils decodeRueryItemsWithURL:url]);
+    XCTAssertNil([SAURLUtils decodeQueryItemsWithURL:url]);
 }
 
 - (void)testDecodeQueryItemsWithItemURL {
     NSURL *url = [NSURL URLWithString:@"http://sdk-test.cloud.sensorsdata.cn:8006/sa?project=default&token=95c73ae661f85aa0"];
     NSDictionary *items = @{@"project" : @"default", @"token" : @"95c73ae661f85aa0"};
-    XCTAssertTrue([[SAURLUtils decodeRueryItemsWithURL:url] isEqualToDictionary:items]);
+    XCTAssertTrue([[SAURLUtils decodeQueryItemsWithURL:url] isEqualToDictionary:items]);
 }
 
 - (void)testExample {

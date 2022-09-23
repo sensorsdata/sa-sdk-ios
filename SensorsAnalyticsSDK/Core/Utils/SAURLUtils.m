@@ -86,15 +86,15 @@
     }
 }
 
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURL:(NSURL *)url {
++ (NSDictionary<NSString *, NSString *> *)decodeQueryItemsWithURL:(NSURL *)url {
     if (!url) {
         return nil;
     }
     NSURLComponents *components = [NSURLComponents componentsWithURL:url resolvingAgainstBaseURL:NO];
-    return [self decodeRueryItemsWithURLComponents:components];
+    return [self decodeQueryItemsWithURLComponents:components];
 }
 
-+ (NSDictionary<NSString *, NSString *> *)decodeRueryItemsWithURLComponents:(NSURLComponents *)components{
++ (NSDictionary<NSString *, NSString *> *)decodeQueryItemsWithURLComponents:(NSURLComponents *)components{
 
     if (!components) {
         return nil;
