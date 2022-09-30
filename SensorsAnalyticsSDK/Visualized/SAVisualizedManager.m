@@ -37,6 +37,7 @@
 #import "SAJSONUtil.h"
 #import "SASwizzle.h"
 #import "SALog.h"
+#import "UIView+SAInternalProperties.h"
 
 @interface SAVisualizedManager()<SAConfigChangesDelegate>
 

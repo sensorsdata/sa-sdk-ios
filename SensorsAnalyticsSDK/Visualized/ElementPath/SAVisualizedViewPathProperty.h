@@ -21,17 +21,6 @@
 
 #import <Foundation/Foundation.h>
 
-#pragma mark - ViewPath
-@protocol SAAutoTrackViewPathProperty <NSObject>
-
-@optional
-/// $AppClick 某个元素的相对路径，拼接 $element_path，单个元素包含序号
-@property (nonatomic, copy, readonly) NSString *sensorsdata_itemPath;
-
-/// 元素相似路径，可能包含 [-]
-@property (nonatomic, copy, readonly) NSString *sensorsdata_similarPath;
-@end
-
 
 #pragma mark - Visualized
 // 可视化全埋点&点击分析 上传页面信息相关协议
@@ -46,9 +35,6 @@
 
 /// 元素子视图
 @property (nonatomic, copy, readonly) NSArray *sensorsdata_subElements;
-
-/// 当前元素的路径
-@property (nonatomic, copy, readonly) NSString *sensorsdata_elementPath;
 
 /// App 内嵌 H5 元素的元素选择器
 @property (nonatomic, copy, readonly) NSString *sensorsdata_elementSelector;

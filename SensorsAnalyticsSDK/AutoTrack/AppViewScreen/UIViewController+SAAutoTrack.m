@@ -40,27 +40,6 @@ static void *const kSAPreviousViewController = (void *)&kSAPreviousViewControlle
     return ![[SAAutoTrackManager defaultManager].appClickTracker shouldTrackViewController:self];
 }
 
-- (NSString *)sensorsdata_screenName {
-    return NSStringFromClass([self class]);
-}
-
-- (NSString *)sensorsdata_title {
-    __block NSString *titleViewContent = nil;
-    __block NSString *controllerTitle = nil;
-    [SACommonUtility performBlockOnMainThread:^{
-        titleViewContent = self.navigationItem.titleView.sensorsdata_elementContent;
-        controllerTitle = self.navigationItem.title;
-    }];
-    if (titleViewContent.length > 0) {
-        return titleViewContent;
-    }
-
-    if (controllerTitle.length > 0) {
-        return controllerTitle;
-    }
-    return nil;
-}
-
 - (void)sa_autotrack_viewDidAppear:(BOOL)animated {
     // 防止 tabbar 切换，可能漏采 $AppViewScreen 全埋点
     if ([self isKindOfClass:UINavigationController.class]) {

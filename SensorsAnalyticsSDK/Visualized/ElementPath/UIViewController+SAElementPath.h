@@ -25,13 +25,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 
-@interface UIViewController (SAElementPath)<SAVisualizedViewPathProperty, SAAutoTrackViewPathProperty>
+@interface UIViewController (SAElementPath)<SAVisualizedViewPathProperty>
 
 - (void)sensorsdata_visualize_viewDidAppear:(BOOL)animated;
-
-@end
-
-@interface UIAlertController(SAElementPath)<SAAutoTrackViewPathProperty>
 
 @end
 

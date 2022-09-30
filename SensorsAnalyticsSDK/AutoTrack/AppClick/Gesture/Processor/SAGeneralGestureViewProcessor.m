@@ -27,6 +27,7 @@
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSONUtil.h"
+#import "SAUIProperties.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {
     NSMutableArray *subViews = [NSMutableArray array];
@@ -116,7 +117,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAUIProperties findNextViewControllerByResponder:self.gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }
@@ -145,7 +146,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAUIProperties findNextViewControllerByResponder:self.gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }

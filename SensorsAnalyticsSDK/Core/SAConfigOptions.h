@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SAStorePlugin.h"
 #import "SAConstants.h"
+#import "SAPropertyPlugin.h"
 
 @class SASecretKey;
 @class SASecurityPolicy;
@@ -125,6 +126,14 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) BOOL disableDeviceId;
 
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
+
+/**
+ * @abstract
+ * 注册属性插件
+ *
+ * @param plugin 属性插件对象
+ */
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
 
 @end
 

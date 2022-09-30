@@ -28,12 +28,12 @@
 #import "SensorsAnalyticsSDK.h"
 #import "SALog.h"
 #import "UIViewController+SAAutoTrack.h"
-#import "SAAutoTrackUtils.h"
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
 #import "SAJSONUtil.h"
 #import "SAVisualizedManager.h"
+#import "SAUIProperties.h"
 
 @interface SAVisualizedAbstractMessage ()
 
@@ -102,11 +102,11 @@
         // 获取当前页面
         UIViewController *currentViewController = serializerManager.lastViewScreenController;
         if (!currentViewController) {
-            currentViewController = [SAAutoTrackUtils currentViewController];
+            currentViewController = [SAUIProperties currentViewController];
         }
 
         // 解析页面信息
-        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:currentViewController];
+        NSDictionary *autoTrackScreenProperties = [SAUIProperties propertiesWithViewController:currentViewController];
         screenName = autoTrackScreenProperties[kSAEventPropertyScreenName];
         pageName = autoTrackScreenProperties[kSAEventPropertyScreenName];
         title = autoTrackScreenProperties[kSAEventPropertyTitle];

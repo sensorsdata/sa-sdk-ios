@@ -24,16 +24,19 @@
 
 #import "SAVisualizedUtils.h"
 #import "SAWebElementView.h"
-#import "UIView+SAElementPath.h"
+#import "UIView+SAVisualizedViewPath.h"
 #import "SAVisualizedViewPathProperty.h"
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
-#import "SAAutoTrackUtils.h"
 #import "UIView+SAAutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAJavaScriptBridgeManager.h"
 #import "SALog.h"
+#import "UIView+SAItemPath.h"
+#import "UIView+SASimilarPath.h"
+#import "UIAlertController+SASimilarPath.h"
+#import "SAUIProperties.h"
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
 static NSInteger kSAVisualizedFindMaxPageLevel = 4;
@@ -498,34 +501,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
     if ([self isIgnoredViewPathForViewController:viewController]) {
         return nil;
     }
-
-    NSMutableArray *viewPathArray = [NSMutableArray array];
-    BOOL isContainSimilarPath = NO;
-
-    do {
-        if (isContainSimilarPath) { // 防止 cell 等列表嵌套，被拼上多个 [-]
-            if (view.sensorsdata_itemPath) {
-                [viewPathArray addObject:view.sensorsdata_itemPath];
-            }
-        } else {
-            NSString *currentSimilarPath = view.sensorsdata_similarPath;
-            if (currentSimilarPath) {
-                [viewPathArray addObject:currentSimilarPath];
-                if ([currentSimilarPath containsString:@"[-]"]) {
-                    isContainSimilarPath = YES;
-                }
-            }
-        }
-    } while ((view = (id)view.nextResponder) && [view isKindOfClass:UIView.class]);
-
-    if ([view isKindOfClass:UIAlertController.class]) {
-        UIViewController<SAAutoTrackViewPathProperty> *viewController = (UIViewController<SAAutoTrackViewPathProperty> *)view;
-        [viewPathArray addObject:viewController.sensorsdata_similarPath];
-    }
-
-    NSString *viewPath = [[[viewPathArray reverseObjectEnumerator] allObjects] componentsJoinedByString:@"/"];
-
-    return viewPath;
+    return [SAUIProperties elementPathForView:view atViewController:viewController];
 }
 
 /// 当前 view 所在同类页面序号

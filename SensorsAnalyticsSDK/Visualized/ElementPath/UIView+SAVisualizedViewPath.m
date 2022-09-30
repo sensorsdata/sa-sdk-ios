@@ -23,15 +23,20 @@
 #endif
 
 #import <objc/runtime.h>
-#import "UIView+SAElementPath.h"
+#import "UIView+SAVisualizedViewPath.h"
 #import "UIView+SAAutoTrack.h"
 #import "UIViewController+SAAutoTrack.h"
 #import "UIViewController+SAElementPath.h"
 #import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAViewElementInfoFactory.h"
+#import "UIView+SAItemPath.h"
+#import "UIView+SASimilarPath.h"
+#import "UIView+SAElementPosition.h"
+#import "UIView+SAInternalProperties.h"
+#import "UIView+SARNView.h"
+#import "SAUIProperties.h"
 
 typedef BOOL (*SAClickableImplementation)(id, SEL, UIView *);
 
@@ -41,7 +46,7 @@ static int kSAFingerprintVersion = 1;
 static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAIsDisableRNSubviewsInteractivePropertyName;
 
 #pragma mark - UIView
-@implementation UIView (SAElementPath)
+@implementation UIView (SAVisualizedViewPath)
 
 
 - (int)jjf_fingerprintVersion {
@@ -79,7 +84,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     }
 
     // RN 项目，view 覆盖层次比较多，被覆盖元素，可以直接屏蔽，防止被覆盖元素可圈选
-    BOOL isRNView = [SAAutoTrackUtils isKindOfRNView:self];
+    BOOL isRNView = [self isSensorsdataRNView];
     if (isRNView && [SAVisualizedUtils isCoveredForView:self]) {
         return NO;
     }
@@ -204,37 +209,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return elementInfo.isVisualView;
 }
 
-#pragma mark SAAutoTrackViewPathProperty
-- (NSString *)sensorsdata_itemPath {
-    /* 忽略路径
-     UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
-     _UITextFieldCanvasView 和 _UISearchBarFieldEditor 都是 UISearchBar 内部私有 view
-     在输入状态下  ...UISearchBarTextField/_UISearchBarFieldEditor/_UITextFieldCanvasView/...
-     非输入状态下 .../UISearchBarTextField/_UITextFieldCanvasView
-     并且 _UITextFieldCanvasView 是个私有 view,无法获取元素内容(目前通过 nextResponder 获取 textField 采集内容)。方便路径统一，所以忽略 _UISearchBarFieldEditor 路径
-     */
-    if ([SAVisualizedUtils isIgnoredItemPathWithView:self]) {
-        return nil;
-    }
-
-    NSString *className = NSStringFromClass(self.class);
-    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    if (index < 0) { // -1
-        return className;
-    }
-    return [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    // 是否支持限定元素位置功能
-    BOOL enableSupportSimilarPath = [NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"];
-    if (enableSupportSimilarPath && self.sensorsdata_elementPosition) {
-        return [NSString stringWithFormat:@"%@[-]",NSStringFromClass(self.class)];
-    } else {
-        return self.sensorsdata_itemPath;
-    }
-}
-
 #pragma mark SAVisualizedViewPathProperty
 // 当前元素，前端是否渲染成可交互
 - (BOOL)sensorsdata_enableAppClick {
@@ -248,7 +222,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
      针对 RN 元素，上传页面信息中的元素内容，和 RN 插件触发全埋点一致，不遍历子视图元素内容
      获取 RN 元素自定义属性，会尝试遍历子视图
      */
-    if ([SAAutoTrackUtils isKindOfRNView:self]) {
+    if ([self isSensorsdataRNView]) {
         return [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
     }
     return self.sensorsdata_elementContent;
@@ -286,19 +260,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return newSubViews;
 }
 
-- (NSString *)sensorsdata_elementPath {
-    // 处理特殊控件
-    // UISegmentedControl 嵌套 UISegment 作为选项单元格，特殊处理
-    if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-        UISegmentedControl *segmentedControl = (UISegmentedControl *)[self superview];
-        if ([segmentedControl isKindOfClass:UISegmentedControl.class]) {
-            return [SAVisualizedUtils viewSimilarPathForView:segmentedControl atViewController:segmentedControl.sensorsdata_viewController];
-        }
-    }
-    // 支持自定义属性，可见元素均上传 elementPath
-    return [SAVisualizedUtils viewSimilarPathForView:self atViewController:self.sensorsdata_viewController];
-}
-
 - (BOOL)sensorsdata_isFromWeb {
     return NO;
 }
@@ -313,7 +274,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 - (NSString *)sensorsdata_screenName {
     // 解析 ReactNative 元素页面名称
-    if ([SAAutoTrackUtils isKindOfRNView:self]) {
+    if ([self isSensorsdataRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 页面信息为空，则使用 Native 的
         NSString *screenName = screenProperties[kSAEventPropertyScreenName];
@@ -324,7 +285,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
     // 解析 Native 元素页面信息
     if (self.sensorsdata_viewController) {
-        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        NSDictionary *autoTrackScreenProperties = [SAUIProperties propertiesWithViewController:self.sensorsdata_viewController];
         return autoTrackScreenProperties[kSAEventPropertyScreenName];
     }
     return nil;
@@ -332,7 +293,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 - (NSString *)sensorsdata_title {
     // 处理 ReactNative 元素
-    if ([SAAutoTrackUtils isKindOfRNView:self]) {
+    if ([self isSensorsdataRNView]) {
         NSDictionary *screenProperties = [self sensorsdata_RNElementScreenProperties];
         // 如果 ReactNative 的 screenName 不存在，则判断页面信息不存在，即使用 Native 逻辑
         if (screenProperties[kSAEventPropertyScreenName]) {
@@ -342,7 +303,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
     // 处理 Native 元素
     if (self.sensorsdata_viewController) {
-        NSDictionary *autoTrackScreenProperties = [SAAutoTrackUtils propertiesWithViewController:self.sensorsdata_viewController];
+        NSDictionary *autoTrackScreenProperties = [SAUIProperties propertiesWithViewController:self.sensorsdata_viewController];
         return autoTrackScreenProperties[kSAEventPropertyTitle];
     }
     return nil;
@@ -379,7 +340,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 @end
 
 
-@implementation UIScrollView (SAElementPath)
+@implementation UIScrollView (SAVisualizedViewPath)
 
 - (CGRect)sensorsdata_visibleFrame {
     CGRect showRect = [self convertRect:self.bounds toView:nil];
@@ -396,7 +357,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation WKWebView (SAElementPath)
+@implementation WKWebView (SAVisualizedViewPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subElements = [SAVisualizedUtils analysisWebElementWithWebView:self];
@@ -409,7 +370,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 @end
 
 
-@implementation UIWindow (SAElementPath)
+@implementation UIWindow (SAVisualizedViewPath)
 
 - (NSArray *)sensorsdata_subElements {
     if (!self.rootViewController) {
@@ -445,7 +406,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation SAWebElementView (SAElementPath)
+@implementation SAWebElementView (SAVisualizedViewPath)
 
 #pragma mark SAVisualizedViewPathProperty
 - (NSString *)sensorsdata_title {
@@ -494,7 +455,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 @end
 
 #pragma mark - UIControl
-@implementation UISwitch (SAElementPath)
+@implementation UISwitch (SAVisualizedViewPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -502,7 +463,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation UIStepper (SAElementPath)
+@implementation UIStepper (SAVisualizedViewPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -510,21 +471,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation UISegmentedControl (SAElementPath)
-
-- (NSString *)sensorsdata_itemPath {
-    // 支持单个 UISegment 创建事件。UISegment 是 UIImageView 的私有子类，表示UISegmentedControl 单个选项的显示区域
-    NSString *subPath = [NSString stringWithFormat:@"UISegment[%ld]", (long)self.selectedSegmentIndex];
-    return [NSString stringWithFormat:@"%@/%@", super.sensorsdata_itemPath, subPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    return [NSString stringWithFormat:@"%@/UISegment[-]", super.sensorsdata_itemPath];
-}
-
-@end
-
-@implementation UISlider (SAElementPath)
+@implementation UISlider (SAVisualizedViewPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -532,7 +479,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation UIPageControl (SAElementPath)
+@implementation UIPageControl (SAVisualizedViewPath)
 
 - (NSString *)sensorsdata_elementValidContent {
     return nil;
@@ -542,7 +489,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 
 #pragma mark - TableView & Cell
-@implementation UITableView (SAElementPath)
+@implementation UITableView (SAVisualizedViewPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -562,32 +509,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation UITableViewHeaderFooterView (SAElementPath)
-
-- (NSString *)sensorsdata_itemPath {
-    UITableView *tableView = (UITableView *)self.superview;
-
-    while (![tableView isKindOfClass:UITableView.class]) {
-        tableView = (UITableView *)tableView.superview;
-        if (!tableView) {
-            return super.sensorsdata_itemPath;
-        }
-    }
-    for (NSInteger i = 0; i < tableView.numberOfSections; i++) {
-        if (self == [tableView headerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionHeader][%ld]", (long)i];
-        }
-        if (self == [tableView footerViewForSection:i]) {
-            return [NSString stringWithFormat:@"[SectionFooter][%ld]", (long)i];
-        }
-    }
-    return super.sensorsdata_itemPath;
-}
-
-@end
-
-
-@implementation UICollectionView (SAElementPath)
+@implementation UICollectionView (SAVisualizedViewPath)
 
 - (NSArray *)sensorsdata_subElements {
     NSArray *subviews = self.subviews;
@@ -607,53 +529,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation UITableViewCell (SAElementPath)
-
-- (NSIndexPath *)sensorsdata_IndexPath {
-    UITableView *tableView = (UITableView *)[self superview];
-    do {
-        if ([tableView isKindOfClass:UITableView.class]) {
-            NSIndexPath *indexPath = [tableView indexPathForCell:self];
-            return indexPath;
-        }
-    } while ((tableView = (UITableView *)[tableView superview]));
-    return nil;
-}
-
-#pragma mark SAAutoTrackViewPathProperty
-
-- (NSString *)sensorsdata_itemPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [super sensorsdata_itemPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:indexPath];
-    }
-    return self.sensorsdata_itemPath;
-}
-
-- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.row];
-}
-
-- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
-}
-
-#pragma mark SAAutoTrackViewProperty
-- (NSString *)sensorsdata_elementPosition {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [NSString stringWithFormat:@"%ld:%ld", (long)indexPath.section, (long)indexPath.row];
-    }
-    return nil;
-}
+@implementation UITableViewCell (SAVisualizedViewPath)
 
 - (BOOL)sensorsdata_isListView {
     return self.sensorsdata_elementPosition != nil;
@@ -661,60 +537,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 @end
 
 
-@implementation UICollectionViewCell (SAElementPath)
-
-- (NSIndexPath *)sensorsdata_IndexPath {
-    UICollectionView *collectionView = (UICollectionView *)[self superview];
-    if ([collectionView isKindOfClass:UICollectionView.class]) {
-        NSIndexPath *indexPath = [collectionView indexPathForCell:self];
-        return indexPath;
-    }
-    return nil;
-}
-
-#pragma mark SAAutoTrackViewPathProperty
-- (NSString *)sensorsdata_itemPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [super sensorsdata_itemPath];
-}
-
-- (NSString *)sensorsdata_similarPath {
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [self sensorsdata_similarPathWithIndexPath:indexPath];
-    } else {
-        return super.sensorsdata_similarPath;
-    }
-}
-
-- (NSString *)sensorsdata_itemPathWithIndexPath:(NSIndexPath *)indexPath {
-    return [NSString stringWithFormat:@"%@[%ld][%ld]", NSStringFromClass(self.class), (long)indexPath.section, (long)indexPath.item];
-}
-
-- (NSString *)sensorsdata_similarPathWithIndexPath:(NSIndexPath *)indexPath {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
-    if (!elementInfo.isSupportElementPosition) {
-        return [self sensorsdata_itemPathWithIndexPath:indexPath];
-    }
-    return [NSString stringWithFormat:@"%@[%ld][-]", NSStringFromClass(self.class), (long)indexPath.section];
-}
-
-#pragma mark SAAutoTrackViewProperty
-- (NSString *)sensorsdata_elementPosition {
-    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
-    if (!elementInfo.isSupportElementPosition) {
-        return nil;
-    }
-    
-    NSIndexPath *indexPath = self.sensorsdata_IndexPath;
-    if (indexPath) {
-        return [NSString stringWithFormat:@"%ld:%ld", (long)indexPath.section, (long)indexPath.item];
-    }
-    return nil;
-}
+@implementation UICollectionViewCell (SAVisualizedViewPath)
 
 - (BOOL)sensorsdata_isListView {
     return self.sensorsdata_elementPosition != nil;

@@ -30,6 +30,7 @@
 #import "SAAppLifecycle.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAAutoTrackManager.h"
+#import "SAUIProperties.h"
 
 @implementation SAPageLeaveObject
 
@@ -95,7 +96,7 @@
         currentURL = [screenAutoTrackerController getScreenUrl];
     }
     currentURL = [currentURL isKindOfClass:NSString.class] ? currentURL : NSStringFromClass(viewController.class);
-    object.referrerURL = [self referrerURLWithURL:currentURL eventProperties:[SAAutoTrackUtils propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController]];
+    object.referrerURL = [self referrerURLWithURL:currentURL eventProperties:[SAUIProperties propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController]];
     self.pageLeaveObjects[address] = object;
 }
 
@@ -148,7 +149,7 @@
 
 - (NSMutableDictionary *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
-    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+    NSDictionary *autoTrackProperties = [SAUIProperties propertiesWithViewController:viewController];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
     if (eventProperties[kSAEventPropertyScreenUrl]) {
         return eventProperties;

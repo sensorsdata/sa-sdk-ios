@@ -32,6 +32,7 @@
 #import "SAReferrerManager.h"
 #import "SAModuleManager.h"
 #import "SensorsAnalyticsSDK+SAAutoTrack.h"
+#import "SAUIProperties.h"
 
 @interface SAAppViewScreenTracker ()
 
@@ -140,7 +141,7 @@
 - (NSDictionary *)buildWithViewController:(UIViewController *)viewController properties:(NSDictionary<NSString *, id> *)properties autoTrack:(BOOL)autoTrack {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
 
-    NSDictionary *autoTrackProperties = [SAAutoTrackUtils propertiesWithViewController:viewController];
+    NSDictionary *autoTrackProperties = [SAUIProperties propertiesWithViewController:viewController];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];
 
     if (autoTrack) {

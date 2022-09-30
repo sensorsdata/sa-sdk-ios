@@ -44,6 +44,7 @@ static NSString * const kSARemoteConfigModuleName = @"RemoteConfig";
 
 static NSString * const kSAJavaScriptBridgeModuleName = @"JavaScriptBridge";
 static NSString * const kSAExceptionModuleName = @"Exception";
+static NSString * const kSAExposureModuleName = @"Exposure";
 
 @interface SAModuleManager ()
 
@@ -126,7 +127,7 @@ static NSString * const kSAExceptionModuleName = @"Exception";
     return @[kSAJavaScriptBridgeModuleName, kSANotificationModuleName, kSAChannelMatchModuleName,
              kSADeepLinkModuleName, kSADebugModeModuleName, kSALocationModuleName,
              kSAAutoTrackModuleName, kSAVisualizedModuleName, kSAEncryptModuleName,
-             kSADeviceOrientationModuleName, kSAExceptionModuleName, kSARemoteConfigModuleName];
+             kSADeviceOrientationModuleName, kSAExceptionModuleName, kSARemoteConfigModuleName, kSAExposureModuleName];
 }
 
 #pragma mark - Public

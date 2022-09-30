@@ -25,7 +25,8 @@
 #import "UIView+SAVisualProperties.h"
 #import "SAVisualizedManager.h"
 #import <objc/runtime.h>
-#import "SAAutoTrackUtils.h"
+#import "UIView+SARNView.h"
+#import "UIView+SensorsAnalytics.h"
 
 static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 
@@ -191,7 +192,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
         return nil;
 #pragma clang diagnostic pop
     }
-    if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
+    if ([self isSensorsdataRNView]) { // RN 元素，https://reactnative.dev
         NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             return content;

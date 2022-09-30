@@ -62,7 +62,7 @@
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
 
-#define VERSION @"4.4.5"
+#define VERSION @"4.4.6"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -278,6 +278,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     SACarrierNamePropertyPlugin *carrierPlugin = [[SACarrierNamePropertyPlugin alloc] init];
 
     dispatch_async(self.serialQueue, ^{
+        // 注册 configOptions 中自定义属性插件
+        for (SAPropertyPlugin * plugin in self.configOptions.propertyPlugins) {
+            [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:plugin];
+        }
+        
         // 预置属性
         SAPresetPropertyPlugin *presetPlugin = [[SAPresetPropertyPlugin alloc] initWithLibVersion:VERSION];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:presetPlugin];
@@ -294,7 +299,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         // 运营商信息
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:carrierPlugin];
 
-        // 静态公共属性
+        // 注册静态公共属性插件
         SASuperPropertyPlugin *superPropertyPlugin = [[SASuperPropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:superPropertyPlugin];
 

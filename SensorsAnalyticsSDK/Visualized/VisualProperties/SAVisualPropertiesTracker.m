@@ -32,11 +32,11 @@
 #import "SAVisualizedLogger.h"
 #import "SAJavaScriptBridgeManager.h"
 #import "SAAlertController.h"
-#import "SAAutoTrackUtils.h"
 #import "UIView+SAVisualProperties.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
+#import "UIView+SAElementPosition.h"
 
 @interface SAVisualPropertiesTracker()
 

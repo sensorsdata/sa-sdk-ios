@@ -44,7 +44,9 @@
 
     SABaseEventObject *object = input.eventObject;
     // 获取插件采集的所有属性
-    NSMutableDictionary *properties = [[SAPropertyPluginManager sharedInstance] propertiesWithFilter:object];
+    NSDictionary *pluginProperties = [[SAPropertyPluginManager sharedInstance] propertiesWithFilter:object];
+    // 属性合法性校验
+    NSMutableDictionary *properties = [SAPropertyValidator validProperties:pluginProperties];
 
     // 事件、公共属性和动态公共属性都需要支持修改 $project, $token, $time
     object.project = (NSString *)properties[kSAEventCommonOptionalPropertyProject];

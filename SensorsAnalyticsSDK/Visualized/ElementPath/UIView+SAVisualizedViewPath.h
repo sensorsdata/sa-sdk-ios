@@ -28,7 +28,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - UIView
-@interface UIView (SAElementPath)<SAVisualizedViewPathProperty, SAVisualizedExtensionProperty, SAAutoTrackViewPathProperty>
+@interface UIView (SAVisualizedViewPath)<SAVisualizedViewPathProperty, SAVisualizedExtensionProperty>
 
 /// 判断 ReactNative 元素是否可点击
 - (BOOL)sensorsdata_clickableForRNView;
@@ -38,49 +38,43 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface UIScrollView (SAElementPath)<SAVisualizedExtensionProperty>
+@interface UIScrollView (SAVisualizedViewPath)<SAVisualizedExtensionProperty>
 @end
 
-@interface WKWebView (SAElementPath)<SAVisualizedViewPathProperty>
+@interface WKWebView (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 
 @end
 
-@interface UIWindow (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UIWindow (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
 @interface SAWebElementView (SAElementPath)<SAVisualizedViewPathProperty>
 @end
 
 #pragma mark - UIControl
-@interface UISwitch (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UISwitch (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface UIStepper (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UIStepper (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface UISegmentedControl(SAElementPath)<SAAutoTrackViewPathProperty>
+@interface UISlider (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface UISlider (SAElementPath)<SAVisualizedViewPathProperty>
-@end
-
-@interface UIPageControl (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UIPageControl (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
 #pragma mark - TableView & Cell
-@interface UITableView (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UITableView (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface UITableViewHeaderFooterView (SAElementPath)
+@interface UICollectionView (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
-@interface UICollectionView (SAElementPath)<SAVisualizedViewPathProperty>
+@interface UITableViewCell (SAVisualizedViewPath)
 @end
 
-@interface UITableViewCell (SAElementPath)<SAAutoTrackViewProperty>
-@end
-
-@interface UICollectionViewCell (SAElementPath)<SAAutoTrackViewProperty>
+@interface UICollectionViewCell (SAVisualizedViewPath)
 @end
 
 NS_ASSUME_NONNULL_END

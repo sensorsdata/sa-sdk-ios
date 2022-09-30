@@ -28,6 +28,10 @@
 #import "UIView+SAAutoTrack.h"
 #import "SAValidator.h"
 #import "SAViewNode.h"
+#import "UIView+SAVisualizedViewPath.h"
+#import "UIView+SAElementContent.h"
+#import "UIView+SAElementPosition.h"
+
 
 static id dictionaryValueForKey(NSDictionary *dic, NSString *key) {
     if (![SAValidator isValidDictionary:dic]) {
