@@ -427,6 +427,8 @@
 		F209BEB828B360A6000CEE49 /* UIView+ExposureIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = F209BEB628B360A6000CEE49 /* UIView+ExposureIdentifier.m */; };
 		F211742126E9A72C00D65E19 /* SAApplication.h in Headers */ = {isa = PBXBuildFile; fileRef = F211741F26E9A72B00D65E19 /* SAApplication.h */; };
 		F211742226E9A72C00D65E19 /* SAApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = F211742026E9A72B00D65E19 /* SAApplication.m */; };
+		F21C226728F7B0E500847823 /* NSDictionary+SACopyProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */; };
+		F21C226828F7B0E500847823 /* NSDictionary+SACopyProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */; };
 		F226E66C28BC6149000443A7 /* SAUIProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E66A28BC6149000443A7 /* SAUIProperties.h */; };
 		F226E66D28BC6149000443A7 /* SAUIProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F226E66B28BC6149000443A7 /* SAUIProperties.m */; };
 		F226E67028BC62EB000443A7 /* UIView+SAItemPath.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E66E28BC62EB000443A7 /* UIView+SAItemPath.h */; };
@@ -985,6 +987,8 @@
 		F211741F26E9A72B00D65E19 /* SAApplication.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAApplication.h; sourceTree = "<group>"; };
 		F211742026E9A72B00D65E19 /* SAApplication.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAApplication.m; sourceTree = "<group>"; };
 		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
+		F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+SACopyProperties.h"; sourceTree = "<group>"; };
+		F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+SACopyProperties.m"; sourceTree = "<group>"; };
 		F226E66A28BC6149000443A7 /* SAUIProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUIProperties.h; sourceTree = "<group>"; };
 		F226E66B28BC6149000443A7 /* SAUIProperties.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUIProperties.m; sourceTree = "<group>"; };
 		F226E66E28BC62EB000443A7 /* UIView+SAItemPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+SAItemPath.h"; sourceTree = "<group>"; };
@@ -1543,6 +1547,8 @@
 				4D2D53AB2591EB3900805141 /* SAWeakPropertyContainer.m */,
 				45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */,
 				45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */,
+				F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */,
+				F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -2356,6 +2362,7 @@
 				F200095D28BE0721003C5113 /* UIView+SAInternalProperties.h in Headers */,
 				A8356DE62656459A00FD64AA /* UIApplication+SAAutoTrack.h in Headers */,
 				F200094F28BDADB5003C5113 /* UITableViewCell+SAIndexPath.h in Headers */,
+				F21C226728F7B0E500847823 /* NSDictionary+SACopyProperties.h in Headers */,
 				F23CA00A2701715E002EEACA /* SAJavaScriptBridgeManager.h in Headers */,
 				4DD1286825F872A4008C0B1E /* SAObjectSerializerContext.h in Headers */,
 				F2E4ABA926ECB19200BA7F01 /* SensorsAnalyticsSDK+DebugMode.h in Headers */,
@@ -2792,6 +2799,7 @@
 				A82E8955267D918100475757 /* SAAlgorithmProtocol.m in Sources */,
 				8809806C27FEE78900EB2B3D /* SAEncryptInterceptor.m in Sources */,
 				4DD1285C25F872A4008C0B1E /* SAObjectSerializerConfig.m in Sources */,
+				F21C226828F7B0E500847823 /* NSDictionary+SACopyProperties.m in Sources */,
 				4D1B925F2817F2F3007C31D5 /* SAReferrerTitlePropertyPlugin.m in Sources */,
 				A8CC22332685E50C00E96A03 /* SARemoteConfigEventObject.m in Sources */,
 				8809805827FDA85E00EB2B3D /* SARemoteConfigInterceptor.m in Sources */,

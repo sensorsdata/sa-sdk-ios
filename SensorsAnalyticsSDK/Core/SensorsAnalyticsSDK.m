@@ -61,8 +61,9 @@
 #import "SAModulePropertyPlugin.h"
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
+#import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.4.6"
+#define VERSION @"4.4.7"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -117,7 +118,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 + (SensorsAnalyticsSDK *_Nullable)sharedInstance {
-    NSAssert(sharedInstance, @"Please use startWithConfigOptions: to initialize the SDK first.");
     if ([SAModuleManager.sharedInstance isDisableSDK]) {
         SALogDebug(@"SDK is disabled");
         return nil;
@@ -126,7 +126,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 + (SensorsAnalyticsSDK *)sdkInstance {
-    NSAssert(sharedInstance, @"Please use startWithConfigOptions: to initialize the SDK first.");
     return sharedInstance;
 }
 
@@ -384,7 +383,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (NSDictionary *)getPresetProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     void(^block)(void) = ^{
-        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[SAPresetPropertyPlugin.class, SADeviceIDPropertyPlugin.class, SACarrierNamePropertyPlugin.class, SANetworkInfoPropertyPlugin.class, SAFirstDayPropertyPlugin.class]];
+        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[SAPresetPropertyPlugin.class, SADeviceIDPropertyPlugin.class, SACarrierNamePropertyPlugin.class, SANetworkInfoPropertyPlugin.class, SAFirstDayPropertyPlugin.class, SAAppVersionPropertyPlugin.class]];
         [properties addEntriesFromDictionary:dic];
     };
     if (sensorsdata_is_same_queue(self.serialQueue)) {
@@ -996,12 +995,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #pragma mark - setup Flow
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-
     SAFlowData *input = [[SAFlowData alloc] init];
     input.eventObject = object;
-    input.properties = properties;
     input.identifier = self.identifier;
-    //    input.param
+    input.properties = [properties sensorsdata_deepCopy];
     [SAFlowManager.sharedInstance startWithFlowID:kSATrackFlowId input:input completion:nil];
 }
 

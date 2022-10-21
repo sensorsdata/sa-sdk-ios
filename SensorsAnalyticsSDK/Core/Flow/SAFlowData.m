@@ -124,7 +124,7 @@ static NSString * const kSAFlowDataRepeatCount = @"repeat_count";
 }
 
 - (void)setProperties:(NSDictionary *)properties {
-    [self setParamWithKey:kSAFlowDataProperties value:[properties copy]];
+    [self setParamWithKey:kSAFlowDataProperties value:properties];
 }
 
 - (NSDictionary *)properties {

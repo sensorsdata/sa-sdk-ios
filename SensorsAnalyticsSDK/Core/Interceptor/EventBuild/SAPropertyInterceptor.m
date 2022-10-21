@@ -37,10 +37,8 @@
     NSParameterAssert(input.eventObject);
 
     // 注册自定义属性采集插件，采集 track 附带属性
-
     SACustomPropertyPlugin *customPlugin = [[SACustomPropertyPlugin alloc] initWithCustomProperties:input.properties];
     [[SAPropertyPluginManager sharedInstance] registerCustomPropertyPlugin:customPlugin];
-    input.properties = nil;
 
     SABaseEventObject *object = input.eventObject;
     // 获取插件采集的所有属性
@@ -98,6 +96,13 @@
         object.lib.detail = [NSString stringWithFormat:@"%@######", customProperties[kSAEventPropertyScreenName] ?: @""];
     }
 
+    // 针对 Flutter 和 RN 触发的全埋点事件，需要修正 $lib_method
+    NSString *libMethod = input.properties[kSAEventPresetPropertyLibMethod];
+    if ([libMethod isKindOfClass:NSString.class] && [libMethod isEqualToString:kSALibMethodAuto] ) {
+        object.lib.method = kSALibMethodAuto;
+    }
+
+    input.properties = nil;
     completion(input);
 }
 
