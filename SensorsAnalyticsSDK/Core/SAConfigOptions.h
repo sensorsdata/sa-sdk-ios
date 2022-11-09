@@ -135,6 +135,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
 
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys;
+
 @end
 
 NS_ASSUME_NONNULL_END

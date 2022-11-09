@@ -37,6 +37,8 @@
 		45BBC8D02787DF22004D2D0C /* SAPresetPropertyObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 45BBC8CE2787DF22004D2D0C /* SAPresetPropertyObject.m */; };
 		45BD80CE26F0B49700DCC759 /* SAThreadSafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */; };
 		45BD80CF26F0B49700DCC759 /* SAThreadSafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */; };
+		4C68ED9B2900E6E600703F68 /* SALimitKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C68ED992900E6E600703F68 /* SALimitKeyManager.h */; };
+		4C68ED9C2900E6E600703F68 /* SALimitKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C68ED9A2900E6E600703F68 /* SALimitKeyManager.m */; };
 		4D01ED8C2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D01ED8A2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h */; };
 		4D01ED8D2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D01ED8B2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m */; };
 		4D01EFB028156D9200A12BCC /* SAEventDurationPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D01EFAE28156D9200A12BCC /* SAEventDurationPropertyPlugin.h */; };
@@ -578,6 +580,8 @@
 		45BBC8CE2787DF22004D2D0C /* SAPresetPropertyObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyObject.m; sourceTree = "<group>"; };
 		45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAThreadSafeDictionary.h; sourceTree = "<group>"; };
 		45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAThreadSafeDictionary.m; sourceTree = "<group>"; };
+		4C68ED992900E6E600703F68 /* SALimitKeyManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SALimitKeyManager.h; sourceTree = "<group>"; };
+		4C68ED9A2900E6E600703F68 /* SALimitKeyManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALimitKeyManager.m; sourceTree = "<group>"; };
 		4D01ED8A2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADynamicSuperPropertyPlugin.h; sourceTree = "<group>"; };
 		4D01ED8B2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADynamicSuperPropertyPlugin.m; sourceTree = "<group>"; };
 		4D01EFAE28156D9200A12BCC /* SAEventDurationPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventDurationPropertyPlugin.h; sourceTree = "<group>"; };
@@ -1476,6 +1480,8 @@
 				F211742026E9A72B00D65E19 /* SAApplication.m */,
 				881A40EF253D7B4F00854F69 /* SAConfigOptions.h */,
 				881A4154253D7B4F00854F69 /* SAConfigOptions.m */,
+				4C68ED992900E6E600703F68 /* SALimitKeyManager.h */,
+				4C68ED9A2900E6E600703F68 /* SALimitKeyManager.m */,
 				881A40EA253D7B4F00854F69 /* SAConstants.h */,
 				881A4159253D7B4F00854F69 /* SAConstants.m */,
 				881A40F0253D7B4F00854F69 /* SAConstants+Private.h */,
@@ -2349,6 +2355,7 @@
 				88F5538627FD933600D95E7C /* SADynamicSuperPropertyInterceptor.h in Headers */,
 				F2CFD14726EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h in Headers */,
 				88F5538227FD91E400D95E7C /* SASerialQueueInterceptor.h in Headers */,
+				4C68ED9B2900E6E600703F68 /* SALimitKeyManager.h in Headers */,
 				881A4214253D7B5000854F69 /* SAKeyChainItemWrapper.h in Headers */,
 				A8CC223C2685E50C00E96A03 /* SARemoteConfigCommonOperator.h in Headers */,
 				4DD1285A25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.h in Headers */,
@@ -2819,6 +2826,7 @@
 				F226E67D28BC6415000443A7 /* UIView+SAElementContent.m in Sources */,
 				F2E36484287682E6008D9151 /* SADeviceWhiteList.m in Sources */,
 				88E6BEDE278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.m in Sources */,
+				4C68ED9C2900E6E600703F68 /* SALimitKeyManager.m in Sources */,
 				883BAAB12669CD18008105D2 /* SAExceptionManager.m in Sources */,
 				4DD1286625F872A4008C0B1E /* SAVisualizedAbstractMessage.m in Sources */,
 				4DD1282225F87225008C0B1E /* UIView+SAVisualizedViewPath.m in Sources */,

@@ -200,3 +200,6 @@ NSString * const kSAAppVisualProperties = @"sensorsdata_app_visual_properties";
 /// App 内嵌 H5 的 Native 事件，属性配置中，需要 web 采集的属性
 NSString * const kSAWebVisualProperties = @"sensorsdata_js_visual_properties";
 
+SALimitKey const SALimitKeyIDFA = @"SALimitKeyIDFA";
+SALimitKey const SALimitKeyIDFV = @"SALimitKeyIDFV";
+SALimitKey const SALimitKeyCarrier = @"SALimitKeyCarrier";

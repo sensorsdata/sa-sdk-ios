@@ -146,6 +146,13 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
         return NO;
     }
 
+    /* 先判断 RN 是否可点击，再判断 Native 屏蔽
+     RCTSwitch 和 RCTSlider 等元素，由 RN 触发元素点击，并设置在 Native 屏蔽
+     */
+    if ([self sensorsdata_clickableForRNView]) {
+        return YES;
+    }
+
     // 是否被忽略或黑名单屏蔽
     if (self.sensorsdata_isIgnored) {
         return NO;
@@ -166,10 +173,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
         if (clickable){
             return YES;
         }
-    }
-
-    if ([self sensorsdata_clickableForRNView]) {
-        return YES;
     }
 
     if ([self isKindOfClass:UIControl.class]) {

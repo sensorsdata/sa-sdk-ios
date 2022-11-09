@@ -61,9 +61,10 @@
 #import "SAModulePropertyPlugin.h"
 #import "SASessionPropertyPlugin.h"
 #import "SAEventStore.h"
+#import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.4.7"
+#define VERSION @"4.4.8"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -833,6 +834,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     dispatch_async(self.serialQueue, ^{
         self.trackEventCallback = callback;
     });
+}
+
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys {
+    [SALimitKeyManager registerLimitKeys:keys];
 }
 
 - (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin {

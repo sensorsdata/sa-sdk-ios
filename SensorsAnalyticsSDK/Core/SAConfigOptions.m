@@ -28,6 +28,7 @@
 #if __has_include("SAExposureConfig.h")
 #import "SAExposureConfig.h"
 #endif
+#import "SALimitKeyManager.h"
 
 /// session 中事件最大间隔 5 分钟（单位为秒）
 static const NSUInteger kSASessionMaxInterval = 5 * 60;
@@ -246,6 +247,10 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
         return;
     }
     [self.propertyPlugins addObject:plugin];
+}
+
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys {
+    [SALimitKeyManager registerLimitKeys:keys];
 }
 
 @end

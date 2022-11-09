@@ -28,6 +28,7 @@
 #import "SAValidator.h"
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SALimitKeyManager.h"
 
 #if TARGET_OS_IOS
 #import "SAKeyChainItemWrapper.h"
@@ -232,6 +233,13 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
 #if TARGET_OS_IOS
 + (NSString *)idfa {
+    NSString *idfa = SALimitKeyManager.idfa;
+    if ([idfa isEqualToString:@""]) {
+        return nil;
+    } else if (idfa.length > 0) {
+        return idfa;
+    }
+
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
     if ([cla respondsToSelector:sel]) {
@@ -244,6 +252,13 @@ NSString * const kSALoginIdSpliceKey = @"+";
 }
 
 + (NSString *)idfv {
+    NSString *idfv = SALimitKeyManager.idfv;
+    if ([idfv isEqualToString:@""]) {
+        return nil;
+    } else if (idfv.length > 0) {
+        return idfv;
+    }
+
     return [UIDevice currentDevice].identifierForVendor.UUIDString;
 }
 #elif TARGET_OS_OSX

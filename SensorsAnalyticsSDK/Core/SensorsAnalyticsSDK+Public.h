@@ -361,6 +361,8 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  */
 - (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
 
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys;
+
 /**
  * @abstract
  * 用来设置每个事件都带有的一些公共属性
