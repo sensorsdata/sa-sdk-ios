@@ -59,10 +59,6 @@ static NSString * const kSAExposureModuleName = @"Exposure";
 
 + (void)startWithConfigOptions:(SAConfigOptions *)configOptions {
     SAModuleManager.sharedInstance.configOptions = configOptions;
-    // 禁止 SDK 时，不开启其他模块
-    if (configOptions.disableSDK) {
-        return;
-    }
     [[SAModuleManager sharedInstance] loadModulesWithConfigOptions:configOptions];
 }
 
@@ -99,6 +95,10 @@ static NSString * const kSAExposureModuleName = @"Exposure";
 // module加载
 - (void)loadModulesWithConfigOptions:(SAConfigOptions *)configOptions {
     [self loadModule:kSAJavaScriptBridgeModuleName withConfigOptions:configOptions];
+    // 禁止 SDK 时，不开启其他模块
+    if (configOptions.disableSDK) {
+        return;
+    }
 #if TARGET_OS_IOS
     for (NSString *moduleName in self.moduleNames) {
         if ([moduleName isEqualToString:kSAJavaScriptBridgeModuleName]) {
@@ -429,7 +429,12 @@ static NSString * const kSAExposureModuleName = @"Exposure";
         if ([module conformsToProtocol:@protocol(SAJavaScriptBridgeModuleProtocol)] && [module respondsToSelector:@selector(javaScriptSource)] && [module conformsToProtocol:@protocol(SAModuleProtocol)]) {
             id<SAJavaScriptBridgeModuleProtocol, SAModuleProtocol>moduleObject = module;
             NSString *javaScriptSource = [moduleObject javaScriptSource];
-            moduleObject.isEnable && javaScriptSource.length > 0 ? [source appendString:javaScriptSource] : nil;
+            if (javaScriptSource.length <= 0) {
+                continue;
+            }
+            if ([moduleName isEqualToString:kSAJavaScriptBridgeModuleName] || moduleObject.isEnable) {
+                [source appendString:javaScriptSource];
+            }
         }
     }
     return source;

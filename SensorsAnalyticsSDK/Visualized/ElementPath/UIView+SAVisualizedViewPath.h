@@ -38,9 +38,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface UIScrollView (SAVisualizedViewPath)<SAVisualizedExtensionProperty>
-@end
-
 @interface WKWebView (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 
 @end
@@ -48,7 +45,13 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIWindow (SAVisualizedViewPath)<SAVisualizedViewPathProperty>
 @end
 
+/// 其他平台的构造可视化页面元素
+@interface SAVisualizedElementView (SAElementPath)<SAVisualizedViewPathProperty>
+@end
+
+/// App 内嵌 H5 页面元素信息
 @interface SAWebElementView (SAElementPath)<SAVisualizedViewPathProperty>
+
 @end
 
 #pragma mark - UIControl

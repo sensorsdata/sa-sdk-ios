@@ -101,9 +101,18 @@
         }
     }
 
+    if (NSClassFromString(@"FlutterView") && [object isKindOfClass:NSClassFromString(@"FlutterView")]) {
+        UIView *flutterView = (UIView *)object;
+        [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithView:flutterView];
+
+        [self checkFlutterElementInfoWithView:flutterView];
+    }
     if ([object isKindOfClass:WKWebView.class]) {
         // 针对 WKWebView 数据检查
         WKWebView *webView = (WKWebView *)object;
+
+        [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithView:webView];
+
         [self checkWKWebViewInfoWithWebView:webView];
     } else {
         SEL isWebViewSEL = NSSelectorFromString(@"isWebViewWithObject:");
@@ -112,7 +121,7 @@
         if ([self respondsToSelector:isWebViewSEL] && [self performSelector:isWebViewSEL withObject:object]) {
 #pragma clang diagnostic pop
             // 暂不支持非 WKWebView，添加弹框
-            [self addNotWKWebViewAlertInfo];
+            [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithView:nil];
         }
     }
 
@@ -249,60 +258,61 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
 }
 
 #pragma mark webview
-
-/// 添加弹框信息
-- (void)addNotWKWebViewAlertInfo {
-    [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithWebInfo:nil];
-    
-    NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
-    alertInfo[@"title"] = SALocalizedString(@"SAVisualizedPageErrorTitle");
-    alertInfo[@"message"] = SALocalizedString(@"SAVisualizedPageErrorMessage");
-    alertInfo[@"link_text"] = SALocalizedString(@"SAVisualizedConfigurationDocument");
-    alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
-    if ([SAVisualizedManager defaultManager].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
-        alertInfo[@"title"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorTitle");
-        alertInfo[@"message"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorMessage");
-        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/tech_sdk_client_ios_super-81297507.html";
-    }
-    [[SAVisualizedObjectSerializerManager sharedInstance] registWebAlertInfos:@[alertInfo]];
+- (void)checkFlutterElementInfoWithView:(UIView *)flutterView {
+    // 延时检测是否 Flutter SDK 版本是否正确
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        // 延迟判断是否存在 Flutter SDK 发送数据
+        SAVisualizedPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] queryPageInfoWithType:SAVisualizedPageTypeFlutter];
+        if (currentWebPageInfo.pageType != SAVisualizedPageTypeFlutter) {
+            return;
+        }
+        // 已成功注入页面信息
+        if (currentWebPageInfo.screenName.length > 0 || currentWebPageInfo.elementSources.count > 0) {
+            return;
+        }
+        NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
+        alertInfo[@"title"] = SALocalizedString(@"SAVisualizedPageErrorTitle");
+        alertInfo[@"message"] = SALocalizedString(@"SAVisualizedFlutterPageErrorMessage");
+        alertInfo[@"link_text"] =  SALocalizedString(@"SAVisualizedConfigurationDocument");
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/flutter-22257963.html";
+        if ([SAVisualizedManager defaultManager].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+            alertInfo[@"title"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorTitle");
+        }
+        [currentWebPageInfo registWebAlertInfos:@[alertInfo]];
+    });
 }
 
 /// 检查 WKWebView 相关信息
 - (void)checkWKWebViewInfoWithWebView:(WKWebView *)webView {
-    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
+    SAVisualizedPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
 
-    // H5 弹框信息
-    if (webPageInfo.alertSources) {
-        [[SAVisualizedObjectSerializerManager sharedInstance] registWebAlertInfos:webPageInfo.alertSources];
-    }
-    
-    // H5 页面元素信息
-    if (webPageInfo) {
-        [[SAVisualizedObjectSerializerManager sharedInstance] enterWebViewPageWithWebInfo:webPageInfo];
+    // 存在有效 web 元素数据
+    if (webPageInfo.url || (webPageInfo.elementSources.count > 0 && webPageInfo.pageType == SAVisualizedPageTypeWeb)) {
+        return;
     }
 
     NSMutableString *javaScriptSource = [NSMutableString string];
     // 如果未接收到 H5 页面元素信息，异常场景处理
-    if (!webPageInfo) {
-        // 当前 WKWebView 是否注入可视化全埋点 Bridge 标记
-        NSArray<WKUserScript *> *userScripts = webView.configuration.userContentController.userScripts;
-        // 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
-        __block BOOL isContainVisualized = NO;
-        [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
-            if ([obj.source containsString:kSAJSBridgeVisualizedMode]) {
-                isContainVisualized = YES;
-                *stop = YES;
-            }
-        }];
-
-        if (isContainVisualized) {
-            // 只有包含可视化全埋点 Bridge 标记，并且未接收到 JS 页面信息，需要检测 JS SDK 集成情况
-            [self checkJSSDKIntegrationWithWebView:webView];
-        } else {
-            // 注入 bridge 属性值，标记当前处于可视化全埋点扫码状态
-            NSString *visualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
-            [javaScriptSource appendString:visualizedMode];
+    // 当前 WKWebView 是否注入可视化全埋点 Bridge 标记
+    NSArray<WKUserScript *> *userScripts = webView.configuration.userContentController.userScripts;
+    // 防止重复注入标记（js 发送数据，是异步的，防止 sensorsdata_visualized_mode 已经注入完成，但是尚未接收到 js 数据）
+    __block BOOL isContainVisualized = NO;
+    [userScripts enumerateObjectsUsingBlock:^(WKUserScript *_Nonnull obj, NSUInteger idx, BOOL *_Nonnull stop) {
+        // 已注入可视化扫码状态标记
+        if ([obj.source containsString:kSAJSBridgeVisualizedMode]) {
+            isContainVisualized = YES;
+            *stop = YES;
         }
+    }];
+
+    if (isContainVisualized) {
+        // 只有包含可视化全埋点 Bridge 标记，并且未接收到 JS 页面信息，需要检测 JS SDK 集成情况
+        [self checkJSSDKIntegrationWithWebView:webView];
+    } else {
+        // 注入 bridge 属性值，标记当前处于可视化全埋点扫码状态
+        NSString *visualizedMode = [SAJavaScriptBridgeBuilder buildVisualBridgeWithVisualizedMode:YES];
+        [javaScriptSource appendString:visualizedMode];
+
     }
 
     /* 主动通知 JS SDK 发送数据：
@@ -327,8 +337,8 @@ propertyDescription:(SAPropertyDescription *)propertyDescription
     // 延时检测是否集成 JS SDK（JS SDK 可能存在延时动态加载）
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         // 延迟判断是否存在 js 发送数据
-        SAVisualizedWebPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
-        if (currentWebPageInfo) {
+        SAVisualizedPageInfo *currentWebPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
+        if (currentWebPageInfo.url) {
             return;
         }
         // 注入了 bridge 但是未接收到数据

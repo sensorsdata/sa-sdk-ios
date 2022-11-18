@@ -85,7 +85,7 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                     [conn sendMessage:[SAVisualizedSnapshotResponseMessage message]];
 
                     // 不包含页面元素等数据，只发送页面基本信息，重置 payloadHash 为截图 hash
-                    [[SAVisualizedObjectSerializerManager sharedInstance] resetLastPayloadHash:snapshotMessage.originImageHash];
+//                    [[SAVisualizedObjectSerializerManager sharedInstance] resetLastPayloadHash:snapshotMessage.originImageHash];
                 } else {
                     // 清空页面配置信息
                     [[SAVisualizedObjectSerializerManager sharedInstance] resetObjectSerializer];
@@ -95,8 +95,8 @@ static NSString * const kSnapshotSerializerConfigKey = @"snapshot_class_descript
                     snapshotMessage.serializedObjects = serializedObjects;
                     [conn sendMessage:snapshotMessage];
 
-                    // 重置 payload hash 信息
-                    [[SAVisualizedObjectSerializerManager sharedInstance] resetLastPayloadHash:snapshotMessage.payloadHash];
+                    // 更新 payload hash 信息
+                    [[SAVisualizedObjectSerializerManager sharedInstance] updateLastPayloadHash:snapshotMessage.payloadHash];
                 }
             }];
         });

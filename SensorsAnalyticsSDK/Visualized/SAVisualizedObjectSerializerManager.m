@@ -27,20 +27,52 @@
 #import "SALog.h"
 #import "SAVisualizedManager.h"
 #import "SACommonUtility.h"
+#import "SAUIProperties.h"
 #import "SAConstants+Private.h"
 
-@implementation SAVisualizedWebPageInfo
+@implementation SAVisualizedPageInfo
+
+- (instancetype)initWithPageType:(SAVisualizedPageType)pageType {
+    self = [super init];
+    if (self) {
+        _pageType = pageType;
+        _alertInfos = [NSMutableDictionary dictionary];
+    }
+    return self;
+}
+
+- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
+    if (infos.count == 0) {
+        return;
+    }
+
+    BOOL isRegistedAlertInfos = NO;
+    // 只添加 message 不重复的弹框信息
+    for (NSDictionary *alertInfo in infos) {
+        NSString *message = alertInfo[@"message"];
+        if (message) {
+            // 和已有弹框重复
+            if ([self.alertInfos[message]  isEqualToDictionary:alertInfo]) {
+                break;
+            }
+            self.alertInfos[message] = alertInfo;
+            isRegistedAlertInfos = YES;
+        }
+    }
+
+    // 注册弹框成功，更新 hash
+    if (isRegistedAlertInfos) {
+        [[SAVisualizedObjectSerializerManager sharedInstance] refreshPayloadHashWithData:infos];
+    }
+}
 
 @end
 
 
 @interface SAVisualizedObjectSerializerManager()
 
-/// 是否包含 webview
-@property (nonatomic, assign, readwrite) BOOL isContainWebView;
-
-/// App 内嵌 H5 页面信息
-@property (nonatomic, strong, readwrite) SAVisualizedWebPageInfo *webPageInfo;
+/// 非法页面信息，可能是 UIWebView 页面
+@property (nonatomic, strong) SAVisualizedPageInfo *invalidPageInfo;
 
 /// payload 新增内容对应 hash，如果存在，则添加到 image_hash 后缀
 @property (nonatomic, copy) NSString *jointPayloadHash;
@@ -51,16 +83,15 @@
 /// 记录当前栈中的 controller，不会持有
 @property (nonatomic, strong) NSPointerArray *controllersStack;
 
-/// 弹框信息
-@property (nonatomic, strong, readwrite) NSMutableArray *alertInfos;
-
-/// App 内嵌 H5 页面 缓存
+/// H5 或 Flutter 页面信息缓存
 /*
- key:H5 页面 url
+ key:H5 页面 url 或当前页面地址
  value:SAVisualizedWebPageInfo 对象
  */
-@property (nonatomic, strong) NSMutableDictionary <NSString *,SAVisualizedWebPageInfo *>*webPageInfoCache;
+@property (nonatomic, strong) NSMutableDictionary <NSString *,SAVisualizedPageInfo *>*webPageInfoCache;
 
+/// 当前 webView 页面
+@property (nonatomic, weak) WKWebView *webView;
 @end
 
 @implementation SAVisualizedObjectSerializerManager
@@ -88,26 +119,52 @@
      对于集合中的对象不会强引用，如果对象被释放，则会被置为 NULL，调用 compact 即可移除所有 NULL 对象
      */
     _controllersStack = [NSPointerArray weakObjectsPointerArray];
-    _alertInfos = [NSMutableArray array];
     _webPageInfoCache = [NSMutableDictionary dictionary];
-
-    _isContainWebView = NO;
 }
 
 /// 重置解析配置
 - (void)resetObjectSerializer {
-    self.isContainWebView = NO;
-
-    self.webPageInfo = nil;
-    [self.alertInfos removeAllObjects];
+    self.invalidPageInfo = nil;
+    self.webView = nil;
 }
 
-#pragma mark WebInfo
 - (void)cleanVisualizedWebPageInfoCache {
     [self.webPageInfoCache removeAllObjects];
+    self.invalidPageInfo = nil;
 
     self.jointPayloadHash = nil;
     self.lastPayloadHash = nil;
+    self.webView = nil;
+}
+
+- (SAVisualizedPageInfo *)queryPageInfoWithType:(SAVisualizedPageType)pageType {
+    if (self.webView && pageType == SAVisualizedPageTypeWeb) {
+        return [self readWebPageInfoWithWebView:self.webView];
+    }
+    if (pageType == SAVisualizedPageTypeFlutter) {
+        SAVisualizedPageInfo *pageInfo = [self readFlutterPageInfo];
+        if (pageInfo) {
+            return pageInfo;
+        }
+    }
+    if (pageType == SAVisualizedPageTypeNative) {
+        SAVisualizedPageInfo *pageInfo = [self readNativePageInfo];
+        if (pageInfo) {
+            return pageInfo;
+        }
+    }
+    return self.invalidPageInfo;
+}
+
+#pragma mark - WebInfo
+/// 读取当前 webView 页面相关信息
+- (SAVisualizedPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView {
+    if (!webView) {
+        return nil;
+    }
+    NSString *url = webView.URL.absoluteString;
+    SAVisualizedPageInfo *webPageInfo = [self.webPageInfoCache objectForKey:url];
+    return webPageInfo;
 }
 
 /// 缓存可视化全埋点相关 web 信息
@@ -158,18 +215,27 @@
         return;
     }
 
-    SAVisualizedWebPageInfo *webPageInfo = nil;
+    SAVisualizedPageInfo *webPageInfo = nil;
     // 是否包含当前 url 的页面信息
     if ([self.webPageInfoCache objectForKey:url]) {
         webPageInfo = self.webPageInfoCache[url];
 
         // 更新 H5 元素信息，则可视化全埋点可用，此时清空弹框信息
-        webPageInfo.alertSources = nil;
+        [webPageInfo.alertInfos removeAllObjects];
     } else {
-        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        webPageInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeWeb];
         self.webPageInfoCache[url] = webPageInfo;
     }
-    webPageInfo.webElementSources = [webElementSources copy];
+    webPageInfo.elementSources = [webElementSources copy];
+}
+
+/// 保存 web 当前页面信息
+- (void)saveWebViewVisualizedPageInfo:(SAVisualizedPageInfo *)webPageInfo withWebView:(WKWebView *)webview {
+    NSString *url = webview.URL.absoluteString;
+    if (!webPageInfo || !url) {
+        return;
+    }
+    self.webPageInfoCache[url] = webPageInfo;
 }
 
 /// 保存 H5 页面弹框信息
@@ -188,17 +254,17 @@
         return;
     }
 
-    SAVisualizedWebPageInfo *webPageInfo = nil;
+    SAVisualizedPageInfo *webPageInfo = nil;
     // 是否包含当前 url 的页面信息
     if ([self.webPageInfoCache objectForKey:url]) {
         webPageInfo = self.webPageInfoCache[url];
 
         // 如果 js 发送弹框信息，即 js 环境变化，可视化全埋点不可用，则清空页面信息
-        webPageInfo.webElementSources = nil;
+        webPageInfo.elementSources = nil;
         webPageInfo.url = nil;
         webPageInfo.title = nil;
     } else {
-        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        webPageInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeWeb];
         self.webPageInfoCache[url] = webPageInfo;
     }
 
@@ -212,7 +278,7 @@
         };
         alertDatas = [alertNewDatas copy];
     }
-    webPageInfo.alertSources = alertDatas;
+    [webPageInfo registWebAlertInfos:alertDatas];
 }
 
 /// 保存 H5 页面信息
@@ -224,62 +290,133 @@
     if (![webInfo isKindOfClass:NSDictionary.class] || !url) {
         return;
     }
-    SAVisualizedWebPageInfo *webPageInfo = nil;
+    SAVisualizedPageInfo *webPageInfo = nil;
     // 是否包含当前 url 的页面信息
     if ([self.webPageInfoCache objectForKey:url]) {
         webPageInfo = self.webPageInfoCache[url];
         // 更新 H5 页面信息，则可视化全埋点可用，此时清空弹框信息
-        webPageInfo.alertSources = nil;
+        [webPageInfo.alertInfos removeAllObjects];
     } else {
-        webPageInfo = [[SAVisualizedWebPageInfo alloc] init];
+        webPageInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeWeb];
         self.webPageInfoCache[url] = webPageInfo;
     }
 
     webPageInfo.url = url;
     webPageInfo.title = webInfo[@"$title"];
-    webPageInfo.webLibVersion = libVersion;
+    webPageInfo.platformSDKLibVersion = libVersion;
 }
 
-/// 读取当前 webView 页面相关信息
-- (SAVisualizedWebPageInfo *)readWebPageInfoWithWebView:(WKWebView *)webView {
-    NSString *url = webView.URL.absoluteString;
-    SAVisualizedWebPageInfo *webPageInfo = [self.webPageInfoCache objectForKey:url];
-    return webPageInfo;
-}
+- (void)enterWebViewPageWithView:(UIView *)view {
+    SAVisualizedPageInfo *webInfo = nil;
+    if ([view isKindOfClass:NSClassFromString(@"FlutterView")]) {
+        webInfo = [self readFlutterPageInfo];
+        if (!webInfo) { // 标记进入 Flutter，但是无页面信息
+            webInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeFlutter];
+            [self saveFlutterPageInfo:webInfo];
+        }
+    } else if ([view isKindOfClass:WKWebView.class]) {
+        WKWebView *webView = (WKWebView *)view;
+        webInfo = [self readWebPageInfoWithWebView:webView];
 
-- (void)enterWebViewPageWithWebInfo:(SAVisualizedWebPageInfo *)webInfo; {
-    self.isContainWebView = YES;
-    if (webInfo) {
-        self.webPageInfo = webInfo;
+        self.webView = webView;
+        if (!webInfo) { // 标记进入 H5，但是无页面信息
+            webInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeWeb];
+            [self saveWebViewVisualizedPageInfo:webInfo withWebView:webView];
+        }
+    } else { // 可能是 UIWebView，暂不支持可视化全埋点
+        webInfo = [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeWeb];
+        NSMutableDictionary *alertInfo = [NSMutableDictionary dictionary];
+        alertInfo[@"title"] =  SALocalizedString(@"SAVisualizedPageErrorTitle");
+        alertInfo[@"message"] = SALocalizedString(@"SAVisualizedWebPageErrorMessage");
+        alertInfo[@"link_text"] = SALocalizedString(@"SAVisualizedConfigurationDocument");
+        alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/enable_visualized_autotrack-7548675.html";
+        if ([SAVisualizedManager defaultManager].visualizedType == SensorsAnalyticsVisualizedTypeHeatMap) {
+            alertInfo[@"title"] = SALocalizedString(@"SAAppClicksAnalyticsPageErrorTitle");
+            alertInfo[@"message"] = SALocalizedString(@"SAAppClicksAnalyticsPageWebErrorMessage");
+            alertInfo[@"link_url"] = @"https://manual.sensorsdata.cn/sa/latest/app-16286049.html";
+        }
+        [webInfo registWebAlertInfos:@[alertInfo]];
+        self.invalidPageInfo = webInfo;
     }
 }
 
-- (void)registWebAlertInfos:(NSArray <NSDictionary *> *)infos {
-    if (infos.count == 0) {
+#pragma mark flutter
+/// 保存 flutter 页面元素信息
+- (void)saveVisualizedMessage:(NSDictionary *)pageInfo {
+    NSString *callType = pageInfo[@"callType"];
+
+    SAVisualizedPageInfo *flutterPageInfo = nil;
+    UIViewController *currentVC = [SAUIProperties currentViewController];
+    // flutter 页面判断
+    Class flutterClass = NSClassFromString(@"FlutterViewController");
+    if (!flutterClass || ![currentVC isKindOfClass:flutterClass]) {
         return;
     }
-    // 通过 Dictionary 构造所有不同 message 的弹框集合
-    NSMutableDictionary *alertMessageInfoDic = [NSMutableDictionary dictionary];
-    for (NSDictionary *alertInfo in self.alertInfos) {
-        NSString *message = alertInfo[@"message"];
-        if (message) {
-            alertMessageInfoDic[message] = alertInfo;
-        }
+    NSString *address = [NSString stringWithFormat:@"%p", currentVC];
+
+    if (self.webPageInfoCache[address]) { // 获取缓存信息
+        flutterPageInfo = self.webPageInfoCache[address];
+    } else {
+        flutterPageInfo =  [[SAVisualizedPageInfo alloc] initWithPageType:SAVisualizedPageTypeFlutter];
     }
 
-    // 只添加 message 不重复的弹框信息
-    for (NSDictionary *alertInfo in infos) {
-        NSString *message = alertInfo[@"message"];
-        if (message && ![alertMessageInfoDic.allKeys containsObject:message]) {
-            [self.alertInfos addObject:alertInfo];
+    // Flutter 页面信息
+    if ([callType isEqualToString:@"page_info"]) {
+        NSDictionary *pageInfoData = pageInfo[@"data"];
+        if (!pageInfoData[@"screen_name"]) {
+            SALogWarn(@"flutter pageInfo error: %@", pageInfo);
+            return;
         }
+        flutterPageInfo.title = pageInfoData[@"title"];
+        flutterPageInfo.screenName = pageInfoData[@"screen_name"];
+        flutterPageInfo.platformSDKLibVersion = pageInfoData[@"lib_version"];
+    } else if ([callType isEqualToString:@"visualized_track"]) { // Flutter 页面元素信息
+        NSArray *elementSources = pageInfo[@"data"];
+        flutterPageInfo.elementSources = elementSources;
     }
 
-    // 强制刷新数据
-    [self refreshPayloadHashWithData:infos];
+    [flutterPageInfo.alertInfos removeAllObjects];
+    self.webPageInfoCache[address] = flutterPageInfo;
+
+    [self refreshPayloadHashWithData:pageInfo];
 }
 
-#pragma mark viewScreenController
+/// 读取 Flutter 页面信息
+- (SAVisualizedPageInfo *)readFlutterPageInfo {
+    UIViewController *currentVC = [SAUIProperties currentViewController];
+    Class flutterClass = NSClassFromString(@"FlutterViewController");
+    if (!flutterClass || ![currentVC isKindOfClass:flutterClass]) {
+     nil;
+    }
+    NSString *address = [NSString stringWithFormat:@"%p", currentVC];
+    return self.webPageInfoCache[address];
+}
+
+/// 读取 Native 页面信息
+- (SAVisualizedPageInfo *)readNativePageInfo {
+    UIViewController *currentVC = self.lastViewScreenController;
+    if (!currentVC) {
+        currentVC = [SAUIProperties currentViewController];
+    }
+    if (!currentVC) {
+        return nil;
+    }
+    NSString *address = [NSString stringWithFormat:@"%p", currentVC];
+    return self.webPageInfoCache[address];
+}
+
+/// 保存 Flutter 当前页面信息
+- (void)saveFlutterPageInfo:(SAVisualizedPageInfo *)flutterPageInfo {
+    UIViewController *currentVC = [SAUIProperties currentViewController];
+    Class flutterClass = NSClassFromString(@"FlutterViewController");
+    if (!flutterClass || ![currentVC isKindOfClass:flutterClass]) {
+     nil;
+    }
+    NSString *address = [NSString stringWithFormat:@"%p", currentVC];
+    self.webPageInfoCache[address] = flutterPageInfo;
+}
+
+#pragma mark enter viewScreenController
 /// 进入页面
 - (void)enterViewController:(UIViewController *)viewController {
     [self removeAllNullInControllersStack];
@@ -329,8 +466,7 @@
     return [imageHash stringByAppendingString:self.jointPayloadHash];
 }
 
-- (void)resetLastPayloadHash:(NSString *)payloadHash {
-    self.jointPayloadHash = nil;
+- (void)updateLastPayloadHash:(NSString *)payloadHash {
     self.lastPayloadHash = payloadHash;
 }
 

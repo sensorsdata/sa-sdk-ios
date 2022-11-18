@@ -54,6 +54,12 @@
 /// 是否为列表（本身支持限定位置，比如 Cell）
 @property (nonatomic, assign) BOOL sensorsdata_isListView;
 
+/// 元素所在平台
+///
+/// 区分不同平台的元素（ios/h5/flutter）,Flutter 和其他平台，不支持混合圈选（事件和属性元素属于不同平台），需要给予屏蔽
+@property (nonatomic, copy) NSString *sensorsdata_platform;
+
+
 @end
 
 #pragma mark - Extension

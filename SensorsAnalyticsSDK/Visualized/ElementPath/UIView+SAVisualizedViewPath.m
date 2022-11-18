@@ -237,6 +237,18 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     if ([SAVisualizedUtils isIgnoreSubviewsWithView:self]) {
         return nil;
     }
+
+    NSMutableArray *newSubViews = [NSMutableArray array];
+    
+    // 构建 flutter 元素
+    // flutter 页面判断
+    if (NSClassFromString(@"FlutterView") && [self isKindOfClass:NSClassFromString(@"FlutterView")]) {
+        // FlutterView 上可能嵌套 Native 元素或 webView
+        NSArray *subElements = [SAVisualizedUtils analysisFlutterElementWithFlutterView:self];
+        if (subElements.count > 0) {
+            [newSubViews addObjectsFromArray:subElements];
+        }
+    }
     
     /* 特殊场景兼容
      controller1.vew 上直接添加 controller2.view，
@@ -248,8 +260,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
             return controller.sensorsdata_subElements;
         }
     }
-
-    NSMutableArray *newSubViews = [NSMutableArray array];
+    
     NSArray<UIView *>* subViews = self.subviews;
     // 针对 RCTView，获取按照 zIndex 排序后的子元素
     if ([SAVisualizedUtils isKindOfRCTView:self]) {
@@ -273,6 +284,10 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
         return YES;
     }
     return NO;
+}
+
+- (NSString *)sensorsdata_platform {
+    return @"ios";
 }
 
 - (NSString *)sensorsdata_screenName {
@@ -325,6 +340,13 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 - (CGRect)sensorsdata_visibleFrame {
     CGRect visibleFrame = [UIApplication sharedApplication].keyWindow.frame;
+    /* 如果 clipsToBounds = YES，剪裁超出父视图范围的子视图部分，即子视图超出父视图部分不可见
+     UIScrollView 中，它的默认值是 YES，也就是说默认裁剪的
+     所以 clipsToBounds = YES，当前视图的可见有效范围只有自身尺寸
+     */
+    if (self.clipsToBounds) {
+        visibleFrame = [self convertRect:self.bounds toView:nil];
+    }
     if (self.superview) {
         CGRect superViewVisibleFrame = [self.superview sensorsdata_visibleFrame];
         visibleFrame = CGRectIntersection(visibleFrame, superViewVisibleFrame);
@@ -338,24 +360,6 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 - (void)setSensorsdata_isDisableRNSubviewsInteractive:(BOOL)sensorsdata_isDisableRNSubviewsInteractive {
     objc_setAssociatedObject(self, kSAIsDisableRNSubviewsInteractivePropertyName, @(sensorsdata_isDisableRNSubviewsInteractive), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-@end
-
-
-@implementation UIScrollView (SAVisualizedViewPath)
-
-- (CGRect)sensorsdata_visibleFrame {
-    CGRect showRect = [self convertRect:self.bounds toView:nil];
-    if (self.superview) {
-        /* UIScrollView 单独处理
-         UIScrollView 上子元素超出父视图部分不可见。
-         普通 UIView 超出父视图，依然显示，但是超出部分不可交互，除非实现 hitTest
-         */
-        CGRect superViewValidFrame = [self.superview sensorsdata_visibleFrame];
-        showRect = CGRectIntersection(showRect, superViewValidFrame);
-    }
-    return showRect;
 }
 
 @end
@@ -409,15 +413,15 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 @end
 
-@implementation SAWebElementView (SAVisualizedViewPath)
+@implementation SAVisualizedElementView (SAElementPath)
 
 #pragma mark SAVisualizedViewPathProperty
 - (NSString *)sensorsdata_title {
     return self.title;
 }
 
-- (NSString *)sensorsdata_elementSelector {
-    return self.elementSelector;
+- (NSString *)sensorsdata_screenName {
+    return self.screenName;
 }
 
 - (NSString *)sensorsdata_elementValidContent {
@@ -433,18 +437,22 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 }
 
 - (NSArray *)sensorsdata_subElements {
-    if (self.jsSubviews.count > 0) {
-        return self.jsSubviews;
+    if (self.subElements.count > 0) {
+        return self.subElements;
     }
     return [super sensorsdata_subElements];
 }
 
 - (BOOL)sensorsdata_isFromWeb {
-    return YES;
+    return NO;
 }
 
 - (BOOL)sensorsdata_isListView {
     return self.isListView;
+}
+
+- (NSString *)sensorsdata_platform {
+    return self.platform;
 }
 
 - (NSString *)sensorsdata_elementPath {
@@ -453,6 +461,18 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
 
 - (NSString *)sensorsdata_elementPosition {
     return self.elementPosition;
+}
+
+@end
+
+
+@implementation SAWebElementView (SAElementPath)
+- (BOOL)sensorsdata_isFromWeb {
+    return YES;
+}
+
+- (NSString *)sensorsdata_elementSelector {
+    return self.elementSelector;
 }
 
 @end

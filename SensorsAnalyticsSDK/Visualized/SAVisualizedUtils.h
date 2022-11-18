@@ -72,6 +72,15 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否为可交互的 RN 元素
 /// @param view 需要判断的 RN 元素
 + (BOOL)isInteractiveEnabledRNView:(UIView *)view;
+
+#pragma mark - Flutter
+/// 解析构造 Flutter 元素
+///
+/// @param flutterView 当前 flutter 容器
+///
+/// @return 构造的子元素集合
++ (NSArray *)analysisFlutterElementWithFlutterView:(UIView *)flutterView;
+
 @end
 
 #pragma mark -

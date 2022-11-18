@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "SAVisualPropertiesTracker.h"
 #import "SAVisualizedEventCheck.h"
+#import "SAVisualizedConnection.h"
 
 typedef NS_ENUM(NSInteger, SensorsAnalyticsVisualizedType) {
     SensorsAnalyticsVisualizedTypeUnknown,  // 未知或不允许
@@ -50,6 +51,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// 埋点校验
 @property (nonatomic, strong, readonly) SAVisualizedEventCheck *eventCheck;
+
+@property (nonatomic, strong, readonly) SAVisualizedConnection *visualizedConnection;
+
 
 /// 是否开启埋点校验
 - (void)enableEventCheck:(BOOL)enable;

@@ -23,6 +23,7 @@
 #import <UIKit/UIKit.h>
 #import "SensorsAnalyticsSDK.h"
 #import "SAAutoTrackUtils.h"
+#import "SAUIProperties.h"
 #import "ElementViewController.h"
 #import "UIView+SAAutoTrack.h"
 #import "UIViewController+SAAutoTrack.h"
@@ -79,7 +80,8 @@
 }
 
 - (void)testFindNextViewControllerByResponder {
-    UIViewController *vc = [SAAutoTrackUtils findNextViewControllerByResponder:self.viewController.label];
+    UIViewController *vc = [SAUIProperties
+                            findNextViewControllerByResponder:self.viewController.label];
     XCTAssertEqualObjects(self.viewController, vc);
 }
 

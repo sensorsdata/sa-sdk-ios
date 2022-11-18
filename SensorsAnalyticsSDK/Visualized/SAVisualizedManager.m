@@ -23,7 +23,6 @@
 #endif
 
 #import "SAVisualizedManager.h"
-#import "SAVisualizedConnection.h"
 #import "SAAlertController.h"
 #import "UIViewController+SAElementPath.h"
 #import "SAConstants+Private.h"
@@ -37,6 +36,7 @@
 #import "SAJSONUtil.h"
 #import "SASwizzle.h"
 #import "SALog.h"
+#import "SAFlutterPluginBridge.h"
 #import "UIView+SAInternalProperties.h"
 
 @interface SAVisualizedManager()<SAConfigChangesDelegate>
@@ -53,10 +53,10 @@
 @property (nonatomic, strong) SAVisualPropertiesTracker *visualPropertiesTracker;
 
 /// 获取远程配置
-@property (nonatomic, strong, readwrite) SAVisualPropertiesConfigSources *configSources;
+@property (nonatomic, strong) SAVisualPropertiesConfigSources *configSources;
 
 /// 埋点校验
-@property (nonatomic, strong, readwrite) SAVisualizedEventCheck *eventCheck;
+@property (nonatomic, strong) SAVisualizedEventCheck *eventCheck;
 
 @end
 
@@ -96,6 +96,10 @@
 
         // 配置更新，发送到 WKWebView 的内嵌 H5
         [self.visualPropertiesTracker.viewNodeTree updateConfig:self.configSources.originalResponse];
+
+        // 配置更新，通知 Flutter
+        [SAFlutterPluginBridge.sharedInstance changeVisualPropertiesConfig:self.configSources.originalResponse];
+
     } else {
         self.visualPropertiesTracker = nil;
         self.eventCheck = nil;
@@ -282,11 +286,6 @@
         alertMessage = [alertMessage stringByAppendingString:SALocalizedString(@"SAVisualizedWifi")];
     }
     return alertMessage;
-}
-
-/// 当前类型
-- (SensorsAnalyticsVisualizedType)currentVisualizedType {
-    return self.visualizedType;
 }
 
 #pragma mark - Visualize

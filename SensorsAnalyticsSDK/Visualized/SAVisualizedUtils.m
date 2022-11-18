@@ -32,6 +32,7 @@
 #import "UIView+SAAutoTrack.h"
 #import "SACommonUtility.h"
 #import "SAJavaScriptBridgeManager.h"
+#import "SAFlutterElementView.h"
 #import "SALog.h"
 #import "UIView+SAItemPath.h"
 #import "UIView+SASimilarPath.h"
@@ -168,60 +169,14 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
 
 #pragma mark WebElement
 + (NSArray *)analysisWebElementWithWebView:(WKWebView <SAVisualizedExtensionProperty> *)webView {
-    SAVisualizedWebPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
-    NSArray *webElementSources = webPageInfo.webElementSources;
-    if (webElementSources.count == 0) {
+    SAVisualizedPageInfo *webPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] readWebPageInfoWithWebView:webView];
+    if (webPageInfo.pageType != SAVisualizedPageTypeWeb) {
         return nil;
     }
-    
-    // 元素去重，去除 id 相同的重复元素，并构建 model
-    NSMutableArray<NSString *> *allNoRepeatElementIds = [NSMutableArray array];
-    NSMutableArray<SAWebElementView *> *webElementArray = [NSMutableArray array];
-    
-    for (NSDictionary *pageData in webElementSources) {
-        NSString *elementId = pageData[@"id"];
-        if (elementId) {
-            if ([allNoRepeatElementIds containsObject:elementId]) {
-                continue;
-            }
-            [allNoRepeatElementIds addObject:elementId];
-        }
-        
-        SAWebElementView *webElement = [[SAWebElementView alloc] initWithWebView:webView webElementInfo:pageData];
-        if (webElement) {
-            [webElementArray addObject:webElement];
-        }
-    }
-    
-    // 根据 level 升序排序
-    [webElementArray sortUsingComparator:^NSComparisonResult(SAWebElementView *obj1,SAWebElementView *obj2) {
-        if (obj1.level > obj2.level) {
-            return NSOrderedDescending;
-        } else {
-            return NSOrderedAscending;
-        }
-    }];
-    
-    // 构建子元素数组
-    for (SAWebElementView *webElement1 in [webElementArray copy]) {
-        //当前元素是否嵌套子元素
-        if (webElement1.jsSubElementIds.count == 0) {
-            continue;
-        }
-        
-        NSMutableArray *jsSubElements = [NSMutableArray arrayWithCapacity:webElement1.jsSubElementIds.count];
-        // 根据子元素 id 查找对应子元素
-        for (SAWebElementView *webElement2 in [webElementArray copy]) {
-            // 如果 element2 是 element1 的子元素，则添加到 jsSubviews
-            if ([webElement1.jsSubElementIds containsObject:webElement2.jsElementId]) {
-                [jsSubElements addObject:webElement2];
-                [webElementArray removeObject:webElement2];
-            }
-        }
-        webElement1.jsSubviews = [jsSubElements copy];
-    }
-    return [webElementArray copy];
+
+    return [self buildVisualizedElementsWithVisualizedPageInfo:webPageInfo superView:webView];
 }
+
 
 #pragma mark RNUtils
 
@@ -321,6 +276,87 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
     }
     return pointerEvents;
 }
+
+#pragma mark FlutterElement
++ (NSArray *)analysisFlutterElementWithFlutterView:(UIView *)flutterView {
+    SAVisualizedPageInfo *flutterPageInfo = [[SAVisualizedObjectSerializerManager sharedInstance] queryPageInfoWithType:SAVisualizedPageTypeFlutter];
+    if (flutterPageInfo.pageType != SAVisualizedPageTypeFlutter) {
+        return nil;
+    }
+    return [self buildVisualizedElementsWithVisualizedPageInfo:flutterPageInfo superView:flutterView];
+}
+
++ (NSArray *)buildVisualizedElementsWithVisualizedPageInfo:(SAVisualizedPageInfo *)pageInfo superView:(UIView *)suerperView {
+    NSArray *elementSources = pageInfo.elementSources;
+    if (elementSources.count == 0) {
+        return nil;
+    }
+
+    // 元素去重，去除 id 相同的重复元素，并构建 model
+    NSMutableArray<NSString *> *allNoRepeatElementIds = [NSMutableArray array];
+    NSMutableArray<SAVisualizedElementView *> *webElementArray = [NSMutableArray array];
+
+    for (NSDictionary *pageData in elementSources) {
+        NSString *elementId = pageData[@"id"];
+        if (elementId) {
+            if ([allNoRepeatElementIds containsObject:elementId]) {
+                continue;
+            }
+            [allNoRepeatElementIds addObject:elementId];
+        }
+
+        SAVisualizedElementView *element = [self visualizedElementWithInfo:pageData superView:suerperView pagetype:pageInfo.pageType];
+        if (element) {
+            [webElementArray addObject:element];
+        }
+    }
+
+    // 根据 level 升序排序
+    [webElementArray sortUsingComparator:^NSComparisonResult(SAWebElementView *obj1,SAWebElementView *obj2) {
+        if (obj1.level > obj2.level) {
+            return NSOrderedDescending;
+        } else if (obj1.level == obj2.level){
+            return NSOrderedSame;
+        } else {
+            return NSOrderedAscending;
+        }
+    }];
+
+    // 构建子元素数组
+    for (SAWebElementView *webElement1 in [webElementArray copy]) {
+        //当前元素是否嵌套子元素
+        if (webElement1.subElementIds.count == 0) {
+            continue;
+        }
+
+        NSMutableArray *jsSubElements = [NSMutableArray arrayWithCapacity:webElement1.subElementIds.count];
+        // 根据子元素 id 查找对应子元素
+        for (SAWebElementView *webElement2 in [webElementArray copy]) {
+            // 如果 element2 是 element1 的子元素，则添加到 jsSubviews
+            if ([webElement1.subElementIds containsObject:webElement2.elementId]) {
+                [jsSubElements addObject:webElement2];
+                [webElementArray removeObject:webElement2];
+            }
+        }
+        webElement1.subElements = [jsSubElements copy];
+    }
+    return [webElementArray copy];
+}
+
++ (SAVisualizedElementView *)visualizedElementWithInfo:(NSDictionary *)elementInfo superView:(UIView *)superView pagetype:(SAVisualizedPageType)type {
+    if (type == SAVisualizedPageTypeWeb) {
+        if (![superView isKindOfClass:WKWebView.class]) {
+            return nil;
+        }
+        WKWebView *webView = (WKWebView *)superView;
+        return [[SAWebElementView alloc] initWithWebView:webView webElementInfo:elementInfo];
+    }
+    if (type == SAVisualizedPageTypeFlutter) {
+        return [[SAFlutterElementView alloc] initWithSuperView:superView elementInfo:elementInfo];
+    }
+    return nil;
+}
+
 
 #pragma mark keyWindow
 /// 获取当前有效的 keyWindow

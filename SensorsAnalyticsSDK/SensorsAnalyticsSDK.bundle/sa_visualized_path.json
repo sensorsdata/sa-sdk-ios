@@ -102,6 +102,12 @@
               "key": "is_list_view",
               "type": "BOOL",
               "use_kvc": false
+            },
+            {
+              "name": "sensorsdata_platform",
+              "key": "element_platform",
+              "type": "NSString",
+              "use_kvc": false
             }
           ]
         },
@@ -135,6 +141,10 @@
                   "use_kvc": false
               }
           ]
+        },
+        {
+          "name": "SAFlutterElementView",
+          "superclass": "UIView"
         },
         {
           "name": "UIScrollView",
