@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong) Class delegateProxy;
 
 /// 当前代理对象已 hook 的方法集合
-@property (nonatomic, copy) NSMutableSet *selectors;
+@property (nonatomic, strong) NSMutableSet *selectors;
 
 - (instancetype)initWithDelegate:(id)delegate proxy:(id)proxy;
 

@@ -27,7 +27,7 @@
 
 @interface SALimitKeyManager ()
 
-@property (nonatomic, copy) NSMutableDictionary<NSString *, id> *keys;
+@property (nonatomic, strong) NSMutableDictionary<NSString *, id> *keys;
 
 @end
 

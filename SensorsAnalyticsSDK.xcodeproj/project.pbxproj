@@ -491,6 +491,8 @@
 		F286963328A34FFC00276F78 /* SAExposureManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F286963128A34FFC00276F78 /* SAExposureManager.m */; };
 		F28997D7273B6D66005E7D5E /* SAGesturePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = F28997D5273B6D66005E7D5E /* SAGesturePlugin.h */; };
 		F28997D8273B6D66005E7D5E /* SAGesturePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = F28997D6273B6D66005E7D5E /* SAGesturePlugin.m */; };
+		F296FF042935A3DF00C40C48 /* NSObject+SAToString.h in Headers */ = {isa = PBXBuildFile; fileRef = F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */; };
+		F296FF052935A3DF00C40C48 /* NSObject+SAToString.m in Sources */ = {isa = PBXBuildFile; fileRef = F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */; };
 		F2B643F62832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = F2B643F42832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2B643F72832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = F2B643F52832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m */; };
 		F2C877B828A65849002BDA2C /* SAExposureData+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = F2C877B628A65849002BDA2C /* SAExposureData+Private.h */; };
@@ -1059,6 +1061,8 @@
 		F286963128A34FFC00276F78 /* SAExposureManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAExposureManager.m; sourceTree = "<group>"; };
 		F28997D5273B6D66005E7D5E /* SAGesturePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAGesturePlugin.h; sourceTree = "<group>"; };
 		F28997D6273B6D66005E7D5E /* SAGesturePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGesturePlugin.m; sourceTree = "<group>"; };
+		F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SAToString.h"; sourceTree = "<group>"; };
+		F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SAToString.m"; sourceTree = "<group>"; };
 		F2B643F42832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAAppExtension.h"; sourceTree = "<group>"; };
 		F2B643F52832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+SAAppExtension.m"; sourceTree = "<group>"; };
 		F2C877B628A65849002BDA2C /* SAExposureData+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAExposureData+Private.h"; sourceTree = "<group>"; };
@@ -1579,6 +1583,8 @@
 				45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */,
 				F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */,
 				F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */,
+				F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */,
+				F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -2481,6 +2487,7 @@
 				F26FDDD8270312C400E1DF32 /* SAConfigOptions+AppPush.h in Headers */,
 				A82E8951267D918100475757 /* SAEncryptProtocol.h in Headers */,
 				45A56560263C174300C9C41B /* SAIDFAHelper.h in Headers */,
+				F296FF042935A3DF00C40C48 /* NSObject+SAToString.h in Headers */,
 				A82E8953267D918100475757 /* SAECCEncryptor.h in Headers */,
 				4D958B1A2823D99E0086A71C /* SAFirstDayPropertyPlugin.h in Headers */,
 				A8356DDB2656459A00FD64AA /* UIViewController+SAAutoTrack.h in Headers */,
@@ -2801,6 +2808,7 @@
 				4D2D53BB2591EB3A00805141 /* SAWeakPropertyContainer.m in Sources */,
 				8876235326E739300067F0B4 /* SAPresetPropertyPlugin.m in Sources */,
 				F200096228BE10B5003C5113 /* UIViewController+SAInternalProperties.m in Sources */,
+				F296FF052935A3DF00C40C48 /* NSObject+SAToString.m in Sources */,
 				F211742226E9A72C00D65E19 /* SAApplication.m in Sources */,
 				88ED6BD127BE2ECB00888FBC /* SAFlowManager.m in Sources */,
 				A8356DD72656459A00FD64AA /* SAAppClickTracker.m in Sources */,
@@ -3078,6 +3086,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -3111,6 +3120,7 @@
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				"PROVISIONING_PROFILE_SPECIFIER[sdk=macosx*]" = "";
 				SKIP_INSTALL = YES;
+				SUPPORTS_MACCATALYST = NO;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};

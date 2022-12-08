@@ -27,6 +27,7 @@
 #import "SADateFormatter.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALog.h"
+#import "NSObject+SAToString.h"
 
 @implementation NSString (SAProperty)
 
@@ -65,11 +66,11 @@
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     NSMutableSet *result = [NSMutableSet set];
     for (id element in self) {
-        if (![element isKindOfClass:NSString.class]) {
-            *error = SAPropertyError(10002, @"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element);
-            return nil;
+        if (![element conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
+            continue;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
+        sensorsValue = [sensorsValue sensorsdata_toString];
         if (sensorsValue) {
             [result addObject:sensorsValue];
         }
@@ -84,11 +85,11 @@
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
     NSMutableArray *result = [NSMutableArray array];
     for (id element in self) {
-        if (![element isKindOfClass:NSString.class]) {
-            *error = SAPropertyError(10003, @"%@ value of NSSet, NSArray must be NSString. got: %@ %@", self, [element class], element);
-            return nil;
+        if (![element conformsToProtocol:@protocol(SAPropertyValueProtocol)]) {
+            continue;
         }
         id sensorsValue = [(id <SAPropertyValueProtocol>)element sensorsdata_propertyValueWithKey:key error:error];
+        sensorsValue = [sensorsValue sensorsdata_toString];
         if (sensorsValue) {
             [result addObject:sensorsValue];
         }
