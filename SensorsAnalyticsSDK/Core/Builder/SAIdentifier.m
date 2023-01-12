@@ -117,7 +117,6 @@ NSString * const kSALoginIdSpliceKey = @"+";
     }
     
     [self updateAnonymousId:anonymousId];
-    [self bindIdentity:kSAIdentitiesAnonymousId value:anonymousId];
     return YES;
 }
 
@@ -131,10 +130,6 @@ NSString * const kSALoginIdSpliceKey = @"+";
 - (void)resetAnonymousId {
     NSString *anonymousId = [SAIdentifier hardwareID];
     [self updateAnonymousId:anonymousId];
-    // 只有 identities 包含 $identity_anonymous_id 时需要更新内容
-    if (self.identities[kSAIdentitiesAnonymousId]) {
-        [self bindIdentity:kSAIdentitiesAnonymousId value:anonymousId];
-    }
 }
 
 - (void)updateAnonymousId:(NSString *)anonymousId {
@@ -409,7 +404,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
     NSMutableDictionary *newIdentities = [NSMutableDictionary dictionaryWithDictionary:identities];
     // 移除 H5 事件 identities 中的保留 ID，不允许 H5 绑定保留 ID
-    [newIdentities removeObjectsForKeys:@[kSAIdentitiesUniqueID, kSAIdentitiesUUID, kSAIdentitiesAnonymousId]];
+    [newIdentities removeObjectsForKeys:@[kSAIdentitiesUniqueID, kSAIdentitiesUUID]];
     [newIdentities addEntriesFromDictionary:self.identities];
 
     // 当 identities 不存在（ 2.0 版本）或 identities 中包含自定义 login_id （3.0 版本）时
@@ -589,24 +584,6 @@ NSString * const kSALoginIdSpliceKey = @"+";
     NSDictionary *cache = [self decodeIdentities];
     NSMutableDictionary *identities = [NSMutableDictionary dictionaryWithDictionary:cache];
 
-    // 当 cache 不存在时表示从 v2.0 升级到 v3.0 版本，兼容 v2.0 的 anonymous_id
-    // 存在从 v3.0 降级至 v2.0 且修改了 anonymous_id 又升级回 v3.0 的情况
-    // 所以当 identities[kSAIdentitiesAnonymousId] 存在时，需要使用本地的 anonymous_id 更新其内容
-    if (!cache || identities[kSAIdentitiesAnonymousId]) {
-
-        NSString *anonymousId;
-#if TARGET_OS_IOS
-        // 读取 KeyChain 中保存的 anonymousId，
-        // 当前逻辑时 self.anonymousId 还未设置，因此需要手动读取 keychain 数据
-        anonymousId = [SAKeyChainItemWrapper saUdid];
-#endif
-        if (!anonymousId) {
-            // 读取本地文件中保存的 anonymouId
-            anonymousId = [[SAStoreManager sharedInstance] objectForKey:kSAEventDistinctId];
-        }
-        identities[kSAIdentitiesAnonymousId] = anonymousId;
-    }
-
     // SDK 取 IDFV 或 uuid 为设备唯一标识，已知情况下未发现获取不到 IDFV 的情况
     if (!identities[kSAIdentitiesUniqueID] && !identities[kSAIdentitiesUUID] ) {
         NSString *key = kSAIdentitiesUUID;
@@ -666,7 +643,6 @@ NSString * const kSALoginIdSpliceKey = @"+";
             NSMutableDictionary *newIdentities = [NSMutableDictionary dictionary];
             newIdentities[kSAIdentitiesUniqueID] = identities[kSAIdentitiesUniqueID];
             newIdentities[kSAIdentitiesUUID] = identities[kSAIdentitiesUUID];
-            newIdentities[kSAIdentitiesAnonymousId] = identities[kSAIdentitiesAnonymousId];
             identities = newIdentities;
         }
         // 当 v2.0 版本状态为未登录状态时，直接清空本地保存的 loginIDKey 文件内容

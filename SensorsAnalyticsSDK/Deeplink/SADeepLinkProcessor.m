@@ -126,7 +126,7 @@
     if ([SARequestDeepLinkProcessor isValidURL:url customChannelKeys:customChannelKeys]) {
         object = [[SARequestDeepLinkProcessor alloc] init];
     } else if ([SAQueryDeepLinkProcessor isValidURL:url customChannelKeys:customChannelKeys]) {
-        object = [[SAQueryDeepLinkProcessor alloc] init];;
+        object = [[SAQueryDeepLinkProcessor alloc] init];
     } else {
         object = [[SADeepLinkProcessor alloc] init];
     }

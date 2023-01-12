@@ -232,6 +232,9 @@
     if (self.redirectURLOnOtherDevice) {
         params[kSADynamicSlinkParamJumpAddress] = self.redirectURLOnOtherDevice;
     }
+    if ([self.systemParams isKindOfClass:[NSDictionary class]]) {
+        params[kSADynamicSlinkParamSystemParams] = [self.systemParams copy];
+    }
     if (!self.utmProperties) {
         return [params copy];
     }

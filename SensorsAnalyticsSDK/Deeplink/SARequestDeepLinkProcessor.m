@@ -155,6 +155,10 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
             properties[kSAEventPropertyDeepLinkFailReason] = errorMsg;
             properties[kSAEventPropertyADSLinkID] = result[kSAResponsePropertySLinkID];
             properties[kSADynamicSlinkEventPropertyTemplateID] = result[kSADynamicSlinkParamTemplateID];
+            NSDictionary *customParams = result[kSADynamicSlinkResponseKeyCustomParams];
+            if ([customParams isKindOfClass:[NSDictionary class]] && customParams.allKeys.count > 0) {
+                properties[kSADynamicSlinkEventPropertyCustomParams] = [SAJSONUtil stringWithJSONObject:customParams];
+            }
             properties[kSADynamicSlinkEventPropertyType] = result[kSADynamicSlinkParamType];
 
             // Result 事件中只需要添加 $utm_content 等属性，不需要添加 $latest_utm_content 等属性
@@ -167,6 +171,7 @@ static NSString *const kSchemeDeepLinkHost = @"sensorsdata";
             obj.params = result[kSAResponsePropertyParams];
             NSInteger code = [result[kSAResponsePropertyCode] integerValue];
             obj.success = (code == 0 && errorMsg.length == 0);
+            obj.customParams = result[kSADynamicSlinkResponseKeyCustomParams];
         } else {
             NSString *codeMsg = [NSString stringWithFormat:@"http status code: %@",@(response.statusCode)];
             properties[kSAEventPropertyDeepLinkFailReason] = error.localizedDescription ?: codeMsg;

@@ -44,7 +44,7 @@ extern NSString * const kSAFlushFlowId;
 - (SAFlowObject *)flowForID:(NSString *)flowID;
 
 - (void)startWithFlowID:(NSString *)flowID input:(SAFlowData *)input completion:(nullable SAFlowDataCompletion)completion;
-- (void)startWithFlow:(SAFlowObject *)flow input:(SAFlowData *)input completion:(SAFlowDataCompletion)completion;
+- (void)startWithFlow:(SAFlowObject *)flow input:(SAFlowData *)input completion:(nullable SAFlowDataCompletion)completion;
 
 @end
 

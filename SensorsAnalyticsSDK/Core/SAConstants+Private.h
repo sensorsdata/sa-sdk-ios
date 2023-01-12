@@ -174,3 +174,6 @@ extern NSString * const kSAWebVisualEventName;
 extern NSString * const kSAAppVisualProperties;
 /// 内嵌 H5 可视化全埋点 Web 自定义属性配置
 extern NSString * const kSAWebVisualProperties;
+
+/// is instant event
+extern NSString * const kSAInstantEventKey;

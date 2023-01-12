@@ -24,6 +24,7 @@
 
 #import "SAFlowData.h"
 #import "SAIdentifier.h"
+#import "SAConstants+Private.h"
 
 static NSString * const kSAFlowDataEventObject = @"event_object";
 static NSString * const kSAFlowDataIdentifier = @"identifier";
@@ -109,6 +110,7 @@ static NSString * const kSAFlowDataRepeatCount = @"repeat_count";
 
 - (void)setEventObject:(SABaseEventObject *)eventObject {
     [self setParamWithKey:kSAFlowDataEventObject value:eventObject];
+    self.isInstantEvent = eventObject.isInstantEvent;
 }
 
 - (SABaseEventObject *)eventObject {
@@ -161,6 +163,14 @@ static NSString * const kSAFlowDataRepeatCount = @"repeat_count";
 
 - (NSInteger)repeatCount {
     return [self.param[kSAFlowDataRepeatCount] integerValue];
+}
+
+- (void)setIsInstantEvent:(BOOL)isInstantEvent {
+    [self setParamWithKey:kSAInstantEventKey value:[NSNumber numberWithBool:isInstantEvent]];
+}
+
+-(BOOL)isInstantEvent {
+    return [self.param[kSAInstantEventKey] boolValue];
 }
 
 @end

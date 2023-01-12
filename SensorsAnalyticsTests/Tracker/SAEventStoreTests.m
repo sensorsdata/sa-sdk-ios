@@ -65,14 +65,14 @@
 - (void)testSelsctRecordsWith50Record {
     [self insertHundredRecords];
 
-    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50];
+    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50 isInstantEvent:NO];
     XCTAssertEqual(records.count, 50);
 }
 
 - (void)testDeleteRecords {
     [self insertHundredRecords];
 
-    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50];
+    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:50 isInstantEvent:NO];
     NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:50];
     for (SAEventRecord *record in records) {
         [recordIDs addObject:record.recordID];
@@ -108,7 +108,7 @@
     SAEventStore *store = [[SAEventStore alloc] initWithFilePath:@"/sss/sdfa99qwedjfjdnv(ajs;./"];
     [self insertHundredRecordsWithEventStore:store];
 
-    NSArray<SAEventRecord *> *records = [store selectRecords:50];
+    NSArray<SAEventRecord *> *records = [store selectRecords:50 isInstantEvent:NO];
     XCTAssertEqual(records.count, 50);
 }
 
@@ -116,7 +116,7 @@
     SAEventStore *store = [[SAEventStore alloc] initWithFilePath:@"/sss/sdfa99qwedjfjdnv(ajs;./"];
     [self insertHundredRecordsWithEventStore:store];
 
-    NSArray<SAEventRecord *> *records = [store selectRecords:50];
+    NSArray<SAEventRecord *> *records = [store selectRecords:50 isInstantEvent:NO];
     NSMutableArray *recordIDs = [NSMutableArray arrayWithCapacity:50];
     for (SAEventRecord *record in records) {
         [recordIDs addObject:record.recordID];

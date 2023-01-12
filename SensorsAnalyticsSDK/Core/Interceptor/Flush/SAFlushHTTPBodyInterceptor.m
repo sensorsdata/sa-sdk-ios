@@ -35,8 +35,18 @@
 
 @implementation SAFlushHTTPBodyInterceptor
 
+- (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
+    NSParameterAssert(input.configOptions);
+    NSParameterAssert(input.records.count > 0);
+
+    input.HTTPBody = [self buildBodyWithInput:input];
+    completion(input);
+}
+
 // 2. 完成 HTTP 请求拼接
-- (NSData *)buildBodyWithJSONString:(NSString *)jsonString isEncrypted:(BOOL)isEncrypted {
+- (NSData *)buildBodyWithInput:(SAFlowData *)input {
+    BOOL isEncrypted = input.configOptions.enableEncrypt && input.records.firstObject.isEncrypted;
+    NSString *jsonString = input.json;
     int gzip = 1; // gzip = 9 表示加密编码
     if (isEncrypted) {
         // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
@@ -50,16 +60,10 @@
     int hashCode = [jsonString sensorsdata_hashCode];
     jsonString = [jsonString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
     NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, jsonString];
+    if (input.isInstantEvent) {
+        bodyString = [bodyString stringByAppendingString:@"&instant_event=true"];
+    }
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
-}
-
-- (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
-    NSParameterAssert(input.configOptions);
-    NSParameterAssert(input.records.count > 0);
-
-    BOOL isEncrypted = input.configOptions.enableEncrypt && input.records.firstObject.isEncrypted;
-    input.HTTPBody = [self buildBodyWithJSONString:input.json isEncrypted:isEncrypted];
-    completion(input);
 }
 
 @end

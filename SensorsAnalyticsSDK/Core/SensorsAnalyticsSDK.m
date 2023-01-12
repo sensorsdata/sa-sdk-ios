@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.1"
+#define VERSION @"4.5.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -137,21 +137,21 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     }
     [instance track:@"$AppDataTrackingClose"];
     [instance flush];
-
+    
     [instance clearTrackTimer];
     [instance stopFlushTimer];
     [instance removeObservers];
     [instance removeWebViewUserAgent];
-
+    
     [SAReachability.sharedInstance stopMonitoring];
-
+    
     [SAModuleManager.sharedInstance disableAllModules];
-
+    
     instance.configOptions.disableSDK = YES;
-
+    
     //disable all event tracker plugins
     [[SAEventTrackerPluginManager defaultManager] disableAllPlugins];
-
+    
     SALogWarn(@"SensorsAnalyticsSDK disabled");
     [SALog sharedLog].enableLog = NO;
 }
@@ -164,25 +164,25 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     instance.configOptions.disableSDK = NO;
     // 部分模块和监听依赖网络状态，所以需要优先开启
     [SAReachability.sharedInstance startMonitoring];
-
+    
     // 优先添加远程控制监听，防止热启动时关闭 SDK 的情况下
     [instance addRemoteConfigObservers];
-
+    
     if (instance.configOptions.enableLog) {
         [instance enableLog:YES];
     }
     
     [SAModuleManager startWithConfigOptions:instance.configOptions];
-
+    
     // 需要在模块加载完成之后添加监听，如果过早会导致退到后台后，$AppEnd 事件无法立即上报
     [instance addAppLifecycleObservers];
-
+    
     [instance appendWebViewUserAgent];
     [instance startFlushTimer];
-
+    
     //enable all event tracker plugins
     [[SAEventTrackerPluginManager defaultManager] enableAllPlugins];
-
+    
     SALogInfo(@"SensorsAnalyticsSDK enabled");
 }
 
@@ -191,58 +191,58 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         self = [super init];
         if (self) {
             _configOptions = [configOptions copy];
-
+            
             // 优先开启 log, 防止部分日志输出不生效(比如: SAIdentifier 初始化时校验 loginIDKey)
             if (!_configOptions.disableSDK && _configOptions.enableLog) {
                 [self enableLog:_configOptions.enableLog];
             }
-
+            
             [self resgisterStorePlugins];
-
+            
             _appLifecycle = [[SAAppLifecycle alloc] init];
-
+            
             NSString *serialQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.serialQueue.%p", self];
             _serialQueue = dispatch_queue_create([serialQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
             dispatch_queue_set_specific(_serialQueue, SensorsAnalyticsQueueTag, &SensorsAnalyticsQueueTag, NULL);
-
+            
             NSString *readWriteQueueLabel = [NSString stringWithFormat:@"com.sensorsdata.readWriteQueue.%p", self];
             _readWriteQueue = dispatch_queue_create([readWriteQueueLabel UTF8String], DISPATCH_QUEUE_SERIAL);
-
+            
             _network = [[SANetwork alloc] init];
-
+            
             NSString *path = [SAFileStorePlugin filePath:kSADatabaseDefaultFileName];
             _eventStore = [SAEventStore eventStoreWithFilePath:path];
-
+            
             _trackTimer = [[SATrackTimer alloc] init];
-
+            
             _identifier = [[SAIdentifier alloc] initWithQueue:_readWriteQueue];
-
+            
             if (_configOptions.enableSession) {
                 _sessionProperty = [[SASessionProperty alloc] initWithMaxInterval:_configOptions.eventSessionTimeout * 1000];
             } else {
                 [SASessionProperty removeSessionModel];
             }
-
+            
             // 初始化注册内部插件
             [self registerPropertyPlugin];
-
+            
             if (!_configOptions.disableSDK) {
                 [[SAReachability sharedInstance] startMonitoring];
                 [self addRemoteConfigObservers];
             }
-
-        #if TARGET_OS_IOS
+            
+#if TARGET_OS_IOS
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
-
+            
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
-        #endif
+#endif
             //start flush timer for App Extension
             if ([SAApplication isAppExtension]) {
                 [self startFlushTimer];
             }
-
+            
             [SAFlowManager sharedInstance].configOptions = self.configOptions;
-
+            
             [SAFlowManager.sharedInstance loadFlows];
         }
         
@@ -260,10 +260,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)resgisterStorePlugins {
     SAFileStorePlugin *filePlugin = [[SAFileStorePlugin alloc] init];
     [[SAStoreManager sharedInstance] registerStorePlugin:filePlugin];
-
+    
     SAUserDefaultsStorePlugin *userDefaultsPlugin = [[SAUserDefaultsStorePlugin alloc] init];
     [[SAStoreManager sharedInstance] registerStorePlugin:userDefaultsPlugin];
-
+    
     for (id<SAStorePlugin> plugin in self.configOptions.storePlugins) {
         [[SAStoreManager sharedInstance] registerStorePlugin:plugin];
     }
@@ -276,7 +276,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)registerPropertyPlugin {
     SANetworkInfoPropertyPlugin *networkInfoPlugin = [[SANetworkInfoPropertyPlugin alloc] init];
     SACarrierNamePropertyPlugin *carrierPlugin = [[SACarrierNamePropertyPlugin alloc] init];
-
+    
     dispatch_async(self.serialQueue, ^{
         // 注册 configOptions 中自定义属性插件
         for (SAPropertyPlugin * plugin in self.configOptions.propertyPlugins) {
@@ -286,46 +286,46 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         // 预置属性
         SAPresetPropertyPlugin *presetPlugin = [[SAPresetPropertyPlugin alloc] initWithLibVersion:VERSION];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:presetPlugin];
-
+        
         // 应用版本
         SAAppVersionPropertyPlugin *appVersionPlugin = [[SAAppVersionPropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:appVersionPlugin];
-
+        
         // deviceID，super 优先级，不能被覆盖
         SADeviceIDPropertyPlugin *deviceIDPlugin = [[SADeviceIDPropertyPlugin alloc] init];
         deviceIDPlugin.disableDeviceId = self.configOptions.disableDeviceId;
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:deviceIDPlugin];
-
+        
         // 运营商信息
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:carrierPlugin];
-
+        
         // 注册静态公共属性插件
         SASuperPropertyPlugin *superPropertyPlugin = [[SASuperPropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:superPropertyPlugin];
-
+        
         // 动态公共属性
         SADynamicSuperPropertyPlugin *dynamicSuperPropertyPlugin = [SADynamicSuperPropertyPlugin sharedDynamicSuperPropertyPlugin];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:dynamicSuperPropertyPlugin];
-
+        
         // 网络相关信息
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:networkInfoPlugin];
-
+        
         // 事件时长，根据 event 计算，不支持 H5
         SAEventDurationPropertyPlugin *eventDurationPropertyPlugin = [[SAEventDurationPropertyPlugin alloc] initWithTrackTimer:self.trackTimer];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:eventDurationPropertyPlugin];
-
+        
         // ReferrerTitle
         SAReferrerTitlePropertyPlugin *referrerTitlePropertyPlugin = [[SAReferrerTitlePropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:referrerTitlePropertyPlugin];
-
+        
         // IsFirstDay
         SAFirstDayPropertyPlugin *firstDayPropertyPlugin = [[SAFirstDayPropertyPlugin alloc] initWithQueue:self.readWriteQueue];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:firstDayPropertyPlugin];
-
+        
         // SAModuleManager.sharedInstance.properties
         SAModulePropertyPlugin *modulePropertyPlugin = [[SAModulePropertyPlugin alloc] init];
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:modulePropertyPlugin];
-
+        
         // sessionProperty
         if (self.sessionProperty) {
             SASessionPropertyPlugin *sessionPropertyPlugin = [[SASessionPropertyPlugin alloc] initWithSessionProperty:self.sessionProperty];
@@ -419,15 +419,15 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         SALogError(@"%@ serverUrl must be NSString, please check the value!", self);
         return;
     }
-
+    
     dispatch_async(self.serialQueue, ^{
         if (![self.configOptions.serverURL isEqualToString:serverUrl]) {
             self.configOptions.serverURL = serverUrl;
-
+            
             // 更新数据接收地址
             [SAModuleManager.sharedInstance updateServerURL:serverUrl];
         }
-
+        
         if (isRequestRemoteConfig) {
             [SAModuleManager.sharedInstance retryRequestRemoteConfigWithForceUpdateFlag:YES];
         }
@@ -450,13 +450,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     SASignUpEventObject *object = [[SASignUpEventObject alloc] initWithEventId:kSAEventNameSignUp];
     // 入队列前，执行动态公共属性采集 block
     [self buildDynamicSuperProperties];
-
+    
     dispatch_async(self.serialQueue, ^{
         if (![self.identifier isValidForLogin:key value:loginId]) {
             return;
         }
         [self.identifier loginWithKey:key loginId:loginId];
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
         [self trackEventObject:object properties:properties];
     });
 }
@@ -527,7 +526,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
     SAAppLifecycleState oldState = [userInfo[kSAAppLifecycleOldStateKey] integerValue];
-
+    
     // 热启动
     if (oldState != SAAppLifecycleStateInit && newState == SAAppLifecycleStateStart) {
         // 遍历 trackTimer
@@ -537,7 +536,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         });
         return;
     }
-
+    
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
         // 清除本次启动解析的来源渠道信息
@@ -558,17 +557,17 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)appLifecycleStateDidChange:(NSNotification *)sender {
     NSDictionary *userInfo = sender.userInfo;
     SAAppLifecycleState newState = [userInfo[kSAAppLifecycleNewStateKey] integerValue];
-
+    
     // 冷（热）启动
     if (newState == SAAppLifecycleStateStart) {
         // 开启定时器
         [self startFlushTimer];
         return;
     }
-
+    
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-
+        
 #if TARGET_OS_IOS
         UIApplication *application = [SAApplication sharedApplication];
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
@@ -577,7 +576,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         };
         backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
-
+        
         dispatch_async(self.serialQueue, ^{
             [self flushAllEventRecordsWithCompletion:^{
                 // 结束后台任务
@@ -590,10 +589,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             [self flushAllEventRecords];
         });
 #endif
-
+        
         return;
     }
-
+    
     // 终止
     if (newState == SAAppLifecycleStateTerminate) {
         dispatch_sync(self.serialQueue, ^{});
@@ -612,7 +611,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
-
+    
     return [SAModuleManager.sharedInstance handleURL:url];
 }
 
@@ -636,7 +635,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)profile:(NSString *)type properties:(NSDictionary *)properties {
     SAProfileEventObject *object = [[SAProfileEventObject alloc] initWithType:type];
-
+    
     [self trackEventObject:object properties:properties];
 }
 
@@ -676,7 +675,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)track:(NSString *)event withProperties:(NSDictionary *)propertieDict {
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-
+    
     [self trackEventObject:object properties:propertieDict];
 }
 
@@ -720,7 +719,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)trackTimerEnd:(NSString *)event withProperties:(NSDictionary *)propertyDict {
     // trackTimerEnd 事件需要支持新渠道匹配功能，且用户手动调用 trackTimerEnd 应归为手动埋点
     SACustomEventObject *object = [[SACustomEventObject alloc] initWithEventId:event];
-
+    
     [self trackEventObject:object properties:propertyDict];
 }
 
@@ -782,7 +781,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)registerSuperProperties:(NSDictionary *)propertyDict {
     dispatch_async(self.serialQueue, ^{
         SASuperPropertyPlugin *superPropertyPlugin = (SASuperPropertyPlugin *)[[SAPropertyPluginManager sharedInstance] pluginsWithPluginClass:SASuperPropertyPlugin.class];
-
+        
         if (superPropertyPlugin) {
             [superPropertyPlugin registerSuperProperties:propertyDict];
         }
@@ -854,11 +853,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         if (self.timer && [self.timer isValid]) {
             return;
         }
-
+        
         if (![SAApplication isAppExtension] && self.appLifecycle.state != SAAppLifecycleStateStart) {
             return;
         }
-
+        
         if ([SAModuleManager.sharedInstance isDisableSDK]) {
             return;
         }
@@ -957,7 +956,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)increment:(NSString *)profile by:(NSNumber *)amount {
     if (profile && amount) {
         SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:kSAProfileIncrement];
-
+        
         [self trackEventObject:object properties:@{profile: amount}];
     }
 }
@@ -965,7 +964,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (void)increment:(NSDictionary *)profileDict {
     if (profileDict) {
         SAProfileIncrementEventObject *object = [[SAProfileIncrementEventObject alloc] initWithType:kSAProfileIncrement];
-
+        
         [self trackEventObject:object properties:profileDict];
     }
 }
@@ -974,7 +973,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     if (profile && content) {
         if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
             SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:kSAProfileAppend];
-
+            
             [self trackEventObject:object properties:@{profile: content}];
         }
     }
@@ -1000,6 +999,13 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #pragma mark - setup Flow
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
+    if (object.isSignUp) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
+    }
+    NSString *eventName = object.event;
+    if (!object.hybridH5 && eventName) {
+        object.isInstantEvent = [self.configOptions.instantEvents containsObject:eventName];
+    }
     SAFlowData *input = [[SAFlowData alloc] init];
     input.eventObject = object;
     input.identifier = self.identifier;
@@ -1012,14 +1018,18 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)flushAllEventRecordsWithCompletion:(void(^)(void))completion {
-
-    SAFlowData *input = [[SAFlowData alloc] init];
-    input.cookie = [self getCookieWithDecode:NO];
-    [SAFlowManager.sharedInstance startWithFlowID:kSAFlushFlowId input:input completion:^(SAFlowData * _Nonnull output) {
-        // 上传完成
-        if (completion) {
-            completion();
-        }
+    NSString *cookie = [self getCookieWithDecode:NO];
+    SAFlowData *instantEventFlushInput = [[SAFlowData alloc] init];
+    instantEventFlushInput.cookie = cookie;
+    instantEventFlushInput.isInstantEvent = YES;
+    [SAFlowManager.sharedInstance startWithFlowID:kSAFlushFlowId input:instantEventFlushInput completion:^(SAFlowData * _Nonnull output) {
+        SAFlowData *normalFlushInput = [[SAFlowData alloc] init];
+        normalFlushInput.cookie = cookie;
+        [SAFlowManager.sharedInstance startWithFlowID:kSAFlushFlowId input:normalFlushInput completion:^(SAFlowData * _Nonnull output) {
+            if (completion) {
+                completion();
+            }
+        }];
     }];
 }
 
@@ -1149,9 +1159,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)trackFromH5WithEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    if (object.isSignUp) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-    }
     [self trackEventObject:object properties:properties];
 }
 

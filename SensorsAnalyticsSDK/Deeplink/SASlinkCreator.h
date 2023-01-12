@@ -96,6 +96,9 @@ typedef NS_ENUM(NSUInteger, SATLandingPageType) {
 /// utm properties
 @property (nonatomic, strong, nullable) SATUTMProperties *utmProperties;
 
+/// system params
+@property (nonatomic, copy, nullable) NSDictionary *systemParams;
+
 - (instancetype)init NS_UNAVAILABLE;
 + (instancetype)new NS_UNAVAILABLE;
 

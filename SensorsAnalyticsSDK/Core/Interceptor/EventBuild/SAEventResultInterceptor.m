@@ -50,7 +50,9 @@
         SALogDebug(@"\n【track event】:\n%@", event);
     }
 
-    input.record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
+    SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
+    record.isInstantEvent = input.eventObject.isInstantEvent;
+    input.record = record;
     completion(input);
 }
 

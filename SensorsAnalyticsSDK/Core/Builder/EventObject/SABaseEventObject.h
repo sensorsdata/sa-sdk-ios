@@ -84,6 +84,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否为 H5 打通事件
 @property (nonatomic, assign) BOOL hybridH5;
 
+/// is instant event or not, default is NO
+@property (nonatomic, assign) BOOL isInstantEvent;
+
 - (instancetype)initWithH5Event:(NSDictionary *)event;
 
 /// 校验事件名称

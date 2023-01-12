@@ -39,6 +39,7 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 
 @property (nonatomic) SAEventRecordStatus status;
 @property (nonatomic, getter=isEncrypted) BOOL encrypted;
+@property (nonatomic, assign) BOOL isInstantEvent;
 
 @property (nonatomic, copy, readonly) NSDictionary *event;
 

@@ -53,7 +53,8 @@ extern NSString * const kSADatabaseDefaultFileName;
 
 /// fetch first records with a certain size
 /// @param recordSize record size
-- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize;
+/// @param instantEvent instant event or not
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize isInstantEvent:(BOOL)instantEvent;
 
 
 /// insert single record

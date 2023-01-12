@@ -150,6 +150,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.eventSessionTimeout = self.eventSessionTimeout;
     options.disableDeviceId = self.disableDeviceId;
     options.propertyPlugins = self.propertyPlugins;
+    options.instantEvents = self.instantEvents;
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书
@@ -228,6 +229,12 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 - (void)setEventSessionTimeout:(NSInteger)eventSessionTimeout {
     if (eventSessionTimeout > 0) {
         _eventSessionTimeout = eventSessionTimeout;
+    }
+}
+
+- (void)setInstantEvents:(NSArray<NSString *> *)instantEvents {
+    if ([instantEvents isKindOfClass:[NSArray class]]) {
+        _instantEvents = instantEvents;
     }
 }
 

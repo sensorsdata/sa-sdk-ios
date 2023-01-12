@@ -24,8 +24,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /**
- *  @abstract
- *  一个基于Sqlite封装的接口，用于向其中添加和获取数据
+ * @abstract
+ * 一个基于Sqlite封装的接口，用于向其中添加和获取数据
  */
 @interface SADatabase : NSObject
 
@@ -50,7 +50,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// fetch first records with a certain size
 /// @param recordSize record size
-- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize;
+/// @param instantEvent instant event or not
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize isInstantEvent:(BOOL)instantEvent;
 
 
 /// bulk insert event records

@@ -125,6 +125,9 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否禁用采集 deviceId
 @property (nonatomic, assign) BOOL disableDeviceId;
 
+/// set instant events
+@property (nonatomic, copy) NSArray<NSString *> *instantEvents;
+
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
 
 /**

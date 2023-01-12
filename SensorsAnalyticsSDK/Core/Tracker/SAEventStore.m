@@ -134,13 +134,13 @@ NSString * const kSADatabaseDefaultFileName = @"message-v2";
     return [self.recordCaches subarrayWithRange:NSMakeRange(location, length)];
 }
 
-- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize {
+- (NSArray<SAEventRecord *> *)selectRecords:(NSUInteger)recordSize isInstantEvent:(BOOL)instantEvent {
     // 如果内存中存在数据，那么先上传，保证内存数据不丢失
     if (self.recordCaches.count) {
         return [self selectRecordsInCache:recordSize];
     }
     // 上传数据库中的数据
-    return [self.database selectRecords:recordSize];
+    return [self.database selectRecords:recordSize isInstantEvent:instantEvent];
 }
 
 - (BOOL)insertRecords:(NSArray<SAEventRecord *> *)records {

@@ -203,3 +203,7 @@ NSString * const kSAWebVisualProperties = @"sensorsdata_js_visual_properties";
 SALimitKey const SALimitKeyIDFA = @"SALimitKeyIDFA";
 SALimitKey const SALimitKeyIDFV = @"SALimitKeyIDFV";
 SALimitKey const SALimitKeyCarrier = @"SALimitKeyCarrier";
+
+
+/// is instant event
+NSString * const kSAInstantEventKey = @"is_instant_event";

@@ -95,6 +95,7 @@ extern NSString *const kSADynamicSlinkEventPropertyID;
 extern NSString *const kSADynamicSlinkEventPropertyTemplateID;
 extern NSString *const kSADynamicSlinkEventPropertyType;
 extern NSString *const kSADynamicSlinkEventPropertyTypeDynamic;
+extern NSString *const kSADynamicSlinkEventPropertyCustomParams;
 
 //dynamic slink API path
 extern NSString *const kSADynamicSlinkAPIPath;
@@ -118,3 +119,7 @@ extern NSString *const kSADynamicSlinkParamURIScheme;
 extern NSString *const kSADynamicSlinkParamLandingPageType;
 extern NSString *const kSADynamicSlinkParamLandingPage;
 extern NSString *const kSADynamicSlinkParamJumpAddress;
+extern NSString *const kSADynamicSlinkParamSystemParams;
+
+//slink response key
+extern NSString *const kSADynamicSlinkResponseKeyCustomParams;

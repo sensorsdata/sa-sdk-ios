@@ -40,6 +40,7 @@
         
         _ignoreRemoteConfig = NO;
         _hybridH5 = NO;
+        _isInstantEvent = NO;
     }
     return self;
 }
@@ -90,6 +91,10 @@
 
         [properties removeObjectsForKeys:@[@"_nocache", @"server_url", kSAAppVisualProperties, kSAEventProject, kSAEventToken, kSAEventCommonOptionalPropertyTime]];
         _properties = properties;
+        NSNumber *isInstantEvent = event[kSAInstantEventKey];
+        if ([isInstantEvent isKindOfClass:[NSNumber class]]) {
+            _isInstantEvent = [isInstantEvent boolValue];
+        }
     }
     return self;
 }

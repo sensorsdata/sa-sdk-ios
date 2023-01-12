@@ -42,7 +42,7 @@
     // 判断本地数据库中未上传的数量
     if (!input.eventObject.isSignUp &&
         [self.eventStore recordCountWithStatus:SAEventRecordStatusNone] <= input.configOptions.flushBulkSize &&
-        input.configOptions.debugMode == SensorsAnalyticsDebugOff) {
+        input.configOptions.debugMode == SensorsAnalyticsDebugOff && !input.isInstantEvent) {
         input.state = SAFlowStateStop;
     }
     return completion(input);
