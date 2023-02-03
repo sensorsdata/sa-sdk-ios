@@ -34,6 +34,7 @@
 #import "SAVisualizedManager.h"
 #import "SAVisualizedLogger.h"
 #import "SAFlutterPluginBridge.h"
+#import "SAVisualizedResources.h"
 
 @interface SAVisualizedConnection ()
 @property (nonatomic, strong) NSTimer *timer;
@@ -284,11 +285,7 @@
 }
 
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
-    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualized_path.json" ofType:nil];
-    NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString *jsonString = [SAVisualizedResources visualizedPath];
     _commandQueue.suspended = NO;
     self->_connected = YES;
     [self startVisualizedTimer:jsonString featureCode:featureCode postURL:urlStr];

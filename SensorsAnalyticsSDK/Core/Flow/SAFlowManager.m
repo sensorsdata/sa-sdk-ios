@@ -26,6 +26,7 @@
 #import "SAInterceptor.h"
 #import "SAJSONUtil.h"
 #import "SALog.h"
+#import "SACoreResources.h"
 
 static NSString * const kSANodeFileName = @"sensors_analytics_node";
 static NSString * const kSATaskFileName = @"sensors_analytics_task";
@@ -65,10 +66,9 @@ NSString * const kSAFlushFlowId = @"sensorsdata_flush_flow";
 #pragma mark - load
 
 - (void)loadFlows {
-    NSBundle *saBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SAFlowManager class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-    [self.nodes addEntriesFromDictionary:[SANodeObject loadFromBundle:saBundle]];
-    [self.tasks addEntriesFromDictionary:[SATaskObject loadFromBundle:saBundle]];
-    [self.flows addEntriesFromDictionary:[SAFlowObject loadFromBundle:saBundle]];
+    [self.nodes addEntriesFromDictionary:[SANodeObject loadFromResources:[SACoreResources analyticsNodes]]];
+    [self.tasks addEntriesFromDictionary:[SATaskObject loadFromResources:[SACoreResources analyticsTasks]]];
+    [self.flows addEntriesFromDictionary:[SAFlowObject loadFromResources:[SACoreResources analyticsFlows]]];
 }
 
 #pragma mark - add

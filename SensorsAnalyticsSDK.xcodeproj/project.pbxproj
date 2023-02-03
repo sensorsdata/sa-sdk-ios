@@ -37,8 +37,20 @@
 		45BBC8D02787DF22004D2D0C /* SAPresetPropertyObject.m in Sources */ = {isa = PBXBuildFile; fileRef = 45BBC8CE2787DF22004D2D0C /* SAPresetPropertyObject.m */; };
 		45BD80CE26F0B49700DCC759 /* SAThreadSafeDictionary.h in Headers */ = {isa = PBXBuildFile; fileRef = 45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */; };
 		45BD80CF26F0B49700DCC759 /* SAThreadSafeDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */; };
+		4C61714129764D9D004D712D /* SACoreResourcesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C61714029764D9D004D712D /* SACoreResourcesTests.m */; };
+		4C61714329764DB4004D712D /* SAAutoTrackResourcesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C61714229764DB4004D712D /* SAAutoTrackResourcesTests.m */; };
+		4C61714529764DC4004D712D /* SAVisualizedResourcesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C61714429764DC4004D712D /* SAVisualizedResourcesTests.m */; };
+		4C617146297685D7004D712D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		4C68ED9B2900E6E600703F68 /* SALimitKeyManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C68ED992900E6E600703F68 /* SALimitKeyManager.h */; };
 		4C68ED9C2900E6E600703F68 /* SALimitKeyManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C68ED9A2900E6E600703F68 /* SALimitKeyManager.m */; };
+		4C9A9BF92975545C00DBF2A7 /* SACoreResources.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C9A9BF72975545C00DBF2A7 /* SACoreResources.h */; };
+		4C9A9BFA2975545C00DBF2A7 /* SACoreResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9A9BF82975545C00DBF2A7 /* SACoreResources.m */; };
+		4C9A9BFD2975546F00DBF2A7 /* SAAutoTrackResources.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C9A9BFB2975546F00DBF2A7 /* SAAutoTrackResources.h */; };
+		4C9A9BFE2975546F00DBF2A7 /* SAAutoTrackResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9A9BFC2975546F00DBF2A7 /* SAAutoTrackResources.m */; };
+		4C9A9C012975548B00DBF2A7 /* SAVisualizedResources.h in Headers */ = {isa = PBXBuildFile; fileRef = 4C9A9BFF2975548B00DBF2A7 /* SAVisualizedResources.h */; };
+		4C9A9C022975548B00DBF2A7 /* SAVisualizedResources.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9A9C002975548B00DBF2A7 /* SAVisualizedResources.m */; };
+		4C9A9C0629763B6F00DBF2A7 /* SensorsAnalyticsSDKTest.bundle in Resources */ = {isa = PBXBuildFile; fileRef = 4C9A9C0529763B6F00DBF2A7 /* SensorsAnalyticsSDKTest.bundle */; };
+		4C9A9C0C29763C1300DBF2A7 /* SAResourcesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9A9C0B29763C1300DBF2A7 /* SAResourcesTests.m */; };
 		4D01ED8C2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D01ED8A2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h */; };
 		4D01ED8D2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D01ED8B2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m */; };
 		4D01EFB028156D9200A12BCC /* SAEventDurationPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D01EFAE28156D9200A12BCC /* SAEventDurationPropertyPlugin.h */; };
@@ -411,7 +423,6 @@
 		A8CC223E2685E50C00E96A03 /* SARemoteConfigModel.h in Headers */ = {isa = PBXBuildFile; fileRef = A8CC22302685E50C00E96A03 /* SARemoteConfigModel.h */; };
 		A8FEFB2C277C0ADA0011D0BB /* SASessionProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = A8FEFB2A277C0ADA0011D0BB /* SASessionProperty.h */; };
 		A8FEFB2D277C0ADA0011D0BB /* SASessionProperty.m in Sources */ = {isa = PBXBuildFile; fileRef = A8FEFB2B277C0ADA0011D0BB /* SASessionProperty.m */; };
-		CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */ = {isa = PBXBuildFile; fileRef = CB30C02E22840EBF0004061D /* SensorsAnalyticsSDK.bundle */; };
 		CB6EBAE8228551ED003CFBA8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30BD5422840CA40004061D /* SensorsAnalyticsSDK.framework */; };
 		CB6EBAF322855222003CFBA8 /* cert.outdate.cer in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAEF22855222003CFBA8 /* cert.outdate.cer */; };
 		CB6EBAF422855222003CFBA8 /* ca.cer1 in Resources */ = {isa = PBXBuildFile; fileRef = CB6EBAF022855222003CFBA8 /* ca.cer1 */; };
@@ -586,8 +597,19 @@
 		45BBC8CE2787DF22004D2D0C /* SAPresetPropertyObject.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAPresetPropertyObject.m; sourceTree = "<group>"; };
 		45BD80CC26F0B49700DCC759 /* SAThreadSafeDictionary.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAThreadSafeDictionary.h; sourceTree = "<group>"; };
 		45BD80CD26F0B49700DCC759 /* SAThreadSafeDictionary.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAThreadSafeDictionary.m; sourceTree = "<group>"; };
+		4C61714029764D9D004D712D /* SACoreResourcesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SACoreResourcesTests.m; sourceTree = "<group>"; };
+		4C61714229764DB4004D712D /* SAAutoTrackResourcesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackResourcesTests.m; sourceTree = "<group>"; };
+		4C61714429764DC4004D712D /* SAVisualizedResourcesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedResourcesTests.m; sourceTree = "<group>"; };
 		4C68ED992900E6E600703F68 /* SALimitKeyManager.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SALimitKeyManager.h; sourceTree = "<group>"; };
 		4C68ED9A2900E6E600703F68 /* SALimitKeyManager.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SALimitKeyManager.m; sourceTree = "<group>"; };
+		4C9A9BF72975545C00DBF2A7 /* SACoreResources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SACoreResources.h; sourceTree = "<group>"; };
+		4C9A9BF82975545C00DBF2A7 /* SACoreResources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SACoreResources.m; sourceTree = "<group>"; };
+		4C9A9BFB2975546F00DBF2A7 /* SAAutoTrackResources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAutoTrackResources.h; sourceTree = "<group>"; };
+		4C9A9BFC2975546F00DBF2A7 /* SAAutoTrackResources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAutoTrackResources.m; sourceTree = "<group>"; };
+		4C9A9BFF2975548B00DBF2A7 /* SAVisualizedResources.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAVisualizedResources.h; sourceTree = "<group>"; };
+		4C9A9C002975548B00DBF2A7 /* SAVisualizedResources.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedResources.m; sourceTree = "<group>"; };
+		4C9A9C0529763B6F00DBF2A7 /* SensorsAnalyticsSDKTest.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = SensorsAnalyticsSDKTest.bundle; sourceTree = "<group>"; };
+		4C9A9C0B29763C1300DBF2A7 /* SAResourcesTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAResourcesTests.m; sourceTree = "<group>"; };
 		4D01ED8A2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADynamicSuperPropertyPlugin.h; sourceTree = "<group>"; };
 		4D01ED8B2814FFC600A12BCC /* SADynamicSuperPropertyPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADynamicSuperPropertyPlugin.m; sourceTree = "<group>"; };
 		4D01EFAE28156D9200A12BCC /* SAEventDurationPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventDurationPropertyPlugin.h; sourceTree = "<group>"; };
@@ -1186,6 +1208,8 @@
 				4DD128A625F8A003008C0B1E /* VisualProperties */,
 				4DD128A525F8A003008C0B1E /* SensorsAnalyticsSDK+Visualized.h */,
 				4DD128A425F8A003008C0B1E /* SensorsAnalyticsSDK+Visualized.m */,
+				4C9A9BFF2975548B00DBF2A7 /* SAVisualizedResources.h */,
+				4C9A9C002975548B00DBF2A7 /* SAVisualizedResources.m */,
 				4DD1284225F872A4008C0B1E /* NSInvocation+SAHelpers.h */,
 				4DD1282725F872A2008C0B1E /* NSInvocation+SAHelpers.m */,
 				4DD1282C25F872A2008C0B1E /* SAApplicationStateSerializer.h */,
@@ -1526,6 +1550,8 @@
 				881A40D3253D7B4F00854F69 /* SASecurityPolicy.m */,
 				88EC2DEF2757689800EF9778 /* SAStoreManager.h */,
 				88EC2DF02757689800EF9778 /* SAStoreManager.m */,
+				4C9A9BF72975545C00DBF2A7 /* SACoreResources.h */,
+				4C9A9BF82975545C00DBF2A7 /* SACoreResources.m */,
 				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
 				881A4157253D7B4F00854F69 /* SASwizzle.m */,
 				881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */,
@@ -1786,6 +1812,8 @@
 			children = (
 				A8356D8F2656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.h */,
 				A8356DB12656459A00FD64AA /* SensorsAnalyticsSDK+SAAutoTrack.m */,
+				4C9A9BFB2975546F00DBF2A7 /* SAAutoTrackResources.h */,
+				4C9A9BFC2975546F00DBF2A7 /* SAAutoTrackResources.m */,
 				A8356D902656459A00FD64AA /* SAAutoTrackProperty.h */,
 				A8356D982656459A00FD64AA /* SAAutoTrackManager.h */,
 				A8356D882656459A00FD64AA /* SAAutoTrackManager.m */,
@@ -2105,9 +2133,14 @@
 		CB6EBAEE22855222003CFBA8 /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				4C9A9C0529763B6F00DBF2A7 /* SensorsAnalyticsSDKTest.bundle */,
 				CB6EBAEF22855222003CFBA8 /* cert.outdate.cer */,
 				CB6EBAF022855222003CFBA8 /* ca.cer1 */,
 				CB6EBAF122855222003CFBA8 /* ca.der.cer */,
+				4C9A9C0B29763C1300DBF2A7 /* SAResourcesTests.m */,
+				4C61714029764D9D004D712D /* SACoreResourcesTests.m */,
+				4C61714229764DB4004D712D /* SAAutoTrackResourcesTests.m */,
+				4C61714429764DC4004D712D /* SAVisualizedResourcesTests.m */,
 			);
 			path = Resources;
 			sourceTree = "<group>";
@@ -2322,6 +2355,7 @@
 				F277F5C725CF9A43009B5CE6 /* SAApplicationDelegateProxy.h in Headers */,
 				457A7CC427DB2AC900DB0512 /* SANetworkInfoPropertyPlugin.h in Headers */,
 				F2FBB33D28A26B87008D10EB /* SAExposureConfig+Private.h in Headers */,
+				4C9A9BF92975545C00DBF2A7 /* SACoreResources.h in Headers */,
 				A8356DC72656459A00FD64AA /* UIScrollView+SAAutoTrack.h in Headers */,
 				88B58FC82732394E00B83DCC /* SAItemEventObject.h in Headers */,
 				4DA4BABD28129AA0008B0C5A /* SASuperPropertyPlugin.h in Headers */,
@@ -2354,6 +2388,7 @@
 				4DA89BC225C2BC1E003ABA43 /* SAReachability.h in Headers */,
 				F226E67C28BC6415000443A7 /* UIView+SAElementContent.h in Headers */,
 				886E1E212726AC420084D1B3 /* SADeviceIDPropertyPlugin.h in Headers */,
+				4C9A9C012975548B00DBF2A7 /* SAVisualizedResources.h in Headers */,
 				4DD1285125F872A4008C0B1E /* SAApplicationStateSerializer.h in Headers */,
 				F23CA0082701715E002EEACA /* SensorsAnalyticsSDK+JavaScriptBridge.h in Headers */,
 				FCBECDF327DEDF4200361D6C /* SAQueryDeepLinkProcessor.h in Headers */,
@@ -2374,6 +2409,7 @@
 				88BC3A00281543E000A98EDA /* SAPropertyPlugin.h in Headers */,
 				F200095328BDE7DE003C5113 /* UIAlertController+SASimilarPath.h in Headers */,
 				4DD1282125F87225008C0B1E /* SAVisualizedViewPathProperty.h in Headers */,
+				4C9A9BFD2975546F00DBF2A7 /* SAAutoTrackResources.h in Headers */,
 				4D79695A2609D8FE001B0A6C /* SAEventIdentifier.h in Headers */,
 				45BBC8CF2787DF22004D2D0C /* SAPresetPropertyObject.h in Headers */,
 				4D958B1E2823E0960086A71C /* SAModulePropertyPlugin.h in Headers */,
@@ -2599,7 +2635,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CB30C09A22840EC00004061D /* SensorsAnalyticsSDK.bundle in Resources */,
+				4C617146297685D7004D712D /* SensorsAnalyticsSDK.bundle in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2607,6 +2643,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4C9A9C0629763B6F00DBF2A7 /* SensorsAnalyticsSDKTest.bundle in Resources */,
 				88F21AF528095EBE00EDAFF4 /* sensors_analytics_flow.json in Resources */,
 				88F21AF128094F7F00EDAFF4 /* sensors_analytics_node.json in Resources */,
 				CB6EBAF422855222003CFBA8 /* ca.cer1 in Resources */,
@@ -2634,6 +2671,7 @@
 				4D4DB31725B7D58300938842 /* SADateFormatter.m in Sources */,
 				8809806827FE7AA100EB2B3D /* SAEventCallbackInterceptor.m in Sources */,
 				FC0A8C64276334F200109267 /* SADeepLinkConstants.m in Sources */,
+				4C9A9BFE2975546F00DBF2A7 /* SAAutoTrackResources.m in Sources */,
 				45A5655D263C174300C9C41B /* SAIdentifier.m in Sources */,
 				4D4DB30F25B7D54D00938842 /* SALog.m in Sources */,
 				45A5655C263C174300C9C41B /* SAIDFAHelper.m in Sources */,
@@ -2657,6 +2695,7 @@
 				881A4228253D7B5E00854F69 /* SALocationManager.m in Sources */,
 				A8356DDD2656459A00FD64AA /* SAAutoTrackUtils.m in Sources */,
 				F226E67928BC63F5000443A7 /* UIView+SAElementType.m in Sources */,
+				4C9A9C022975548B00DBF2A7 /* SAVisualizedResources.m in Sources */,
 				FCC02F2B26CE4EF700DB8F54 /* SAUserAgent.m in Sources */,
 				F2E4ABAA26ECB19200BA7F01 /* SensorsAnalyticsSDK+DebugMode.m in Sources */,
 				4D2D53BD2591EB3A00805141 /* SAReadWriteLock.m in Sources */,
@@ -2770,6 +2809,7 @@
 				F2B643F72832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m in Sources */,
 				4DD1286925F872A4008C0B1E /* SATypeDescription.m in Sources */,
 				F26A23CC28BCADD800AB84A6 /* UIView+SensorsAnalytics.m in Sources */,
+				4C9A9BFA2975545C00DBF2A7 /* SACoreResources.m in Sources */,
 				A8CC22372685E50C00E96A03 /* SARemoteConfigModel.m in Sources */,
 				4DD128C325F8A003008C0B1E /* SAVisualPropertiesConfig.m in Sources */,
 				4DDE42D029262993007EDA27 /* SALoggerPrePostFixFormatter.m in Sources */,
@@ -2881,6 +2921,7 @@
 				88C9062F2759EC2B00A2712C /* SAUserDefaultsStorePluginTests.m in Sources */,
 				88E6BED4277F0CCA006B1E4C /* SAStoreManagerTests.m in Sources */,
 				451427A52796C5A1004DE16C /* SACatalystPresetPropertyTest.m in Sources */,
+				4C61714329764DB4004D712D /* SAAutoTrackResourcesTests.m in Sources */,
 				88C9062927589B0C00A2712C /* SAUserDefaultsStorePlugin.m in Sources */,
 				88F21AEB28091B3700EDAFF4 /* SAFlowObjectTests.m in Sources */,
 				4D6A189122978F5B00F6B218 /* ElementViewController.m in Sources */,
@@ -2889,8 +2930,10 @@
 				A8A2BBCB2722AB4900B2DEDC /* SACommonUtilityTest.m in Sources */,
 				886CD6C0280FE60F006A6DBA /* SAInterceptorTests.m in Sources */,
 				4DDE42D329262A1F007EDA27 /* SAAutoTrackUtilsTest.m in Sources */,
+				4C9A9C0C29763C1300DBF2A7 /* SAResourcesTests.m in Sources */,
 				A8A2BBDE2722AF8300B2DEDC /* SABaseEventObjectTest.m in Sources */,
 				A826F51827293C8B00934D3E /* SATrackTimerTest.m in Sources */,
+				4C61714529764DC4004D712D /* SAVisualizedResourcesTests.m in Sources */,
 				886E1E1E2726A0600084D1B3 /* SAPresetPropertyPluginTests.m in Sources */,
 				88F21AED28091DD800EDAFF4 /* SATaskObjectTests.m in Sources */,
 				A8A2BBCC2722AB4900B2DEDC /* SAGzipUtilityTest.m in Sources */,
@@ -2919,6 +2962,7 @@
 				886CD6C828101C71006A6DBA /* SAEventValidateInterceptorTests.m in Sources */,
 				88F21AE928081D4600EDAFF4 /* SAFlowManager.m in Sources */,
 				A8302C3C2726B2E6006E78CC /* SAProfileEventObjectTest.m in Sources */,
+				4C61714129764D9D004D712D /* SACoreResourcesTests.m in Sources */,
 				4DDE42D129262A13007EDA27 /* SADatabaseUnitTest.m in Sources */,
 				A8A2BBE02722B91A00B2DEDC /* SAEventLibObjectTest.m in Sources */,
 				88F21AE628081D3D00EDAFF4 /* SAFlowData.m in Sources */,

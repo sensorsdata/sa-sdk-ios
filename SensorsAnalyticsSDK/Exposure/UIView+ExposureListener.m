@@ -49,12 +49,18 @@ static void *const kSAUIViewExposureObserverKey = (void *)&kSAUIViewExposureObse
     objc_setAssociatedObject(self, kSAUIViewExposureMarkKey, sensorsdata_exposureMark, OBJC_ASSOCIATION_COPY);
 }
 
-- (NSObject *)sensorsdata_exposure_observer {
-    return objc_getAssociatedObject(self, kSAUIViewExposureObserverKey);
+- (NSHashTable *)sensorsdata_exposure_observers {
+    NSHashTable *observers = objc_getAssociatedObject(self, kSAUIViewExposureObserverKey);
+    if (!observers) {
+        observers = [NSHashTable weakObjectsHashTable];
+        self.sensorsdata_exposure_observers = observers;
+    }
+    return observers;
 }
 
-- (void)setSensorsdata_exposure_observer:(NSObject *)sensorsdata_exposure_observer {
-    objc_setAssociatedObject(self, kSAUIViewExposureObserverKey, sensorsdata_exposure_observer, OBJC_ASSOCIATION_RETAIN);
+- (void)setSensorsdata_exposure_observers:(NSHashTable *)sensorsdata_exposure_observers {
+    objc_setAssociatedObject(self, kSAUIViewExposureObserverKey, sensorsdata_exposure_observers, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end
+

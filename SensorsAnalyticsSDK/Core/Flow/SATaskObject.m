@@ -88,12 +88,17 @@ static NSString * const kSATaskFileName = @"sensors_analytics_task";
     }];
     return index;
 }
+
 + (NSDictionary<NSString *, SATaskObject *> *)loadFromBundle:(NSBundle *)bundle {
     NSURL *url = [bundle URLForResource:kSATaskFileName withExtension:@"json"];
     if (!url) {
         return nil;
     }
     NSArray *array = [SAJSONUtil JSONObjectWithData:[NSData dataWithContentsOfURL:url]];
+    return [self loadFromResources:array];
+}
+
++ (NSDictionary<NSString *, SATaskObject *> *)loadFromResources:(NSArray *)array {
     NSMutableDictionary *tasks = [NSMutableDictionary dictionaryWithCapacity:array.count];
     for (NSDictionary *dic in array) {
         SATaskObject *object = [[SATaskObject alloc] initWithDictionary:dic];

@@ -85,6 +85,10 @@ static NSString * const kSAFlowFileName = @"sensors_analytics_flow.json";
         return nil;
     }
     NSArray *array = [SAJSONUtil JSONObjectWithData:[NSData dataWithContentsOfFile:jsonPath]];
+    return [self loadFromResources:array];
+}
+
++ (NSDictionary<NSString *, SATaskObject *> *)loadFromResources:(NSArray *)array {
     NSMutableDictionary *flows = [NSMutableDictionary dictionaryWithCapacity:array.count];
     for (NSDictionary *dic in array) {
         SAFlowObject *object = [[SAFlowObject alloc] initWithDictionary:dic];

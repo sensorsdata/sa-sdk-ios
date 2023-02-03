@@ -1,9 +1,9 @@
 //
-// UIView+ExposureListener.h
+// SAAutoTrackResources.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2022/8/10.
-// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
+// Created by 张敏超🍎 on 2023/1/16.
+// Copyright © 2015-2023 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,18 +18,19 @@
 // limitations under the License.
 //
 
-#import <UIKit/UIKit.h>
+#if ! __has_feature(objc_arc)
+#error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
+#endif
+
+#import <Foundation/Foundation.h>
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIView (SAExposureListener)
+@interface SAAutoTrackResources : NSObject
 
-- (void)sensorsdata_didMoveToSuperview;
++ (NSDictionary *)gestureViewBlacklist;
 
-/// exposure mark to improve performance on some APIs, such as didMoveToWindow
-@property (nonatomic, copy, nullable) NSString *sensorsdata_exposureMark;
-
-@property (nonatomic, strong) NSHashTable *sensorsdata_exposure_observers;
++ (NSDictionary *)viewControllerBlacklist;
 
 @end
 

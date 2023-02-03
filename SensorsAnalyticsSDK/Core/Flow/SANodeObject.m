@@ -78,6 +78,10 @@ static NSString * const kSANodeFileName = @"sensors_analytics_node";
         return nil;
     }
     NSArray *array = [SAJSONUtil JSONObjectWithData:[NSData dataWithContentsOfURL:url]];
+    return [self loadFromResources:array];
+}
+
++ (NSDictionary<NSString *, SANodeObject *> *)loadFromResources:(NSArray *)array {
     NSMutableDictionary *nodes = [NSMutableDictionary dictionaryWithCapacity:array.count];
     for (NSDictionary *dic in array) {
         SANodeObject *node = [[SANodeObject alloc] initWithDictionary:dic];

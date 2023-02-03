@@ -29,6 +29,7 @@
 #import "SAConstants+Private.h"
 #import "SAJSONUtil.h"
 #import "SAValidator.h"
+#import "SAAutoTrackResources.h"
 
 @implementation SAAppTracker
 
@@ -83,16 +84,7 @@
 }
 
 - (NSDictionary *)autoTrackViewControllerBlackList {
-    static dispatch_once_t onceToken;
-    static NSDictionary *allClasses = nil;
-    dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        //文件路径
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_viewcontroller_blacklist.json" ofType:nil];
-        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        allClasses = [SAJSONUtil JSONObjectWithData:jsonData];
-    });
-    return allClasses;
+    return [SAAutoTrackResources viewControllerBlacklist];
 }
 
 - (BOOL)isViewController:(UIViewController *)viewController inBlackList:(NSDictionary *)blackList {

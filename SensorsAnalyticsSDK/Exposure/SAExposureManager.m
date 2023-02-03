@@ -146,7 +146,7 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
 - (void)swizzleMethods {
     [SAMethodHelper swizzleRespondsToSelector];
     [UIView sa_swizzleMethod:@selector(didMoveToSuperview) withMethod:@selector(sensorsdata_didMoveToSuperview) error:NULL];
-    BOOL isSuccess = [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
+    [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
     [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_exposure_viewDidAppear:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_exposure_viewDidDisappear:) error:NULL];

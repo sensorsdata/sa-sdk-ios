@@ -63,7 +63,9 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     [self.view addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewFrameContext];
     [self.view addObserver:self forKeyPath:@"alpha" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewAlphaContext];
     [self.view addObserver:self forKeyPath:@"hidden" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewHiddenContext];
-    self.view.sensorsdata_exposure_observer = self;
+    if ([self.view.sensorsdata_exposure_observers containsObject:self]) {
+        [self.view.sensorsdata_exposure_observers addObject:self];
+    }
 }
 
 - (void)removeExposureObserver {
@@ -72,7 +74,7 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
 }
 
 - (void)removeExposureViewObserver {
-    if (!self.view.observationInfo || self.view.sensorsdata_exposure_observer != self) {
+    if (!self.view.observationInfo || ![self.view.sensorsdata_exposure_observers containsObject:self]) {
         return;
     }
     @try {
@@ -82,12 +84,12 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     } @catch (NSException *exception) {
         SALogError(@"%@", exception);
     } @finally {
-        self.view.sensorsdata_exposure_observer = nil;
+        [self.view.sensorsdata_exposure_observers removeObject:self];
     }
 }
 
 - (void)removeExposureScrollViewObserver {
-    if (!self.scrollView.observationInfo || self.scrollView.sensorsdata_exposure_observer != self) {
+    if (!self.scrollView.observationInfo || ![self.scrollView.sensorsdata_exposure_observers containsObject:self]) {
         return;
     }
     @try {
@@ -95,7 +97,7 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     } @catch (NSException *exception) {
         SALogError(@"%@", exception);
     } @finally {
-        self.scrollView.sensorsdata_exposure_observer = nil;
+        [self.scrollView.sensorsdata_exposure_observers removeObject:self];
     }
 }
 
@@ -208,6 +210,9 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
 
 - (void)exposureConditionCheck {
     if (!self.view) {
+        return;
+    }
+    if (([self.view isKindOfClass:[UITableViewCell class]] || [self.view isKindOfClass:[UICollectionViewCell class]]) && self.state == SAExposureViewStateInvisible) {
         return;
     }
 
@@ -361,11 +366,11 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     }
     @try {
         [self removeExposureScrollViewObserver];
-        if (scrollView.sensorsdata_exposure_observer == self && scrollView.observationInfo) {
+        if ([scrollView.sensorsdata_exposure_observers containsObject:self] && scrollView.observationInfo) {
             [scrollView removeObserver:self forKeyPath:@"contentOffset" context:kSAExposureViewContentOffsetContext];
         }
         [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewContentOffsetContext];
-        scrollView.sensorsdata_exposure_observer = self;
+        [scrollView.sensorsdata_exposure_observers addObject:self];
     } @catch (NSException *exception) {
         SALogError(@"%@", exception);
     } @finally {
@@ -389,8 +394,5 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     return self.view.sensorsdata_viewController;
 }
 
--(void)dealloc {
-    [self removeExposureObserver];
-}
-
 @end
+

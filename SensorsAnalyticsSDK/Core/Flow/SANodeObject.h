@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, strong, readonly) SAInterceptor *interceptor;
 
 + (NSDictionary<NSString *, SANodeObject *> *)loadFromBundle:(NSBundle *)bundle;
++ (NSDictionary<NSString *, SANodeObject *> *)loadFromResources:(NSArray *)array;
 
 @end
 
