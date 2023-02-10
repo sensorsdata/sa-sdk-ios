@@ -3124,6 +3124,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACH_O_TYPE = mh_dylib;
 				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsAnalyticsSDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
@@ -3158,6 +3159,7 @@
 					"@executable_path/Frameworks",
 					"@loader_path/Frameworks",
 				);
+				MACH_O_TYPE = mh_dylib;
 				MODULEMAP_FILE = "";
 				PRODUCT_BUNDLE_IDENTIFIER = cn.sensorsdata.SensorsAnalyticsSDK;
 				PRODUCT_NAME = "$(TARGET_NAME:c99extidentifier)";
