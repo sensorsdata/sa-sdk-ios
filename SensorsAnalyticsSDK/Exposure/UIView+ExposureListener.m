@@ -23,17 +23,19 @@
 #endif
 
 #import "UIView+ExposureListener.h"
-#import "UIView+ExposureIdentifier.h"
 #import "SAExposureManager.h"
 #import <objc/runtime.h>
+#import "NSObject+SAKeyValueObserver.h"
 
 static void *const kSAUIViewExposureMarkKey = (void *)&kSAUIViewExposureMarkKey;
-static void *const kSAUIViewExposureObserverKey = (void *)&kSAUIViewExposureObserverKey;
 
 @implementation UIView (SAExposureListener)
 
 - (void)sensorsdata_didMoveToSuperview {
     [self sensorsdata_didMoveToSuperview];
+    if (!self.sensorsdata_exposureMark) {
+        return;
+    }
     SAExposureViewObject *exposureViewObject = [[SAExposureManager defaultManager] exposureViewWithView:self];
     if (!exposureViewObject) {
         return;
@@ -47,19 +49,6 @@ static void *const kSAUIViewExposureObserverKey = (void *)&kSAUIViewExposureObse
 
 - (void)setSensorsdata_exposureMark:(NSString *)sensorsdata_exposureMark {
     objc_setAssociatedObject(self, kSAUIViewExposureMarkKey, sensorsdata_exposureMark, OBJC_ASSOCIATION_COPY);
-}
-
-- (NSHashTable *)sensorsdata_exposure_observers {
-    NSHashTable *observers = objc_getAssociatedObject(self, kSAUIViewExposureObserverKey);
-    if (!observers) {
-        observers = [NSHashTable weakObjectsHashTable];
-        self.sensorsdata_exposure_observers = observers;
-    }
-    return observers;
-}
-
-- (void)setSensorsdata_exposure_observers:(NSHashTable *)sensorsdata_exposure_observers {
-    objc_setAssociatedObject(self, kSAUIViewExposureObserverKey, sensorsdata_exposure_observers, OBJC_ASSOCIATION_RETAIN);
 }
 
 @end

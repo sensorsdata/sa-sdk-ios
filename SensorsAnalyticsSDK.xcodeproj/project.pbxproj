@@ -465,6 +465,8 @@
 		F226E68428BC646F000443A7 /* UIView+SAElementPath.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E68228BC646F000443A7 /* UIView+SAElementPath.h */; };
 		F226E68528BC646F000443A7 /* UIView+SAElementPath.m in Sources */ = {isa = PBXBuildFile; fileRef = F226E68328BC646F000443A7 /* UIView+SAElementPath.m */; };
 		F226E68C28BC993C000443A7 /* SAUIViewElementProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E68A28BC993C000443A7 /* SAUIViewElementProperties.h */; };
+		F22B8BB729A7177B0022975C /* NSObject+SAKeyValueObserver.h in Headers */ = {isa = PBXBuildFile; fileRef = F22B8BB529A7177B0022975C /* NSObject+SAKeyValueObserver.h */; };
+		F22B8BB829A7177B0022975C /* NSObject+SAKeyValueObserver.m in Sources */ = {isa = PBXBuildFile; fileRef = F22B8BB629A7177B0022975C /* NSObject+SAKeyValueObserver.m */; };
 		F22E1B1B26A55C8A0033A748 /* SAAppPageLeaveTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = F22E1B1926A55C8A0033A748 /* SAAppPageLeaveTracker.h */; };
 		F22E1B1C26A55C8A0033A748 /* SAAppPageLeaveTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F22E1B1A26A55C8A0033A748 /* SAAppPageLeaveTracker.m */; };
 		F23CA0052701715E002EEACA /* WKWebView+SABridge.h in Headers */ = {isa = PBXBuildFile; fileRef = F23C9FFE2701715E002EEACA /* WKWebView+SABridge.h */; };
@@ -1042,6 +1044,8 @@
 		F226E68228BC646F000443A7 /* UIView+SAElementPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+SAElementPath.h"; sourceTree = "<group>"; };
 		F226E68328BC646F000443A7 /* UIView+SAElementPath.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UIView+SAElementPath.m"; sourceTree = "<group>"; };
 		F226E68A28BC993C000443A7 /* SAUIViewElementProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUIViewElementProperties.h; sourceTree = "<group>"; };
+		F22B8BB529A7177B0022975C /* NSObject+SAKeyValueObserver.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SAKeyValueObserver.h"; sourceTree = "<group>"; };
+		F22B8BB629A7177B0022975C /* NSObject+SAKeyValueObserver.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SAKeyValueObserver.m"; sourceTree = "<group>"; };
 		F22E1B1926A55C8A0033A748 /* SAAppPageLeaveTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAppPageLeaveTracker.h; sourceTree = "<group>"; };
 		F22E1B1A26A55C8A0033A748 /* SAAppPageLeaveTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAppPageLeaveTracker.m; sourceTree = "<group>"; };
 		F23C9FFE2701715E002EEACA /* WKWebView+SABridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WKWebView+SABridge.h"; sourceTree = "<group>"; };
@@ -1611,6 +1615,8 @@
 				F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */,
 				F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */,
 				F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */,
+				F22B8BB529A7177B0022975C /* NSObject+SAKeyValueObserver.h */,
+				F22B8BB629A7177B0022975C /* NSObject+SAKeyValueObserver.m */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -2501,6 +2507,7 @@
 				F2FBBBAE28A39D2200F75293 /* UIView+ExposureListener.h in Headers */,
 				FC0A8C63276334F200109267 /* SADeepLinkConstants.h in Headers */,
 				F20231D028C33ECD0034D8B3 /* UIScrollView+SADelegateHashTable.h in Headers */,
+				F22B8BB729A7177B0022975C /* NSObject+SAKeyValueObserver.h in Headers */,
 				4D5F3AC22833B280003A2C0A /* SADatabaseInterceptor.h in Headers */,
 				4D41D9D325FF7E9300D856F4 /* UIViewController+SAElementPath.h in Headers */,
 				F273487528A9E92C00C34E64 /* UIScrollView+ExposureListener.h in Headers */,
@@ -2857,6 +2864,7 @@
 				F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */,
 				FCBECDFC27DEDF7200361D6C /* SARequestDeepLinkProcessor.m in Sources */,
 				881A41FC253D7B5000854F69 /* SASwizzle.m in Sources */,
+				F22B8BB829A7177B0022975C /* NSObject+SAKeyValueObserver.m in Sources */,
 				F28997D8273B6D66005E7D5E /* SAGesturePlugin.m in Sources */,
 				881A4207253D7B5000854F69 /* SAHTTPSession.m in Sources */,
 				88B58FC92732394E00B83DCC /* SAItemEventObject.m in Sources */,

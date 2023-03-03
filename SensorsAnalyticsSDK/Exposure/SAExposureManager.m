@@ -33,6 +33,7 @@
 #import "UIViewController+ExposureListener.h"
 #import "SAMethodHelper.h"
 #import "SALog.h"
+#import "NSObject+SAKeyValueObserver.h"
 
 
 static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
@@ -150,6 +151,7 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
     [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_exposure_viewDidAppear:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_exposure_viewDidDisappear:) error:NULL];
+    [NSObject sa_swizzleMethod:NSSelectorFromString(@"dealloc") withMethod:@selector(sensorsdata_dealloc) error:NULL];
 }
 
 - (void)applicationDidEnterBackground {

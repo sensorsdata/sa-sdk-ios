@@ -26,10 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)sensorsdata_didMoveToSuperview;
 
-/// exposure mark to improve performance on some APIs, such as didMoveToWindow
-@property (nonatomic, copy, nullable) NSString *sensorsdata_exposureMark;
-
-@property (nonatomic, strong) NSHashTable *sensorsdata_exposure_observers;
+@property (nonatomic, copy) NSString *sensorsdata_exposureMark;
 
 @end
 

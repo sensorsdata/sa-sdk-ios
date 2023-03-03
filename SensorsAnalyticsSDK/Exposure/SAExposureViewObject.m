@@ -33,6 +33,7 @@
 #import "UIView+ExposureListener.h"
 #import "SALog.h"
 #import "UIView+SAInternalProperties.h"
+#import "NSObject+SAKeyValueObserver.h"
 
 static void * const kSAExposureViewFrameContext = (void*)&kSAExposureViewFrameContext;
 static void * const kSAExposureViewAlphaContext = (void*)&kSAExposureViewAlphaContext;
@@ -60,50 +61,13 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
 }
 
 - (void)addExposureViewObserver {
-    [self.view addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewFrameContext];
-    [self.view addObserver:self forKeyPath:@"alpha" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewAlphaContext];
-    [self.view addObserver:self forKeyPath:@"hidden" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewHiddenContext];
-    if ([self.view.sensorsdata_exposure_observers containsObject:self]) {
-        [self.view.sensorsdata_exposure_observers addObject:self];
-    }
-}
-
-- (void)removeExposureObserver {
-    [self removeExposureViewObserver];
-    [self removeExposureScrollViewObserver];
-}
-
-- (void)removeExposureViewObserver {
-    if (!self.view.observationInfo || ![self.view.sensorsdata_exposure_observers containsObject:self]) {
-        return;
-    }
-    @try {
-        [self.view removeObserver:self forKeyPath:@"frame" context:kSAExposureViewFrameContext];
-        [self.view removeObserver:self forKeyPath:@"alpha" context:kSAExposureViewAlphaContext];
-        [self.view removeObserver:self forKeyPath:@"hidden" context:kSAExposureViewHiddenContext];
-    } @catch (NSException *exception) {
-        SALogError(@"%@", exception);
-    } @finally {
-        [self.view.sensorsdata_exposure_observers removeObject:self];
-    }
-}
-
-- (void)removeExposureScrollViewObserver {
-    if (!self.scrollView.observationInfo || ![self.scrollView.sensorsdata_exposure_observers containsObject:self]) {
-        return;
-    }
-    @try {
-        [self.scrollView removeObserver:self forKeyPath:@"contentOffset" context:kSAExposureViewContentOffsetContext];
-    } @catch (NSException *exception) {
-        SALogError(@"%@", exception);
-    } @finally {
-        [self.scrollView.sensorsdata_exposure_observers removeObject:self];
-    }
+    [self.view sensorsdata_addObserver:self forKeyPath:@"frame" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewFrameContext];
+    [self.view sensorsdata_addObserver:self forKeyPath:@"alpha" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewAlphaContext];
+    [self.view sensorsdata_addObserver:self forKeyPath:@"hidden" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewHiddenContext];
 }
 
 - (void)clear {
     [self.timer invalidate];
-    [self removeExposureObserver];
 }
 
 - (void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary *)change context:(void *)context
@@ -364,25 +328,14 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     if (_scrollView == scrollView) {
         return;
     }
-    @try {
-        [self removeExposureScrollViewObserver];
-        if ([scrollView.sensorsdata_exposure_observers containsObject:self] && scrollView.observationInfo) {
-            [scrollView removeObserver:self forKeyPath:@"contentOffset" context:kSAExposureViewContentOffsetContext];
-        }
-        [scrollView addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewContentOffsetContext];
-        [scrollView.sensorsdata_exposure_observers addObject:self];
-    } @catch (NSException *exception) {
-        SALogError(@"%@", exception);
-    } @finally {
-        _scrollView = scrollView;
-    }
+    [scrollView sensorsdata_addObserver:self forKeyPath:@"contentOffset" options:NSKeyValueObservingOptionNew | NSKeyValueObservingOptionOld context:kSAExposureViewContentOffsetContext];
+    _scrollView = scrollView;
 }
 
 - (void)setView:(UIView *)view {
     if (_view == view) {
         return;
     }
-    [self removeExposureViewObserver];
     _view = view;
     [self addExposureViewObserver];
 }
