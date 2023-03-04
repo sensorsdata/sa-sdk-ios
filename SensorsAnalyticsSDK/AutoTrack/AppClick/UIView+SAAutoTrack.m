@@ -28,6 +28,9 @@
 #import <objc/runtime.h>
 #import "SAViewElementInfoFactory.h"
 #import "SAAutoTrackManager.h"
+#import "SAUIProperties.h"
+#import "UIView+SARNView.h"
+#import "UIView+SensorsAnalytics.h"
 
 static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClickIntervalPropertyName;
 
@@ -78,7 +81,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
         return nil;
 #pragma clang diagnostic pop
     }
-    if ([SAAutoTrackUtils isKindOfRNView:self]) { // RN 元素，https://reactnative.dev
+    if ([self isSensorsdataRNView]) { // RN 元素，https://reactnative.dev
         NSString *content = [self.accessibilityLabel stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             return content;
@@ -122,16 +125,6 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
     return self.sensorsAnalyticsViewID;
 }
 
-- (UIViewController *)sensorsdata_viewController {
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self];
-
-    // 获取当前 controller 作为 screen_name
-    if (!viewController || [viewController isKindOfClass:UIAlertController.class]) {
-        viewController = [SAAutoTrackUtils currentViewController];
-    }
-    return viewController;
-}
-
 @end
 
 @implementation UILabel (AutoTrack)
@@ -154,7 +147,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
 - (NSString *)sensorsdata_elementPosition {
     if ([NSStringFromClass(self.class) isEqualToString:@"UISegment"]) {
-        NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
+        NSInteger index = [SAUIProperties indexWithResponder:self];
         return index > 0 ? [NSString stringWithFormat:@"%ld", (long)index] : @"0";
     }
     return [super sensorsdata_elementPosition];
@@ -201,7 +194,7 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 - (NSString *)sensorsdata_elementPosition {
     // UITabBarItem
     if ([NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"]) {
-        NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
+        NSInteger index = [SAUIProperties indexWithResponder:self];
         if (index < 0) {
             index = 0;
         }

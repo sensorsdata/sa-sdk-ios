@@ -25,7 +25,6 @@
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
 #import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
 #import "SAViewNode.h"
 #import "SALog+Private.h"
 #import "UIView+SAVisualProperties.h"

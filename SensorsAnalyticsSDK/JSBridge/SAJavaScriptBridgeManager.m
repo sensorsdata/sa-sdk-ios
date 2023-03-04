@@ -105,10 +105,6 @@
 }
 
 - (void)addScriptMessageHandlerWithWebView:(WKWebView *)webView {
-    if ([SAModuleManager.sharedInstance isDisableSDK]) {
-        return;
-    }
-
     NSAssert([webView isKindOfClass:[WKWebView class]], @"This injection solution only supports WKWebView! ❌");
     if (![webView isKindOfClass:[WKWebView class]]) {
         return;
@@ -192,7 +188,7 @@
              app_alert：H5 弹框信息，提示配置错误信息；
              page_info：H5 页面信息，包括 url、title 和 lib_version
              */
-            [[NSNotificationCenter defaultCenter] postNotificationName:SA_VISUALIZED_H5_MESSAGE_NOTIFICATION object:message];
+            [[NSNotificationCenter defaultCenter] postNotificationName:kSAVisualizedMessageFromH5Notification object:message];
         } else if ([callType isEqualToString:@"abtest"]) {
             // 通知 SensorsABTest，接收到 H5 的请求数据
             [[NSNotificationCenter defaultCenter] postNotificationName:SA_H5_MESSAGE_NOTIFICATION object:message];

@@ -25,6 +25,11 @@
 #import "SAConfigOptions.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
+#if __has_include("SAExposureConfig.h")
+#import "SAExposureConfig.h"
+#endif
+#import "SALimitKeyManager.h"
+
 /// session 中事件最大间隔 5 分钟（单位为秒）
 static const NSUInteger kSASessionMaxInterval = 5 * 60;
 
@@ -69,6 +74,10 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 @property (nonatomic, assign) BOOL enableChannelMatch;
 @property (nonatomic, assign) BOOL enableDeepLink;
 @property (nonatomic, assign) BOOL enableAutoTrack;
+
+#if __has_include("SAExposureConfig.h")
+@property (nonatomic, copy) SAExposureConfig *exposureConfig;
+#endif
 
 @end
 
@@ -115,6 +124,10 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 
         _storePlugins = [NSMutableArray array];
         _ignoredPageLeaveClasses = [NSSet set];
+        _propertyPlugins = [NSMutableArray array];
+#if __has_include("SAExposureConfig.h")
+        _exposureConfig = [[SAExposureConfig alloc] initWithAreaRate:0 stayDuration:0 repeated:YES];
+#endif
     }
     return self;
 }
@@ -136,6 +149,8 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.enableSession = self.enableSession;
     options.eventSessionTimeout = self.eventSessionTimeout;
     options.disableDeviceId = self.disableDeviceId;
+    options.propertyPlugins = self.propertyPlugins;
+    options.instantEvents = self.instantEvents;
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书
@@ -177,6 +192,9 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.enableDeepLink = self.enableDeepLink;
     options.enableAutoTrack = self.enableAutoTrack;
     options.customADChannelURL = self.customADChannelURL;
+#if __has_include("SAExposureConfig.h")
+    options.exposureConfig = self.exposureConfig;
+#endif
 #endif
     
     return options;
@@ -214,6 +232,12 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     }
 }
 
+- (void)setInstantEvents:(NSArray<NSString *> *)instantEvents {
+    if ([instantEvents isKindOfClass:[NSArray class]]) {
+        _instantEvents = instantEvents;
+    }
+}
+
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin {
     [self.storePlugins addObject:plugin];
 }
@@ -223,6 +247,17 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
         return;
     }
     self.ignoredPageLeaveClasses = [NSSet setWithArray:viewControllers];
+}
+
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin {
+    if (![plugin isKindOfClass:SAPropertyPlugin.class]) {
+        return;
+    }
+    [self.propertyPlugins addObject:plugin];
+}
+
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys {
+    [SALimitKeyManager registerLimitKeys:keys];
 }
 
 @end

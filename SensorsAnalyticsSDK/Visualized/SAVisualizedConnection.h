@@ -20,6 +20,8 @@
 
 #import <Foundation/Foundation.h>
 
+
+
 @protocol SAVisualizedMessage;
 
 @interface SAVisualizedConnection : NSObject

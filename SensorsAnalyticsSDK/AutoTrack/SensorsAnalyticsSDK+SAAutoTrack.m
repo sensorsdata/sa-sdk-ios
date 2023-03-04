@@ -29,6 +29,7 @@
 #import "SAModuleManager.h"
 #import "SAWeakPropertyContainer.h"
 #include <objc/runtime.h>
+#import "SAUIProperties.h"
 
 @implementation UIImage (SensorsAnalytics)
 
@@ -42,62 +43,12 @@
 
 @end
 
-@implementation UIView (SensorsAnalytics)
-
-//viewID
-- (NSString *)sensorsAnalyticsViewID {
-    return objc_getAssociatedObject(self, @"sensorsAnalyticsViewID");
-}
-
-- (void)setSensorsAnalyticsViewID:(NSString *)sensorsAnalyticsViewID {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsViewID", sensorsAnalyticsViewID, OBJC_ASSOCIATION_COPY_NONATOMIC);
-}
-
-//ignoreView
-- (BOOL)sensorsAnalyticsIgnoreView {
-    return [objc_getAssociatedObject(self, @"sensorsAnalyticsIgnoreView") boolValue];
-}
-
-- (void)setSensorsAnalyticsIgnoreView:(BOOL)sensorsAnalyticsIgnoreView {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsIgnoreView", [NSNumber numberWithBool:sensorsAnalyticsIgnoreView], OBJC_ASSOCIATION_ASSIGN);
-}
-
-//afterSendAction
-- (BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
-    return [objc_getAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction") boolValue];
-}
-
-- (void)setSensorsAnalyticsAutoTrackAfterSendAction:(BOOL)sensorsAnalyticsAutoTrackAfterSendAction {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsAutoTrackAfterSendAction", [NSNumber numberWithBool:sensorsAnalyticsAutoTrackAfterSendAction], OBJC_ASSOCIATION_ASSIGN);
-}
-
-//viewProperty
-- (NSDictionary *)sensorsAnalyticsViewProperties {
-    return objc_getAssociatedObject(self, @"sensorsAnalyticsViewProperties");
-}
-
-- (void)setSensorsAnalyticsViewProperties:(NSDictionary *)sensorsAnalyticsViewProperties {
-    objc_setAssociatedObject(self, @"sensorsAnalyticsViewProperties", sensorsAnalyticsViewProperties, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-- (id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    SAWeakPropertyContainer *container = objc_getAssociatedObject(self, @"sensorsAnalyticsDelegate");
-    return container.weakProperty;
-}
-
-- (void)setSensorsAnalyticsDelegate:(id<SAUIViewAutoTrackDelegate>)sensorsAnalyticsDelegate {
-    SAWeakPropertyContainer *container = [SAWeakPropertyContainer containerWithWeakProperty:sensorsAnalyticsDelegate];
-    objc_setAssociatedObject(self, @"sensorsAnalyticsDelegate", container, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-@end
-
 #pragma mark -
 
 @implementation SensorsAnalyticsSDK (SAAutoTrack)
 
 - (UIViewController *)currentViewController {
-    return [SAAutoTrackUtils currentViewController];
+    return [SAUIProperties currentViewController];
 }
 
 - (BOOL)isAutoTrackEnabled {

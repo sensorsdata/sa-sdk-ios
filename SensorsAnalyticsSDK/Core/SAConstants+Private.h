@@ -155,7 +155,8 @@ extern NSNotificationName const SA_H5_MESSAGE_NOTIFICATION;
 #pragma mark - SA notifications
 extern NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION;
 
-extern NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION;
+/// 接收 App 内嵌 H5 可视化相关页面元素信息
+extern NSNotificationName const kSAVisualizedMessageFromH5Notification;
 
 // page leave
 extern NSString * const kSAEventDurationProperty;
@@ -173,3 +174,6 @@ extern NSString * const kSAWebVisualEventName;
 extern NSString * const kSAAppVisualProperties;
 /// 内嵌 H5 可视化全埋点 Web 自定义属性配置
 extern NSString * const kSAWebVisualProperties;
+
+/// is instant event
+extern NSString * const kSAInstantEventKey;

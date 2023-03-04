@@ -79,10 +79,15 @@
             properties[kSAEventPropertyDeepLinkFailReason] = result ? result[kSAResponsePropertyMessage] : @"response is null";
             properties[kSAEventPropertyADSLinkID] = result[kSAResponsePropertySLinkID];
             properties[kSADynamicSlinkEventPropertyTemplateID] = result[kSADynamicSlinkParamTemplateID];
-            properties[kSADynamicSlinkEventPropertyType] = result[kSADynamicSlinkParamType];;
+            properties[kSADynamicSlinkEventPropertyType] = result[kSADynamicSlinkParamType];
+            NSDictionary *customParams = result[kSADynamicSlinkResponseKeyCustomParams];
+            if ([customParams isKindOfClass:[NSDictionary class]] && customParams.allKeys.count > 0) {
+                properties[kSADynamicSlinkEventPropertyCustomParams] = [SAJSONUtil stringWithJSONObject:customParams];
+            }
             obj.params = result[kSAResponsePropertyParameter];
             obj.adChannels = result[kSAResponsePropertyADChannel];
             obj.success = (result[kSAResponsePropertyCode] && [result[kSAResponsePropertyCode] integerValue] == 0);
+            obj.customParams = result[kSADynamicSlinkResponseKeyCustomParams];
 
             // Result 事件中添加 $utm_* 属性
             [properties addEntriesFromDictionary:[self acquireChannels:result[kSAResponsePropertyChannelParams]]];
@@ -122,6 +127,7 @@
             jumpProps[kSAEventPropertyADSLinkID] = slinkID;
             jumpProps[kSADynamicSlinkEventPropertyTemplateID] = properties[kSADynamicSlinkEventPropertyTemplateID];
             jumpProps[kSADynamicSlinkEventPropertyType] = properties[kSADynamicSlinkEventPropertyType];
+            jumpProps[kSADynamicSlinkEventPropertyCustomParams] = properties[kSADynamicSlinkEventPropertyCustomParams];
 
             [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:jumpProps];
 

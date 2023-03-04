@@ -37,6 +37,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable SATaskObject *)taskForID:(NSString *)taskID;
 
 + (NSDictionary<NSString *, SAFlowObject *> *)loadFromBundle:(NSBundle *)bundle;
++ (NSDictionary<NSString *, SAFlowObject *> *)loadFromResources:(NSArray *)array;
+
 @end
 
 NS_ASSUME_NONNULL_END

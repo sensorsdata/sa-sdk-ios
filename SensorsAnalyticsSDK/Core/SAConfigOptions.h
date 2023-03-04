@@ -21,6 +21,7 @@
 #import <Foundation/Foundation.h>
 #import "SAStorePlugin.h"
 #import "SAConstants.h"
+#import "SAPropertyPlugin.h"
 
 @class SASecretKey;
 @class SASecurityPolicy;
@@ -124,7 +125,20 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否禁用采集 deviceId
 @property (nonatomic, assign) BOOL disableDeviceId;
 
+/// set instant events
+@property (nonatomic, copy) NSArray<NSString *> *instantEvents;
+
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
+
+/**
+ * @abstract
+ * 注册属性插件
+ *
+ * @param plugin 属性插件对象
+ */
+- (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
+
+- (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys;
 
 @end
 

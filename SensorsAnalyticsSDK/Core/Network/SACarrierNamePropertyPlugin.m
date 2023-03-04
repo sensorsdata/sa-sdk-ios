@@ -26,6 +26,8 @@
 #import "SAJSONUtil.h"
 #import "SALog.h"
 #import "SAConstants+Private.h"
+#import "SALimitKeyManager.h"
+#import "SAValidator.h"
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
@@ -144,6 +146,10 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
 }
 
 - (NSDictionary<NSString *,id> *)properties {
+    NSString *carrier = [SALimitKeyManager carrier];
+    if ([SAValidator isValidString:carrier]) {
+        return @{kSAEventPresetPropertyCarrier: carrier};
+    }
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
     props[kSAEventPresetPropertyCarrier] = [self currentCarrierName];

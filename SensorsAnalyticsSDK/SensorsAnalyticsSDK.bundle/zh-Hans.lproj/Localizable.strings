@@ -21,26 +21,29 @@
 "SADebugNotes" = "SensorsData 重要提示";
 
 // 可视化全埋点
+"SAVisualizedAutoTrack" = "可视化全埋点";
+"SAVisualizedPageErrorTitle" = "当前页面无法进行可视化全埋点";
+"SAVisualizedConfigurationDocument" = "配置文档";
 "SAVisualizedConnect" = "正在连接 App 可视化全埋点";
 "SAVisualizedWifi" = "，建议在 WiFi 环境下使用";
 "SAVisualizedProjectError" = "App 集成的项目与电脑浏览器打开的项目不同，无法进行可视化全埋点";
 "SAVisualizedEnableLogHint" = "可视化全埋点进入 Debug 模式，需要开启日志打印用于收集调试信息，退出 Debug 模式关闭日志打印，是否需要开启呢？";
 "SAVisualizedEnableLogAction" = "开启日志打印";
 "SAVisualizedTemporarilyDisabled" = "暂不开启";
-"SAVisualizedPageErrorTitle" = "当前页面无法进行可视化全埋点";
-"SAVisualizedPageErrorMessage" = "此页面不是 WKWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
-"SAVisualizedConfigurationDocument" = "配置文档";
+"SAVisualizedWebPageErrorMessage" = "此页面不是 WKWebView，iOS App 内嵌 H5 可视化全埋点，只支持 WKWebView";
 "SAVisualizedJSError" = "此页面未集成 Web JS SDK 或者 Web JS SDK 版本过低，请集成最新版 Web JS SDK";
 "SAVisualizedSDKError" = "SDK 没有被正确集成，请联系贵方技术人员开启可视化全埋点";
 "SAVisualizedParameterError" = "参数错误";
-"SAVisualizedAutoTrack" = "可视化全埋点";
+// Flutter 可视化
+"SAVisualizedFlutterPageErrorMessage" = "此页面未集成 Flutter 全埋点 SDK 或 Flutter 全埋点 SDK 版本过低，请集成最新版 Flutter 全埋点 SDK";
+
 
 // 点击分析
 "SAAppClicksAnalyticsConnect" = "正在连接 App 点击分析";
 "SAAppClicksAnalyticsSDKError" = "SDK 没有被正确集成，请联系贵方技术人员开启点击分析";
 "SAAppClicksAnalyticsProjectError" = "App 集成的项目与电脑浏览器打开的项目不同，无法进行点击分析";
 "SAAppClicksAnalyticsPageErrorTitle" = "当前页面无法进行点击分析";
-"SAAppClicksAnalyticsPageErrorMessage" = "此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
+"SAAppClicksAnalyticsPageWebErrorMessage" = "此页面包含 UIWebView，iOS App 内嵌 H5 点击分析，只支持 WKWebView";
 "SAAppClicksAnalytics" = "点击分析";
 
 // 远程配置

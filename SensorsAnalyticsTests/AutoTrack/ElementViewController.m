@@ -110,13 +110,13 @@
 }
 
 - (void)setupTableView {
-    _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_scrollView.frame), CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)/2)];
-    _tableView.dataSource = self;
-    _tableView.delegate = self;
-    _tableView.sensorsAnalyticsDelegate = self;
-    [self.view addSubview:_tableView];
+    self.tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_scrollView.frame), CGRectGetWidth(self.view.frame), CGRectGetHeight(self.view.frame)/2)];
+    self.tableView.dataSource = self;
+    self.tableView.delegate = self;
+    self.tableView.sensorsAnalyticsDelegate = self;
+    [self.view addSubview:self.tableView];
 
-    [_tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
+    [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:@"UITableViewCell"];
 }
 
 - (void)firstAction:(UIButton *)sender {

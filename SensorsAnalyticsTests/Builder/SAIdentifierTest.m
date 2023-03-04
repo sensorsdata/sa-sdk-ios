@@ -244,22 +244,23 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
 }
 
 #pragma mark - identities - identify & reset
-- (void)testIdentitiesAfterIdentify {
-    NSString *newId = @"xxx-xxx-xxx";
-    [_identifier identify:newId];
-    XCTAssertTrue([_identifier.identities[kAnonymousId] isEqualToString:newId]);
-}
-
-- (void)testIdentitiesAfterResetAnonymousId {
-    [_identifier resetAnonymousId];
-    XCTAssertNil(_identifier.identities[kAnonymousId]);
-}
-
-- (void)testIdentitiesAfterIdentitfyAndReset {
-    [_identifier identify:@"xxx-xxx-xxx-123"];
-    [_identifier resetAnonymousId];
-    XCTAssertNotNil(_identifier.identities[kAnonymousId]);
-}
+// ID-Mapping 3.0 remove all about [$identity_anonymous_id] code
+//- (void)testIdentitiesAfterIdentify {
+//    NSString *newId = @"xxx-xxx-xxx";
+//    [_identifier identify:newId];
+//    XCTAssertTrue([_identifier.identities[kAnonymousId] isEqualToString:newId]);
+//}
+//
+//- (void)testIdentitiesAfterResetAnonymousId {
+//    [_identifier resetAnonymousId];
+//    XCTAssertNil(_identifier.identities[kAnonymousId]);
+//}
+//
+//- (void)testIdentitiesAfterIdentitfyAndReset {
+//    [_identifier identify:@"xxx-xxx-xxx-123"];
+//    [_identifier resetAnonymousId];
+//    XCTAssertNotNil(_identifier.identities[kAnonymousId]);
+//}
 
 #pragma mark - identities - add
 - (void)testAddIdentityForNormal {

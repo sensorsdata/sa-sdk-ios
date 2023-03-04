@@ -27,6 +27,8 @@
 #import "SAAlertController.h"
 #import "SAAutoTrackUtils.h"
 #import "SAJSONUtil.h"
+#import "SAUIProperties.h"
+#import "SAAutoTrackResources.h"
 
 static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIView *view) {
     NSMutableArray *subViews = [NSMutableArray array];
@@ -74,19 +76,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
 
 #pragma mark - private method
 - (BOOL)isIgnoreWithView:(UIView *)view {
-    static dispatch_once_t onceToken;
-    static id info = nil;
-    dispatch_once(&onceToken, ^{
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        NSString *jsonPath = [sensorsBundle pathForResource:@"sa_autotrack_gestureview_blacklist.json" ofType:nil];
-        NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-        if (jsonData) {
-            info = [SAJSONUtil JSONObjectWithData:jsonData];
-        }
-    });
-    if (![info isKindOfClass:NSDictionary.class]) {
-        return NO;
-    }
+    NSDictionary *info = [SAAutoTrackResources gestureViewBlacklist];
     // 公开类名使用 - isKindOfClass: 判断
     id publicClasses = info[@"public"];
     if ([publicClasses isKindOfClass:NSArray.class]) {
@@ -116,7 +106,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAUIProperties findNextViewControllerByResponder:self.gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }
@@ -145,7 +135,7 @@ static NSArray <UIView *>* sensorsdata_searchVisualSubView(NSString *type, UIVie
         return NO;
     }
     // 屏蔽 SAAlertController 的点击事件
-    UIViewController *viewController = [SAAutoTrackUtils findNextViewControllerByResponder:self.gesture.view];
+    UIViewController *viewController = [SAUIProperties findNextViewControllerByResponder:self.gesture.view];
     if ([viewController isKindOfClass:UIAlertController.class] && [viewController.nextResponder isKindOfClass:SAAlertController.class]) {
         return NO;
     }

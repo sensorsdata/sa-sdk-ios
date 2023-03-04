@@ -25,7 +25,6 @@
 #import "SAVisualPropertiesConfigSources.h"
 #import "UIViewController+SAAutoTrack.h"
 #import "SAConstants+Private.h"
-#import "SAAutoTrackUtils.h"
 #import "SAReadWriteLock.h"
 #import "SAReachability.h"
 #import "SAStoreManager.h"
@@ -135,12 +134,13 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
 }
 
 - (void)requestConfigWithCompletionHandler:(SAVisualPropertiesConfigCompletionHandler)completionHandler {
-    
-    if (![SAReachability sharedInstance].reachable) {
-        SALogWarn(@"The current network is unavailable, please check the network !");
-        completionHandler(NO, nil);
-        return;
-    }
+
+    // SAReachability 同步网络判断存在延迟，冷启动后立即判断，可能误判为 NO
+    //    if (![SAReachability sharedInstance].reachable) {
+    //        SALogWarn(@"The current network is unavailable, please check the network !");
+    //        completionHandler(NO, nil);
+    //        return;
+    //    }
     
     // 拼接请求参数
     NSURLRequest *request = [self buildConfigRequest];
@@ -151,7 +151,7 @@ static NSTimeInterval const kRequestconfigRetryIntervalTime = 30;
     NSURLSessionDataTask *task = [SAHTTPSession.sharedInstance dataTaskWithRequest:request completionHandler:^(NSData *_Nullable data, NSHTTPURLResponse *_Nullable response, NSError *_Nullable error) {
         NSInteger statusCode = response.statusCode;
         /* statusCode 说明
-         200：正常请求并正确返回配置
+         200：正常请求并正确返回配置，或删除全部可视化全埋点事件（events 字段为空数组）
          304：如果本地配置和后端最新版本相同，则返回 304，同时配置为空
          205：配置不存在（未创建可视化全埋点事件或运维关闭自定义属性），此时配置为空，返回 205
          404：当前环境未包含此接口，可能 SA 版本比较低，暂不支持自定义属性

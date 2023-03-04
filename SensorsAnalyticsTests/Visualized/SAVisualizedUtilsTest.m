@@ -24,6 +24,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAAutoTrackUtils.h"
 #import "ElementViewController.h"
+#import "NSObject+SADelegateProxy.h"
 
 @interface SAVisualizedUtilsTest : XCTestCase
 @property (nonatomic, strong) UIWindow *window;

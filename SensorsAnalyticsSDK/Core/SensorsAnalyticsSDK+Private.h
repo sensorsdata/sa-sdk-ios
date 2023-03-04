@@ -83,6 +83,8 @@
 //忽略页面浏览时长的页面
 @property  (nonatomic, copy) NSSet<Class> *ignoredPageLeaveClasses;
 
+@property (atomic, strong) NSMutableArray<SAPropertyPlugin *> *propertyPlugins;
+
 @end
 
 #endif /* SensorsAnalyticsSDK_priv_h */

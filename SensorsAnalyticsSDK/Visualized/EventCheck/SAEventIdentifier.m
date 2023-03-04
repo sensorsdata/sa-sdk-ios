@@ -25,7 +25,6 @@
 #import "SAEventIdentifier.h"
 #import "UIViewController+SAAutoTrack.h"
 #import "SAConstants+Private.h"
-#import "SAAutoTrackUtils.h"
 
 @implementation SAEventIdentifier
 

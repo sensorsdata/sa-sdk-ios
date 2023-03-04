@@ -179,8 +179,8 @@ NSNotificationName const SA_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsMessageF
 // 远程配置更新
 NSNotificationName const SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION = @"cn.sensorsdata.SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION";
 
-// App 内嵌 H5 接收可视化相关 H5 页面元素信息
-NSNotificationName const SA_VISUALIZED_H5_MESSAGE_NOTIFICATION = @"SensorsAnalyticsVisualizedMessageFromH5Notification";
+// 接收 App 内嵌 H5 可视化相关页面元素信息
+NSNotificationName const kSAVisualizedMessageFromH5Notification = @"SensorsAnalyticsVisualizedMessageFromH5Notification";
 
 //page leave
 NSString * const kSAEventDurationProperty = @"event_duration";
@@ -200,3 +200,10 @@ NSString * const kSAAppVisualProperties = @"sensorsdata_app_visual_properties";
 /// App 内嵌 H5 的 Native 事件，属性配置中，需要 web 采集的属性
 NSString * const kSAWebVisualProperties = @"sensorsdata_js_visual_properties";
 
+SALimitKey const SALimitKeyIDFA = @"SALimitKeyIDFA";
+SALimitKey const SALimitKeyIDFV = @"SALimitKeyIDFV";
+SALimitKey const SALimitKeyCarrier = @"SALimitKeyCarrier";
+
+
+/// is instant event
+NSString * const kSAInstantEventKey = @"is_instant_event";

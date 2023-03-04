@@ -58,6 +58,9 @@ typedef void(^SAFlowDataCompletion)(SAFlowData *output);
 /// ID-Mapping 相关
 @property (nonatomic, strong, nullable) SAIdentifier *identifier;
 
+/// mark event is instant or not
+@property (nonatomic,assign) BOOL isInstantEvent;
+
 #pragma mark - store
 
 /// 单条数据记录

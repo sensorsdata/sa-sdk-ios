@@ -69,7 +69,7 @@
         return nil;
     }
 
-    NSUUID *uuid = ((NSUUID * (*)(id, SEL))[idfaManager methodForSelector:advertisingIdentifierSelector])(idfaManager, advertisingIdentifierSelector);;
+    NSUUID *uuid = ((NSUUID * (*)(id, SEL))[idfaManager methodForSelector:advertisingIdentifierSelector])(idfaManager, advertisingIdentifierSelector);
     NSString *idfa = [uuid UUIDString];
     // 在 iOS 10.0 以后，当用户开启限制广告跟踪，advertisingIdentifier 的值将是全零
     // 00000000-0000-0000-0000-000000000000

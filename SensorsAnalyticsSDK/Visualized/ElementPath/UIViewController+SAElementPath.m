@@ -24,13 +24,13 @@
 
 #import "UIViewController+SAElementPath.h"
 #import "SAVisualizedUtils.h"
-#import "SAAutoTrackUtils.h"
-#import "UIView+SAElementPath.h"
+#import "UIView+SAVisualizedViewPath.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedObjectSerializerManager.h"
 #import "SAVisualizedManager.h"
 #import "SAAutoTrackManager.h"
+#import "SAUIProperties.h"
 
 @implementation UIViewController (SAElementPath)
 
@@ -105,19 +105,6 @@
     }
     // 保存最后一次页面浏览所在的 controller，用于可视化全埋点定义页面浏览
     [[SAVisualizedObjectSerializerManager sharedInstance] enterViewController:self];
-}
-
-@end
-
-@implementation UIAlertController (SAElementPath)
-
-- (NSString *)sensorsdata_similarPath {
-    NSString *className = NSStringFromClass(self.class);
-    NSInteger index = [SAAutoTrackUtils itemIndexForResponder:self];
-    if (index < 0) { // -1
-        return className;
-    }
-    return [NSString stringWithFormat:@"%@[%ld]", className, (long)index];
 }
 
 @end

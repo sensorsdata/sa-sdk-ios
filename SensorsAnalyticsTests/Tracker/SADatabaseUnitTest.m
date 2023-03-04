@@ -66,7 +66,7 @@ static NSInteger maxCacheSize = 9999;
     record.type = type;
     BOOL success = [self.database insertRecord:record];
     XCTAssertTrue(success);
-    SAEventRecord *tempRecord = [self.database selectRecords:1].firstObject;
+    SAEventRecord *tempRecord = [self.database selectRecords:1 isInstantEvent:NO].firstObject;
     XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
@@ -77,7 +77,7 @@ static NSInteger maxCacheSize = 9999;
 //   record.content = content;
     record.type = type;
     [self.database insertRecord:record];
-    SAEventRecord *tempRecord = [self.database selectRecords:1].firstObject;
+    SAEventRecord *tempRecord = [self.database selectRecords:1 isInstantEvent:NO].firstObject;
     XCTAssertTrue(tempRecord != nil && [tempRecord.content isEqualToString:content]);
 }
 
@@ -92,11 +92,11 @@ static NSInteger maxCacheSize = 9999;
     }
     [self.database insertRecords:tempRecords];
     NSMutableArray <NSString *> *recordIDs = [NSMutableArray array];
-    for (SAEventRecord *record in [self.database selectRecords:maxCacheSize]) {
+    for (SAEventRecord *record in [self.database selectRecords:maxCacheSize isInstantEvent:NO]) {
         [recordIDs addObject:record.recordID];
     }
     [self.database deleteRecords:recordIDs];
-    XCTAssertTrue([self.database selectRecords:maxCacheSize].count == 0);
+    XCTAssertTrue([self.database selectRecords:maxCacheSize isInstantEvent:NO].count == 0);
 }
 
 - (void)testBulkInsertRecords {
@@ -109,7 +109,7 @@ static NSInteger maxCacheSize = 9999;
         [tempRecords addObject:record];
     }
     [self.database insertRecords:tempRecords];
-    NSArray<SAEventRecord *> *fetchRecords = [self.database selectRecords:maxCacheSize];
+    NSArray<SAEventRecord *> *fetchRecords = [self.database selectRecords:maxCacheSize isInstantEvent:NO];
     if (fetchRecords.count != maxCacheSize) {
         XCTAssertFalse(true);
         return;
@@ -134,7 +134,7 @@ static NSInteger maxCacheSize = 9999;
     }
     [self.database insertRecords:tempRecords];
     [self.database deleteAllRecords];
-    XCTAssertTrue([self.database selectRecords:maxCacheSize].count == 0);
+    XCTAssertTrue([self.database selectRecords:maxCacheSize isInstantEvent:NO].count == 0);
 }
 
 @end

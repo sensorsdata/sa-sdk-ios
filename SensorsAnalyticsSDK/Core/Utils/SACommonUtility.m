@@ -84,8 +84,8 @@
      在 iOS 中 NSData 的 hash 实现，仅使用数据的前 80 个字节来计算哈希，参考：https://opensource.apple.com/source/CF/CF-635.21/CFData.c
      */
     NSString *base64String = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-    NSUInteger hash = [base64String hash];
-    return [NSString stringWithFormat:@"%ld",hash];
+    NSNumber *hashNumber = [NSNumber numberWithUnsignedInteger:[base64String hash]];
+    return [hashNumber stringValue];
 }
 
 @end

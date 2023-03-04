@@ -26,49 +26,13 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAAutoTrackUtils : NSObject
 
-#if UIKIT_DEFINE_AS_PROPERTIES
-/// 返回当前的 ViewController
-@property(class, nonatomic, readonly) UIViewController *currentViewController;
-#else
-+ (UIViewController *)currentViewController;
-#endif
-
-/**
- 获取响应链中的下一个 UIViewController
-
- @param responder 响应链中的对象
- @return 下一个 ViewController
- */
-+ (nullable UIViewController *)findNextViewControllerByResponder:(UIResponder *)responder;
-
 /// 在间隔时间内是否采集 $AppClick 全埋点
 + (BOOL)isValidAppClickForObject:(id<SAAutoTrackViewProperty>)object;
 
-/// 判断是否为 RN 元素
-+ (BOOL)isKindOfRNView:(UIView *)view;
 @end
 
 #pragma mark -
 @interface SAAutoTrackUtils (Property)
-
-/**
- 通过响应链找到 对象的序号
-
- -1：nextResponder 不是父视图或同类元素，比如 controller.view，涉及路径不带序号
- >=0：元素序号
-
- @param responder 响应链中的对象，可以是 UIView 或者 UIViewController
- @return 序号
- */
-+ (NSInteger )itemIndexForResponder:(UIResponder *)responder;
-
-/**
- 采集 ViewController 中的事件属性
-
- @param viewController 需要采集的 ViewController
- @return 事件中与 ViewController 相关的属性字典
- */
-+ (NSMutableDictionary<NSString *, NSString *> *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController;
 
 /**
  通过 AutoTrack 控件，获取事件的属性

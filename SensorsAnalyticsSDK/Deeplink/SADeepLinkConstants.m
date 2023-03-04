@@ -101,6 +101,7 @@ NSString *const kSADynamicSlinkEventPropertyID = @"$ad_slink_id";
 NSString *const kSADynamicSlinkEventPropertyTemplateID = @"$ad_slink_template_id";
 NSString *const kSADynamicSlinkEventPropertyType = @"$ad_slink_type";
 NSString *const kSADynamicSlinkEventPropertyTypeDynamic = @"dynamic";
+NSString *const kSADynamicSlinkEventPropertyCustomParams = @"$sat_slink_custom_params";
 
 //dynamic slink API path
 NSString *const kSADynamicSlinkAPIPath = @"slink/dynamic/links";
@@ -124,4 +125,7 @@ NSString *const kSADynamicSlinkParamURIScheme = @"uri_scheme_suffix";
 NSString *const kSADynamicSlinkParamLandingPageType = @"landing_page_type";
 NSString *const kSADynamicSlinkParamLandingPage = @"other_landing_page_map";
 NSString *const kSADynamicSlinkParamJumpAddress = @"jump_address";
+NSString *const kSADynamicSlinkParamSystemParams = @"system_param";
 
+//slink response key
+NSString *const kSADynamicSlinkResponseKeyCustomParams = @"custom_params";

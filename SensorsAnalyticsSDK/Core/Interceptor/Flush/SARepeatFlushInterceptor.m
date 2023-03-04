@@ -42,6 +42,7 @@ static NSInteger const kSAFlushMaxRepeatCount = 100;
     SAFlowData *inputData = [[SAFlowData alloc] init];
     inputData.cookie = input.cookie;
     inputData.repeatCount = input.repeatCount + 1;
+    inputData.isInstantEvent = input.isInstantEvent;
     // 当前已处于 serialQueue，不必再切队列
     [SAFlowManager.sharedInstance startWithFlowID:kSAFlushFlowId input:inputData completion:^(SAFlowData * _Nonnull output) {
         completion(output);

@@ -33,6 +33,8 @@
 #import "SAConstants+Private.h"
 #import "SAVisualizedManager.h"
 #import "SAVisualizedLogger.h"
+#import "SAFlutterPluginBridge.h"
+#import "SAVisualizedResources.h"
 
 @interface SAVisualizedConnection ()
 @property (nonatomic, strong) NSTimer *timer;
@@ -69,7 +71,7 @@
     [notificationCenter addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
     [notificationCenter addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
 
-    [notificationCenter addObserver:self selector:@selector(receiveVisualizedMessageFromH5:) name:SA_VISUALIZED_H5_MESSAGE_NOTIFICATION object:nil];
+    [notificationCenter addObserver:self selector:@selector(receiveVisualizedMessageFromH5:) name:kSAVisualizedMessageFromH5Notification object:nil];
 }
 
 #pragma mark notification Action
@@ -85,6 +87,7 @@
     [self stopSendMessageTimer];
 }
 
+// App 内嵌 H5 的页面信息，包括页面元素、提示弹框、页面信息
 - (void)receiveVisualizedMessageFromH5:(NSNotification *)notification {
     WKScriptMessage *message = notification.object;
     WKWebView *webView = message.webView;
@@ -102,23 +105,33 @@
     [[SAVisualizedObjectSerializerManager sharedInstance] saveVisualizedWebPageInfoWithWebView:webView webPageInfo:messageDic];
 }
 
+
 /// 开始计时
 - (void)startSendMessageTimer {
     _commandQueue.suspended = NO;
-    if (self.timer && [self.timer isValid]) {
-        // 恢复
-        [self.timer setFireDate:[NSDate date]];
+    if (!self.timer || ![self.timer isValid]) {
         return;
     }
+    // 恢复计时器
+    [self.timer setFireDate:[NSDate date]];
+
+    // 通知外部，开始可视化全埋点连接
+    [SAFlutterPluginBridge.sharedInstance changeVisualConnectionStatus:YES];
 }
 
 /// 暂停计时
 - (void)stopSendMessageTimer {
     _commandQueue.suspended = YES;
-    if (self.timer) {
-        // 暂停计时
-        [self.timer setFireDate:[NSDate distantFuture]];
+    
+    if (!self.timer || ![self.timer isValid]) {
+        return;
     }
+
+    // 暂停计时
+    [self.timer setFireDate:[NSDate distantFuture]];
+
+    // 通知外部，已断开可视化全埋点连接
+    [SAFlutterPluginBridge.sharedInstance changeVisualConnectionStatus:NO];
 }
 
 #pragma mark action
@@ -134,7 +147,6 @@
     }
 
     // 清空缓存的配置数据
-    [[SAVisualizedObjectSerializerManager sharedInstance] resetObjectSerializer];
     [[SAVisualizedObjectSerializerManager sharedInstance] cleanVisualizedWebPageInfoCache];
 
     // 关闭埋点校验
@@ -142,10 +154,15 @@
 
     // 关闭诊断信息收集
     [SAVisualizedManager.defaultManager.visualPropertiesTracker enableCollectDebugLog:NO];
+
+    // 通知外部，已断开可视化全埋点连接
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [SAFlutterPluginBridge.sharedInstance changeVisualConnectionStatus:NO];
+    });
 }
 
 - (BOOL)isVisualizedConnecting {
-    return _timer && _timer.valid;
+    return self.timer && self.timer.isValid;
 }
 
 - (void)dealloc {
@@ -253,6 +270,9 @@
                                                 selector:@selector(handleMessage)
                                                 userInfo:nil
                                                  repeats:YES];
+
+    // 发送通知，通知 flutter 已进入可视化全埋点扫码模式
+    [SAFlutterPluginBridge.sharedInstance changeVisualConnectionStatus:YES];
 }
 
 - (void)handleMessage {
@@ -265,11 +285,7 @@
 }
 
 - (void)startConnectionWithFeatureCode:(NSString *)featureCode url:(NSString *)urlStr {
-    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-
-    NSString *jsonPath = [sensorsBundle pathForResource:@"sa_visualized_path.json" ofType:nil];
-    NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSString *jsonString = [[NSString alloc] initWithData:jsonData encoding:NSUTF8StringEncoding];
+    NSString *jsonString = [SAVisualizedResources visualizedPath];
     _commandQueue.suspended = NO;
     self->_connected = YES;
     [self startVisualizedTimer:jsonString featureCode:featureCode postURL:urlStr];

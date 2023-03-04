@@ -53,6 +53,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)insertNode:(SANodeObject *)node atIndex:(NSUInteger)index;
 
 + (NSDictionary<NSString *, SATaskObject *> *)loadFromBundle:(NSBundle *)bundle;
++ (NSDictionary<NSString *, SATaskObject *> *)loadFromResources:(NSArray *)array;
 
 @end
 

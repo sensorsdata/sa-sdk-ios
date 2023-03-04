@@ -29,6 +29,7 @@
 #import "UIScrollView+SAAutoTrack.h"
 #import "SAAutoTrackManager.h"
 #import <objc/message.h>
+#import "UIScrollView+SADelegateHashTable.h"
 
 @implementation SAScrollViewDelegateProxy
 

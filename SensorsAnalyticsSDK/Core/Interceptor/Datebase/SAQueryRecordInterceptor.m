@@ -37,7 +37,7 @@
 
     // 查询数据
     NSInteger queryCount = input.configOptions.debugMode != SensorsAnalyticsDebugOff ? 1 : 50;
-    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:queryCount];
+    NSArray<SAEventRecord *> *records = [self.eventStore selectRecords:queryCount isInstantEvent:input.isInstantEvent];
     if (records.count == 0) {
         input.state = SAFlowStateStop;
     } else {

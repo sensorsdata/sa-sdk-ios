@@ -24,7 +24,7 @@
 
 #import "SAViewNodeTree.h"
 #import "UIView+SAVisualProperties.h"
-#import "UIView+SAElementPath.h"
+#import "UIView+SAVisualizedViewPath.h"
 #import "SAConstants+Private.h"
 #import "SAVisualizedUtils.h"
 #import "SAViewNodeFactory.h"

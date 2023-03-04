@@ -31,6 +31,7 @@
 #import "UIViewController+SAAutoTrack.h"
 #import "SAAutoTrackUtils.h"
 #import "SAAutoTrackManager.h"
+#import "UIView+SensorsAnalytics.h"
 
 @implementation UIApplication (AutoTrack)
 
