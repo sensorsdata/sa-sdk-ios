@@ -27,10 +27,12 @@
 
 @interface SAReferrerManager ()
 
-@property (atomic, copy, readwrite) NSDictionary *referrerProperties;
-@property (atomic, copy, readwrite) NSString *referrerURL;
-@property (nonatomic, copy, readwrite) NSString *referrerTitle;
+@property (atomic, copy) NSDictionary *referrerProperties;
+@property (atomic, copy) NSString *referrerURL;
+@property (nonatomic, copy) NSString *referrerTitle;
 @property (nonatomic, copy) NSString *currentTitle;
+@property (nonatomic, copy) NSString *currentScreenUrl;
+@property (nonatomic, copy) NSDictionary *currentScreenProperties;
 
 @end
 
@@ -46,7 +48,8 @@
 }
 
 - (NSDictionary *)propertiesWithURL:(NSString *)currentURL eventProperties:(NSDictionary *)eventProperties {
-    NSString *referrerURL = self.referrerURL;
+    self.referrerURL = self.currentScreenUrl;
+    self.referrerProperties = self.currentScreenProperties;
     NSMutableDictionary *newProperties = [NSMutableDictionary dictionaryWithDictionary:eventProperties];
 
     // 客户自定义属性中包含 $url 时，以客户自定义内容为准
@@ -54,13 +57,14 @@
         newProperties[kSAEventPropertyScreenUrl] = currentURL;
     }
     // 客户自定义属性中包含 $referrer 时，以客户自定义内容为准
-    if (referrerURL && !newProperties[kSAEventPropertyScreenReferrerUrl]) {
-        newProperties[kSAEventPropertyScreenReferrerUrl] = referrerURL;
+    if (self.referrerURL && !newProperties[kSAEventPropertyScreenReferrerUrl]) {
+        newProperties[kSAEventPropertyScreenReferrerUrl] = self.referrerURL;
     }
-    // $referrer 内容以最终页面浏览事件中的 $url 为准
-    self.referrerURL = newProperties[kSAEventPropertyScreenUrl];
-    self.referrerProperties = newProperties;
 
+    NSMutableDictionary *lastScreenProperties = [NSMutableDictionary dictionaryWithDictionary:newProperties];
+    [lastScreenProperties removeObjectForKey:kSAEventPropertyScreenReferrerUrl];
+    self.currentScreenProperties = [lastScreenProperties copy];
+    self.currentScreenUrl = newProperties[kSAEventPropertyScreenUrl];
     dispatch_async(self.serialQueue, ^{
         [self cacheReferrerTitle:newProperties];
     });

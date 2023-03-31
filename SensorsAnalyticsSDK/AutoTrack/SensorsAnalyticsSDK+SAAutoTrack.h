@@ -194,4 +194,31 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface SensorsAnalyticsSDK (SAReferrer)
+
+
+/**
+ * @abstract
+ * 获取 LastScreenUrl
+ *
+ * @return LastScreenUrl
+ */
+- (NSString *)getLastScreenUrl API_UNAVAILABLE(macos);
+
+/**
+ * @abstract
+ * 获取 LastScreenTrackProperties
+ *
+ * @return LastScreenTrackProperties
+ */
+- (NSDictionary *)getLastScreenTrackProperties API_UNAVAILABLE(macos);
+
+/**
+ * @abstract
+ * App 退出或进到后台时清空 referrer，默认情况下不清空
+ */
+- (void)clearReferrerWhenAppEnd API_UNAVAILABLE(macos);
+
+@end
+
 NS_ASSUME_NONNULL_END

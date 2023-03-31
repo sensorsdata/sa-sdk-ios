@@ -30,6 +30,7 @@
 #import "SAWeakPropertyContainer.h"
 #include <objc/runtime.h>
 #import "SAUIProperties.h"
+#import "SAReferrerManager.h"
 
 @implementation UIImage (SensorsAnalytics)
 
@@ -113,6 +114,22 @@
         
         [SAAutoTrackManager.defaultManager updateAutoTrackEventType];
     }
+}
+
+@end
+
+@implementation SensorsAnalyticsSDK (SAReferrer)
+
+- (NSString *)getLastScreenUrl {
+    return [SAReferrerManager sharedInstance].referrerURL;
+}
+
+- (NSDictionary *)getLastScreenTrackProperties {
+    return [SAReferrerManager sharedInstance].referrerProperties;
+}
+
+- (void)clearReferrerWhenAppEnd {
+    [SAReferrerManager sharedInstance].isClearReferrer = YES;
 }
 
 @end

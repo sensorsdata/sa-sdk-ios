@@ -333,28 +333,6 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 
 /**
  * @abstract
- * 获取 LastScreenUrl
- *
- * @return LastScreenUrl
- */
-- (NSString *)getLastScreenUrl API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * App 退出或进到后台时清空 referrer，默认情况下不清空
- */
-- (void)clearReferrerWhenAppEnd API_UNAVAILABLE(macos);
-
-/**
- * @abstract
- * 获取 LastScreenTrackProperties
- *
- * @return LastScreenTrackProperties
- */
-- (NSDictionary *)getLastScreenTrackProperties API_UNAVAILABLE(macos);
-
-/**
- * @abstract
  * 修改入库之前的事件属性
  *
  * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
@@ -427,6 +405,14 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @param plugin 属性插件对象
  */
 - (void)registerPropertyPlugin:(SAPropertyPlugin *)plugin;
+
+/**
+ * @abstract
+ * 注销属性插件
+ *
+ * @param pluginClass 插件类型
+ */
+- (void)unregisterPropertyPluginWithPluginClass:(Class)pluginClass;
 
 /**
  * @abstract

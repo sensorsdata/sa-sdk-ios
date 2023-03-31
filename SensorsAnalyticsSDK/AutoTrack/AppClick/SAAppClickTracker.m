@@ -33,6 +33,7 @@
 #import "UIViewController+SAAutoTrack.h"
 #import "SAModuleManager.h"
 #import "SALog.h"
+#import "SAUIProperties.h"
 
 @interface SAAppClickTracker ()
 
@@ -149,7 +150,8 @@
 }
 
 - (BOOL)isIgnoreEventWithView:(UIView *)view {
-    return self.isIgnored || [self isViewTypeIgnored:[view class]];
+    UIViewController *viewController = [SAUIProperties findNextViewControllerByResponder:view];
+    return self.isIgnored || [self isViewTypeIgnored:[view class]] || [self isViewControllerIgnored:viewController];
 }
 
 #pragma mark – Private Methods

@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.5"
+#define VERSION @"4.5.6"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -845,6 +845,12 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     });
 }
 
+- (void)unregisterPropertyPluginWithPluginClass:(Class)pluginClass {
+    dispatch_async(self.serialQueue, ^{
+        [SAPropertyPluginManager.sharedInstance unregisterPropertyPluginWithPluginClass:pluginClass];
+    });
+}
+
 #pragma mark - Local caches
 
 - (void)startFlushTimer {
@@ -881,18 +887,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         }
         self.timer = nil;
     });
-}
-
-- (NSString *)getLastScreenUrl {
-    return [SAReferrerManager sharedInstance].referrerURL;
-}
-
-- (void)clearReferrerWhenAppEnd {
-    [SAReferrerManager sharedInstance].isClearReferrer = YES;
-}
-
-- (NSDictionary *)getLastScreenTrackProperties {
-    return [SAReferrerManager sharedInstance].referrerProperties;
 }
 
 - (SensorsAnalyticsDebugMode)debugMode {
@@ -999,9 +993,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #pragma mark - setup Flow
 
 - (void)trackEventObject:(SABaseEventObject *)object properties:(NSDictionary *)properties {
-    if (object.isSignUp) {
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
-    }
     NSString *eventName = object.event;
     if (!object.hybridH5 && eventName) {
         object.isInstantEvent = [self.configOptions.instantEvents containsObject:eventName];
@@ -1011,6 +1002,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     input.identifier = self.identifier;
     input.properties = [properties sensorsdata_deepCopy];
     [SAFlowManager.sharedInstance startWithFlowID:kSATrackFlowId input:input completion:nil];
+
+    // H5 打通场景，在 Flow 实现登录，通知放在最后，防止外部不能及时拿到最新 loginId
+    if (object.isSignUp) {
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_LOGIN_NOTIFICATION object:nil];
+    }
 }
 
 - (void)flushAllEventRecords {
