@@ -25,7 +25,7 @@
 #import "SARepeatFlushInterceptor.h"
 #import "SAFlowManager.h"
 
-static NSInteger const kSAFlushMaxRepeatCount = 100;
+static NSInteger const kSAFlushMaxRepeatCount = 40;
 
 @interface SARepeatFlushInterceptor ()
 @end

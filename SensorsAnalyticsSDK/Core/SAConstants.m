@@ -188,7 +188,7 @@ NSString * const kSAEventNameAppPageLeave = @"$AppPageLeave";
 
 //event name、property key、value max length
 NSInteger kSAEventNameMaxLength = 100;
-NSInteger kSAPropertyValueMaxLength = 1024;
+NSInteger kSAPropertyValueMaxLength = 8192;
 
 #pragma mark - SA Visualized
 /// 埋点校验中，$WebClick 匹配可视化全埋点的事件名（集合）

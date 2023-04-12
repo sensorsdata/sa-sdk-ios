@@ -36,9 +36,15 @@
 }
 
 - (id)sensorsdata_propertyValueWithKey:(NSString *)key error:(NSError *__autoreleasing  _Nullable *)error {
-    NSUInteger length = [self lengthOfBytesUsingEncoding:NSUTF8StringEncoding];
-    if (length > kSAPropertyValueMaxLength) {
-        SALogWarn(@"%@'s length is longer than %ld", self, kSAPropertyValueMaxLength);
+    NSInteger maxLength = kSAPropertyValueMaxLength;
+    if ([key isEqualToString:@"app_crashed_reason"]) {
+        maxLength = maxLength * 2;
+    }
+    if (self.length >= maxLength) {
+        SALogWarn(@"%@'s length is longer than %ld", self, maxLength);
+        NSMutableString *tempString = [NSMutableString stringWithString:[self substringToIndex:maxLength - 1]];
+        [tempString appendString:@"$"];
+        return [tempString copy];
     }
     return self;
 }

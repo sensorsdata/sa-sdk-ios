@@ -28,6 +28,7 @@
 #import "SAConstants+Private.h"
 #import "SALimitKeyManager.h"
 #import "SAValidator.h"
+#import "SACoreResources.h"
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
@@ -40,6 +41,7 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
 @interface SACarrierNamePropertyPlugin()
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 @property (nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
+@property (nonatomic, strong) CTCarrier *carrier;
 #endif
 @end
 @implementation SACarrierNamePropertyPlugin
@@ -71,24 +73,16 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
     NSString *carrierName = nil;
 
     @try {
-        CTCarrier *carrier = nil;
-
-#ifdef __IPHONE_12_0
-        if (@available(iOS 12.1, *)) {
-            // 排序
-            NSArray *carrierKeysArray = [self.networkInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
-            carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
-            if (!carrier.mobileNetworkCode) {
-                carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
+        if (self.carrier != nil) {
+            NSString *networkCode = nil;
+            if ([self.carrier respondsToSelector:@selector(mobileNetworkCode)]) {
+                networkCode = [self.carrier mobileNetworkCode];
             }
-        }
-#endif
-        if (!carrier) {
-            carrier = self.networkInfo.subscriberCellularProvider;
-        }
-        if (carrier != nil) {
-            NSString *networkCode = [carrier mobileNetworkCode];
-            NSString *countryCode = [carrier mobileCountryCode];
+            
+            NSString *countryCode = nil;
+            if ([self.carrier respondsToSelector:@selector(mobileCountryCode)]) {
+                countryCode = [self.carrier mobileCountryCode];
+            }
 
             // 中国运营商 mcc 标识
             NSString *carrierChinaMCC = @"460";
@@ -116,12 +110,7 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
                     carrierName = SALocalizedString(@"SAPresetPropertyCarrierTietong");
                 }
             } else if (countryCode && networkCode) { //国外运营商解析
-                //加载当前 bundle
-                NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[self class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-                //文件路径
-                NSString *jsonPath = [sensorsBundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
-                NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-                NSDictionary *dicAllMcc = [SAJSONUtil JSONObjectWithData:jsonData];
+                NSDictionary *dicAllMcc = [SACoreResources mcc];
                 if (dicAllMcc) {
                     NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
                     carrierName = dicAllMcc[mccMncKey];
@@ -133,6 +122,26 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
     }
     return carrierName;
 }
+
+- (CTCarrier *)carrier {
+    if (!_carrier) {
+#ifdef __IPHONE_12_0
+        if (@available(iOS 12.1, *)) {
+            // 排序
+            NSArray *carrierKeysArray = [self.networkInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+            _carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+            if (![_carrier respondsToSelector:@selector(mobileNetworkCode)] || !_carrier.mobileNetworkCode) {
+                _carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
+            }
+        }
+#endif
+        if (!_carrier && [self.networkInfo respondsToSelector:@selector(subscriberCellularProvider)]) {
+            _carrier = self.networkInfo.subscriberCellularProvider;
+        }
+    }
+    return _carrier;
+}
+
 #endif
 
 #pragma mark - SAPropertyPlugin method

@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.6"
+#define VERSION @"4.5.7"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
