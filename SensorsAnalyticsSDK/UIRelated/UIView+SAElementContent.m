@@ -23,7 +23,7 @@
 #endif
 
 #import "UIView+SAElementContent.h"
-#import "UIVIew+SensorsAnalytics.h"
+#import "UIView+SensorsAnalytics.h"
 
 @implementation UIView (SAElementContent)
 
