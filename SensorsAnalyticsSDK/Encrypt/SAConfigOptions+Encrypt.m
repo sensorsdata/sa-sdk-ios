@@ -28,6 +28,7 @@
 
 @property (atomic, strong, readwrite) NSMutableArray *encryptors;
 @property (nonatomic, assign) BOOL enableEncrypt;
+@property (nonatomic, assign) BOOL enableTransportEncrypt;
 @property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
 @property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
 

@@ -26,6 +26,7 @@
 #import "SAModuleManager.h"
 #import "SAEventRecord.h"
 #import "SAConfigOptions+Encrypt.h"
+#import "SAEncryptManager.h"
 
 #pragma mark -
 
@@ -64,13 +65,16 @@
     for (SAEventRecord *record in records) {
         if (record.isEncrypted) {
             [encryptRecords addObject:record];
-        } else {
-            // 缓存数据未加密，再加密
-            NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
-            if (obj) {
-                [record setSecretObject:obj];
-                [encryptRecords addObject:record];
-            }
+            continue;
+        }
+        if (!([SAEncryptManager defaultManager].configOptions.enableEncrypt)) {
+            continue;
+        }
+        // 缓存数据未加密，再加密
+        NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:record.event];
+        if (obj) {
+            [record setSecretObject:obj];
+            [encryptRecords addObject:record];
         }
     }
     return encryptRecords.count == 0 ? records : encryptRecords;

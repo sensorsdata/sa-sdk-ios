@@ -25,6 +25,7 @@
 #import "SAConstants.h"
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SACoreResources.h"
 
 #pragma mark - Track Timer
 NSString *const kSAEventIdSuffix = @"_SATimer";
@@ -144,22 +145,14 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,DISPATCH_NOESCAPE dis
 
 #pragma mark - Localization
 NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
-    static NSBundle *languageBundle = nil;
+    static NSDictionary *languageResources = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 获取语言资源的 Bundle
-        NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:[SensorsAnalyticsSDK class]] pathForResource:@"SensorsAnalyticsSDK" ofType:@"bundle"]];
-        NSString *path = [sensorsBundle pathForResource:@"zh-Hans" ofType:@"lproj"];
-        if (path) {
-            languageBundle = [NSBundle bundleWithPath:path];
-        }
+        // 获取默认语言资源 JSON
+        languageResources = [SACoreResources defaultLanguageResources];
     });
-    
-    NSString *result = value;
-    if (languageBundle) {
-        result = [languageBundle localizedStringForKey:key value:value table:nil];
-    }
-    return result;
+
+    return languageResources[key] ?: value;
 }
 
 #pragma mark - SF related notifications
@@ -207,3 +200,23 @@ SALimitKey const SALimitKeyCarrier = @"SALimitKeyCarrier";
 
 /// is instant event
 NSString * const kSAInstantEventKey = @"is_instant_event";
+
+//flush related keys
+NSString * const kSAEncryptRecordKeyEKey = @"ekey";
+NSString * const kSAEncryptRecordKeyPayloads = @"payloads";
+NSString * const kSAEncryptRecordKeyPayload = @"payload";
+NSString * const kSAEncryptRecordKeyFlushTime = @"flush_time";
+NSString * const kSAEncryptRecordKeyPKV = @"pkv";
+NSString * const kSAFlushBodyKeyData = @"data_list";
+NSString * const kSAFlushBodyKeyGzip = @"gzip";
+NSInteger const kSAFlushGzipCodePlainText = 1;
+NSInteger const kSAFlushGzipCodeEncrypt = 9;
+NSInteger const kSAFlushGzipCodeTransportEncrypt = 13;
+
+//remote config
+NSString * const kSDKConfigKey = @"SASDKConfig";
+NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteConfigRandomTime";
+NSString * const kRandomTimeKey = @"randomTime";
+NSString * const kStartDeviceTimeKey = @"startDeviceTime";
+NSString * const kSARemoteConfigSupportTransportEncryptKey = @"supportTransportEncrypt";
+NSString * const kSARemoteConfigConfigsKey = @"configs";

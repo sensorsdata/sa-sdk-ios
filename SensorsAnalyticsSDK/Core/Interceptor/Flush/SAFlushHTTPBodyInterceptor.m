@@ -26,12 +26,7 @@
 #import "NSString+SAHashCode.h"
 #import "SAGzipUtility.h"
 #import "SAEventRecord.h"
-
-@interface SAConfigOptions ()
-
-@property (nonatomic, assign) BOOL enableEncrypt;
-
-@end
+#import "SAConstants+Private.h"
 
 @implementation SAFlushHTTPBodyInterceptor
 
@@ -43,27 +38,27 @@
     completion(input);
 }
 
-// 2. 完成 HTTP 请求拼接
 - (NSData *)buildBodyWithInput:(SAFlowData *)input {
-    BOOL isEncrypted = input.configOptions.enableEncrypt && input.records.firstObject.isEncrypted;
-    NSString *jsonString = input.json;
-    int gzip = 1; // gzip = 9 表示加密编码
-    if (isEncrypted) {
-        // 加密数据已{经做过 gzip 压缩和 base64 处理了，就不需要再处理。
-        gzip = 9;
-    } else {
-        // 使用gzip进行压缩
-        NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
-        // base64
-        jsonString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-    }
-    int hashCode = [jsonString sensorsdata_hashCode];
-    jsonString = [jsonString stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
-    NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, gzip, jsonString];
+    NSDictionary *bodyDic = [self buildBodyWithFlowData:input];
+    NSNumber *gzip = bodyDic[kSAFlushBodyKeyGzip];
+    NSString *data = bodyDic[kSAFlushBodyKeyData];
+    int hashCode = [data sensorsdata_hashCode];
+    data = [data stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+    NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, [gzip intValue], data];
     if (input.isInstantEvent) {
         bodyString = [bodyString stringByAppendingString:@"&instant_event=true"];
     }
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
+}
+
+- (NSDictionary *)buildBodyWithFlowData:(SAFlowData *)flowData {
+    NSString *jsonString = flowData.json;
+    // 使用gzip进行压缩
+    NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    // base64
+    jsonString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    NSDictionary *bodyDic = @{kSAFlushBodyKeyGzip: @(kSAFlushGzipCodePlainText), kSAFlushBodyKeyData: jsonString};
+    return bodyDic;
 }
 
 @end

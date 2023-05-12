@@ -31,15 +31,15 @@
 @implementation SAJSONUtil
 
 + (NSData *)dataWithJSONObject:(id)obj {
-    id coercedObj = [self JSONSerializableObject:obj];
-
-    if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
-        SALogError(@"%@ obj is not valid JSON: %@", self, coercedObj);
-        return nil;
-    }
-
     NSData *data = nil;
     @try {
+        id coercedObj = [self JSONSerializableObject:obj];
+        
+        if (![NSJSONSerialization isValidJSONObject:coercedObj]) {
+            SALogError(@"%@ obj is not valid JSON: %@", self, coercedObj);
+            return nil;
+        }
+        
         NSError *error = nil;
         data = [NSJSONSerialization dataWithJSONObject:coercedObj options:0 error:&error];
         if (error) {

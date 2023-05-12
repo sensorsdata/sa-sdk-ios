@@ -25,6 +25,7 @@
 #import <XCTest/XCTest.h>
 #import "SAJSONUtil.h"
 #import "SACoreResources.h"
+#import "SensorsAnalyticsSDK.h"
 
 @interface SACoreResourcesTests : XCTestCase
 
@@ -65,6 +66,21 @@
     NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
     NSDictionary *dicAllMcc = [SAJSONUtil JSONObjectWithData:jsonData];
     XCTAssertTrue([[SACoreResources mcc] isEqualToDictionary:dicAllMcc]);
+}
+
+- (void)testDefaultLanguageResources {
+    // 获取语言资源的 Bundle
+    NSBundle* languageBundle = nil;
+    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDKTest" ofType:@"bundle"]];
+    NSString *path = [sensorsBundle pathForResource:@"zh-Hans" ofType:@"lproj"];
+    if (path) {
+        languageBundle = [NSBundle bundleWithPath:path];
+    }
+
+    NSString *localizablePath = [languageBundle pathForResource:@"Localizable" ofType:@"strings"];
+    NSDictionary *localizedDict = [NSDictionary dictionaryWithContentsOfFile:localizablePath];
+
+    XCTAssertTrue([[SACoreResources defaultLanguageResources] isEqualToDictionary:localizedDict]);
 }
 
 @end

@@ -45,6 +45,8 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 @property (nonatomic, assign) BOOL enableTrackAppCrash;
 
 @property (nonatomic, assign) BOOL enableEncrypt;
+@property (nonatomic, assign) BOOL enableTransportEncrypt;
+@property (nonatomic, assign) BOOL enableFlushEncrypt;
 @property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
 @property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
 
@@ -164,6 +166,8 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     // 加密
     options.encryptors = self.encryptors;
     options.enableEncrypt = self.enableEncrypt;
+    options.enableTransportEncrypt = self.enableTransportEncrypt;
+    options.enableFlushEncrypt = self.enableFlushEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
     // 全埋点

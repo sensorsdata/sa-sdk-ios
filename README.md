@@ -21,7 +21,14 @@ SensorsAnalytics SDK 是国内第一家开源商用版用户行为采集 SDK，�
 
 ## 基本要求
 
-iOS 8.0 及以上，Xcode 9.0 及以上。
+iOS 9.0 及以上，Xcode 9.0 及以上。
+
+## 推荐版本
+
+| 推荐版本 | 版本链接 |
+| ------ | ------ | 
+| v4.5.7 | https://github.com/sensorsdata/sa-sdk-ios/releases/tag/v4.5.7  |
+| v4.4.5 | https://github.com/sensorsdata/sa-sdk-ios/releases/tag/v4.4.5  |
 
 ## 集成文档
 

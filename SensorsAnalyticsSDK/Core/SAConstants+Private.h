@@ -133,7 +133,7 @@ void sensorsdata_dispatch_safe_sync(dispatch_queue_t queue,
 NSString* sensorsdata_localized_string(NSString* key, NSString* value);
 
 #define SALocalizedString(key) \
-        sensorsdata_localized_string((key), @"")
+        sensorsdata_localized_string((key), nil)
 #define SALocalizedStringWithDefaultValue(key, value) \
         sensorsdata_localized_string((key), (value))
 
@@ -177,3 +177,23 @@ extern NSString * const kSAWebVisualProperties;
 
 /// is instant event
 extern NSString * const kSAInstantEventKey;
+
+//flush related keys
+extern NSString * const kSAEncryptRecordKeyEKey;
+extern NSString * const kSAEncryptRecordKeyPayloads;
+extern NSString * const kSAEncryptRecordKeyPayload;
+extern NSString * const kSAEncryptRecordKeyFlushTime;
+extern NSString * const kSAEncryptRecordKeyPKV;
+extern NSString * const kSAFlushBodyKeyData;
+extern NSString * const kSAFlushBodyKeyGzip;
+extern NSInteger const kSAFlushGzipCodePlainText;
+extern NSInteger const kSAFlushGzipCodeEncrypt;
+extern NSInteger const kSAFlushGzipCodeTransportEncrypt;
+
+//remote config
+extern NSString * const kSDKConfigKey;
+extern NSString * const kRequestRemoteConfigRandomTimeKey; // 保存请求远程配置的随机时间 @{@"randomTime":@double,@"startDeviceTime":@double}
+extern NSString * const kRandomTimeKey;
+extern NSString * const kStartDeviceTimeKey;
+extern NSString * const kSARemoteConfigSupportTransportEncryptKey;
+extern NSString * const kSARemoteConfigConfigsKey;

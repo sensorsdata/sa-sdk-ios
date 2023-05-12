@@ -25,8 +25,11 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (Encrypt)
 
-/// 是否开启加密
+/// 是否开启埋点数据入库加密
 @property (nonatomic, assign) BOOL enableEncrypt API_UNAVAILABLE(macos);
+
+/// 是否开启埋点数据上报传输加密
+@property (nonatomic, assign) BOOL enableTransportEncrypt API_UNAVAILABLE(macos);
 
 - (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor API_UNAVAILABLE(macos);
 

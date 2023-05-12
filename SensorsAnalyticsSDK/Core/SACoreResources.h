@@ -36,6 +36,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSDictionary *)mcc;
 
+/// 默认语言资源
++ (NSDictionary *)defaultLanguageResources;
+
 @end
 
 NS_ASSUME_NONNULL_END

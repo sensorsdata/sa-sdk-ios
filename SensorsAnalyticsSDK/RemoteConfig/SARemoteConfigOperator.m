@@ -108,28 +108,24 @@
     @try {
         // 只读取远程配置信息中的开关状态，不处理加密等其他逻辑字段
         NSMutableDictionary<NSString *, id> *configs = [NSMutableDictionary dictionary];
-        configs[@"disableDebugMode"] = config[@"configs"][@"disableDebugMode"];
-        configs[@"disableSDK"] = config[@"configs"][@"disableSDK"];
-        configs[@"autoTrackMode"] = config[@"configs"][@"autoTrackMode"];
-        configs[@"event_blacklist"] = config[@"configs"][@"event_blacklist"];
-        configs[@"effect_mode"] = config[@"configs"][@"effect_mode"];
-        configs[@"nv"] = config[@"configs"][@"nv"];
+        configs[@"disableDebugMode"] = config[kSARemoteConfigConfigsKey][@"disableDebugMode"];
+        configs[@"disableSDK"] = config[kSARemoteConfigConfigsKey][@"disableSDK"];
+        configs[@"autoTrackMode"] = config[kSARemoteConfigConfigsKey][@"autoTrackMode"];
+        configs[@"event_blacklist"] = config[kSARemoteConfigConfigsKey][@"event_blacklist"];
+        configs[@"effect_mode"] = config[kSARemoteConfigConfigsKey][@"effect_mode"];
+        configs[@"nv"] = config[kSARemoteConfigConfigsKey][@"nv"];
+        configs[kSARemoteConfigSupportTransportEncryptKey] = config[kSARemoteConfigConfigsKey][kSARemoteConfigSupportTransportEncryptKey];
 
         // 读取远程配置信息中的版本信息
         NSMutableDictionary<NSString *, id> *remoteConfig = [NSMutableDictionary dictionary];
         remoteConfig[@"v"] = config[@"v"];
-        remoteConfig[@"configs"] = configs;
+        remoteConfig[kSARemoteConfigConfigsKey] = configs;
 
         return remoteConfig;
     } @catch (NSException *exception) {
         SALogError(@"【remote config】%@ error: %@", self, exception);
         return nil;
     }
-}
-
-- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config {
-    // 远程配置中新增 key_v2，传递给加密模块时不做处理直接传递整个远程配置信息
-    return [config[@"configs"] copy];
 }
 
 - (void)trackAppRemoteConfigChanged:(NSDictionary<NSString *, id> *)remoteConfig {

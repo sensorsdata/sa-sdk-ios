@@ -28,6 +28,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAFlushHTTPBodyInterceptor : SAInterceptor
 
+- (NSDictionary *)buildBodyWithFlowData:(SAFlowData *)flowData;
+
 @end
 
 NS_ASSUME_NONNULL_END

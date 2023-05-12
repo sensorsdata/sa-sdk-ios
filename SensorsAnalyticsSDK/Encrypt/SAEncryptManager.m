@@ -36,6 +36,12 @@
 #import "SASecretKey.h"
 #import "SASecretKeyFactory.h"
 #import "SAConstants+Private.h"
+#import "SAConfigOptions+EncryptPrivate.h"
+#import "SAFlushJSONInterceptor.h"
+#import "SAFlushHTTPBodyInterceptor.h"
+#import "SASwizzle.h"
+#import "SAFlushJSONInterceptor+Encrypt.h"
+#import "SAFlushHTTPBodyInterceptor+Encrypt.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
@@ -82,6 +88,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     _enable = enable;
 
     if (enable) {
+        [self swizzleFlushInteceptorMethods];
         dispatch_async(self.encryptQueue, ^{
             [self updateEncryptor];
         });
@@ -103,7 +110,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
-    self.enable = configOptions.enableEncrypt;
+    self.enable = configOptions.enableEncrypt || configOptions.enableTransportEncrypt;
+    [self loadLocalRemoteConfig];
 }
 
 #pragma mark - SAOpenURLProtocol
@@ -193,9 +201,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
         // 封装加密的数据结构
         NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
-        secretObj[@"pkv"] = @(self.secretKey.version);
-        secretObj[@"ekey"] = self.encryptedSymmetricKey;
-        secretObj[@"payload"] = encryptedString;
+        secretObj[kSAEncryptRecordKeyPKV] = @(self.secretKey.version);
+        secretObj[kSAEncryptRecordKeyEKey] = self.encryptedSymmetricKey;
+        secretObj[kSAEncryptRecordKeyPayload] = encryptedString;
         return [NSDictionary dictionaryWithDictionary:secretObj];
     } @catch (NSException *exception) {
         SALogError(@"%@ error: %@", self, exception);
@@ -223,12 +231,13 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     if (!encryptConfig) {
         return;
     }
+    [self enableFlushEncryptWithRemoteConfig:encryptConfig];
 
     // 加密插件化 2.0 新增字段，下发秘钥信息不可用时，继续走 1.0 逻辑
-    SASecretKey *secretKey = [SASecretKeyFactory createSecretKeyByVersion2:encryptConfig[@"key_v2"]];
+    SASecretKey *secretKey = [SASecretKeyFactory createSecretKeyByVersion2:encryptConfig[kSARemoteConfigConfigsKey][@"key_v2"]];
     if (![self encryptorWithSecretKey:secretKey]) {
         // 加密插件化 1.0 秘钥信息
-        secretKey = [SASecretKeyFactory createSecretKeyByVersion1:encryptConfig[@"key"]];
+        secretKey = [SASecretKeyFactory createSecretKeyByVersion1:encryptConfig[kSARemoteConfigConfigsKey][@"key"]];
     }
 
     //当前秘钥没有对应的加密器
@@ -371,6 +380,32 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         }
     }
     return secretKey;
+}
+
+- (void)swizzleFlushInteceptorMethods {
+    static dispatch_once_t onceToken;
+    dispatch_once(&onceToken, ^{
+        [SAFlushJSONInterceptor sa_swizzleMethod:@selector(buildJSONStringWithRecords:) withMethod:@selector(sensorsdata_buildJSONStringWithRecords:) error:NULL];
+        [SAFlushHTTPBodyInterceptor sa_swizzleMethod:@selector(buildBodyWithFlowData:) withMethod:@selector(sensorsdata_buildBodyWithFlowData:) error:NULL];
+    });
+}
+
+- (void)loadLocalRemoteConfig {
+    NSDictionary *config = [[SAStoreManager sharedInstance] objectForKey:kSDKConfigKey];
+    [self enableFlushEncryptWithRemoteConfig:config];
+}
+
+- (void)enableFlushEncryptWithRemoteConfig:(NSDictionary *)config {
+    if (![config isKindOfClass:[NSDictionary class]]) {
+        return;
+    }
+    // enable flush encrypt or not
+    BOOL enableFlushEncrypt = NO;
+    id supportTransportEncrypt = config[kSARemoteConfigConfigsKey][kSARemoteConfigSupportTransportEncryptKey];
+    if ([supportTransportEncrypt isKindOfClass:[NSNumber class]]) {
+        enableFlushEncrypt = self.configOptions.enableTransportEncrypt && [supportTransportEncrypt boolValue];
+    }
+    self.configOptions.enableFlushEncrypt = enableFlushEncrypt;
 }
 
 @end

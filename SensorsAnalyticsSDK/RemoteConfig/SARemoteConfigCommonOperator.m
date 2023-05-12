@@ -29,6 +29,7 @@
 #import "SAStoreManager.h"
 #import "SAModuleManager.h"
 #import "SAConfigOptions+RemoteConfig.h"
+#import "SAConstants+Private.h"
 #if __has_include("SAConfigOptions+Encrypt.h")
 #import "SAConfigOptions+Encrypt.h"
 #endif
@@ -38,11 +39,6 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     SARemoteConfigHandleRandomTimeTypeRemove, // 移除分散请求时间
     SARemoteConfigHandleRandomTimeTypeNone    // 不处理分散请求时间
 };
-
-static NSString * const kSDKConfigKey = @"SASDKConfig";
-static NSString * const kRequestRemoteConfigRandomTimeKey = @"SARequestRemoteConfigRandomTime"; // 保存请求远程配置的随机时间 @{@"randomTime":@double,@"startDeviceTime":@double}
-static NSString * const kRandomTimeKey = @"randomTime";
-static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 
 @interface SARemoteConfigCommonOperator ()
 
@@ -180,9 +176,8 @@ static NSString * const kStartDeviceTimeKey = @"startDeviceTime";
                 if(config != nil) {
                     // 加密
 #if __has_include("SAConfigOptions+Encrypt.h")
-                    if (strongSelf.configOptions.enableEncrypt) {
-                        NSDictionary<NSString *, id> *encryptConfig = [strongSelf extractEncryptConfig:config];
-                        [SAModuleManager.sharedInstance handleEncryptWithConfig:encryptConfig];
+                    if (strongSelf.configOptions.enableEncrypt || strongSelf.configOptions.enableTransportEncrypt) {
+                        [SAModuleManager.sharedInstance handleEncryptWithConfig:[config copy]];
                     }
 #endif
                     // 远程配置的请求回调需要在主线程做一些操作（定位和设备方向等）
