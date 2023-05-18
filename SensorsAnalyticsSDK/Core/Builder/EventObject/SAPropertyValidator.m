@@ -147,10 +147,13 @@
     if (![properties isKindOfClass:[NSDictionary class]] || ![validator conformsToProtocol:@protocol(SAEventPropertyValidatorProtocol)]) {
         return nil;
     }
+    
+    NSDictionary *newProperties = [NSDictionary dictionaryWithDictionary:properties];
+    
     NSMutableDictionary *result = [NSMutableDictionary dictionary];
-    for (id key in properties) {
+    for (id key in newProperties) {
         NSError *error = nil;
-        id value = [validator sensorsdata_validKey:key value:properties[key] error:&error];
+        id value = [validator sensorsdata_validKey:key value:newProperties[key] error:&error];
         if (error) {
             SALogError(@"%@",error.localizedDescription);
         }

@@ -64,7 +64,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy) NSString *token;
 
 /// 事件属性
-@property (nonatomic, strong) NSMutableDictionary *properties;
+@property (atomic, strong) NSMutableDictionary *properties;
 
 // 自定义属性，暂未开放
 //@property (nonatomic, strong) NSDictionary *customProperties;

@@ -176,9 +176,6 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     if (!self.view) {
         return;
     }
-    if (([self.view isKindOfClass:[UITableViewCell class]] || [self.view isKindOfClass:[UICollectionViewCell class]]) && self.state == SAExposureViewStateInvisible) {
-        return;
-    }
 
     if (!self.exposureData.config.repeated && self.lastExposure > 0) {
         return;

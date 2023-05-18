@@ -79,7 +79,10 @@
         [properties removeObjectForKey:kSADeviceIDPropertyPluginAnonymizationID];
     }
 
-    [object.properties addEntriesFromDictionary:[properties copy]];
+    // 避免 object.properties 调用 addEntriesFromDictionary 时同时获取 object.properties
+    NSMutableDictionary *objectProperties = [NSMutableDictionary dictionaryWithDictionary:object.properties];
+    [objectProperties addEntriesFromDictionary:[properties copy]];
+    object.properties = objectProperties;
 
     // 从公共属性中更新 lib 节点中的 $app_version 值
     NSDictionary *superProperties = [SAPropertyPluginManager.sharedInstance currentPropertiesForPluginClasses:@[SASuperPropertyPlugin.class]];

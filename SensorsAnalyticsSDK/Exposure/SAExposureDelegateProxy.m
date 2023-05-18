@@ -43,6 +43,7 @@
     exposureViewObject.state = (exposureViewObject.state == SAExposureViewStateExposing ? SAExposureViewStateExposing : SAExposureViewStateVisible);
     exposureViewObject.scrollView = tableView;
     exposureViewObject.indexPath = indexPath;
+    [exposureViewObject exposureConditionCheck];
 
     //invoke original
     SEL methodSelector = @selector(tableView:willDisplayCell:forRowAtIndexPath:);
@@ -85,6 +86,7 @@
     exposureViewObject.state = (exposureViewObject.state == SAExposureViewStateExposing ? SAExposureViewStateExposing : SAExposureViewStateVisible);
     exposureViewObject.scrollView = collectionView;
     exposureViewObject.indexPath = indexPath;
+    [exposureViewObject exposureConditionCheck];
 
     //invoke original
     SEL methodSelector = @selector(collectionView:willDisplayCell:forItemAtIndexPath:);
