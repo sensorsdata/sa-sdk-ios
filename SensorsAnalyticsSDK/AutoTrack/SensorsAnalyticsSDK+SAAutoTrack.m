@@ -71,8 +71,21 @@
 }
 
 - (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
-    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAutoTrackViewControllers:controllers];
-    [SAAutoTrackManager.defaultManager.appViewScreenTracker ignoreAutoTrackViewControllers:controllers];
+    if (![controllers isKindOfClass:[NSArray class]]) {
+        return;
+    }
+    NSMutableArray<Class> *tempControllers = [NSMutableArray array];
+    for (NSString *viewControllerName in controllers) {
+        if(![viewControllerName isKindOfClass:[NSString class]]) {
+            break;
+        }
+        Class viewControllerClass = NSClassFromString(viewControllerName);
+        if (viewControllerClass) {
+            [tempControllers addObject:viewControllerClass];
+        }
+    }
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAutoTrackViewControllers:tempControllers];
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker ignoreAutoTrackViewControllers:tempControllers];
 }
 
 - (BOOL)isViewControllerIgnored:(UIViewController *)viewController {
@@ -118,10 +131,15 @@
 
 @end
 
+
 @implementation SensorsAnalyticsSDK (SAReferrer)
 
 - (NSString *)getLastScreenUrl {
     return [SAReferrerManager sharedInstance].referrerURL;
+}
+
+- (NSString *)getCurrentScreenUrl {
+    return [SAReferrerManager sharedInstance].currentScreenUrl;
 }
 
 - (NSDictionary *)getLastScreenTrackProperties {
@@ -130,6 +148,26 @@
 
 - (void)clearReferrerWhenAppEnd {
     [SAReferrerManager sharedInstance].isClearReferrer = YES;
+}
+@end
+
+@implementation SensorsAnalyticsSDK (SAAutoTrackIgnore)
+
+- (void)ignoreAppClickOnViews:(NSArray<Class> *)views {
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAppClickOnViews:views];
+}
+
+- (void)ignoreAppClickOnViewControllers:(NSArray<Class> *)viewControllers {
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAutoTrackViewControllers:viewControllers];
+}
+
+- (void)ignoreAppViewScreenOnViewControllers:(NSArray<Class> *)viewControllers {
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker ignoreAutoTrackViewControllers:viewControllers];
+}
+
+- (void)ignoreAppClickAndViewScreenOnViewControllers:(NSArray<Class> *)viewControllers {
+    [SAAutoTrackManager.defaultManager.appClickTracker ignoreAutoTrackViewControllers:viewControllers];
+    [SAAutoTrackManager.defaultManager.appViewScreenTracker ignoreAutoTrackViewControllers:viewControllers];
 }
 
 @end

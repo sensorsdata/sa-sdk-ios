@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.5.9"
+  s.version      = "4.5.10"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -128,7 +128,7 @@ Pod::Spec.new do |s|
     h.ios.deployment_target = '9.0'
     h.dependency 'SensorsAnalyticsSDK/Common'
     h.source_files = 'SensorsAnalyticsSDK/Exposure/**/*.{h,m}'
-    h.public_header_files = 'SensorsAnalyticsSDK/Exposure/SAConfigOptions+Exposure.h', 'SensorsAnalyticsSDK/Exposure/SAExposureConfig.h', 'SensorsAnalyticsSDK/Exposure/SAExposureData.h', 'SensorsAnalyticsSDK/Exposure/SensorsAnalyticsSDK+Exposure.h', 'SensorsAnalyticsSDK/Exposure/UIView+ExposureIdentifier.h'
+    h.public_header_files = 'SensorsAnalyticsSDK/Exposure/SAConfigOptions+Exposure.h', 'SensorsAnalyticsSDK/Exposure/SAExposureConfig.h', 'SensorsAnalyticsSDK/Exposure/SAExposureData.h', 'SensorsAnalyticsSDK/Exposure/SensorsAnalyticsSDK+Exposure.h', 'SensorsAnalyticsSDK/Exposure/UIView+ExposureIdentifier.h', 'SensorsAnalyticsSDK/Exposure/SAExposureListener.h'
   end
 
 end

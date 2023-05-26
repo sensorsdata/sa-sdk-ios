@@ -282,9 +282,17 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
 }
 
 - (void)triggerExposure {
+    [self.timer stop];
+    BOOL shouldExpose = YES;
+    if (self.exposureData.exposureListener && [self.exposureData.exposureListener respondsToSelector:@selector(shouldExpose:withData:)]) {
+        shouldExpose = [self.exposureData.exposureListener shouldExpose:self.view withData:self.exposureData];
+    }
+    if (!shouldExpose) {
+        SALogInfo(@"Exposure for view: %@ had been canceld due to shouldExpose return false", self.view);
+        return;
+    }
     self.state = SAExposureViewStateExposing;
     self.lastExposure = [[NSDate date] timeIntervalSince1970];
-    [self.timer stop];
     //track event
     if (self.view == nil) {
         return;
@@ -293,6 +301,9 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
         [self trackEventWithScrollView:self.scrollView cell:self.view atIndexPath:self.indexPath];
     } else {
         [self trackEventWithView:self.view properties:nil];
+    }
+    if (self.exposureData.exposureListener && [self.exposureData.exposureListener respondsToSelector:@selector(didExpose:withData:)]) {
+        [self.exposureData.exposureListener didExpose:self.view withData:self.exposureData];
     }
 }
 
@@ -305,7 +316,12 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     if ([SAValidator isValidDictionary:properties]) {
         [eventProperties addEntriesFromDictionary:properties];
     }
-    [eventProperties addEntriesFromDictionary:self.exposureData.properties];
+    if ([SAValidator isValidDictionary:self.exposureData.properties]) {
+        [eventProperties addEntriesFromDictionary:self.exposureData.properties];
+    }
+    if ([SAValidator isValidDictionary:self.exposureData.updatedProperties]) {
+        [eventProperties addEntriesFromDictionary:self.exposureData.updatedProperties];
+    }
     NSString *elementPath = [SAUIProperties elementPathForView:view atViewController:self.viewController];
     eventProperties[kSAEventPropertyElementPath] = elementPath;
     [[SensorsAnalyticsSDK sharedInstance] track:self.exposureData.event withProperties:eventProperties];
@@ -317,7 +333,9 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
         return;
     }
     NSDictionary *dic = [SAUIProperties propertiesWithAutoTrackDelegate:scrollView andIndexPath:indexPath];
-    [properties addEntriesFromDictionary:dic];
+    if ([dic isKindOfClass:[NSDictionary class]]) {
+        [properties addEntriesFromDictionary:dic];
+    }
     [self trackEventWithView:cell properties:properties];
 }
 

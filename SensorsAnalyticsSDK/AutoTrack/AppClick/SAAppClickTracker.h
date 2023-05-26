@@ -55,6 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 /// @param view UIView
 - (BOOL)isIgnoreEventWithView:(UIView *)view;
 
+/// ignore AppClick on an array of view class names
+/// - Parameter views: view class names
+- (void)ignoreAppClickOnViews:(NSArray<Class>*)views;
+
 @end
 
 NS_ASSUME_NONNULL_END

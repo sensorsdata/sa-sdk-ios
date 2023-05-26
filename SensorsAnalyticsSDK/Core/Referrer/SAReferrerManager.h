@@ -30,6 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (atomic, copy, readonly) NSDictionary *referrerProperties;
 @property (atomic, copy, readonly) NSString *referrerURL;
 @property (nonatomic, copy, readonly) NSString *referrerTitle;
+@property (atomic, copy, readonly) NSString *currentScreenUrl;
 
 + (instancetype)sharedInstance;
 

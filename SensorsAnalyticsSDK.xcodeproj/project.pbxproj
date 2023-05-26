@@ -453,6 +453,7 @@
 		F211742226E9A72C00D65E19 /* SAApplication.m in Sources */ = {isa = PBXBuildFile; fileRef = F211742026E9A72B00D65E19 /* SAApplication.m */; };
 		F21C226728F7B0E500847823 /* NSDictionary+SACopyProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */; };
 		F21C226828F7B0E500847823 /* NSDictionary+SACopyProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */; };
+		F226AF6629EE37A800ED14A0 /* SAExposureListener.h in Headers */ = {isa = PBXBuildFile; fileRef = F226AF6429EE37A800ED14A0 /* SAExposureListener.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F226E66C28BC6149000443A7 /* SAUIProperties.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E66A28BC6149000443A7 /* SAUIProperties.h */; };
 		F226E66D28BC6149000443A7 /* SAUIProperties.m in Sources */ = {isa = PBXBuildFile; fileRef = F226E66B28BC6149000443A7 /* SAUIProperties.m */; };
 		F226E67028BC62EB000443A7 /* UIView+SAItemPath.h in Headers */ = {isa = PBXBuildFile; fileRef = F226E66E28BC62EB000443A7 /* UIView+SAItemPath.h */; };
@@ -1036,6 +1037,7 @@
 		F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; name = SADatabaseUnitTest.m; path = SensorsAnalyticsTests/Tracker/SADatabaseUnitTest.m; sourceTree = SOURCE_ROOT; };
 		F21C226528F7B0E500847823 /* NSDictionary+SACopyProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSDictionary+SACopyProperties.h"; sourceTree = "<group>"; };
 		F21C226628F7B0E500847823 /* NSDictionary+SACopyProperties.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSDictionary+SACopyProperties.m"; sourceTree = "<group>"; };
+		F226AF6429EE37A800ED14A0 /* SAExposureListener.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAExposureListener.h; sourceTree = "<group>"; };
 		F226E66A28BC6149000443A7 /* SAUIProperties.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAUIProperties.h; sourceTree = "<group>"; };
 		F226E66B28BC6149000443A7 /* SAUIProperties.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAUIProperties.m; sourceTree = "<group>"; };
 		F226E66E28BC62EB000443A7 /* UIView+SAItemPath.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UIView+SAItemPath.h"; sourceTree = "<group>"; };
@@ -2291,6 +2293,7 @@
 				F2FBB33728A2692D008D10EB /* SAExposureData.h */,
 				F2FBB33828A2692D008D10EB /* SAExposureData.m */,
 				F2C877B628A65849002BDA2C /* SAExposureData+Private.h */,
+				F226AF6429EE37A800ED14A0 /* SAExposureListener.h */,
 				F273487728A9EA1500C34E64 /* SAExposureDelegateProxy.h */,
 				F273487828A9EA1500C34E64 /* SAExposureDelegateProxy.m */,
 				F286963028A34FFC00276F78 /* SAExposureManager.h */,
@@ -2384,6 +2387,7 @@
 				A8CC223D2685E50C00E96A03 /* SARemoteConfigCheckOperator.h in Headers */,
 				881A41F6253D7B5000854F69 /* NSString+SAHashCode.h in Headers */,
 				4DD1286725F872A4008C0B1E /* NSInvocation+SAHelpers.h in Headers */,
+				F226AF6629EE37A800ED14A0 /* SAExposureListener.h in Headers */,
 				F20231CA28BF43FB0034D8B3 /* UIView+SARNView.h in Headers */,
 				88EC2DF12757689800EF9778 /* SAStoreManager.h in Headers */,
 				45A5656A263C174300C9C41B /* SAEventLibObject.h in Headers */,

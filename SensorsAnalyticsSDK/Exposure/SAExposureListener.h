@@ -1,9 +1,9 @@
 //
-// SAExposureData+Private.h
+// SAExposureListener.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2022/8/12.
-// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
+// Created by 陈玉国 on 2023/4/18.
+// Copyright © 2015-2023 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,17 +18,16 @@
 // limitations under the License.
 //
 
-#import "SAExposureData.h"
+#import <UIKit/UIKit.h>
+@class SAExposureData;
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAExposureData (Private)
+@protocol SAExposureListener <NSObject>
 
-@property (nonatomic, copy) SAExposureConfig *config;
-@property (nonatomic, copy) NSDictionary *properties;
-
-/// updated properties from method updateExposure:withProperties:
-@property (nonatomic, copy) NSDictionary *updatedProperties;
+@optional
+- (BOOL)shouldExpose:(UIView *)view withData:(SAExposureData *)data;
+- (void)didExpose:(UIView *)view withData:(SAExposureData *)data;
 
 @end
 

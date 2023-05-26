@@ -41,6 +41,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (SAExposureViewObject *)exposureViewWithView:(UIView *)view;
 
+/// update properties for certain view that need to expose
+/// - Parameters:
+///   - view: view to expose
+///   - properties: properties to update
+- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties;
+
 @end
 
 NS_ASSUME_NONNULL_END

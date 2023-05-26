@@ -30,7 +30,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 是否被动启动
 @property (nonatomic, assign, getter=isPassively) BOOL passively;
 /// 用户设置的不被 AutoTrack 的 Controllers
-@property (nonatomic, strong) NSMutableSet<NSString *> *ignoredViewControllers;
+@property (nonatomic, strong) NSMutableSet<Class> *ignoredViewControllers;
 
 /// 获取 tracker 对应的事件 ID
 - (NSString *)eventId;
@@ -48,8 +48,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (BOOL)shouldTrackViewController:(UIViewController *)viewController;
 
 /// 在 AutoTrack 时，用户可以设置哪些 controllers 不被 AutoTrack
-/// @param controllers controller ‘字符串’数组
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
+/// @param controllers controller ‘类型’数组
+- (void)ignoreAutoTrackViewControllers:(NSArray<Class> *)controllers;
 
 /// 判断某个 ViewController 是否被忽略
 /// @param viewController UIViewController

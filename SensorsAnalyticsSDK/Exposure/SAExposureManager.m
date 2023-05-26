@@ -199,4 +199,9 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
     return _exposureViewObjects;
 }
 
+- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties {
+    SAExposureViewObject *viewObject = [self exposureViewWithView:view];
+    viewObject.exposureData.updatedProperties = properties;
+}
+
 @end

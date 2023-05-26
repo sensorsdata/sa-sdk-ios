@@ -19,10 +19,16 @@
 //
 
 #import "SAExposureConfig.h"
+#import "SAExposureListener.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface SAExposureData : NSObject
+
+@property (nonatomic, copy, readonly) NSString *event;
+@property (nonatomic, copy, readonly) NSString *exposureIdentifier;
+@property (nonatomic, copy, readonly) SAExposureConfig *config;
+@property (nonatomic, weak) id<SAExposureListener> exposureListener;
 
 - (instancetype)init NS_UNAVAILABLE;
 

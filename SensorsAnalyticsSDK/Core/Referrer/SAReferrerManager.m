@@ -31,7 +31,7 @@
 @property (atomic, copy) NSString *referrerURL;
 @property (nonatomic, copy) NSString *referrerTitle;
 @property (nonatomic, copy) NSString *currentTitle;
-@property (nonatomic, copy) NSString *currentScreenUrl;
+@property (atomic, copy) NSString *currentScreenUrl;
 @property (nonatomic, copy) NSDictionary *currentScreenProperties;
 
 @end

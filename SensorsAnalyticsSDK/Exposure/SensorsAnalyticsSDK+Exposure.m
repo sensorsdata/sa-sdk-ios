@@ -35,4 +35,8 @@
     [[SAExposureManager defaultManager] removeExposureView:view withExposureIdentifier:identifier];
 }
 
+- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties {
+    [[SAExposureManager defaultManager] updateExposure:view withProperties:properties];
+}
+
 @end

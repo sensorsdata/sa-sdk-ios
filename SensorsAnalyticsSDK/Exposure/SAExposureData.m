@@ -23,6 +23,7 @@
 #endif
 
 #import "SAExposureData.h"
+#import "NSDictionary+SACopyProperties.h"
 
 @interface SAExposureData ()
 
@@ -30,6 +31,7 @@
 @property (nonatomic, copy) NSDictionary *properties;
 @property (nonatomic, copy) NSString *exposureIdentifier;
 @property (nonatomic, copy) SAExposureConfig *config;
+@property (nonatomic, copy) NSDictionary *updatedProperties;
 
 @end
 
@@ -55,10 +57,14 @@
     self = [super init];
     if (self) {
         _event = event;
-        _properties = properties;
+        _properties = [properties sensorsdata_deepCopy];
         _exposureIdentifier = exposureIdentifier;
         _config = config;
     }
     return self;
+}
+
+- (void)setUpdatedProperties:(NSDictionary *)updatedProperties {
+    _updatedProperties = [updatedProperties sensorsdata_deepCopy];
 }
 @end

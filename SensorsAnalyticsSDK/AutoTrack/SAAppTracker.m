@@ -67,7 +67,7 @@
     return YES;
 }
 
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers {
+- (void)ignoreAutoTrackViewControllers:(NSArray<Class> *)controllers {
     if (controllers == nil || controllers.count == 0) {
         return;
     }
@@ -79,8 +79,8 @@
         return NO;
     }
 
-    NSString *screenName = NSStringFromClass([viewController class]);
-    return [self.ignoredViewControllers containsObject:screenName];
+    Class viewControllerClass = [viewController class];
+    return [self.ignoredViewControllers containsObject:viewControllerClass];
 }
 
 - (NSDictionary *)autoTrackViewControllerBlackList {

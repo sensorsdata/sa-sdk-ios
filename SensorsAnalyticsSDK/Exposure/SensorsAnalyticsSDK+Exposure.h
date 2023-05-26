@@ -25,8 +25,23 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SensorsAnalyticsSDK (Exposure)
 
+/// use this method to add exposure to certain view
+/// - Parameters:
+///   - view: view to expose
+///   - data: exposure data, such as event name, properties, etc.
 - (void)addExposureView:(UIView *)view withData:(SAExposureData *)data;
+
+/// remove exposure for certain view
+/// - Parameters:
+///   - view: view that need to remove exposure
+///   - identifier: exposure identifier to identify certain view, if no identifier specified when addExposureView
 - (void)removeExposureView:(UIView *)view withExposureIdentifier:(nullable NSString *)identifier;
+
+/// update properties for certain view that need to expose
+/// - Parameters:
+///   - view: view to expose
+///   - properties: properties to update
+- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties;
 
 @end
 
