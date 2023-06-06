@@ -643,7 +643,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * 1. 是否 WIFI/3G/4G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
- *   2) 本地缓存日志数目是否达到 flushBulkSize
+ *   2) 本地缓存日志数目是否超过 flushBulkSize
  * 如果满足这两个条件之一，则向服务器发送一次数据；如果都不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存10000条数据。
  */
@@ -653,14 +653,14 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @property
  *
  * @abstract
- * 本地缓存的最大事件数目，当累积日志量达到阈值时发送数据
+ * 本地缓存的最大事件数目，当累积日志量超过阈值时发送数据
  *
  * @discussion
  * 默认值为 100，在每次调用 track 和 profileSet 等接口的时候，都会检查如下条件，以判断是否向服务器上传数据:
  * 1. 是否 WIFI/3G/4G 网络
  * 2. 是否满足以下数据发送条件之一:
  *   1) 与上次发送的时间间隔是否大于 flushInterval
- *   2) 本地缓存日志数目是否达到 flushBulkSize
+ *   2) 本地缓存日志数目是否超过 flushBulkSize
  * 如果同时满足这两个条件，则向服务器发送一次数据；如果不满足，则把数据加入到队列中，等待下次检查时把整个队列的内容一并发送。
  * 需要注意的是，为了避免占用过多存储，队列最多只缓存 10000 条数据。
  */

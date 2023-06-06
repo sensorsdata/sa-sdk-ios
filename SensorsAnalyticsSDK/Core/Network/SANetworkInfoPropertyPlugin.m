@@ -29,7 +29,6 @@
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#import <CoreTelephony/CTCarrier.h>
 #endif
 
 /// 网络类型

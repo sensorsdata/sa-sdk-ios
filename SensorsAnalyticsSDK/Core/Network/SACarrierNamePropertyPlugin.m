@@ -39,107 +39,112 @@
 static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
 
 @interface SACarrierNamePropertyPlugin()
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-@property (nonatomic, strong) CTTelephonyNetworkInfo *networkInfo;
-@property (nonatomic, strong) CTCarrier *carrier;
-#endif
+@property (nonatomic, copy) NSString *carrierName;
 @end
 @implementation SACarrierNamePropertyPlugin
 
 #if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
 #pragma mark - private method
-+ (CTTelephonyNetworkInfo *)sharedNetworkInfo {
-    static CTTelephonyNetworkInfo *networkInfo;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        networkInfo = [[CTTelephonyNetworkInfo alloc] init];
-    });
-    return networkInfo;
-}
 
 - (instancetype)init {
     self = [super init];
     if (self) {
-        _networkInfo = [SACarrierNamePropertyPlugin sharedNetworkInfo];
+        _carrierName = [self buildCarrierName];
     }
     return self;
 }
 
-- (void)dealloc {
-    self.networkInfo = nil;
-}
-
-- (NSString *)currentCarrierName {
+- (NSString *)buildCarrierName {
     NSString *carrierName = nil;
-
     @try {
-        if (self.carrier != nil) {
-            NSString *networkCode = nil;
-            if ([self.carrier respondsToSelector:@selector(mobileNetworkCode)]) {
-                networkCode = [self.carrier mobileNetworkCode];
-            }
-            
-            NSString *countryCode = nil;
-            if ([self.carrier respondsToSelector:@selector(mobileCountryCode)]) {
-                countryCode = [self.carrier mobileCountryCode];
-            }
-
-            // 中国运营商 mcc 标识
-            NSString *carrierChinaMCC = @"460";
-
-            //中国运营商
-            if (countryCode && [countryCode isEqualToString:carrierChinaMCC] && networkCode) {
-                //中国移动
-                if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
-                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierMobile");
-                }
-                //中国联通
-                if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
-                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierUnicom");
-                }
-                //中国电信
-                if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
-                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierTelecom");
-                }
-                //中国卫通
-                if ([networkCode isEqualToString:@"04"]) {
-                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierSatellite");
-                }
-                //中国铁通
-                if ([networkCode isEqualToString:@"20"]) {
-                    carrierName = SALocalizedString(@"SAPresetPropertyCarrierTietong");
-                }
-            } else if (countryCode && networkCode) { //国外运营商解析
-                NSDictionary *dicAllMcc = [SACoreResources mcc];
-                if (dicAllMcc) {
-                    NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
-                    carrierName = dicAllMcc[mccMncKey];
-                }
-            }
+        CTCarrier *carrier = [self buildCarrier];
+        if (!carrier) {
+            return carrierName;
         }
+
+        NSString *networkCode = nil;
+        if ([carrier respondsToSelector:@selector(mobileNetworkCode)]) {
+            networkCode = [carrier mobileNetworkCode];
+        }
+
+        NSString *countryCode = nil;
+        if ([carrier respondsToSelector:@selector(mobileCountryCode)]) {
+            countryCode = [carrier mobileCountryCode];
+        }
+
+        if (![networkCode isKindOfClass:[NSString class]] || ![countryCode isKindOfClass:[NSString class]]) {
+            return carrierName;
+        }
+
+        // iOS16.4 开始，mobileCountryCode 和 mobileNetworkCode 返回固定值 65535，且无法解析运营商名称，参考 https://developer.apple.com/documentation/ios-ipados-release-notes/ios-ipados-16_4-release-notes
+        carrierName = [self carrierNameWithNetworkCode:networkCode AndCountryCode:countryCode];
+
     } @catch (NSException *exception) {
         SALogError(@"%@: %@", self, exception);
+    } @finally {
+        return carrierName;
+    }
+}
+
+- (NSString *)carrierNameWithNetworkCode:(NSString *)networkCode AndCountryCode:(NSString *)countryCode {
+    NSString *carrierName = nil;
+    // 中国运营商 mcc 标识
+    NSString *carrierChinaMCC = @"460";
+    // 国外运营商
+    if (![countryCode isEqualToString:carrierChinaMCC]) {
+        NSDictionary *mcc = [SACoreResources mcc];
+        if (mcc) {
+            NSString *mccMncKey = [NSString stringWithFormat:@"%@%@", countryCode, networkCode];
+            carrierName = mcc[mccMncKey];
+            return carrierName;
+        }
+    }
+    //中国移动
+    if ([networkCode isEqualToString:@"00"] || [networkCode isEqualToString:@"02"] || [networkCode isEqualToString:@"07"] || [networkCode isEqualToString:@"08"]) {
+        carrierName = SALocalizedString(@"SAPresetPropertyCarrierMobile");
+        return carrierName;
+    }
+    //中国联通
+    if ([networkCode isEqualToString:@"01"] || [networkCode isEqualToString:@"06"] || [networkCode isEqualToString:@"09"]) {
+        carrierName = SALocalizedString(@"SAPresetPropertyCarrierUnicom");
+        return carrierName;
+    }
+    //中国电信
+    if ([networkCode isEqualToString:@"03"] || [networkCode isEqualToString:@"05"] || [networkCode isEqualToString:@"11"]) {
+        carrierName = SALocalizedString(@"SAPresetPropertyCarrierTelecom");
+        return carrierName;
+    }
+    //中国卫通
+    if ([networkCode isEqualToString:@"04"]) {
+        carrierName = SALocalizedString(@"SAPresetPropertyCarrierSatellite");
+        return carrierName;
+    }
+    //中国铁通
+    if ([networkCode isEqualToString:@"20"]) {
+        carrierName = SALocalizedString(@"SAPresetPropertyCarrierTietong");
+        return carrierName;
     }
     return carrierName;
 }
 
-- (CTCarrier *)carrier {
-    if (!_carrier) {
+- (CTCarrier *)buildCarrier {
+    CTCarrier *carrier = nil;
+    CTTelephonyNetworkInfo * networkInfo = [[CTTelephonyNetworkInfo alloc] init];
+
 #ifdef __IPHONE_12_0
-        if (@available(iOS 12.1, *)) {
-            // 排序
-            NSArray *carrierKeysArray = [self.networkInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
-            _carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
-            if (![_carrier respondsToSelector:@selector(mobileNetworkCode)] || !_carrier.mobileNetworkCode) {
-                _carrier = self.networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
-            }
-        }
-#endif
-        if (!_carrier && [self.networkInfo respondsToSelector:@selector(subscriberCellularProvider)]) {
-            _carrier = self.networkInfo.subscriberCellularProvider;
+    if (@available(iOS 12.1, *)) {
+        // 排序
+        NSArray *carrierKeysArray = [networkInfo.serviceSubscriberCellularProviders.allKeys sortedArrayUsingSelector:@selector(compare:)];
+        carrier = networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.firstObject];
+        if (![carrier respondsToSelector:@selector(mobileNetworkCode)] || !carrier.mobileNetworkCode) {
+            carrier = networkInfo.serviceSubscriberCellularProviders[carrierKeysArray.lastObject];
         }
     }
-    return _carrier;
+#endif
+    if (!carrier && [networkInfo respondsToSelector:@selector(subscriberCellularProvider)]) {
+        carrier = networkInfo.subscriberCellularProvider;
+    }
+    return carrier;
 }
 
 #endif
@@ -160,9 +165,7 @@ static NSString * const kSAEventPresetPropertyCarrier = @"$carrier";
         return @{kSAEventPresetPropertyCarrier: carrier};
     }
     NSMutableDictionary *props = [NSMutableDictionary dictionary];
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-    props[kSAEventPresetPropertyCarrier] = [self currentCarrierName];
-#endif
+    props[kSAEventPresetPropertyCarrier] = self.carrierName;
     return [props copy];
 }
 
