@@ -27,7 +27,9 @@
 #import "SAModuleManager.h"
 #import "SAURLUtils.h"
 #import "SAJSONUtil.h"
+#import "SAEventRecord.h"
 #import "SensorsAnalyticsSDK+Private.h"
+#import "SAConstants+Private.h"
 #import "SALog.h"
 
 NSString * const kSAFlushServerURL = @"serverURL";
@@ -100,8 +102,8 @@ NSString * const kSAFlushServerURL = @"serverURL";
             }
         }
 
-        NSDictionary *dict = [SAJSONUtil JSONObjectWithString:input.json];
-        SALogDebug(@"%@ %@: %@", self, messageDesc, dict);
+        NSArray *eventLogs = [self eventLogsWithRecoeds:input.records];
+        SALogDebug(@"%@ %@: %@", self, messageDesc, eventLogs);
 
         if (statusCode != 200) {
             SALogError(@"%@ ret_code: %ld, ret_content: %@", self, statusCode, urlResponseContent);
@@ -142,6 +144,25 @@ NSString * const kSAFlushServerURL = @"serverURL";
     }
 
     return request;
+}
+
+- (NSArray<NSDictionary *> *)eventLogsWithRecoeds:(NSArray <SAEventRecord *>*)records {
+    if (records.count == 0) {
+        return nil;
+    }
+    NSMutableArray <NSDictionary *>*eventSources = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        if(!record.isEncrypted) {
+            [eventSources addObject:record.event];
+            continue;
+        }
+
+        // 针对加密的数据，只需要打印合并后的数据即可
+        if(record.event[kSAEncryptRecordKeyPayloads]){
+            [eventSources addObject:record.event];
+        }
+    }
+    return [eventSources copy];
 }
 
 @end

@@ -65,9 +65,12 @@ typedef void(^SAFlowDataCompletion)(SAFlowData *output);
 
 /// 单条数据记录
 ///
-/// eventObject 转 json 后，构建 record
+/// eventObject 转 json 后，构建 record，待入库
 @property (nonatomic, strong, nullable) SAEventRecord *record;
 
+/// 多条数据记录
+///
+/// 从库中读取的数据记录，eventObject 转 json 后，构建 record，待上传
 @property (nonatomic, strong, nullable) NSArray<SAEventRecord *> *records;
 @property (nonatomic, strong, nullable) NSArray<NSString *> *recordIDs;
 
