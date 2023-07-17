@@ -37,22 +37,12 @@
 @implementation SAFlushHTTPBodyInterceptor (Encrypt)
 
 - (NSDictionary *)sensorsdata_buildBodyWithFlowData:(SAFlowData *)flowData {
-    BOOL isEncrypted = [SAEncryptManager defaultManager].configOptions.enableEncrypt && flowData.records.firstObject.isEncrypted;
     NSMutableDictionary *bodyData = [NSMutableDictionary dictionary];
-    bodyData[kSAFlushBodyKeyGzip] = @(kSAFlushGzipCodeEncrypt);
+    bodyData[kSAFlushBodyKeyGzip] = @(flowData.gzipCode);
     bodyData[kSAFlushBodyKeyData] = flowData.json;
-    if (isEncrypted) {
-        return [bodyData copy];
-    }
-    BOOL enableFlushEncrypt = [SAEncryptManager defaultManager].configOptions.enableFlushEncrypt;
-    if (!enableFlushEncrypt) {
+    if (flowData.gzipCode == SAFlushGzipCodePlainText) {
         return [self sensorsdata_buildBodyWithFlowData:flowData];
     }
-    if (flowData.records.firstObject.isEncrypted) {
-        bodyData[kSAFlushBodyKeyGzip] = @(kSAFlushGzipCodeEncrypt);
-        return [bodyData copy];
-    }
-    bodyData[kSAFlushBodyKeyGzip] = @(kSAFlushGzipCodeTransportEncrypt);
     return [bodyData copy];
 }
 

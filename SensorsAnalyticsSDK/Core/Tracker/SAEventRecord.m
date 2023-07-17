@@ -27,9 +27,7 @@
 #import "SAValidator.h"
 #import "SAConstants+Private.h"
 
-@implementation SAEventRecord {
-    NSMutableDictionary *_event;
-}
+@implementation SAEventRecord
 
 static long recordIndex = 0;
 

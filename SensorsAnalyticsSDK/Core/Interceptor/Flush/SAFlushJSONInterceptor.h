@@ -24,7 +24,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAFlushJSONInterceptor : SAInterceptor
 
-- (NSString *)buildJSONStringWithRecords:(NSArray<SAEventRecord *> *)records;
+- (NSString *)buildJSONStringWithFlowData:(SAFlowData *)flowData;
 
 @end
 

@@ -41,6 +41,7 @@ static NSString * const kSAFlowDataFlushSuccess = @"flush_success";
 static NSString * const kSAFlowDataStatusCode = @"status_code";
 static NSString * const kSAFlowDataFlushCookie = @"flush_cookie";
 static NSString * const kSAFlowDataRepeatCount = @"repeat_count";
+static NSString * const kSAFlowDataGzipCode = @"gzip_code";
 
 @implementation SAFlowData
 
@@ -171,6 +172,14 @@ static NSString * const kSAFlowDataRepeatCount = @"repeat_count";
 
 -(BOOL)isInstantEvent {
     return [self.param[kSAInstantEventKey] boolValue];
+}
+
+- (void)setGzipCode:(SAFlushGzipCode)gzipCode {
+    [self setParamWithKey:kSAFlowDataGzipCode value:@(gzipCode)];
+}
+
+- (SAFlushGzipCode)gzipCode {
+    return [self.param[kSAFlowDataGzipCode] integerValue];
 }
 
 @end

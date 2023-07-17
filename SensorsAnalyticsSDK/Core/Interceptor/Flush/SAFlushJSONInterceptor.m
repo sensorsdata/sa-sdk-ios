@@ -30,7 +30,8 @@
 @implementation SAFlushJSONInterceptor
 
 // 1. 先完成这一系列 Json 字符串的拼接
-- (NSString *)buildJSONStringWithRecords:(NSArray<SAEventRecord *> *)records {
+- (NSString *)buildJSONStringWithFlowData:(SAFlowData *)flowData {
+    NSArray <SAEventRecord *> *records = flowData.records;
     NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         NSString *flushContent = [record flushContent];
@@ -38,13 +39,14 @@
             [contents addObject:flushContent];
         }
     }
+    flowData.gzipCode = SAFlushGzipCodePlainText;
     return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
 }
 
 - (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
     NSParameterAssert(input.configOptions);
     NSParameterAssert(input.records.count > 0);
-    input.json = [self buildJSONStringWithRecords:input.records];
+    input.json = [self buildJSONStringWithFlowData:input];
     if (![SAValidator isValidString:input.json]) {
         input.state = SAFlowStateStop;
     }

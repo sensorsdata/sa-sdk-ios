@@ -531,6 +531,8 @@
 		F2E4ABAA26ECB19200BA7F01 /* SensorsAnalyticsSDK+DebugMode.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E4ABA826ECB19200BA7F01 /* SensorsAnalyticsSDK+DebugMode.m */; };
 		F2E9723125E637820009A2B9 /* SAAppPushManager.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E9722F25E637820009A2B9 /* SAAppPushManager.h */; };
 		F2E9723225E637820009A2B9 /* SAAppPushManager.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E9723025E637820009A2B9 /* SAAppPushManager.m */; };
+		F2F87BB52A49358100B8680C /* SAAESEventEncryptor.h in Headers */ = {isa = PBXBuildFile; fileRef = F2F87BB32A49358100B8680C /* SAAESEventEncryptor.h */; };
+		F2F87BB62A49358100B8680C /* SAAESEventEncryptor.m in Sources */ = {isa = PBXBuildFile; fileRef = F2F87BB42A49358100B8680C /* SAAESEventEncryptor.m */; };
 		F2FBB33528A25835008D10EB /* SAConfigOptions+Exposure.h in Headers */ = {isa = PBXBuildFile; fileRef = F2FBB33328A25835008D10EB /* SAConfigOptions+Exposure.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2FBB33928A2692D008D10EB /* SAExposureData.h in Headers */ = {isa = PBXBuildFile; fileRef = F2FBB33728A2692D008D10EB /* SAExposureData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2FBB33A28A2692D008D10EB /* SAExposureData.m in Sources */ = {isa = PBXBuildFile; fileRef = F2FBB33828A2692D008D10EB /* SAExposureData.m */; };
@@ -1119,6 +1121,8 @@
 		F2E4ABA826ECB19200BA7F01 /* SensorsAnalyticsSDK+DebugMode.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+DebugMode.m"; sourceTree = "<group>"; };
 		F2E9722F25E637820009A2B9 /* SAAppPushManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAAppPushManager.h; sourceTree = "<group>"; };
 		F2E9723025E637820009A2B9 /* SAAppPushManager.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAAppPushManager.m; sourceTree = "<group>"; };
+		F2F87BB32A49358100B8680C /* SAAESEventEncryptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAESEventEncryptor.h; sourceTree = "<group>"; };
+		F2F87BB42A49358100B8680C /* SAAESEventEncryptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAESEventEncryptor.m; sourceTree = "<group>"; };
 		F2FBB33328A25835008D10EB /* SAConfigOptions+Exposure.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+Exposure.h"; sourceTree = "<group>"; };
 		F2FBB33728A2692D008D10EB /* SAExposureData.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAExposureData.h; sourceTree = "<group>"; };
 		F2FBB33828A2692D008D10EB /* SAExposureData.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAExposureData.m; sourceTree = "<group>"; };
@@ -1824,6 +1828,8 @@
 				A82E893D267D918100475757 /* SASecretKeyFactory.m */,
 				A8BCC4A92686C42D00B72040 /* SASecretKey.h */,
 				A8BCC4AA2686C42D00B72040 /* SASecretKey.m */,
+				F2F87BB32A49358100B8680C /* SAAESEventEncryptor.h */,
+				F2F87BB42A49358100B8680C /* SAAESEventEncryptor.m */,
 			);
 			path = Encrypt;
 			sourceTree = "<group>";
@@ -2543,6 +2549,7 @@
 				F296FF042935A3DF00C40C48 /* NSObject+SAToString.h in Headers */,
 				A82E8953267D918100475757 /* SAECCEncryptor.h in Headers */,
 				4D958B1A2823D99E0086A71C /* SAFirstDayPropertyPlugin.h in Headers */,
+				F2F87BB52A49358100B8680C /* SAAESEventEncryptor.h in Headers */,
 				A8356DDB2656459A00FD64AA /* UIViewController+SAAutoTrack.h in Headers */,
 				4D6AE7FC26086E9300A9CB08 /* SAVisualizedEventCheck.h in Headers */,
 				88BC3A0B281652D000A98EDA /* SAPropertyPlugin+SAPrivate.h in Headers */,
@@ -2834,6 +2841,7 @@
 				4DDE42D029262993007EDA27 /* SALoggerPrePostFixFormatter.m in Sources */,
 				A8CC22362685E50C00E96A03 /* SARemoteConfigManager.m in Sources */,
 				4D14F16D25FC646A00113EA2 /* SAViewNodeTree.m in Sources */,
+				F2F87BB62A49358100B8680C /* SAAESEventEncryptor.m in Sources */,
 				4D5F3AC32833B280003A2C0A /* SADatabaseInterceptor.m in Sources */,
 				4D4DB2D025B7D19C00938842 /* SADelegateProxy.m in Sources */,
 				88F5537A27FD6A5400D95E7C /* SANodeObject.m in Sources */,

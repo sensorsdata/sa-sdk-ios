@@ -27,6 +27,7 @@
 #import "SAEventRecord.h"
 #import "SAConfigOptions+Encrypt.h"
 #import "SAEncryptManager.h"
+#import "SAConfigOptions+EncryptPrivate.h"
 
 #pragma mark -
 
@@ -41,17 +42,23 @@
         return completion(input);
     }
 
-    // 未开启加密
-    if (!input.configOptions.enableEncrypt) {
+    if (!input.record) {
+        completion(input);
+        return;
+    }
+
+    // 开启埋点加密
+    if (input.configOptions.enableEncrypt) {
+        NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:input.record.event];
+        [input.record setSecretObject:obj];
         return completion(input);
     }
 
-    // 入库前，单条数据加密
-    if (input.record) {
-        NSDictionary *obj = [SAModuleManager.sharedInstance encryptJSONObject:input.record.event];
-        [input.record setSecretObject:obj];
+    // 开启传输加密
+    if ([SAEncryptManager defaultManager].configOptions.enableFlushEncrypt) {
+        NSDictionary *obj = [[SAEncryptManager defaultManager] encryptEventRecord:input.record.event];
+        input.record.event = [NSMutableDictionary dictionaryWithDictionary:obj];
     }
-
     completion(input);
 }
 

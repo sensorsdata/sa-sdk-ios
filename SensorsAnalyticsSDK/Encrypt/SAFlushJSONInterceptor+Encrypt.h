@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAFlushJSONInterceptor (Encrypt)
 
-- (NSString *)sensorsdata_buildJSONStringWithRecords:(NSArray<SAEventRecord *> *)records;
+- (NSString *)sensorsdata_buildJSONStringWithFlowData:(SAFlowData *)flowData;
 
 @end
 

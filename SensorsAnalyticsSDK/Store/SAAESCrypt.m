@@ -45,14 +45,7 @@
 
 - (NSData *)key {
     if (!_key) {
-        // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
-        NSUInteger length = 16;
-        NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
-        NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
-        for (NSUInteger i = 0; i < length; i++) {
-            [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
-        }
-        _key = [randomString dataUsingEncoding:NSUTF8StringEncoding];
+        _key = [SAAESCrypt randomKey];
     }
     return _key;
 }
@@ -147,6 +140,18 @@
         free(buffer);
     }
     return nil;
+}
+
++ (NSData *)randomKey {
+    // 默认使用 16 位长度随机字符串，RSA 和 ECC 保持一致
+    NSUInteger length = 16;
+    NSString *letters = @"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!#$%&()*+,-./:;<=>?@[]^_{}|~";
+    NSMutableString *randomString = [NSMutableString stringWithCapacity:length];
+    for (NSUInteger i = 0; i < length; i++) {
+        [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
+    }
+    NSData *randomKey = [randomString dataUsingEncoding:NSUTF8StringEncoding];;
+    return randomKey;
 }
 
 @end

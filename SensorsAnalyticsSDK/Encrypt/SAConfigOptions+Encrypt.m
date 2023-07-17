@@ -23,6 +23,8 @@
 #endif
 
 #import "SAConfigOptions+Encrypt.h"
+#import "SAConfigOptions+EncryptPrivate.h"
+#import "SAEncryptProtocol.h"
 
 @interface SAConfigOptions ()
 
@@ -31,6 +33,7 @@
 @property (nonatomic, assign) BOOL enableTransportEncrypt;
 @property (nonatomic, copy) void (^saveSecretKey)(SASecretKey * _Nonnull secretKey);
 @property (nonatomic, copy) SASecretKey * _Nonnull (^loadSecretKey)(void);
+@property (nonatomic, strong) id<SAEventEncryptProtocol> eventEncryptor;
 
 @end
 
@@ -54,6 +57,12 @@
             [encryptor respondsToSelector:@selector(asymmetricEncryptType)] &&
             [encryptor respondsToSelector:@selector(encryptEvent:)] &&
             [encryptor respondsToSelector:@selector(encryptSymmetricKeyWithPublicKey:)]);
+}
+
+- (void)registerEventEncryptor:(id<SAEventEncryptProtocol>)encryptor {
+    if([encryptor respondsToSelector:@selector(encryptEventRecord:)] && [encryptor respondsToSelector:@selector(decryptEventRecord:)]) {
+        self.eventEncryptor = encryptor;
+    }
 }
 
 @end

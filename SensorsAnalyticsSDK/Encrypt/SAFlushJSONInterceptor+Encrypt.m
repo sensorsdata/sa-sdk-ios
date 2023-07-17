@@ -37,23 +37,29 @@
 
 @implementation SAFlushJSONInterceptor (Encrypt)
 
-- (NSString *)sensorsdata_buildJSONStringWithRecords:(NSArray<SAEventRecord *> *)records {
-    BOOL isEncrypted = [SAEncryptManager defaultManager].configOptions.enableEncrypt && records.firstObject.isEncrypted;
-    if (isEncrypted) {
-        return [self buildEncryptJSONStringWithRecords:records];
+- (NSString *)sensorsdata_buildJSONStringWithFlowData:(SAFlowData *)flowData {
+    NSArray <SAEventRecord *> *records = flowData.records;
+    BOOL enableEncrypt = [SAEncryptManager defaultManager].configOptions.enableEncrypt;
+    BOOL firstRecordsEncrypted = records.firstObject.isEncrypted;
+    if (enableEncrypt) {
+        if (firstRecordsEncrypted) {
+            return [self buildEncryptJSONStringWithFlowData:flowData];
+        }
+        return [self sensorsdata_buildJSONStringWithFlowData:flowData];
     }
     BOOL enableFlushEncrypt = [SAEncryptManager defaultManager].configOptions.enableFlushEncrypt;
     if (!enableFlushEncrypt) {
-        return [self sensorsdata_buildJSONStringWithRecords:records];
+        return [self sensorsdata_buildJSONStringWithFlowData:flowData];
     }
-    if (records.firstObject.isEncrypted) {
-        return [self buildEncryptJSONStringWithRecords:records];
+    if (firstRecordsEncrypted) {
+        return [self buildEncryptJSONStringWithFlowData:flowData];
     }
-    return [self buildFlushEncryptJSONStringWithRecords:records];
+    return [self buildFlushEncryptJSONStringWithFlowData:flowData];
 }
 
-- (NSString *)buildEncryptJSONStringWithRecords:(NSArray<SAEventRecord *> *)records {
+- (NSString *)buildEncryptJSONStringWithFlowData:(SAFlowData *)flowData {
     // 初始化用于保存合并后的事件数据
+    NSArray <SAEventRecord *> *records = flowData.records;
     NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
     // 用于保存当前存在的所有 ekey
     NSMutableArray *ekeys = [NSMutableArray arrayWithCapacity:records.count];
@@ -68,17 +74,34 @@
             [encryptRecords[index] mergeSameEKeyRecord:record];
         }
     }
-    return [self sensorsdata_buildJSONStringWithRecords:encryptRecords];
+    flowData.gzipCode = SAFlushGzipCodeEncrypt;
+    return [self buildEncryptJSONStringWithRecords:encryptRecords];
 }
 
-- (NSString *)buildFlushEncryptJSONStringWithRecords:(NSArray<SAEventRecord *> *)records {
+- (NSString *)buildEncryptJSONStringWithRecords:(NSArray *)records {
+    NSMutableArray *contents = [NSMutableArray arrayWithCapacity:records.count];
+    for (SAEventRecord *record in records) {
+        NSString *flushContent = [record flushContent];
+        if (flushContent) {
+            [contents addObject:flushContent];
+        }
+    }
+    return [NSString stringWithFormat:@"[%@]", [contents componentsJoinedByString:@","]];
+}
+
+- (NSString *)buildFlushEncryptJSONStringWithFlowData:(SAFlowData *)flowData {
+    NSArray <SAEventRecord *> *records = flowData.records;
     NSMutableArray *events = [NSMutableArray array];
     for (SAEventRecord *record in records) {
-        [events addObject:record.event];
+        NSDictionary *decryptedEvent = [self decryptEventRecord:record.event];
+        if (decryptedEvent) {
+            [events addObject:decryptedEvent];
+            record.event = [NSMutableDictionary dictionaryWithDictionary:decryptedEvent];
+        }
     }
     NSDictionary *encryptEvents = [[SAEncryptManager defaultManager] encryptJSONObject:events];
     if (!encryptEvents) {
-        return nil;
+        return [self sensorsdata_buildJSONStringWithFlowData:flowData];
     }
     NSMutableDictionary *tempEncryptEvents = [NSMutableDictionary dictionary];
     tempEncryptEvents[kSAEncryptRecordKeyPayloads] = encryptEvents[kSAEncryptRecordKeyPayload];
@@ -86,7 +109,16 @@
     tempEncryptEvents[kSAEncryptRecordKeyPKV] = encryptEvents[kSAEncryptRecordKeyPKV];
     UInt64 time = [[NSDate date] timeIntervalSince1970] * 1000;
     tempEncryptEvents[kSAEncryptRecordKeyFlushTime] = @(time);
+    flowData.gzipCode = SAFlushGzipCodeTransportEncrypt;
     return [SAJSONUtil stringWithJSONObject:@[tempEncryptEvents]];
+}
+
+- (NSDictionary *)decryptEventRecord:(NSDictionary *)eventRecord {
+    if (!eventRecord[kSAEncryptRecordKeyPayload]) {
+        return eventRecord;
+    }
+    NSDictionary *eventData = [[SAEncryptManager defaultManager] decryptEventRecord:eventRecord];
+    return eventData;
 }
 
 @end

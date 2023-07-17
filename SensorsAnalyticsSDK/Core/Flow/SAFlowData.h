@@ -31,6 +31,13 @@ typedef NS_ENUM(NSUInteger, SAFlowState) {
     SAFlowStateStop,
     SAFlowStateError,
 };
+
+typedef NS_ENUM(NSUInteger, SAFlushGzipCode) {
+    SAFlushGzipCodePlainText = 1,
+    SAFlushGzipCodeEncrypt = 9,
+    SAFlushGzipCodeTransportEncrypt = 13,
+};
+
 typedef void(^SAFlowDataCompletion)(SAFlowData *output);
 
 @interface SAFlowData : NSObject
@@ -81,6 +88,8 @@ typedef void(^SAFlowDataCompletion)(SAFlowData *output);
 @property (nonatomic, assign) NSInteger statusCode;
 @property (nonatomic, copy, nullable) NSString *cookie;
 @property (nonatomic, assign) NSInteger repeatCount;
+
+@property (nonatomic, assign) SAFlushGzipCode gzipCode;
 
 @end
 

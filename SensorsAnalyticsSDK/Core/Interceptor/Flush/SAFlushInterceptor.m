@@ -102,7 +102,7 @@ NSString * const kSAFlushServerURL = @"serverURL";
             }
         }
 
-        NSArray *eventLogs = [self eventLogsWithRecoeds:input.records];
+        NSArray *eventLogs = [self eventLogsWithInput:input];
         SALogDebug(@"%@ %@: %@", self, messageDesc, eventLogs);
 
         if (statusCode != 200) {
@@ -146,10 +146,18 @@ NSString * const kSAFlushServerURL = @"serverURL";
     return request;
 }
 
-- (NSArray<NSDictionary *> *)eventLogsWithRecoeds:(NSArray <SAEventRecord *>*)records {
+- (NSArray<NSDictionary *> *)eventLogsWithInput:(SAFlowData *)input {
+    NSArray <SAEventRecord *>*records = input.records;
     if (records.count == 0) {
         return nil;
     }
+#if TARGET_OS_IOS
+    // 传输加密，使用 hook - buildBodyWithFlowData: 实现，数据流处理逻辑不同，日志需单独解析
+    if(input.configOptions.enableTransportEncrypt && !input.configOptions.enableEncrypt && [input.json containsString:kSAEncryptRecordKeyEKey]) {
+        return [self eventTransportEncryptLogsWithInput:input];
+    }
+#endif
+
     NSMutableArray <NSDictionary *>*eventSources = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         if(!record.isEncrypted) {
@@ -165,4 +173,17 @@ NSString * const kSAFlushServerURL = @"serverURL";
     return [eventSources copy];
 }
 
+// 解析传输加密的日志，并格式化成 json
+- (NSArray<NSDictionary *> *)eventTransportEncryptLogsWithInput:(SAFlowData *)input {
+    NSString *jsonString = input.json;
+    if(![jsonString hasPrefix:@"["] || ![jsonString hasSuffix:@"]"]) {
+        return nil;
+    }
+    NSString *originJsonString = [jsonString substringWithRange:NSMakeRange(1, jsonString.length - 2)];
+    NSDictionary *jsonDic = [SAJSONUtil JSONObjectWithString:originJsonString];
+    if(jsonDic) {
+        return @[jsonDic];
+    }
+    return nil;
+}
 @end

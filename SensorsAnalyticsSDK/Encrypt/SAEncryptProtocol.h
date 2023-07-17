@@ -37,3 +37,10 @@
 - (NSString *)encryptSymmetricKeyWithPublicKey:(NSString *)publicKey;
 
 @end
+
+@protocol SAEventEncryptProtocol <NSObject>
+
+- (NSString *)encryptEventRecord:(NSData *)eventRecord;
+- (NSData *)decryptEventRecord:(NSString *)eventRecord;
+
+@end

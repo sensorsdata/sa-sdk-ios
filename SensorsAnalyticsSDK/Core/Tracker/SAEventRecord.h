@@ -37,7 +37,7 @@ typedef NS_ENUM(int, SAEventRecordStatus) {
 @property (nonatomic, getter=isEncrypted) BOOL encrypted;
 @property (nonatomic, assign) BOOL isInstantEvent;
 
-@property (nonatomic, copy, readonly) NSDictionary *event;
+@property (nonatomic, strong) NSMutableDictionary *event;
 
 /// 通过 event 初始化方法
 /// 主要是在 track 事件的时候使用

@@ -20,6 +20,7 @@
 
 
 #import "SAConfigOptions.h"
+#import "SAEncryptProtocol.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -27,6 +28,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 /// enable encrypt bulk events when flush
 @property (nonatomic, assign) BOOL enableFlushEncrypt;
+- (void)registerEventEncryptor:(id<SAEventEncryptProtocol>)encryptor API_UNAVAILABLE(macos);
 
 @end
 

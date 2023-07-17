@@ -42,12 +42,15 @@
 #import "SASwizzle.h"
 #import "SAFlushJSONInterceptor+Encrypt.h"
 #import "SAFlushHTTPBodyInterceptor+Encrypt.h"
+#import "SAAESEventEncryptor.h"
+#import "SAConfigOptions+EncryptPrivate.h"
 
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @interface SAConfigOptions (Private)
 
 @property (atomic, strong, readonly) NSMutableArray *encryptors;
+@property (nonatomic, strong) id<SAEventEncryptProtocol> eventEncryptor;
 
 @end
 
@@ -67,6 +70,9 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 /// 防止 RSA 加密时卡住主线程, 所以新建串行队列处理
 @property (nonatomic, strong) dispatch_queue_t encryptQueue;
+
+//local event encryptor using AES 128
+@property (nonatomic, strong) SAAESEventEncryptor *eventEncryptor;
 
 @end
 
@@ -96,6 +102,8 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 }
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
+    //register event encryptor
+    [configOptions registerEventEncryptor:[[SAAESEventEncryptor alloc] init]];
     _configOptions = configOptions;
     if (configOptions.enableEncrypt) {
         NSAssert((configOptions.saveSecretKey && configOptions.loadSecretKey) || (!configOptions.saveSecretKey && !configOptions.loadSecretKey), @"Block saveSecretKey and loadSecretKey need to be fully implemented or not implemented at all.");
@@ -110,6 +118,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     [encryptors addObject:[[SARSAPluginEncryptor alloc] init]];
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
+    self.eventEncryptor = configOptions.eventEncryptor;
     self.enable = configOptions.enableEncrypt || configOptions.enableTransportEncrypt;
     [self loadLocalRemoteConfig];
 }
@@ -209,6 +218,19 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
         SALogError(@"%@ error: %@", self, exception);
         return nil;
     }
+}
+
+- (NSDictionary *)encryptEventRecord:(NSDictionary *)eventRecord {
+    NSData *jsonData = [SAJSONUtil dataWithJSONObject:eventRecord];
+    NSMutableDictionary *eventJson = [NSMutableDictionary dictionary];
+    eventJson[kSAEncryptRecordKeyPayload] = [self.eventEncryptor encryptEventRecord:jsonData];
+    return [eventJson copy];
+}
+
+- (NSDictionary *)decryptEventRecord:(NSDictionary *)eventRecord {
+    NSString *encryptedEvent = eventRecord[kSAEncryptRecordKeyPayload];
+    NSData *eventData = [self.eventEncryptor decryptEventRecord:encryptedEvent];
+    return [SAJSONUtil JSONObjectWithData:eventData];
 }
 
 - (BOOL)encryptSymmetricKey {
@@ -385,7 +407,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 - (void)swizzleFlushInteceptorMethods {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        [SAFlushJSONInterceptor sa_swizzleMethod:@selector(buildJSONStringWithRecords:) withMethod:@selector(sensorsdata_buildJSONStringWithRecords:) error:NULL];
+        [SAFlushJSONInterceptor sa_swizzleMethod:@selector(buildJSONStringWithFlowData:) withMethod:@selector(sensorsdata_buildJSONStringWithFlowData:) error:NULL];
         [SAFlushHTTPBodyInterceptor sa_swizzleMethod:@selector(buildBodyWithFlowData:) withMethod:@selector(sensorsdata_buildBodyWithFlowData:) error:NULL];
     });
 }

@@ -36,6 +36,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 @interface SAConfigOptions ()<NSCopying>
 
 @property (atomic, strong, readwrite) NSMutableArray *encryptors;
+@property (nonatomic, strong) id eventEncryptor;
 @property (nonatomic, assign) BOOL enableTrackPush;
 
 @property (nonatomic, assign) BOOL enableHeatMap;
@@ -165,6 +166,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
     // 加密
     options.encryptors = self.encryptors;
+    options.eventEncryptor = self.eventEncryptor;
     options.enableEncrypt = self.enableEncrypt;
     options.enableTransportEncrypt = self.enableTransportEncrypt;
     options.enableFlushEncrypt = self.enableFlushEncrypt;

@@ -31,6 +31,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)encryptData:(NSData *)data;
 - (nullable NSData *)decryptData:(NSData *)obj;
 
++ (NSData *)randomKey;
+
 @end
 
 NS_ASSUME_NONNULL_END
