@@ -151,12 +151,10 @@ NSString * const kSAFlushServerURL = @"serverURL";
     if (records.count == 0) {
         return nil;
     }
-#if TARGET_OS_IOS
     // 传输加密，使用 hook - buildBodyWithFlowData: 实现，数据流处理逻辑不同，日志需单独解析
-    if(input.configOptions.enableTransportEncrypt && !input.configOptions.enableEncrypt && [input.json containsString:kSAEncryptRecordKeyEKey]) {
+    if(input.gzipCode == kSAFlushGzipCodeTransportEncrypt) {
         return [self eventTransportEncryptLogsWithInput:input];
     }
-#endif
 
     NSMutableArray <NSDictionary *>*eventSources = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
