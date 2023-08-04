@@ -312,7 +312,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
         return;
     }
     SADeepLinkEventProcessor *processor = [[SADeepLinkEventProcessor alloc] init];
-    [processor startWithProperties:nil];
+    [processor startWithProperties:(url ? @{kSAEventPropertyDeepLinkURL: url} : nil)];
 }
 
 - (void)requestDeferredDeepLink:(NSDictionary *)properties {

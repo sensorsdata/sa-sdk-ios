@@ -102,9 +102,11 @@
 - (void)trackDeepLinkLaunch:(NSDictionary *)properties {
     SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeepLinkLaunchEvent];
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
-    [eventProperties addEntriesFromDictionary:properties];
     eventProperties[kSAEventPropertyDeepLinkURL] = self.URL.absoluteString;
     eventProperties[kSAEventPropertyInstallSource] = [self appInstallSource];
+    if (properties) {
+        [eventProperties addEntriesFromDictionary:properties];
+    }
     [SensorsAnalyticsSDK.sharedInstance trackEventObject:object properties:eventProperties];
 }
 
