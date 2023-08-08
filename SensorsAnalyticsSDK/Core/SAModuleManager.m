@@ -99,7 +99,7 @@ static NSString * const kSAExposureModuleName = @"Exposure";
     if (configOptions.disableSDK) {
         return;
     }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     for (NSString *moduleName in self.moduleNames) {
         if ([moduleName isEqualToString:kSAJavaScriptBridgeModuleName]) {
             continue;

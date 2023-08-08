@@ -1051,7 +1051,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     if (self.configOptions.disableSDK) {
         return;
     }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
 #endif
 }
