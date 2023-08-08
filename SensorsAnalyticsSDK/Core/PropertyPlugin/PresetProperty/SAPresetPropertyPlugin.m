@@ -64,6 +64,8 @@
     }
 #elif TARGET_OS_OSX
     propertyObject = [[SAMacPresetProperty alloc] init];
+#elif TARGET_OS_WATCH
+    propertyObject = [[SAWatchPresetProperty alloc] init];
 #endif
 
     NSMutableDictionary<NSString *, id> *properties = [NSMutableDictionary dictionary];

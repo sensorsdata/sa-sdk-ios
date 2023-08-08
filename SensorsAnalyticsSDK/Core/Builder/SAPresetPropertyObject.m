@@ -32,6 +32,8 @@
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif
 
 @implementation SAPresetPropertyObject
@@ -241,6 +243,38 @@ NSString * const kSAEventPresetPropertyPluginLib = @"$lib";
 
 - (NSInteger)screenWidth {
     return (NSInteger)NSScreen.mainScreen.frame.size.width;
+}
+
+@end
+#endif
+
+#if TARGET_OS_WATCH
+@implementation SAWatchPresetProperty
+
+- (NSString *)deviceModel {
+    return [self sysctlByName:@"hw.machine"];
+}
+
+- (NSString *)lib {
+    // FIXME: If supported, report "watchOS".
+    return @"iOS";
+}
+
+- (NSString *)os {
+    // FIXME: If supported, report "watchOS".
+    return @"iOS";
+}
+
+- (NSString *)osVersion {
+    return [[WKInterfaceDevice currentDevice] systemVersion];
+}
+
+- (NSInteger)screenHeight {
+    return (NSInteger)[WKInterfaceDevice currentDevice].screenBounds.size.height;
+}
+
+- (NSInteger)screenWidth {
+    return (NSInteger)[WKInterfaceDevice currentDevice].screenBounds.size.width;
 }
 
 @end

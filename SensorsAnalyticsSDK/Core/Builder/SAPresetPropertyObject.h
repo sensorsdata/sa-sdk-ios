@@ -55,4 +55,10 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 #endif
 
+#if TARGET_OS_WATCH
+@interface SAWatchPresetProperty : SAPresetPropertyObject
+
+@end
+#endif
+
 NS_ASSUME_NONNULL_END

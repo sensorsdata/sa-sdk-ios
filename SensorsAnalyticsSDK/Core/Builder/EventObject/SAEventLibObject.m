@@ -43,7 +43,8 @@ NSString * const kSAEventPresetPropertyAppVersion = @"$app_version";
 - (instancetype)init {
     self = [super init];
     if (self) {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
+        // FIXME: If supported, report "watchOS".
         _lib = @"iOS";
 #elif TARGET_OS_OSX
         _lib = @"macOS";
