@@ -30,6 +30,8 @@
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif
 
 NSNotificationName const kSAAppLifecycleStateWillChangeNotification = @"com.sensorsdata.SAAppLifecycleStateWillChange";
@@ -68,6 +70,8 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 #if TARGET_OS_IOS
         UIApplication *application = [SAApplication sharedApplication];
         BOOL isAppStateBackground = application.applicationState == UIApplicationStateBackground;
+#elif TARGET_OS_WATCH
+        BOOL isAppStateBackground = [WKApplication sharedApplication].applicationState == WKApplicationStateBackground;
 #else
         BOOL isAppStateBackground = NO;
 #endif
@@ -87,6 +91,11 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
         [[NSNotificationCenter defaultCenter] addObserver:self
                                                  selector:@selector(applicationDidFinishLaunching:)
                                                      name:UIApplicationDidFinishLaunchingNotification
+                                                   object:nil];
+#elif TARGET_OS_WATCH
+        [[NSNotificationCenter defaultCenter] addObserver:self
+                                                 selector:@selector(applicationDidFinishLaunching:)
+                                                     name:WKApplicationDidFinishLaunchingNotification
                                                    object:nil];
 #endif
         // 处理 iOS 13 以下（冷启动）延迟初始化的情况
@@ -137,9 +146,17 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
                            selector:@selector(applicationWillTerminate:)
                                name:UIApplicationWillTerminateNotification
                         object:nil];
+#elif TARGET_OS_WATCH
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidBecomeActive:)
+                               name:WKApplicationDidBecomeActiveNotification
+                             object:nil];
 
+    [notificationCenter addObserver:self
+                           selector:@selector(applicationDidEnterBackground:)
+                               name:WKApplicationDidEnterBackgroundNotification
+                             object:nil];
 #elif TARGET_OS_OSX
-
     [notificationCenter addObserver:self
                            selector:@selector(applicationDidFinishLaunching:)
                                name:NSApplicationDidFinishLaunchingNotification
@@ -169,6 +186,9 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
 #if TARGET_OS_IOS
     UIApplication *application = [SAApplication sharedApplication];
     BOOL isAppStateBackground = application.applicationState == UIApplicationStateBackground;
+    self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
+#elif TARGET_OS_WATCH
+    BOOL isAppStateBackground = [WKApplication sharedApplication].applicationState == WKApplicationStateBackground;
     self.state = isAppStateBackground ? SAAppLifecycleStateStartPassively : SAAppLifecycleStateStart;
 #else
     self.state = SAAppLifecycleStateStart;
@@ -202,10 +222,11 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     self.state = SAAppLifecycleStateStart;
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
 - (void)applicationDidEnterBackground:(NSNotification *)notification {
     SALogDebug(@"application did enter background");
 
+#if TARGET_OS_IOS
     // 防止主动触发 UIApplicationDidEnterBackgroundNotification
     if (![notification.object isKindOfClass:[UIApplication class]]) {
         return;
@@ -215,6 +236,16 @@ NSString * const kSAAppLifecycleOldStateKey = @"old";
     if (application.applicationState != UIApplicationStateBackground) {
         return;
     }
+#elif TARGET_OS_WATCH
+    if (![notification.object isKindOfClass:[WKApplication class]]) {
+        return;
+    }
+
+    WKApplication *application = (WKApplication *)notification.object;
+    if (application.applicationState != WKApplicationStateBackground) {
+        return;
+    }
+#endif
 
     self.state = SAAppLifecycleStateEnd;
 }
