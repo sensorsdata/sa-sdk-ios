@@ -30,9 +30,14 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALimitKeyManager.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
 #import "SAKeyChainItemWrapper.h"
+#endif
+
+#if TARGET_OS_IOS
 #import <UIKit/UIKit.h>
+#elif TARGET_OS_WATCH
+#import <WatchKit/WatchKit.h>
 #endif
 
 NSString * const kSAIdentities = @"com.sensorsdata.identities";
@@ -122,7 +127,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [[SAStoreManager sharedInstance] setObject:anonymousId forKey:kSAEventDistinctId];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
 }
@@ -226,7 +231,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
     });
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
 + (NSString *)idfa {
     NSString *idfa = SALimitKeyManager.idfa;
     if ([idfa isEqualToString:@""]) {
@@ -235,6 +240,9 @@ NSString * const kSALoginIdSpliceKey = @"+";
         return idfa;
     }
 
+#if TARGET_OS_WATCH
+    return nil;
+#else
     Class cla = NSClassFromString(@"SAIDFAHelper");
     SEL sel = NSSelectorFromString(@"idfa");
     if ([cla respondsToSelector:sel]) {
@@ -244,6 +252,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
         }
     }
     return nil;
+#endif
 }
 
 + (NSString *)idfv {
@@ -254,7 +263,11 @@ NSString * const kSALoginIdSpliceKey = @"+";
         return idfv;
     }
 
+#if TARGET_OS_IOS
     return [UIDevice currentDevice].identifierForVendor.UUIDString;
+#elif TARGET_OS_WATCH
+    return [WKInterfaceDevice currentDevice].identifierForVendor.UUIDString;
+#endif
 }
 #elif TARGET_OS_OSX
 /// mac SerialNumber（序列号）作为设备标识
@@ -277,7 +290,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
 + (NSString *)hardwareID {
     NSString *distinctId = nil;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     distinctId = [self idfa];
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
@@ -300,7 +313,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [[SAStoreManager sharedInstance] objectForKey:kSAEventDistinctId];
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
@@ -588,7 +601,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
     if (!identities[kSAIdentitiesUniqueID] && !identities[kSAIdentitiesUUID] ) {
         NSString *key = kSAIdentitiesUUID;
         NSString *value = [NSUUID UUID].UUIDString;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
         if ([SAIdentifier idfv]) {
             key = kSAIdentitiesUniqueID;
             value = [SAIdentifier idfv];
