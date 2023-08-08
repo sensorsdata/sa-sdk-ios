@@ -238,7 +238,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
                 [self addRemoteConfigObservers];
             }
             
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
             
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
@@ -341,7 +341,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     });
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
     SASecurityPolicy *securityPolicy = options.securityPolicy;
     if (!securityPolicy) {

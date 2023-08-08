@@ -155,7 +155,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.propertyPlugins = self.propertyPlugins;
     options.instantEvents = self.instantEvents;
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     // 支持 https 自签证书
     options.securityPolicy = [self.securityPolicy copy];
 
