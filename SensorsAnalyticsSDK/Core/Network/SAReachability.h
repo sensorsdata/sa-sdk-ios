@@ -18,6 +18,8 @@
 // limitations under the License.
 //
 
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
+
 #import <Foundation/Foundation.h>
 #import <SystemConfiguration/SystemConfiguration.h>
 
@@ -50,3 +52,5 @@ NS_ASSUME_NONNULL_BEGIN
 @end
 
 NS_ASSUME_NONNULL_END
+
+#endif

@@ -141,6 +141,7 @@ static NSString * const kSAEventPresetPropertyWifi = @"$wifi";
 #endif
 
 - (NSString *)networkTypeString {
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
     NSString *networkTypeString = @"NULL";
     @try {
         if ([SAReachability sharedInstance].isReachableViaWiFi) {
@@ -155,6 +156,9 @@ static NSString * const kSAEventPresetPropertyWifi = @"$wifi";
         SALogError(@"%@: %@", self, exception);
     }
     return networkTypeString;
+#else
+    return @"WIFI";
+#endif
 }
 
 #pragma mark - public method
