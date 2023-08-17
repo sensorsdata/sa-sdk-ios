@@ -51,19 +51,19 @@ DeepLink 回调函数
   succes：deepLink 唤起结果
   appAwakePassedTime：获取渠道信息所用时间
 */
-- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback API_UNAVAILABLE(macos) __attribute__((deprecated("已过时，请参考 setDeepLinkCompletion")));
+- (void)setDeeplinkCallback:(void(^)(NSString *_Nullable params, BOOL success, NSInteger appAwakePassedTime))callback API_UNAVAILABLE(macos) __attribute__((deprecated("已过时，请参考 setDeepLinkCompletion"))) NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.");
 
 /**
 触发 $AppDeepLinkLaunch 事件
 @param url 唤起 App 的 DeepLink url
 */
-- (void)trackDeepLinkLaunchWithURL:(NSString *)url API_UNAVAILABLE(macos);
+- (void)trackDeepLinkLaunchWithURL:(NSString *)url API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.");
 
 /**
 手动触发 Deferred DeepLink 请求，需要在获取设备权限、网络权限后调用
 @param properties 发送请求时自定义参数
 */
-- (void)requestDeferredDeepLink:(NSDictionary *)properties API_UNAVAILABLE(macos);
+- (void)requestDeferredDeepLink:(NSDictionary *)properties API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.");
 
 /**
  @abstract
@@ -74,7 +74,7 @@ DeepLink 回调函数
   若您同时实现了 setDeepLinkCompletion 和 setDeeplinkCallback 两个 API，SDK 内部也只会回调 setDeepLinkCompletion 回调函数。
  @param completion 唤起后的回调函数，当页面跳转成功时，completion 返回值 return YES，反之则 return NO
  */
-- (void)setDeepLinkCompletion:(BOOL(^)(SADeepLinkObject *_Nullable obj))completion API_UNAVAILABLE(macos);
+- (void)setDeepLinkCompletion:(BOOL(^)(SADeepLinkObject *_Nullable obj))completion API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.");
 
 @end
 

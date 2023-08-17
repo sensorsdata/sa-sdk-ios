@@ -33,6 +33,7 @@
 
     for (SAExposureViewObject *exposureViewObject in [SAExposureManager defaultManager].exposureViewObjects) {
         if (exposureViewObject.viewController == self) {
+            [exposureViewObject findNearbyScrollView];
             [exposureViewObject exposureConditionCheck];
         }
     }

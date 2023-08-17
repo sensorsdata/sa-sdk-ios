@@ -106,7 +106,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
 /// 判断一个 view 是否被覆盖
 /// @param view 当前 view
 /// @param fromView 遮挡的 view
-+ (BOOL)isCoveredForView:(UIView *)view fromView:(UIView *)fromView {
++ (BOOL)isCoveredForView:(UIView *)view fromView:(UIView *)fromView NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     CGRect rect = [view convertRect:view.bounds toView:nil];
     // 视图可能超出屏幕，计算 keywindow 交集，即在屏幕显示的有效区域
     CGRect keyWindowFrame = [UIApplication sharedApplication].keyWindow.frame;
@@ -360,7 +360,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
 
 #pragma mark keyWindow
 /// 获取当前有效的 keyWindow
-+ (UIWindow *)currentValidKeyWindow {
++ (UIWindow *)currentValidKeyWindow NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.")  {
     UIWindow *keyWindow = nil;
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 130000
     if (@available(iOS 13.0, *)) {
@@ -388,7 +388,7 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
     return keyWindow ?: [self topWindow];
 }
 
-+ (UIWindow *)topWindow {
++ (UIWindow *)topWindow NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
     NSArray<UIWindow *> *allWindows = [UIApplication sharedApplication].windows;
 

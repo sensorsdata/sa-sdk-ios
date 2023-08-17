@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param controllers 指定的页面的类名数组
  */
-- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
+- (void)addVisualizedAutoTrackViewControllers:(NSArray<NSString *> *)controllers NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.");
 
 /**
  某个页面是否开启 可视化全埋点 分析。
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 页面 viewController
  @return YES/NO
  */
-- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
+- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.");
 
 #pragma mark HeatMap
 
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param controllers 需要开启点击图的 ViewController 的类名
  */
-- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers;
+- (void)addHeatMapViewControllers:(NSArray<NSString *> *)controllers NS_EXTENSION_UNAVAILABLE("HeatMap not supported for iOS extensions.");
 
 /**
  当前页面是否开启 点击图 分析。
@@ -71,7 +71,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 当前页面 viewController
  @return 当前 viewController 是否支持点击图分析
  */
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController NS_EXTENSION_UNAVAILABLE("HeatMap not supported for iOS extensions.");
 
 @end
 

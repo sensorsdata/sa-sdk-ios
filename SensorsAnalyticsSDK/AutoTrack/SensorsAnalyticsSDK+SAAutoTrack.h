@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param aClass View 对应的 Class
  */
-- (void)ignoreViewType:(Class)aClass;
+- (void)ignoreViewType:(Class)aClass NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
 
 /**
  * @abstract
@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param controllers   controller ‘字符串’数组
  */
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
+- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
 
 /**
  * @abstract
@@ -156,7 +156,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType")));
+- (void)enableAutoTrack:(SensorsAnalyticsAutoTrackEventType)eventType __attribute__((deprecated("已过时，请参考 SAConfigOptions 类的 autoTrackEventType"))) NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
 
 @end
 

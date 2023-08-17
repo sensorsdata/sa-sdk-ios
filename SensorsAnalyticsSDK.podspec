@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.5.14"
+  s.version      = "4.5.15"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -27,12 +27,8 @@ Pod::Spec.new do |s|
     b.dependency 'SensorsAnalyticsSDK/__Store'
   end
 
-  s.subspec 'Extension' do |e|
-    e.dependency 'SensorsAnalyticsSDK/Base'
-  end
-
   s.subspec 'Common' do |c|
-    c.dependency 'SensorsAnalyticsSDK/Extension'
+    c.dependency 'SensorsAnalyticsSDK/Base'
     c.public_header_files = 'SensorsAnalyticsSDK/JSBridge/SensorsAnalyticsSDK+JavaScriptBridge.h'
     c.source_files = 'SensorsAnalyticsSDK/Core/SAAlertController.{h,m}', 'SensorsAnalyticsSDK/JSBridge/**/*.{h,m}'
     c.ios.source_files = 'SensorsAnalyticsSDK/RemoteConfig/**/*.{h,m}', 'SensorsAnalyticsSDK/ChannelMatch/**/*.{h,m}', 'SensorsAnalyticsSDK/Encrypt/**/*.{h,m}', 'SensorsAnalyticsSDK/Deeplink/**/*.{h,m}', 'SensorsAnalyticsSDK/DebugMode/**/*.{h,m}', 'SensorsAnalyticsSDK/Core/SAAlertController.h', 'SensorsAnalyticsSDK/UIRelated/**/*.{h,m}'
@@ -112,7 +108,7 @@ Pod::Spec.new do |s|
   end
 
   s.subspec 'ApplicationExtension' do |e|
-    e.dependency 'SensorsAnalyticsSDK/Extension'
+    e.dependency 'SensorsAnalyticsSDK/Base'
   	e.source_files = 'SensorsAnalyticsSDK/AppExtension/*.{h,m}'
   	e.public_header_files = 'SensorsAnalyticsSDK/AppExtension/SensorsAnalyticsSDK+SAAppExtension.h'
   end

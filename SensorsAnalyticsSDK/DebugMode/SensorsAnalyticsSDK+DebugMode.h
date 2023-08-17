@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param show             是否显示
  */
-- (void)showDebugInfoView:(BOOL)show API_UNAVAILABLE(macos);
+- (void)showDebugInfoView:(BOOL)show API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DebugMode not supported for iOS extensions.");
 
 - (SensorsAnalyticsDebugMode)debugMode;
 

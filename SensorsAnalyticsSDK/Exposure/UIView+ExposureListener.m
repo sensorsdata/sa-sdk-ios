@@ -26,6 +26,7 @@
 #import "SAExposureManager.h"
 #import <objc/runtime.h>
 #import "NSObject+SAKeyValueObserver.h"
+#import "UIView+SAInternalProperties.h"
 
 static void *const kSAUIViewExposureMarkKey = (void *)&kSAUIViewExposureMarkKey;
 
@@ -41,6 +42,15 @@ static void *const kSAUIViewExposureMarkKey = (void *)&kSAUIViewExposureMarkKey;
         return;
     }
     [exposureViewObject exposureConditionCheck];
+}
+
+- (void)sensorsdata_didMoveToWindow {
+    [self sensorsdata_didMoveToWindow];
+    if (!self.sensorsdata_exposureMark) {
+        return;
+    }
+    SAExposureViewObject *exposureViewObject = [[SAExposureManager defaultManager] exposureViewWithView:self];
+    [exposureViewObject findNearbyScrollView];
 }
 
 - (NSString *)sensorsdata_exposureMark {

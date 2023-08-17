@@ -236,7 +236,7 @@ typedef void (^ SARemoteConfigCheckAlertHandler)(SAAlertAction *action);
     });
 }
 
-- (UIWindow *)alertWindow {
+- (UIWindow *)alertWindow NS_EXTENSION_UNAVAILABLE("App Alert not supported for iOS extensions.") {
 #if defined(__IPHONE_OS_VERSION_MAX_ALLOWED) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= 130000)
     if (@available(iOS 13.0, *)) {
         __block UIWindowScene *scene = nil;

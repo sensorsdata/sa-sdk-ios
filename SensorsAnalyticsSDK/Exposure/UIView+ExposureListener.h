@@ -25,6 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface UIView (SAExposureListener)
 
 - (void)sensorsdata_didMoveToSuperview;
+- (void)sensorsdata_didMoveToWindow;
 
 @property (nonatomic, copy) NSString *sensorsdata_exposureMark;
 

@@ -150,7 +150,7 @@
     for (NSUInteger i = 0; i < length; i++) {
         [randomString appendFormat: @"%C", [letters characterAtIndex:arc4random_uniform((uint32_t)[letters length])]];
     }
-    NSData *randomKey = [randomString dataUsingEncoding:NSUTF8StringEncoding];;
+    NSData *randomKey = [randomString dataUsingEncoding:NSUTF8StringEncoding];
     return randomKey;
 }
 

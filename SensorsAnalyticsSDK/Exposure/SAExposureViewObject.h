@@ -55,6 +55,7 @@ typedef NS_ENUM(NSUInteger, SAExposureViewType) {
 - (void)addExposureViewObserver;
 - (void)clear;
 - (void)exposureConditionCheck;
+- (void)findNearbyScrollView;
 
 @end
 

@@ -37,4 +37,16 @@
     return (UIViewController<SAUIViewControllerInternalProperties> *)viewController;
 }
 
+- (UIScrollView *)sensorsdata_nearbyScrollView {
+    return [self sensorsdata_nearbyScrollViewByView:self];
+}
+
+- (UIScrollView *)sensorsdata_nearbyScrollViewByView:(UIView *)view {
+    UIView *superView = view.superview;
+    if ([superView isKindOfClass:[UIScrollView class]] || !superView) {
+        return (UIScrollView *)superView;
+    }
+    return [self sensorsdata_nearbyScrollViewByView:superView];
+}
+
 @end

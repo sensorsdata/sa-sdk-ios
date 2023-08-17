@@ -87,10 +87,7 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
     }
     SAExposureViewObject *exposureViewObject = [[SAExposureViewObject alloc] initWithView:view exposureData:data];
     exposureViewObject.view.sensorsdata_exposureMark = kSAExposureViewMark;
-    //get view related items, such as viewController, scrollView, state
-    if (![view isKindOfClass:[UITableViewCell class]] && ![view isKindOfClass:[UICollectionViewCell class]]) {
-        exposureViewObject.scrollView = (UIScrollView *)[self nearbyScrollViewByView:view];
-    }
+    [exposureViewObject findNearbyScrollView];
     [exposureViewObject addExposureViewObserver];
     [self.exposureViewObjects addObject:exposureViewObject];
     [exposureViewObject exposureConditionCheck];
@@ -130,14 +127,6 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
     return nil;
 }
 
-- (UIView *)nearbyScrollViewByView:(UIView *)view {
-    UIView *superView = view.superview;
-    if ([superView isKindOfClass:[UIScrollView class]] || !superView) {
-        return superView;
-    }
-    return [self nearbyScrollViewByView:superView];
-}
-
 - (void)addListener {
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidEnterBackground) name:UIApplicationDidEnterBackgroundNotification object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(applicationDidBecomeActive) name:UIApplicationDidBecomeActiveNotification object:nil];
@@ -147,6 +136,7 @@ static NSString *const kSAExposureViewMark = @"sensorsdata_exposure_mark";
 - (void)swizzleMethods {
     [SAMethodHelper swizzleRespondsToSelector];
     [UIView sa_swizzleMethod:@selector(didMoveToSuperview) withMethod:@selector(sensorsdata_didMoveToSuperview) error:NULL];
+    [UIView sa_swizzleMethod:@selector(didMoveToWindow) withMethod:@selector(sensorsdata_didMoveToWindow) error:NULL];
     [UITableView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
     [UICollectionView sa_swizzleMethod:@selector(setDelegate:) withMethod:@selector(sensorsdata_exposure_setDelegate:) error:NULL];
     [UIViewController sa_swizzleMethod:@selector(viewDidAppear:) withMethod:@selector(sensorsdata_exposure_viewDidAppear:) error:NULL];

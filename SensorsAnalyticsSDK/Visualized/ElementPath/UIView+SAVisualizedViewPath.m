@@ -338,7 +338,7 @@ static void *const kSAIsDisableRNSubviewsInteractivePropertyName = (void *)&kSAI
     return showRect;
 }
 
-- (CGRect)sensorsdata_visibleFrame {
+- (CGRect)sensorsdata_visibleFrame NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     CGRect visibleFrame = [UIApplication sharedApplication].keyWindow.frame;
     /* 如果 clipsToBounds = YES，剪裁超出父视图范围的子视图部分，即子视图超出父视图部分不可见
      UIScrollView 中，它的默认值是 YES，也就是说默认裁剪的

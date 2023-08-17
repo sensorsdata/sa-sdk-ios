@@ -30,5 +30,6 @@
 @protocol SAUIViewInternalProperties <NSObject>
 
 @property (nonatomic, weak, readonly) UIViewController<SAUIViewControllerInternalProperties> *sensorsdata_viewController;
+- (UIScrollView *)sensorsdata_nearbyScrollView;
 
 @end

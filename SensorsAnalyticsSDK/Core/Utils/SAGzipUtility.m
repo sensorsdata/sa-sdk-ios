@@ -40,7 +40,7 @@
 
      */
 
-    if (!pUncompressedData || [pUncompressedData length] == 0) {
+    if (!pUncompressedData || [pUncompressedData length] == 0 || [pUncompressedData bytes] == NULL) {
         SALogError(@" Error: Can't compress an empty or null NSData object.");
         return nil;
     }

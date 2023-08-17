@@ -356,10 +356,23 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
 }
 
 - (UIViewController *)viewController {
-    if (self.scrollView) {
-        return self.scrollView.sensorsdata_viewController;
+    UIResponder *nextResponser = self.view;
+    while ((nextResponser = nextResponser.nextResponder)) {
+        UIResponder *viewController = nextResponser;
+        if ([viewController isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)viewController;
+        }
     }
-    return self.view.sensorsdata_viewController;
+    return nil;
+}
+
+- (void)findNearbyScrollView {
+    if (self.scrollView) {
+        return;
+    }
+    if (![self.view isKindOfClass:[UITableViewCell class]] && ![self.view isKindOfClass:[UICollectionViewCell class]]) {
+        self.scrollView = self.view.sensorsdata_nearbyScrollView;
+    }
 }
 
 @end

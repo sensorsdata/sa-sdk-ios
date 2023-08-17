@@ -117,7 +117,7 @@
 
 #pragma mark - SAAutoTrackModuleProtocol
 
-- (void)trackAppEndWhenCrashed {
+- (void)trackAppEndWhenCrashed NS_EXTENSION_UNAVAILABLE("AppEnd Event not supported for iOS extensions.") {
     if (!self.enable) {
         return;
     }
@@ -131,7 +131,7 @@
     }];
 }
 
-- (void)trackPageLeaveWhenCrashed {
+- (void)trackPageLeaveWhenCrashed NS_EXTENSION_UNAVAILABLE("PageLeave Event not supported for iOS extensions.") {
     if (!self.enable) {
         return;
     }

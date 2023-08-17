@@ -154,7 +154,7 @@
     return [next isKindOfClass:UIViewController.class] ? (UIViewController *)next : nil;
 }
 
-+ (UIViewController *)currentViewController {
++ (UIViewController *)currentViewController NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     __block UIViewController *currentViewController = nil;
     void (^ block)(void) = ^{
         UIViewController *rootViewController = UIApplication.sharedApplication.keyWindow.rootViewController;

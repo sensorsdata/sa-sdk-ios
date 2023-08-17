@@ -123,7 +123,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 * @param serverUrl 当前的 serverUrl
 * @param isRequestRemoteConfig 是否请求远程配置
 */
-- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos);
+- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.");
 
 #pragma mark--cache and flush
 
@@ -465,7 +465,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @param url 打开的 URL
  * @return YES/NO
  */
-- (BOOL)canHandleURL:(NSURL *)url API_UNAVAILABLE(macos);
+- (BOOL)canHandleURL:(NSURL *)url API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
 
 /**
  * @abstract
@@ -473,7 +473,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  *
  * @param url 打开本 app 的回调的 url
  */
-- (BOOL)handleSchemeUrl:(NSURL *)url API_UNAVAILABLE(macos);
+- (BOOL)handleSchemeUrl:(NSURL *)url API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
 
 #pragma mark - profile
 /**
@@ -624,7 +624,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * 注意：清除 keychain 中 kSAService 名下的数据，包括 distinct_id 标记。
  *
  */
-- (void)clearKeychainData API_UNAVAILABLE(macos);
+- (void)clearKeychainData API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("KeychainData not supported for iOS extensions.");
 
 @end
 
@@ -692,7 +692,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  @param debugMode 调试模式
  */
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos);
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DebugMode not supported for iOS extensions.");
 
 /**
  * @abstract

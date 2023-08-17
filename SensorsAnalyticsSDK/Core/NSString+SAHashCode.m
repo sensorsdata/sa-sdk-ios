@@ -28,19 +28,16 @@
 @implementation NSString (HashCode)
 
 - (int)sensorsdata_hashCode {
-    int hash = 0;
-    for (int i = 0; i<[self length]; i++) {
-        NSString *s = [self substringWithRange:NSMakeRange(i, 1)];
-        char *unicode = (char *)[s cStringUsingEncoding:NSUnicodeStringEncoding];
-        int charactorUnicode = 0;
-
-        size_t length = strnlen(unicode, 4);
-        for (int n = 0; n < length; n ++) {
-            charactorUnicode += (int)((unicode[n] & 0xff) << (n * sizeof(char) * 8));
-        }
-        hash = hash * 31 + charactorUnicode;
+    int hashCode = 0;
+    NSUInteger length = [self length];
+    if (length == 0) {
+        return hashCode;
     }
-    
-    return hash;
+    for (NSUInteger i = 0; i < length; i++) {
+        unichar character = [self characterAtIndex:i];
+        hashCode = hashCode * 31 + (int)character;
+    }
+    return hashCode;
 }
+
 @end

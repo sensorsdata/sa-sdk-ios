@@ -49,7 +49,7 @@
 }
 
 // 所有 window 截图合成
-- (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler {
+- (void)screenshotImageForAllWindowWithCompletionHandler:(void (^)(UIImage *))completionHandler NS_EXTENSION_UNAVAILABLE("Screenshot not supported for iOS extensions.") {
     CGFloat scale = [UIScreen mainScreen].scale;
     // 获取所有可见的 window 截图
     NSMutableArray <UIWindow *> *allActiveWindows = [NSMutableArray array];
