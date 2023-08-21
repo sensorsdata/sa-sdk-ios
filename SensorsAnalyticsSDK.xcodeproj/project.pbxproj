@@ -131,6 +131,7 @@
 		4DA89BC325C2BC1E003ABA43 /* SANetwork.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DA89BBF25C2BC1E003ABA43 /* SANetwork.h */; };
 		4DA89BC425C2BC1E003ABA43 /* SAReachability.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DA89BC025C2BC1E003ABA43 /* SAReachability.m */; };
 		4DAD4B4D291CE06B00DE1483 /* UIViewController+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D8B2656459A00FD64AA /* UIViewController+SAAutoTrack.m */; };
+		4DAE222D2A8F62180047C5AC /* SensorsAnalyticsExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DAE222C2A8F62180047C5AC /* SensorsAnalyticsExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		4DAFDCE8282622810074A691 /* SACustomPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DAFDCE6282622810074A691 /* SACustomPropertyPlugin.h */; };
 		4DAFDCE9282622810074A691 /* SACustomPropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DAFDCE7282622810074A691 /* SACustomPropertyPlugin.m */; };
 		4DC4815528B775B60068D5F4 /* SAVisualizedElementView.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DC4814F28B775B60068D5F4 /* SAVisualizedElementView.h */; };
@@ -720,6 +721,7 @@
 		4DA89BBE25C2BC1E003ABA43 /* SAReachability.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAReachability.h; sourceTree = "<group>"; };
 		4DA89BBF25C2BC1E003ABA43 /* SANetwork.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SANetwork.h; sourceTree = "<group>"; };
 		4DA89BC025C2BC1E003ABA43 /* SAReachability.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAReachability.m; sourceTree = "<group>"; };
+		4DAE222C2A8F62180047C5AC /* SensorsAnalyticsExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SensorsAnalyticsExtension.h; sourceTree = "<group>"; };
 		4DAFDCE6282622810074A691 /* SACustomPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SACustomPropertyPlugin.h; sourceTree = "<group>"; };
 		4DAFDCE7282622810074A691 /* SACustomPropertyPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SACustomPropertyPlugin.m; sourceTree = "<group>"; };
 		4DC4814F28B775B60068D5F4 /* SAVisualizedElementView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedElementView.h; sourceTree = "<group>"; };
@@ -1573,6 +1575,7 @@
 				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
 				881A4157253D7B4F00854F69 /* SASwizzle.m */,
 				881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */,
+				4DAE222C2A8F62180047C5AC /* SensorsAnalyticsExtension.h */,
 				881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */,
 				884B423B25540D7C00416DB6 /* SensorsAnalyticsSDK+Public.h */,
 				881A40F4253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h */,
@@ -2548,6 +2551,7 @@
 				45A56560263C174300C9C41B /* SAIDFAHelper.h in Headers */,
 				F296FF042935A3DF00C40C48 /* NSObject+SAToString.h in Headers */,
 				A82E8953267D918100475757 /* SAECCEncryptor.h in Headers */,
+				4DAE222D2A8F62180047C5AC /* SensorsAnalyticsExtension.h in Headers */,
 				4D958B1A2823D99E0086A71C /* SAFirstDayPropertyPlugin.h in Headers */,
 				F2F87BB52A49358100B8680C /* SAAESEventEncryptor.h in Headers */,
 				A8356DDB2656459A00FD64AA /* UIViewController+SAAutoTrack.h in Headers */,
