@@ -29,6 +29,12 @@
 
 - (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
     NSParameterAssert(input.eventObject);
+
+    // 线上极端情况下，切换到异步 serialQueue 后，eventObject 可能被释放
+    if(!input.eventObject || ![input.eventObject isKindOfClass:SABaseEventObject.class]) {
+        input.state = SAFlowStateError;
+        input.message = @"A memory problem has occurred, eventObject may be freed. End the track flow";
+    }
     
     if ([SAModuleManager.sharedInstance isIgnoreEventObject:input.eventObject]) {
         input.state = SAFlowStateStop;

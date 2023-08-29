@@ -1,8 +1,8 @@
 //
-// SACoreResources.h
+// SACoreResources+English.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2023/1/16.
+// Created by  储强盛 on 2023/8/22.
 // Copyright © 2015-2023 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,22 +18,14 @@
 // limitations under the License.
 //
 
-#import <Foundation/Foundation.h>
+#import "SACoreResources.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SACoreResources : NSObject
+@interface SACoreResources (English)
 
-+ (NSArray *)analyticsFlows;
-
-+ (NSArray *)analyticsTasks;
-
-+ (NSArray *)analyticsNodes;
-
-+ (NSDictionary *)mcc;
-
-/// 默认加载中文资源
-+ (NSDictionary *)defaultLanguageResources;
+/// 加载英文资源
++ (NSDictionary *)englishLanguageResources;
 
 @end
 

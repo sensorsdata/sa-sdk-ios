@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.5.16"
+  s.version      = "4.5.17"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -21,7 +21,7 @@ Pod::Spec.new do |s|
   s.subspec 'Base' do |b|
     core_dir = "SensorsAnalyticsSDK/Core/"
     b.source_files = core_dir + "**/*.{h,m}"
-    b.exclude_files = core_dir + "SAAlertController.h", core_dir + "SAAlertController.m"
+    b.exclude_files = core_dir + 'SAAlertController.{h,m}'
     b.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsExtension.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", core_dir + "PropertyPlugin/SAPropertyPlugin.h"
     b.ios.frameworks = 'CoreTelephony'
     b.dependency 'SensorsAnalyticsSDK/__Store'
@@ -49,7 +49,7 @@ Pod::Spec.new do |s|
     g.frameworks = 'UIKit'
   end
 
-# 可视化相关功能，包含可视化全埋点和点击图
+  # 可视化相关功能，包含可视化全埋点和点击图
   s.subspec 'Visualized' do |f|
     f.ios.deployment_target = '9.0'
     f.dependency 'SensorsAnalyticsSDK/AutoTrack'
@@ -125,6 +125,13 @@ Pod::Spec.new do |s|
     h.dependency 'SensorsAnalyticsSDK/Common'
     h.source_files = 'SensorsAnalyticsSDK/Exposure/**/*.{h,m}'
     h.public_header_files = 'SensorsAnalyticsSDK/Exposure/SAConfigOptions+Exposure.h', 'SensorsAnalyticsSDK/Exposure/SAExposureConfig.h', 'SensorsAnalyticsSDK/Exposure/SAExposureData.h', 'SensorsAnalyticsSDK/Exposure/SensorsAnalyticsSDK+Exposure.h', 'SensorsAnalyticsSDK/Exposure/UIView+ExposureIdentifier.h', 'SensorsAnalyticsSDK/Exposure/SAExposureListener.h'
+  end
+
+  # SDK 切换到英文版，运营商属性、日志和弹框提示等，都换成英文。使用前咨询神策售后技术顾问，否则请慎重使用！
+  s.subspec 'EnglishResources' do |e|
+    e.dependency 'SensorsAnalyticsSDK/Base'
+    e.source_files = 'SpecialFileSources/SACoreResources+English.{h,m}'
+    e.project_header_files = 'SpecialFileSources/SACoreResources+English.h'
   end
 
 end

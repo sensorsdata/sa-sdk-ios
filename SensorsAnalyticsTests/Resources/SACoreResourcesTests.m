@@ -27,6 +27,9 @@
 #import "SACoreResources.h"
 #import "SensorsAnalyticsSDK.h"
 
+// 默认不引入 SACoreResources+English 文件，需要在添加即可
+//#import "SACoreResources+English.h"
+
 @interface SACoreResourcesTests : XCTestCase
 
 @property (nonatomic, strong) NSBundle *bundle;
@@ -82,5 +85,20 @@
 
     XCTAssertTrue([[SACoreResources defaultLanguageResources] isEqualToDictionary:localizedDict]);
 }
+
+//- (void)testEnglishLanguageResources {
+//    // 获取语言资源的 Bundle
+//    NSBundle* languageBundle = nil;
+//    NSBundle *sensorsBundle = [NSBundle bundleWithPath:[[NSBundle bundleForClass:self.class] pathForResource:@"SensorsAnalyticsSDKTest" ofType:@"bundle"]];
+//    NSString *path = [sensorsBundle pathForResource:@"en" ofType:@"lproj"];
+//    if (path) {
+//        languageBundle = [NSBundle bundleWithPath:path];
+//    }
+//
+//    NSString *localizablePath = [languageBundle pathForResource:@"Localizable" ofType:@"strings"];
+//    NSDictionary *localizedDict = [NSDictionary dictionaryWithContentsOfFile:localizablePath];
+//
+//    XCTAssertTrue([[SACoreResources englishLanguageResources] isEqualToDictionary:localizedDict]);
+//}
 
 @end

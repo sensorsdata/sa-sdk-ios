@@ -27,6 +27,10 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SACoreResources.h"
 
+#if __has_include("SACoreResources+English.h")
+#import "SACoreResources+English.h"
+#endif
+
 #pragma mark - Track Timer
 NSString *const kSAEventIdSuffix = @"_SATimer";
 
@@ -127,7 +131,7 @@ NSString * const kSAProfileIncrement = @"profile_increment";
 #pragma mark - bridge name
 NSString * const SA_SCRIPT_MESSAGE_HANDLER_NAME = @"sensorsdataNativeTracker";
 
-NSSet* sensorsdata_reserved_properties() {
+NSSet* sensorsdata_reserved_properties(void) {
     return [NSSet setWithObjects:@"date", @"datetime", @"distinct_id", @"event", @"events", @"first_id", @"id", @"original_id", @"properties", @"second_id", @"time", @"user_id", @"users", nil];
 }
 
@@ -148,8 +152,15 @@ NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
     static NSDictionary *languageResources = nil;
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
-        // 获取默认语言资源 JSON
+
+#if __has_include("SACoreResources+English.h")
+        // 获取英文资源
+        languageResources = [SACoreResources englishLanguageResources];
+#else
+        // 默认加载中文资源
         languageResources = [SACoreResources defaultLanguageResources];
+#endif
+
     });
 
     return languageResources[key] ?: value;
