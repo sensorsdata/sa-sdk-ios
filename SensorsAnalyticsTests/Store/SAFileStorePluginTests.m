@@ -63,6 +63,12 @@ static NSString * const kSAFileStorePluginTestsKey = @"SAFileStorePluginTests";
     XCTAssertTrue([object isEqualToArray:[self.plugin objectForKey:kSAFileStorePluginTestsKey]]);
 }
 
+- (void)testSetNSSetObject {
+    NSSet *set = [[NSSet alloc] initWithArray:@[@"哈哈12casdz", @(123)]];
+    [self.plugin setObject:set forKey:kSAFileStorePluginTestsKey];
+    XCTAssertTrue([set isEqualToSet: [self.plugin objectForKey:kSAFileStorePluginTestsKey]]);
+}
+
 - (void)testSetDictionaryObject {
     NSDictionary *object = @{@"login_id": @"123"};
     [self.plugin setObject:object forKey:kSAFileStorePluginTestsKey];

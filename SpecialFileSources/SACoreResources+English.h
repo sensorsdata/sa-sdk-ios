@@ -24,6 +24,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SACoreResources (English)
 
+/// 加载英文运营商信息
++ (NSDictionary *)englishMcc;
+
 /// 加载英文资源
 + (NSDictionary *)englishLanguageResources;
 

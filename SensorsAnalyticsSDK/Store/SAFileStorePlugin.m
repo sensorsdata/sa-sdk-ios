@@ -72,6 +72,11 @@ static NSString * const kSAFileStorePluginType = @"cn.sensorsdata.File.";
     if (!key) {
         return;
     }
+    // 屏蔽非法数据类型，防止野指针造成异常
+    if(!value && ![value conformsToProtocol:@protocol(NSCoding)]) {
+        return;
+    }
+
     NSString *filePath = [SAFileStorePlugin filePath:key];
 #if TARGET_OS_IOS
     /* 为filePath文件设置保护等级 */

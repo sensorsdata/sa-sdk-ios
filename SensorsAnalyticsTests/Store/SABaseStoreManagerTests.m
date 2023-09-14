@@ -74,7 +74,7 @@ static NSString * const kSABaseStoreManagerTestsKey = @"SABaseStoreManagerTests"
 }
 
 - (void)testSetArrayObject {
-    NSArray *object = @[@"123"];
+    NSArray *object = @[@"123", @"哈哈哈dabn"];
     [self.manager setObject:object forKey:kSABaseStoreManagerTestsKey];
     XCTAssertTrue([object isEqualToArray:[self.manager objectForKey:kSABaseStoreManagerTestsKey]]);
 }

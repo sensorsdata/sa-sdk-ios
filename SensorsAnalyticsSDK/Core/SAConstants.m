@@ -27,10 +27,6 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SACoreResources.h"
 
-#if __has_include("SACoreResources+English.h")
-#import "SACoreResources+English.h"
-#endif
-
 #pragma mark - Track Timer
 NSString *const kSAEventIdSuffix = @"_SATimer";
 
@@ -153,13 +149,8 @@ NSString* sensorsdata_localized_string(NSString* key, NSString* value) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
 
-#if __has_include("SACoreResources+English.h")
-        // 获取英文资源
-        languageResources = [SACoreResources englishLanguageResources];
-#else
-        // 默认加载中文资源
-        languageResources = [SACoreResources defaultLanguageResources];
-#endif
+    // 加载语言资源
+    languageResources = [SACoreResources defaultLanguageResources];
 
     });
 

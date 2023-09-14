@@ -263,7 +263,8 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
 }
 
 - (void)archiveTrackChannelEventNames {
-    [[SAStoreManager sharedInstance] setObject:self.trackChannelEventNames forKey:kSAEventPropertyChannelDeviceInfo];
+    NSSet *copyEventNames = [[NSSet alloc] initWithSet:self.trackChannelEventNames copyItems:YES];
+    [[SAStoreManager sharedInstance] setObject:copyEventNames forKey:kSAEventPropertyChannelDeviceInfo];
 }
 
 - (NSDictionary *)channelInfoWithEvent:(NSString *)event {
