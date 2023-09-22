@@ -177,6 +177,7 @@ extern NSString * const kSAWebVisualProperties;
 
 /// is instant event
 extern NSString * const kSAInstantEventKey;
+extern NSString * const kAdsEventKey;
 
 //flush related keys
 extern NSString * const kSAEncryptRecordKeyEKey;

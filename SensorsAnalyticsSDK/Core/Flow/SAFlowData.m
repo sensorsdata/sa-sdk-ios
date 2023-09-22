@@ -174,6 +174,14 @@ static NSString * const kSAFlowDataGzipCode = @"gzip_code";
     return [self.param[kSAInstantEventKey] boolValue];
 }
 
+- (void)setIsAdsEvent:(BOOL)isAdsEvent {
+    [self setParamWithKey:kAdsEventKey value:[NSNumber numberWithBool:isAdsEvent]];
+}
+
+- (BOOL)isAdsEvent {
+    return [self.param[kAdsEventKey] boolValue];
+}
+
 - (void)setGzipCode:(SAFlushGzipCode)gzipCode {
     [self setParamWithKey:kSAFlowDataGzipCode value:@(gzipCode)];
 }

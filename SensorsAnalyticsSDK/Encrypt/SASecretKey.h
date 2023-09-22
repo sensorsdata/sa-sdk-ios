@@ -23,7 +23,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 /// 密钥信息
-@interface SASecretKey : NSObject <NSCoding>
+@interface SASecretKey : NSObject <NSCoding, NSCopying>
 
 /// 指定构造器，初始化时必须传入四个参数
 /// @param key 非对称加密时使用的公钥值

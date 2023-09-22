@@ -202,6 +202,7 @@ SALimitKey const SALimitKeyCarrier = @"SALimitKeyCarrier";
 
 /// is instant event
 NSString * const kSAInstantEventKey = @"is_instant_event";
+NSString * const kAdsEventKey = @"is_ads_event";
 
 //flush related keys
 NSString * const kSAEncryptRecordKeyEKey = @"ekey";

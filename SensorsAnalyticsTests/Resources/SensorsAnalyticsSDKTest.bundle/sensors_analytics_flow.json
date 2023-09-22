@@ -6,4 +6,7 @@
     "id": "sensorsdata_flush_flow",
     "name": "Record flush",
     "tasks": ["serial_queue", "flush_task"]
+}, {"id":"sensorsdata_ads_flush_flow",
+    "name":"SAT Record flush",
+    "tasks":["serial_queue","ads_flush_task"]
 }]

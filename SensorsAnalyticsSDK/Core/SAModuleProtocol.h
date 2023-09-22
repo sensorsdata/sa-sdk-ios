@@ -102,6 +102,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// @return 返回加密后的数据
 - (nullable NSDictionary *)encryptJSONObject:(id)obj;
 
+/// use to encrypt events for SAT
+/// - Parameters:
+///   - event: event
+///   - key: encrypt key
+- (nullable NSDictionary *)encryptEvent:(NSDictionary *)event withKey:(SASecretKey *)key;
+
 @end
 
 #pragma mark -

@@ -89,4 +89,7 @@
     "id": "repeat_flush",
     "name": "Repeat flush",
     "interceptor": "SARepeatFlushInterceptor"
+}, {"id":"ads_encrypt",
+    "name":"Ads Events Encrypt",
+    "interceptor":"SAAdsEncryptInterceptor"
 }]

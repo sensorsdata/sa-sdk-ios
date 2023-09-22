@@ -94,4 +94,13 @@
     }
 }
 
+- (nonnull id)copyWithZone:(nullable NSZone *)zone {
+    SASecretKey *key = [[[self class] allocWithZone:zone] init];
+    key.key = self.key;
+    key.version = self.version;
+    key.symmetricEncryptType = self.symmetricEncryptType;
+    key.asymmetricEncryptType = self.asymmetricEncryptType;
+    return key;
+}
+
 @end

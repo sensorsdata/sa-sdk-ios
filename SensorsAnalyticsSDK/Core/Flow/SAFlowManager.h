@@ -26,6 +26,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 extern NSString * const kSATrackFlowId;
 extern NSString * const kSAFlushFlowId;
+extern NSString * const kSATFlushFlowId;
 
 @interface SAFlowManager : NSObject
 

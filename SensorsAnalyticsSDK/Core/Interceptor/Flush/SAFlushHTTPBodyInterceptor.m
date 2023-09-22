@@ -48,6 +48,9 @@
     if (input.isInstantEvent) {
         bodyString = [bodyString stringByAppendingString:@"&instant_event=true"];
     }
+    if (input.isAdsEvent) {
+        bodyString = [bodyString stringByAppendingString:@"&sink_name=mirror"];
+    }
     return [bodyString dataUsingEncoding:NSUTF8StringEncoding];
 }
 

@@ -45,6 +45,11 @@
 #import "SAAESEventEncryptor.h"
 #import "SAConfigOptions+EncryptPrivate.h"
 
+#if __has_include("SensorsAnalyticsSDK+DeepLink.h")
+#import "SensorsAnalyticsSDK+DeepLink.h"
+#import "SAAdvertisingConfig+Private.h"
+#endif
+
 static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
 
 @interface SAConfigOptions (Private)
@@ -119,7 +124,12 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     [encryptors addObjectsFromArray:configOptions.encryptors];
     self.encryptors = encryptors;
     self.eventEncryptor = configOptions.eventEncryptor;
+#if __has_include("SensorsAnalyticsSDK+DeepLink.h")
+    self.enable = configOptions.enableEncrypt || configOptions.enableTransportEncrypt || (configOptions.advertisingConfig.adsSecretKey != nil);
+#else
     self.enable = configOptions.enableEncrypt || configOptions.enableTransportEncrypt;
+#endif
+
     [self loadLocalRemoteConfig];
 }
 
@@ -179,6 +189,43 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     // 当可以获取到秘钥时，不需要强制性触发远程配置请求秘钥
     SASecretKey *sccretKey = [self loadCurrentSecretKey];
     return (sccretKey.key.length > 0);
+}
+
+- (NSDictionary *)encryptEvent:(NSDictionary *)event withKey:(SASecretKey *)key {
+    NSDictionary *encryptedEvent = nil;
+    id encryptor = [self encryptorWithSecretKey:key];
+    if (!encryptor) {
+        return encryptedEvent;
+    }
+    @try {
+        if (!event) {
+            return encryptedEvent;
+        }
+        NSString *encryptSymmetricKey = [encryptor encryptSymmetricKeyWithPublicKey:key.key];
+        if (!encryptSymmetricKey) {
+            return encryptedEvent;
+        }
+        // 使用 gzip 进行压缩
+        NSData *jsonData = [SAJSONUtil dataWithJSONObject:event];
+        NSData *zippedData = [SAGzipUtility gzipData:jsonData];
+
+        // 加密数据
+        NSString *encryptedString =  [encryptor encryptEvent:zippedData];
+        if (![SAValidator isValidString:encryptedString]) {
+            return encryptedEvent;
+        }
+
+        // 封装加密的数据结构
+        NSMutableDictionary *secretObj = [NSMutableDictionary dictionary];
+        secretObj[kSAEncryptRecordKeyPKV] = @(key.version);
+        secretObj[kSAEncryptRecordKeyEKey] = encryptSymmetricKey;
+        secretObj[kSAEncryptRecordKeyPayload] = encryptedString;
+        encryptedEvent = [NSDictionary dictionaryWithDictionary:secretObj];
+    } @catch (NSException *exception) {
+        SALogError(@"%@ error: %@", self, exception);
+    } @finally {
+        return encryptedEvent;
+    }
 }
 
 - (NSDictionary *)encryptJSONObject:(id)obj {

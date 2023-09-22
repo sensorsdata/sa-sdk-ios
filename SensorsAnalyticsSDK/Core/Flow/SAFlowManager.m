@@ -33,6 +33,7 @@ static NSString * const kSATaskFileName = @"sensors_analytics_task";
 static NSString * const kSAFlowFileName = @"sensors_analytics_flow";
 NSString * const kSATrackFlowId = @"sensorsdata_track_flow";
 NSString * const kSAFlushFlowId = @"sensorsdata_flush_flow";
+NSString * const kSATFlushFlowId = @"sensorsdata_ads_flush_flow";
 
 @interface SAFlowManager ()
 

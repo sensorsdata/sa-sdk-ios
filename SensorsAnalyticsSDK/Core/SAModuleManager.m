@@ -323,6 +323,15 @@ static NSString * const kSAExposureModuleName = @"Exposure";
     [self.encryptManager handleEncryptWithConfig:encryptConfig];
 }
 
+- (nullable NSDictionary *)encryptEvent:(nonnull NSDictionary *)event withKey:(nonnull SASecretKey *)key {
+    id encryptManager = [self moduleWithName:kSAEncryptModuleName];
+    if ([encryptManager conformsToProtocol:@protocol(SAEncryptModuleProtocol)] && [encryptManager conformsToProtocol:@protocol(SAModuleProtocol)]) {
+        return [encryptManager encryptEvent:event withKey:key];
+    }
+    return nil;
+}
+
+
 @end
 
 #pragma mark -

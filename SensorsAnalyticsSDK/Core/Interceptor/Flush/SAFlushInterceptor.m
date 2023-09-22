@@ -31,6 +31,9 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
 #import "SALog.h"
+#if __has_include("SAAdvertisingConfig.h")
+#import "SAAdvertisingConfig+Private.h"
+#endif
 
 NSString * const kSAFlushServerURL = @"serverURL";
 
@@ -126,8 +129,13 @@ NSString * const kSAFlushServerURL = @"serverURL";
 }
 
 - (NSURLRequest *)buildFlushRequestWithInput:(SAFlowData *)input {
-    NSString *urlString = self.serverURL ?: input.configOptions.serverURL;
-    NSURL *serverURL = [SAURLUtils buildServerURLWithURLString:urlString debugMode:input.configOptions.debugMode];
+    NSString *tempServerURL = self.serverURL ?: input.configOptions.serverURL;
+#if __has_include("SAAdvertisingConfig.h")
+    NSString *urlString = input.isAdsEvent ? input.configOptions.advertisingConfig.adsServerUrl : tempServerURL;
+#else
+    NSString *urlString = tempServerURL;
+#endif
+    NSURL *serverURL = [SAURLUtils buildServerURLWithURLString:urlString debugMode: (input.isAdsEvent ? SensorsAnalyticsDebugOff : input.configOptions.debugMode)];
 
     NSMutableURLRequest *request = [NSMutableURLRequest requestWithURL:serverURL];
     request.timeoutInterval = 30;

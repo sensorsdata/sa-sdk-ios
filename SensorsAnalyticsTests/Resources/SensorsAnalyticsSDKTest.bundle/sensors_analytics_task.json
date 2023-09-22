@@ -14,4 +14,7 @@
     "id": "flush_task",
     "name": "Record flush",
     "nodes": ["can_flush", "select_records", "encrypt_records", "update_records_status", "flush_json", "flush_http_body", "flush", "serial_queue_sync", "flush_end", "repeat_flush"]
+}, {"id":"ads_flush_task",
+    "name":"SAT Record flush",
+    "nodes":["can_flush","ads_encrypt","flush_json","flush_http_body","flush"]
 }]

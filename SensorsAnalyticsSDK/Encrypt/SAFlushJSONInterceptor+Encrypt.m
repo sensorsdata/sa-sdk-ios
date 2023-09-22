@@ -38,6 +38,9 @@
 @implementation SAFlushJSONInterceptor (Encrypt)
 
 - (NSString *)sensorsdata_buildJSONStringWithFlowData:(SAFlowData *)flowData {
+    if (flowData.isAdsEvent) {
+        return [self sat_buildEncryptJSONStringWithFlowData:flowData];
+    }
     NSArray <SAEventRecord *> *records = flowData.records;
     BOOL enableEncrypt = [SAEncryptManager defaultManager].configOptions.enableEncrypt;
     BOOL firstRecordsEncrypted = records.firstObject.isEncrypted;
@@ -55,6 +58,15 @@
         return [self buildEncryptJSONStringWithFlowData:flowData];
     }
     return [self buildFlushEncryptJSONStringWithFlowData:flowData];
+}
+
+- (NSString *)sat_buildEncryptJSONStringWithFlowData:(SAFlowData *)flowData {
+    NSArray <SAEventRecord *> *records = flowData.records;
+    BOOL firstRecordsEncrypted = records.firstObject.isEncrypted;
+    if (firstRecordsEncrypted) {
+        return [self buildEncryptJSONStringWithFlowData:flowData];
+    }
+    return [self sensorsdata_buildJSONStringWithFlowData:flowData];
 }
 
 - (NSString *)buildEncryptJSONStringWithFlowData:(SAFlowData *)flowData {

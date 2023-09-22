@@ -20,6 +20,7 @@
 
 #import "SensorsAnalyticsSDK.h"
 #import "SASlinkCreator.h"
+#import "SAAdvertisingConfig.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
@@ -88,6 +89,13 @@ DeepLink 回调函数
 
 /// 广告相关功能自定义地址
 @property (nonatomic, copy) NSString *customADChannelURL API_UNAVAILABLE(macos);
+
+@end
+
+//
+@interface SAConfigOptions (Advertising)
+
+@property (nonatomic, copy) SAAdvertisingConfig *advertisingConfig;
 
 @end
 

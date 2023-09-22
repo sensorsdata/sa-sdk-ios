@@ -28,6 +28,11 @@
 #if __has_include("SAExposureConfig.h")
 #import "SAExposureConfig.h"
 #endif
+
+#if __has_include("SAAdvertisingConfig.h")
+#import "SAAdvertisingConfig.h"
+#endif
+
 #import "SALimitKeyManager.h"
 
 /// session 中事件最大间隔 5 分钟（单位为秒）
@@ -80,6 +85,10 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 
 #if __has_include("SAExposureConfig.h")
 @property (nonatomic, copy) SAExposureConfig *exposureConfig;
+#endif
+
+#if __has_include("SAAdvertisingConfig.h")
+@property (nonatomic, copy) SAAdvertisingConfig *advertisingConfig;
 #endif
 
 @end
@@ -201,6 +210,11 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 #if __has_include("SAExposureConfig.h")
     options.exposureConfig = self.exposureConfig;
 #endif
+
+#if __has_include("SAAdvertisingConfig.h")
+    options.advertisingConfig = self.advertisingConfig;
+#endif
+
 #endif
     
     return options;

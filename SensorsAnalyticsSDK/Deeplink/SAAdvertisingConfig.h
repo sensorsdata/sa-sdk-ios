@@ -1,9 +1,9 @@
 //
-// SAEncryptManager.h
+// SAAdvertisingConfig.h
 // SensorsAnalyticsSDK
 //
-// Created by 张敏超🍎 on 2020/11/25.
-// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
+// Created by 陈玉国 on 2023/8/16.
+// Copyright © 2015-2023 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -19,19 +19,15 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SAModuleProtocol.h"
+#import "SASecretKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAEncryptManager : NSObject <SAModuleProtocol, SAOpenURLProtocol, SAEncryptModuleProtocol>
+@interface SAAdvertisingConfig : NSObject <NSCopying>
 
-+ (instancetype)defaultManager;
+- (instancetype)init NS_UNAVAILABLE;
 
-@property (nonatomic, assign, getter=isEnable) BOOL enable;
-@property (nonatomic, strong) SAConfigOptions *configOptions;
-
-- (NSDictionary *)encryptEventRecord:(NSDictionary *)eventRecord;
-- (NSDictionary *)decryptEventRecord:(NSDictionary *)eventRecord;
+- (instancetype)initWithServerUrl:(NSString *)serverUrl events:(NSArray<NSString *>*)events secretKey:(nullable SASecretKey *)key;
 
 @end
 

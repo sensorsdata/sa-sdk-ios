@@ -37,6 +37,7 @@
 
 #if __has_include("SensorsAnalyticsSDK+DeepLink.h")
 #import "SensorsAnalyticsSDK+DeepLink.h"
+#import "SAAdvertisingConfig.h"
 #endif
 
 #if __has_include("SensorsAnalyticsSDK+SAAutoTrack.h")

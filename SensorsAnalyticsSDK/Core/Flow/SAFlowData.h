@@ -68,6 +68,8 @@ typedef void(^SAFlowDataCompletion)(SAFlowData *output);
 /// mark event is instant or not
 @property (nonatomic,assign) BOOL isInstantEvent;
 
+@property (nonatomic, assign) BOOL isAdsEvent;
+
 #pragma mark - store
 
 /// 单条数据记录

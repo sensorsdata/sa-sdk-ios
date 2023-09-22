@@ -26,6 +26,16 @@
 #import "SAEventRecord.h"
 #import "SAConstants+Private.h"
 #import "SALog.h"
+#import "SAModuleManager.h"
+
+#if __has_include("SAAdvertisingConfig.h")
+#import "SensorsAnalyticsSDK+DeepLink.h"
+#import "SAAdvertisingConfig+Private.h"
+#import "NSDictionary+SACopyProperties.h"
+#import "SAFlowManager.h"
+#endif
+
+static NSString * const kSATEventTrackId = @"$sat_event_track_id";
 
 @implementation SAEventResultInterceptor
 
@@ -53,7 +63,28 @@
     SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:event type:@"POST"];
     record.isInstantEvent = input.eventObject.isInstantEvent;
     input.record = record;
+#if __has_include("SAAdvertisingConfig.h")
+    [self flushSATEventsWithInput:input];
+#endif
     completion(input);
 }
+
+#if __has_include("SAAdvertisingConfig.h")
+- (void)flushSATEventsWithInput:(SAFlowData *)input {
+    NSDictionary *event = input.eventObject.jsonObject;
+    NSString *eventName = event[@"event"];
+    if (!eventName || ![input.configOptions.advertisingConfig.adsEvents containsObject:eventName]) {
+        return;
+    }
+    NSString *uuid = [NSUUID UUID].UUIDString;
+    input.eventObject.properties[kSATEventTrackId] = uuid;
+
+    SAFlowData *newInput = [[SAFlowData alloc] init];
+    SAEventRecord *record = [[SAEventRecord alloc] initWithEvent:[event sensorsdata_deepCopy] type:@"POST"];
+    newInput.records = @[record];
+    newInput.isAdsEvent = YES;
+    [SAFlowManager.sharedInstance startWithFlowID:kSATFlushFlowId input:newInput completion:nil];
+}
+#endif
 
 @end
