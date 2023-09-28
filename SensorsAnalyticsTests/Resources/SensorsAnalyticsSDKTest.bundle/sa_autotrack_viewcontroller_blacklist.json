@@ -76,7 +76,8 @@
             "UISystemInputAssistantViewController",
             "UICandidateViewController",
             "UIActivityContentViewController",
-            "SFAirDropViewController"
+            "SFAirDropViewController",
+            "_UICursorAccessoryViewController"
         ]
     },
     "$AppClick": {

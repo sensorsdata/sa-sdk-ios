@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.5.19"
+  s.version      = "4.5.20"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -49,7 +49,7 @@ Pod::Spec.new do |s|
     g.frameworks = 'UIKit'
   end
 
-  # 可视化相关功能，包含可视化全埋点和点击图
+  # 可视化相关功能，包含可视化全埋点和点击分析
   s.subspec 'Visualized' do |f|
     f.ios.deployment_target = '9.0'
     f.dependency 'SensorsAnalyticsSDK/AutoTrack'
@@ -75,7 +75,7 @@ Pod::Spec.new do |s|
     f.frameworks = 'CoreMotion'
   end
 
-  # 推送点击
+  # 支持推送点击
   s.subspec 'AppPush' do |f|
     f.ios.deployment_target = '9.0'
     f.dependency 'SensorsAnalyticsSDK/Core'
@@ -83,7 +83,7 @@ Pod::Spec.new do |s|
     f.public_header_files = 'SensorsAnalyticsSDK/AppPush/SAConfigOptions+AppPush.h'
   end
 
-  # 使用崩溃事件采集
+  # 支持崩溃事件采集
   s.subspec 'Exception' do |e|
     e.ios.deployment_target = '9.0'
     e.dependency 'SensorsAnalyticsSDK/Common'
@@ -91,7 +91,7 @@ Pod::Spec.new do |s|
     e.public_header_files = 'SensorsAnalyticsSDK/Exception/SAConfigOptions+Exception.h'
   end
 
-  # 基于 UA，使用 UIWebView 或者 WKWebView 进行打通
+  # 基于 UA，使用 UIWebView 或者 WKWebView 进行 App 与 H5 打通
   s.subspec 'WebView' do |w|
     w.ios.deployment_target = '9.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
@@ -99,7 +99,7 @@ Pod::Spec.new do |s|
     w.public_header_files = 'SensorsAnalyticsSDK/WebView/SensorsAnalyticsSDK+WebView.h'
   end
 
-  # 基于 UA，使用 WKWebView 进行打通
+  # 基于 UA，使用 WKWebView 进行 App 与 H5 打通
   s.subspec 'WKWebView' do |w|
     w.ios.deployment_target = '9.0'
     w.dependency 'SensorsAnalyticsSDK/Core'
@@ -113,6 +113,7 @@ Pod::Spec.new do |s|
   	e.public_header_files = 'SensorsAnalyticsSDK/AppExtension/SensorsAnalyticsSDK+SAAppExtension.h'
   end
 
+  # 使用老版 Cell 点击全埋点采集方案，可能导致某些场景，事件漏采集。使用前建议咨询神策售后技术顾问，否则请慎重使用！
   s.subspec 'DeprecatedCellClick' do |d|
     d.ios.deployment_target = '9.0'
     d.dependency 'SensorsAnalyticsSDK/Core'
@@ -120,6 +121,7 @@ Pod::Spec.new do |s|
     d.project_header_files = 'CellClick_HookDelegate_Deprecated/*.h'
   end
 
+  # 支持曝光
   s.subspec 'Exposure' do |h|
     h.ios.deployment_target = '9.0'
     h.dependency 'SensorsAnalyticsSDK/Common'
