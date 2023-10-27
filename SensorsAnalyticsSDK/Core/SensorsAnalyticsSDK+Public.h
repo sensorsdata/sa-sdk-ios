@@ -219,6 +219,9 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  */
 - (void)unbind:(NSString *)key value:(NSString *)value;
 
+/// ID3 reset anonymous identity
+- (void)resetAnonymousIdentity:(nullable NSString *)identity;
+
 #pragma mark - trackTimer
 /**
  开始事件计时

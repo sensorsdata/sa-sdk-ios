@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.20"
+#define VERSION @"4.5.21"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -666,6 +666,16 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         }
         [self.identifier unbindIdentity:key value:value];
         [self trackEventObject:object properties:nil];
+    });
+}
+
+-(void)resetAnonymousIdentity:(NSString *)identity {
+    if (identity && ![identity isKindOfClass:[NSString class]]) {
+        SALogError(@"anonymous identity should be string");
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.identifier resetAnonymousIdentity:identity];
     });
 }
 

@@ -692,4 +692,31 @@ NSString * const kSALoginIdSpliceKey = @"+";
     }
 }
 
+- (void)resetAnonymousIdentity:(NSString *)identity {
+    if (self.loginId) {
+        SALogError(@"you should not use this function when login");
+        return;
+    }
+    NSString *anonymousId = identity;
+    if (!anonymousId || anonymousId.length == 0) {
+        anonymousId = [NSUUID UUID].UUIDString;
+    }
+    dispatch_async(self.queue, ^{
+        //set anonymous id
+        self.anonymousId = anonymousId;
+        [self archiveAnonymousId:anonymousId];
+        //set anonymousId in identities
+        NSMutableDictionary *identities = [self.identities mutableCopy];
+        if (identities[kSAIdentitiesUniqueID]) {
+            identities[kSAIdentitiesUniqueID] = anonymousId;
+        }
+        if (identities[kSAIdentitiesUUID]) {
+            identities[kSAIdentitiesUUID] = anonymousId;
+        }
+        self.identities = identities;
+        [self archiveIdentities:identities];
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
+    });
+}
+
 @end

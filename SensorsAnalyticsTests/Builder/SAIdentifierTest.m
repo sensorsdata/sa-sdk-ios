@@ -580,4 +580,17 @@ static NSString *const kCookieIdValue = @"xxx-cookie-id";
     XCTAssertNotNil(native[kIDFV]);
 }
 
+- (void)testResetAnonymousIdentity {
+    NSString *distinctId = _identifier.distinctId;
+    [_identifier resetAnonymousIdentity:nil];
+    XCTAssertTrue(![distinctId isEqualToString:_identifier.distinctId]);
+    NSString *newDistinctId = _identifier.distinctId;
+    [_identifier resetAnonymousIdentity:@"dedea-deada-dadaed-deded"];
+    XCTAssertTrue(![newDistinctId isEqualToString:_identifier.distinctId]);
+    XCTAssertTrue([@"dedea-deada-dadaed-deded" isEqualToString:_identifier.distinctId]);
+    [_identifier loginWithKey:@"testKey" loginId:@"testLoginId"];
+    [_identifier resetAnonymousIdentity:@"dedea-deada-dadaed-deded"];
+    XCTAssertTrue([_identifier.distinctId isEqualToString:@"testKey+testLoginId"]);
+}
+
 @end

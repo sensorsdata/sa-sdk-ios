@@ -130,6 +130,10 @@ extern NSString * const kSALoginIdSpliceKey;
 /// 用于合并 H5 传过来的业务 ID
 - (NSDictionary *)mergeH5Identities:(NSDictionary *)identities eventType:(SAEventType)eventType;
 
+
+/// ID3 reset anonymous identity
+- (void)resetAnonymousIdentity:(nullable NSString *)identity;
+
 @end
 
 NS_ASSUME_NONNULL_END
