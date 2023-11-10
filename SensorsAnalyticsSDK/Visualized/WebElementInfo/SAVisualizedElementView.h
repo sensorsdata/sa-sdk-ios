@@ -61,7 +61,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, assign) NSInteger level;
 
 /// 元素平台
-@property (nonatomic, assign) NSString *platform;
+@property (nonatomic, copy) NSString *platform;
 
 @end
 

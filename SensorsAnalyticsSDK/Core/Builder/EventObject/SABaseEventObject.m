@@ -51,7 +51,6 @@
         NSString *type = event[kSAEventType];
         _type = [SABaseEventObject eventTypeWithType:type];
         _lib = [[SAEventLibObject alloc] initWithH5Lib:event[kSAEventLib]];
-        _time = [[NSDate date] timeIntervalSince1970] * 1000;
         _trackId = @(arc4random());
         _currentSystemUpTime = NSProcessInfo.processInfo.systemUptime * 1000;
 
@@ -59,6 +58,12 @@
 
         _hybridH5 = YES;
 
+        // 优先使用 web 端时间，防止历史事件时间被改错
+        if ([event[kSAEventTime] isKindOfClass:NSNumber.class]) {
+            _time = [event[kSAEventTime] unsignedLongLongValue];
+        } else {
+            _time = [[NSDate date] timeIntervalSince1970] * 1000;
+        }
         _eventId = event[kSAEventName];
         _loginId = event[kSAEventLoginId];
         _anonymousId = event[kSAEventAnonymousId];
@@ -72,21 +77,18 @@
         _token = properties[kSAEventToken];
 
         id timeNumber = properties[kSAEventCommonOptionalPropertyTime];
-        if (timeNumber) {     //包含 $time
-            NSNumber *customTime = nil;
-            if ([timeNumber isKindOfClass:[NSDate class]]) {
-                customTime = @([(NSDate *)timeNumber timeIntervalSince1970] * 1000);
-            } else if ([timeNumber isKindOfClass:[NSNumber class]]) {
-                customTime = timeNumber;
-            }
+        // $time 类型合法
+        if ([timeNumber isKindOfClass:[NSNumber class]]) {
+            NSNumber *customTime = timeNumber;
 
-            if (!customTime) {
-                SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
-            } else if ([customTime compare:@(kSAEventCommonOptionalPropertyTimeInt)] == NSOrderedAscending) {
+            if ([customTime compare:@(kSAEventCommonOptionalPropertyTimeInt)] == NSOrderedAscending) {
                 SALogError(@"H5 $time error %@，Please check the value", timeNumber);
             } else {
                 _time = [customTime unsignedLongLongValue];
             }
+        } else if (timeNumber) {
+            // $time 类型不合法
+            SALogError(@"H5 $time '%@' invalid，Please check the value", timeNumber);
         }
 
         [properties removeObjectsForKeys:@[@"_nocache", @"server_url", kSAAppVisualProperties, kSAEventProject, kSAEventToken, kSAEventCommonOptionalPropertyTime]];

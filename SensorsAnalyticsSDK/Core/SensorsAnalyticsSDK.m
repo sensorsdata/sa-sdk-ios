@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.21"
+#define VERSION @"4.5.22"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -974,12 +974,22 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)append:(NSString *)profile by:(NSObject<NSFastEnumeration> *)content {
-    if (profile && content) {
-        if ([content isKindOfClass:[NSSet class]] || [content isKindOfClass:[NSArray class]]) {
-            SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:kSAProfileAppend];
-            
-            [self trackEventObject:object properties:@{profile: content}];
-        }
+    if (!profile || !content) {
+        SALogWarn(@"content and profile cannot be empty, please check the value");
+        return;
+    }
+    if (![content isKindOfClass:NSArray.class] && ![content isKindOfClass:NSSet.class]) {
+        SALogWarn(@"content values should be NSArray or NSSet class, but current value: %@, with invalid type: %@", content, [content class]);
+        return;
+    }
+
+    SAProfileAppendEventObject *object = [[SAProfileAppendEventObject alloc] initWithType:kSAProfileAppend];
+    // 针对 NSArray 元素去重
+    if ([content isKindOfClass:NSArray.class]) {
+        NSSet *uniqueSet = [NSSet setWithArray:(NSArray *)content];
+        [self trackEventObject:object properties:@{profile: uniqueSet}];
+    } else {
+        [self trackEventObject:object properties:@{profile: content}];
     }
 }
 

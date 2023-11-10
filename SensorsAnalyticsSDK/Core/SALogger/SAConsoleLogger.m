@@ -44,10 +44,9 @@
     [mutableString appendString:@"\""];
     NSData *data = [mutableString dataUsingEncoding:NSUTF8StringEncoding];
     
-    NSError *error = nil;
     NSPropertyListFormat format = NSPropertyListOpenStepFormat;
-    NSString *formatString = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:&format error:&error];
-    return error ? self : [formatString stringByReplacingOccurrencesOfString:@"\\r\\n" withString:@"\n"];
+    NSString *formatString = [NSPropertyListSerialization propertyListWithData:data options:NSPropertyListImmutable format:&format error:NULL];
+    return (!formatString || ![formatString isKindOfClass:NSString.class]) ? self : [formatString stringByReplacingOccurrencesOfString:@"\\r\\n" withString:@"\n"];
 }
 
 @end

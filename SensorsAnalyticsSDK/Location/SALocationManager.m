@@ -30,6 +30,10 @@
 static NSString * const kSAEventPresetPropertyLatitude = @"$latitude";
 static NSString * const kSAEventPresetPropertyLongitude = @"$longitude";
 static NSString * const kSAEventPresetPropertyCoordinateSystem = @"$geo_coordinate_system";
+
+/* 国际通用的地球坐标系，CLLocationManager 采集定位输出结果是 WGS-84 坐标
+ 国内地图，比如高德、腾讯等，因为国家的保密要求，使用的是偏移后 GCJ-02坐标，戏称“火星坐标”，和 WGS84 存在坐标偏差
+ */
 static NSString * const kSAAppleCoordinateSystem = @"WGS84";
 
 @interface SALocationManager() <CLLocationManagerDelegate>

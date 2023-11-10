@@ -59,8 +59,8 @@
     object.token = (NSString *)properties[kSAEventCommonOptionalPropertyToken];
     id originalTime = properties[kSAEventCommonOptionalPropertyTime];
 
-    // App 内嵌 H5 自定义 time 在初始化中单独处理
-    if ([originalTime isKindOfClass:NSDate.class] && !object.hybridH5) {
+    // 如果公共属性设置 $time, H5 事件也需要修改
+    if ([originalTime isKindOfClass:NSDate.class]) {
         NSDate *customTime = (NSDate *)originalTime;
         int64_t customTimeInt = [customTime timeIntervalSince1970] * 1000;
         if (customTimeInt >= kSAEventCommonOptionalPropertyTimeInt) {
@@ -68,7 +68,7 @@
         } else {
             SALogError(@"$time error %lld, Please check the value", customTimeInt);
         }
-    } else if (originalTime && !object.hybridH5) {
+    } else if (originalTime) {
         SALogError(@"$time '%@' invalid, Please check the value", originalTime);
     }
 
