@@ -70,9 +70,6 @@ typedef BOOL(^SADeepLinkCompletion)(SADeepLinkObject *object);
 /// 获取最后一次的渠道归因参数
 - (NSDictionary *)acquireLatestChannels:(NSDictionary *)dictionary;
 
-/// 设备信息
-- (NSString *)appInstallSource;
-
 @end
 
 @interface SADeepLinkProcessorFactory : NSObject

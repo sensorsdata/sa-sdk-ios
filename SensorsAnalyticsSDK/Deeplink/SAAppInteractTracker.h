@@ -1,8 +1,8 @@
 //
-// SAAdvertisingConfig.h
+// SAAppInteractTracker.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2023/8/16.
+// Created by 陈玉国 on 2023/10/23.
 // Copyright © 2015-2023 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,18 +19,12 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "SASecretKey.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface SAAdvertisingConfig : NSObject <NSCopying>
+@interface SAAppInteractTracker : NSObject
 
-- (instancetype)initWithServerUrl:(NSString *)serverUrl events:(NSArray<NSString *>*)events secretKey:(nullable SASecretKey *)key;
-
-/// enable remarketing or not, default is NO
-@property (nonatomic, assign) BOOL enableRemarketing;
-
-/// url that wakeup app, pass the url to SDK in case that you delay init SDK
+@property (nonatomic, assign) BOOL awakeFromDeeplink;
 @property (nonatomic, copy) NSString *wakeupUrl;
 
 @end

@@ -144,6 +144,7 @@ extern NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION;
 extern NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION;
+extern NSNotificationName const SA_TRACK_Set_Server_URL_NOTIFICATION;
 
 #pragma mark - ABTest related notifications
 /// 注入打通 bridge
@@ -198,3 +199,11 @@ extern NSString * const kRandomTimeKey;
 extern NSString * const kStartDeviceTimeKey;
 extern NSString * const kSARemoteConfigSupportTransportEncryptKey;
 extern NSString * const kSARemoteConfigConfigsKey;
+
+//SAT Remarketing
+extern NSString * const kSAAppInteractEventTimeIntervalKey;
+extern NSString * const kSAAppInteractEventName;
+extern NSString * const kSAHasTrackInstallation;
+extern NSString * const kSAHasTrackInstallationDisableCallback;
+extern NSString * const kSAEventPropertyHasInstalledApp;
+extern NSString * const kSAEventPropertyAwakeFromDeeplink;

@@ -26,11 +26,11 @@
 #import "SADeepLinkConstants.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAConstants+Private.h"
-#import "SAIdentifier.h"
 #import "SAQueryDeepLinkProcessor.h"
 #import "SARequestDeepLinkProcessor.h"
 #import "SADeepLinkEventProcessor.h"
 #import "SADeferredDeepLinkProcessor.h"
+#import "SACommonUtility.h"
 
 @interface SADeepLinkLaunchEventObject : SAPresetEventObject
 
@@ -88,22 +88,11 @@
     return channels;
 }
 
-- (NSString *)appInstallSource {
-    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
-    sources[@"idfa"] = [SAIdentifier idfa];
-    sources[@"idfv"] = [SAIdentifier idfv];
-    NSMutableArray *result = [NSMutableArray array];
-    for (NSString *key in sources.allKeys) {
-        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
-    }
-    return [result componentsJoinedByString:@"##"];
-}
-
 - (void)trackDeepLinkLaunch:(NSDictionary *)properties {
     SADeepLinkLaunchEventObject *object = [[SADeepLinkLaunchEventObject alloc] initWithEventId:kSAAppDeepLinkLaunchEvent];
     NSMutableDictionary *eventProperties = [NSMutableDictionary dictionary];
     eventProperties[kSAEventPropertyDeepLinkURL] = self.URL.absoluteString;
-    eventProperties[kSAEventPropertyInstallSource] = [self appInstallSource];
+    eventProperties[kSAEventPropertyInstallSource] = [SACommonUtility appInstallSource];
     if (properties) {
         [eventProperties addEntriesFromDictionary:properties];
     }

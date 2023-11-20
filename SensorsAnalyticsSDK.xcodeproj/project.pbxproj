@@ -515,6 +515,8 @@
 		F28997D8273B6D66005E7D5E /* SAGesturePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = F28997D6273B6D66005E7D5E /* SAGesturePlugin.m */; };
 		F296FF042935A3DF00C40C48 /* NSObject+SAToString.h in Headers */ = {isa = PBXBuildFile; fileRef = F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */; };
 		F296FF052935A3DF00C40C48 /* NSObject+SAToString.m in Sources */ = {isa = PBXBuildFile; fileRef = F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */; };
+		F2A3F7632AE64FA80089809C /* SAAppInteractTracker.h in Headers */ = {isa = PBXBuildFile; fileRef = F2A3F7612AE64FA80089809C /* SAAppInteractTracker.h */; };
+		F2A3F7642AE64FA80089809C /* SAAppInteractTracker.m in Sources */ = {isa = PBXBuildFile; fileRef = F2A3F7622AE64FA80089809C /* SAAppInteractTracker.m */; };
 		F2B643F62832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h in Headers */ = {isa = PBXBuildFile; fileRef = F2B643F42832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2B643F72832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m in Sources */ = {isa = PBXBuildFile; fileRef = F2B643F52832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m */; };
 		F2C877B828A65849002BDA2C /* SAExposureData+Private.h in Headers */ = {isa = PBXBuildFile; fileRef = F2C877B628A65849002BDA2C /* SAExposureData+Private.h */; };
@@ -1111,6 +1113,8 @@
 		F28997D6273B6D66005E7D5E /* SAGesturePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAGesturePlugin.m; sourceTree = "<group>"; };
 		F296FF022935A3DF00C40C48 /* NSObject+SAToString.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSObject+SAToString.h"; sourceTree = "<group>"; };
 		F296FF032935A3DF00C40C48 /* NSObject+SAToString.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSObject+SAToString.m"; sourceTree = "<group>"; };
+		F2A3F7612AE64FA80089809C /* SAAppInteractTracker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAAppInteractTracker.h; sourceTree = "<group>"; };
+		F2A3F7622AE64FA80089809C /* SAAppInteractTracker.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAAppInteractTracker.m; sourceTree = "<group>"; };
 		F2B643F42832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SensorsAnalyticsSDK+SAAppExtension.h"; sourceTree = "<group>"; };
 		F2B643F52832302F00544BD2 /* SensorsAnalyticsSDK+SAAppExtension.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "SensorsAnalyticsSDK+SAAppExtension.m"; sourceTree = "<group>"; };
 		F2C877B628A65849002BDA2C /* SAExposureData+Private.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAExposureData+Private.h"; sourceTree = "<group>"; };
@@ -2061,6 +2065,8 @@
 				F214620E2A8CE2A90021C27D /* SAAdvertisingConfig.h */,
 				F214620F2A8CE2A90021C27D /* SAAdvertisingConfig.m */,
 				F2727AE82A8DC17F00166C6A /* SAAdvertisingConfig+Private.h */,
+				F2A3F7612AE64FA80089809C /* SAAppInteractTracker.h */,
+				F2A3F7622AE64FA80089809C /* SAAppInteractTracker.m */,
 			);
 			path = Deeplink;
 			sourceTree = "<group>";
@@ -2482,6 +2488,7 @@
 				F27EA3D627393B4B00896B3A /* SACellClickDynamicSubclassPlugin.h in Headers */,
 				4DD1296A25F8E451008C0B1E /* SAViewNode.h in Headers */,
 				A8356DC52656459A00FD64AA /* SAAppTracker.h in Headers */,
+				F2A3F7632AE64FA80089809C /* SAAppInteractTracker.h in Headers */,
 				88847F4A27605D3F007321E4 /* SABaseStoreManager.h in Headers */,
 				883BAAB02669CD18008105D2 /* SAExceptionManager.h in Headers */,
 				45BD80CE26F0B49700DCC759 /* SAThreadSafeDictionary.h in Headers */,
@@ -2918,6 +2925,7 @@
 				8809806C27FEE78900EB2B3D /* SAEncryptInterceptor.m in Sources */,
 				4DD1285C25F872A4008C0B1E /* SAObjectSerializerConfig.m in Sources */,
 				F21C226828F7B0E500847823 /* NSDictionary+SACopyProperties.m in Sources */,
+				F2A3F7642AE64FA80089809C /* SAAppInteractTracker.m in Sources */,
 				4D1B925F2817F2F3007C31D5 /* SAReferrerTitlePropertyPlugin.m in Sources */,
 				A8CC22332685E50C00E96A03 /* SARemoteConfigEventObject.m in Sources */,
 				8809805827FDA85E00EB2B3D /* SARemoteConfigInterceptor.m in Sources */,

@@ -24,6 +24,7 @@
 
 #import "SACommonUtility.h" 
 #import "SAValidator.h"
+#import "SAIdentifier.h"
 #import <CommonCrypto/CommonDigest.h>
 
 @implementation SACommonUtility
@@ -88,4 +89,16 @@
     return [hashNumber stringValue];
 }
 
+#if TARGET_OS_IOS
++ (NSString *)appInstallSource {
+    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
+    sources[@"idfa"] = [SAIdentifier idfa];
+    sources[@"idfv"] = [SAIdentifier idfv];
+    NSMutableArray *result = [NSMutableArray array];
+    for (NSString *key in sources.allKeys) {
+        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
+    }
+    return [result componentsJoinedByString:@"##"];
+}
+#endif
 @end

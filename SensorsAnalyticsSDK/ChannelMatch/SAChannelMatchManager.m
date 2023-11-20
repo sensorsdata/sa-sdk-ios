@@ -38,6 +38,7 @@
 #import "SAProfileEventObject.h"
 #import "SAPropertyPluginManager.h"
 #import "SAChannelInfoPropertyPlugin.h"
+#import "SACommonUtility.h"
 
 NSString * const kSAChannelDebugFlagKey = @"com.sensorsdata.channeldebug.flag";
 NSString * const kSAChannelDebugInstallEventName = @"$ChannelDebugInstall";
@@ -45,8 +46,6 @@ NSString * const kSAEventPropertyChannelDeviceInfo = @"$channel_device_info";
 NSString * const kSAEventPropertyUserAgent = @"$user_agent";
 NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_event";
 
-static NSString * const kSAHasTrackInstallation = @"HasTrackInstallation";
-static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInstallationWithDisableCallback";
 
 @interface SAChannelMatchManager ()
 
@@ -193,7 +192,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
         result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
 
-    result[kSAEventPropertyInstallSource] = [self appInstallSource];
+    result[kSAEventPropertyInstallSource] = [SACommonUtility appInstallSource];
 
     return result;
 }
@@ -208,7 +207,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
         result[kSAEventPropertyUserAgent] = [self simulateUserAgent];
     }
 
-    result[kSAEventPropertyInstallSource] = [self appInstallSource];
+    result[kSAEventPropertyInstallSource] = [SACommonUtility appInstallSource];
 
     // 用户属性中不需要添加 $ios_install_disable_callback，这里主动移除掉
     // (也会移除自定义属性中的 $ios_install_disable_callback, 和原有逻辑保持一致)
@@ -217,17 +216,6 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     [result setValue:[NSDate date] forKey:kSAEventPropertyAppInstallFirstVisitTime];
 
     return result;
-}
-
-- (NSString *)appInstallSource {
-    NSMutableDictionary *sources = [NSMutableDictionary dictionary];
-    sources[@"idfa"] = [SAIdentifier idfa];
-    sources[@"idfv"] = [SAIdentifier idfv];
-    NSMutableArray *result = [NSMutableArray array];
-    for (NSString *key in sources.allKeys) {
-        [result addObject:[NSString stringWithFormat:@"%@=%@", key, sources[key]]];
-    }
-    return [result componentsJoinedByString:@"##"];
 }
 
 #pragma mark - 附加渠道信息
@@ -327,7 +315,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     // 重连二维码对应的设备信息
     NSMutableSet *deviceIdSet = [NSMutableSet setWithArray:[deviceId componentsSeparatedByString:@"##"]];
     // 当前设备的设备信息
-    NSSet *installSourceSet = [NSSet setWithArray:[[self appInstallSource] componentsSeparatedByString:@"##"]];
+    NSSet *installSourceSet = [NSSet setWithArray:[[SACommonUtility appInstallSource] componentsSeparatedByString:@"##"]];
     [deviceIdSet intersectSet:installSourceSet];
     // 取交集，当交集不为空时，表示设备一致
     if (deviceIdSet.count > 0) {
@@ -373,7 +361,7 @@ static NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInsta
     NSMutableDictionary *params = [NSMutableDictionary dictionaryWithDictionary:qureyItems];
     params[@"distinct_id"] = [[SensorsAnalyticsSDK sharedInstance] distinctId];
     params[@"has_active"] = @([self isAppInstalled]);
-    params[@"device_code"] = [self appInstallSource];
+    params[@"device_code"] = [SACommonUtility appInstallSource];
     request.HTTPBody = [SAJSONUtil dataWithJSONObject:params];
 
     [self showIndicator];

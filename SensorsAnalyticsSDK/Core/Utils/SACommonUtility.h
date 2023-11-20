@@ -37,5 +37,8 @@
 /// 计算 hash
 + (NSString *)hashStringWithData:(NSData *)data;
 
-
+#if TARGET_OS_IOS
+/// $ios_install_source
++ (NSString *)appInstallSource;
+#endif
 @end

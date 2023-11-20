@@ -164,6 +164,7 @@ NSNotificationName const SA_TRACK_LOGOUT_NOTIFICATION = @"SensorsAnalyticsTrackL
 NSNotificationName const SA_TRACK_IDENTIFY_NOTIFICATION = @"SensorsAnalyticsTrackIdentifyNotification";
 NSNotificationName const SA_TRACK_RESETANONYMOUSID_NOTIFICATION = @"SensorsAnalyticsTrackResetAnonymousIdNotification";
 NSNotificationName const SA_TRACK_EVENT_H5_NOTIFICATION = @"SensorsAnalyticsTrackEventFromH5Notification";
+NSNotificationName const SA_TRACK_Set_Server_URL_NOTIFICATION = @"SensorsAnalyticsSetServerUrlNotification";
 
 #pragma mark - ABTest related notifications
 NSNotificationName const SA_H5_BRIDGE_NOTIFICATION = @"SensorsAnalyticsRegisterJavaScriptBridgeNotification";
@@ -223,3 +224,11 @@ NSString * const kRandomTimeKey = @"randomTime";
 NSString * const kStartDeviceTimeKey = @"startDeviceTime";
 NSString * const kSARemoteConfigSupportTransportEncryptKey = @"supportTransportEncrypt";
 NSString * const kSARemoteConfigConfigsKey = @"configs";
+
+//SAT Remarketing
+NSString * const kSAAppInteractEventTimeIntervalKey = @"appInteract_timestamp";
+NSString * const kSAAppInteractEventName = @"$AppInteract";
+NSString * const kSAHasTrackInstallation = @"HasTrackInstallation";
+NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInstallationWithDisableCallback";
+NSString * const kSAEventPropertyHasInstalledApp = @"$sat_has_installed_app";
+NSString * const kSAEventPropertyAwakeFromDeeplink = @"$sat_awake_from_deeplink";

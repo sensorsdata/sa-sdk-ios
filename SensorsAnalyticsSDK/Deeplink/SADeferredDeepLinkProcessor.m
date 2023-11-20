@@ -30,6 +30,7 @@
 #import "SAUserAgent.h"
 #import "SANetworkInfoPropertyPlugin.h"
 #import "SAConstants+Private.h"
+#import "SACommonUtility.h"
 
 @implementation SADeferredDeepLinkProcessor
 
@@ -61,7 +62,7 @@
         properties[kSAEventPropertyDuration] = [NSString stringWithFormat:@"%.3f", interval];
         properties[kSAEventPropertyADMatchType] = @"deferred deeplink";
 
-        NSData *deviceInfoData = [[self appInstallSource] dataUsingEncoding:NSUTF8StringEncoding];
+        NSData *deviceInfoData = [[SACommonUtility appInstallSource] dataUsingEncoding:NSUTF8StringEncoding];
         NSString *base64 = [deviceInfoData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
         properties[kSAEventPropertyADDeviceInfo] = base64;
 
@@ -150,7 +151,7 @@
     }
 
     NSMutableDictionary *params = [NSMutableDictionary dictionary];
-    NSData *data = [[self appInstallSource] dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [[SACommonUtility appInstallSource] dataUsingEncoding:NSUTF8StringEncoding];
     NSString *base64 = [data base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
     params[kSARequestPropertyIDs] = base64;
     params[kSARequestPropertyUA] = userAgent;

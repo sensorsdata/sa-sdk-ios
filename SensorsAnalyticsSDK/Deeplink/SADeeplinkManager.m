@@ -43,6 +43,7 @@
 #import "SAPropertyPluginManager.h"
 #import "SALatestUtmPropertyPlugin.h"
 #import "SADeviceWhiteList.h"
+#import "SAAppInteractTracker.h"
 
 
 @interface SADeepLinkManager () <SADeepLinkProcessorDelegate>
@@ -57,6 +58,10 @@
 @property (nonatomic, strong) NSURL *deepLinkURL;
 
 @property (nonatomic, strong) SADeviceWhiteList *whiteList;
+
+@property (nonatomic, strong) SAAppInteractTracker *appInteractTracker;
+
+@property (nonatomic, assign) BOOL hasInstalledApp;
 
 @end
 
@@ -97,6 +102,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
             [self disableDeferredDeepLink];
         }
         _whiteList = [[SADeviceWhiteList alloc] init];
+        _hasInstalledApp = [self isAppInstalled];
     }
     return self;
 }
@@ -105,7 +111,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     SAAppLifecycleState newState = [sender.userInfo[kSAAppLifecycleNewStateKey] integerValue];
     if (newState == SAAppLifecycleStateEnd) {
         [self disableDeferredDeepLink];
-        [[NSNotificationCenter defaultCenter] removeObserver:self name:kSAAppLifecycleStateDidChangeNotification object:nil];
+        self.hasInstalledApp = [self isAppInstalled];
     }
 }
 
@@ -132,6 +138,26 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     [self handleLaunchOptions:configOptions.launchOptions];
     [self acquireColdLaunchDeepLinkInfo];
     self.enable = configOptions.enableDeepLink;
+}
+
+- (void)setEnable:(BOOL)enable {
+    _enable = enable;
+    self.appInteractTracker = enable && self.configOptions.advertisingConfig.enableRemarketing ? [[SAAppInteractTracker alloc] init] : nil;
+    if (!self.appInteractTracker) {
+        return;
+    }
+    NSString *wakeupUrl = self.configOptions.advertisingConfig.wakeupUrl;
+    if (!wakeupUrl || ![wakeupUrl isKindOfClass:[NSString class]]) {
+        return;
+    }
+    NSURL *wakeupURL = [NSURL URLWithString:wakeupUrl];
+    if (!wakeupURL) {
+        return;
+    }
+    if (![self canHandleURL:wakeupURL]) {
+        return;
+    }
+    self.appInteractTracker.wakeupUrl = wakeupUrl;
 }
 
 - (void)filterValidSourceChannelKeys:(NSArray *)sourceChannels {
@@ -272,6 +298,13 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     if ([self.whiteList canHandleURL:url]) {
         return YES;
     }
+
+    BOOL canWakeUp = [self canWakeUpWithUrl:url];
+    self.appInteractTracker.awakeFromDeeplink = canWakeUp;
+    return canWakeUp;
+}
+
+- (BOOL)canWakeUpWithUrl:(NSURL *)url {
     SADeepLinkProcessor *processor = [SADeepLinkProcessorFactory processorFromURL:url customChannelKeys:self.customChannelKeys];
     return processor.canWakeUp;
 }
@@ -301,7 +334,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
 
     SADeepLinkProcessor *processor = [SADeepLinkProcessorFactory processorFromURL:url customChannelKeys:self.customChannelKeys];
     processor.delegate = self;
-    [processor startWithProperties:nil];
+    [processor startWithProperties:@{kSAEventPropertyHasInstalledApp: @(self.hasInstalledApp)}];
     return processor.canWakeUp;
 }
 
@@ -312,7 +345,14 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
         return;
     }
     SADeepLinkEventProcessor *processor = [[SADeepLinkEventProcessor alloc] init];
-    [processor startWithProperties:(url ? @{kSAEventPropertyDeepLinkURL: url} : nil)];
+    NSMutableDictionary *properties = [NSMutableDictionary dictionary];
+    if (self.configOptions.advertisingConfig.enableRemarketing) {
+        SAStoreManager *manager = [SAStoreManager sharedInstance];
+        BOOL hasInstallApp = [manager boolForKey:kSAHasTrackInstallationDisableCallback] || [manager boolForKey:kSAHasTrackInstallation];
+        properties[kSAEventPropertyHasInstalledApp] = @(hasInstallApp);
+    }
+    properties[kSAEventPropertyDeepLinkURL] = url;
+    [processor startWithProperties:properties];
 }
 
 - (void)requestDeferredDeepLink:(NSDictionary *)properties {
@@ -349,6 +389,11 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     }
 
     return self.oldCompletion;
+}
+
+- (BOOL)isAppInstalled {
+    SAStoreManager *manager = [SAStoreManager sharedInstance];
+    return [manager boolForKey:kSAHasTrackInstallationDisableCallback] || [manager boolForKey:kSAHasTrackInstallation];
 }
 
 @end

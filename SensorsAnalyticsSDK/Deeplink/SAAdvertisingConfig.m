@@ -53,6 +53,8 @@
     config.adsServerUrl = self.adsServerUrl;
     config.adsEvents = self.adsEvents;
     config.adsSecretKey = self.adsSecretKey;
+    config.enableRemarketing = self.enableRemarketing;
+    config.wakeupUrl = self.wakeupUrl;
     return config;
 }
 

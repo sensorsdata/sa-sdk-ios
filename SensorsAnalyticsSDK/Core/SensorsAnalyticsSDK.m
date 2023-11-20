@@ -64,7 +64,7 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.22"
+#define VERSION @"4.5.23"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -404,6 +404,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     // macOS 暂不支持远程控制，即不支持 setServerUrl: isRequestRemoteConfig: 接口
     dispatch_async(self.serialQueue, ^{
         self.configOptions.serverURL = serverUrl;
+        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_Set_Server_URL_NOTIFICATION object:nil];
     });
 #else
     [self setServerUrl:serverUrl isRequestRemoteConfig:NO];
@@ -423,7 +424,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     dispatch_async(self.serialQueue, ^{
         if (![self.configOptions.serverURL isEqualToString:serverUrl]) {
             self.configOptions.serverURL = serverUrl;
-            
+            [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_Set_Server_URL_NOTIFICATION object:nil];
+
             // 更新数据接收地址
             [SAModuleManager.sharedInstance updateServerURL:serverUrl];
         }
