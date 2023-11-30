@@ -30,6 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SensorsAnalyticsSDK.h"
 #import "SAConstants+Private.h"
+#import <WebKit/WKWebView.h>
 #import "SACommonUtility.h"
 #import "SAConstants.h"
 #import "SAJSONUtil.h"

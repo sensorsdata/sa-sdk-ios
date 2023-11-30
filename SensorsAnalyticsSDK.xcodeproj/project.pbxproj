@@ -1586,8 +1586,6 @@
 				88EC2DF02757689800EF9778 /* SAStoreManager.m */,
 				4C9A9BF72975545C00DBF2A7 /* SACoreResources.h */,
 				4C9A9BF82975545C00DBF2A7 /* SACoreResources.m */,
-				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
-				881A4157253D7B4F00854F69 /* SASwizzle.m */,
 				881A414B253D7B4F00854F69 /* SensorsAnalyticsSDK.h */,
 				4DAE222C2A8F62180047C5AC /* SensorsAnalyticsExtension.h */,
 				881A40E7253D7B4F00854F69 /* SensorsAnalyticsSDK.m */,
@@ -2241,6 +2239,8 @@
 		F2346B7D25E0AE5600AA3684 /* HookDelegate */ = {
 			isa = PBXGroup;
 			children = (
+				881A40EB253D7B4F00854F69 /* SASwizzle.h */,
+				881A4157253D7B4F00854F69 /* SASwizzle.m */,
 				F277F5E225CFCE56009B5CE6 /* NSObject+SADelegateProxy.h */,
 				F277F5E125CFCE56009B5CE6 /* NSObject+SADelegateProxy.m */,
 				4D4DB2BD25B7D19B00938842 /* SAClassHelper.h */,

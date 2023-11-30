@@ -33,7 +33,7 @@
 #import "SAURLUtils.h"
 #import "SANetwork.h"
 #import "SALog.h"
-#import <WebKit/WebKit.h>
+#import <WebKit/WKWebView.h>
 #import <objc/runtime.h>
 
 static NSString * const kSAJSGetAppInfoScheme = @"sensorsanalytics://getAppInfo";

@@ -30,7 +30,7 @@
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SALimitKeyManager.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import "SAKeyChainItemWrapper.h"
 #import <UIKit/UIKit.h>
 #endif
@@ -122,7 +122,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
 - (void)archiveAnonymousId:(NSString *)anonymousId {
     [[SAStoreManager sharedInstance] setObject:anonymousId forKey:kSAEventDistinctId];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
     [SAKeyChainItemWrapper saveUdid:anonymousId];
 #endif
 }
@@ -226,7 +226,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
     });
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 + (NSString *)idfa {
     NSString *idfa = SALimitKeyManager.idfa;
     if ([idfa isEqualToString:@""]) {
@@ -277,7 +277,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 
 + (NSString *)hardwareID {
     NSString *distinctId = nil;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
     distinctId = [self idfa];
     // 没有IDFA，则使用IDFV
     if (!distinctId) {
@@ -300,7 +300,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
 - (NSString *)unarchiveAnonymousId {
     NSString *anonymousId = [[SAStoreManager sharedInstance] objectForKey:kSAEventDistinctId];
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
     NSString *distinctIdInKeychain = [SAKeyChainItemWrapper saUdid];
     if (distinctIdInKeychain.length > 0) {
         if (![anonymousId isEqualToString:distinctIdInKeychain]) {
@@ -588,7 +588,7 @@ NSString * const kSALoginIdSpliceKey = @"+";
     if (!identities[kSAIdentitiesUniqueID] && !identities[kSAIdentitiesUUID] ) {
         NSString *key = kSAIdentitiesUUID;
         NSString *value = [NSUUID UUID].UUIDString;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
         if ([SAIdentifier idfv]) {
             key = kSAIdentitiesUniqueID;
             value = [SAIdentifier idfv];

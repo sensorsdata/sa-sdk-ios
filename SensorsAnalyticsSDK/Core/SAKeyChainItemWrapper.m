@@ -58,7 +58,7 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
     @try {
         NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
         CFTypeRef queryResults = NULL;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
         CFErrorRef error = NULL;
         SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
         if (error) {
@@ -126,7 +126,7 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
             [query removeObjectForKey:(__bridge id)kSecMatchLimit ];
             [query removeObjectForKey:(__bridge id)kSecReturnAttributes];
             [query removeObjectForKey:(__bridge id)kSecReturnData];
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
             [query removeObjectForKey:(__bridge id)kSecAttrAccessControl];
 #else
             @try {
@@ -151,7 +151,7 @@ NSString * const kSAUdidAccount = @"com.sensorsdata.analytics.udid";
     @try {
         NSMutableDictionary *query = [[NSMutableDictionary alloc] init];
         CFTypeRef queryResults = NULL;
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
         CFErrorRef error = NULL;
         SecAccessControlRef secAccessControl =  SecAccessControlCreateWithFlags(kCFAllocatorDefault, kSecAttrAccessibleAfterFirstUnlock, kSecAccessControlUserPresence, &error);
         if (error) {

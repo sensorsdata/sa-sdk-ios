@@ -47,6 +47,8 @@ NSString * const kSAEventPresetPropertyAppVersion = @"$app_version";
         _lib = @"iOS";
 #elif TARGET_OS_OSX
         _lib = @"macOS";
+#elif TARGET_OS_TV
+        _lib = @"tvOS";
 #endif
         _method = kSALibMethodCode;
         _version = [SensorsAnalyticsSDK libVersion];

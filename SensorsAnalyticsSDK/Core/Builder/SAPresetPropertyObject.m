@@ -28,7 +28,7 @@
 #import "SAJSONUtil.h"
 #import "SAConstants+Private.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #elif TARGET_OS_OSX
 #import <AppKit/AppKit.h>
@@ -241,6 +241,37 @@ NSString * const kSAEventPresetPropertyPluginLib = @"$lib";
 
 - (NSInteger)screenWidth {
     return (NSInteger)NSScreen.mainScreen.frame.size.width;
+}
+
+@end
+#endif
+
+
+#if TARGET_OS_TV
+@implementation SATVPresetProperty
+
+- (NSString *)deviceModel {
+    return [self sysctlByName:@"hw.machine"];
+}
+
+- (NSString *)lib {
+    return @"tvOS";
+}
+
+- (NSString *)os {
+    return @"tvOS";
+}
+
+- (NSString *)osVersion {
+    return [[UIDevice currentDevice] systemVersion];
+}
+
+- (NSInteger)screenHeight {
+    return (NSInteger)UIScreen.mainScreen.bounds.size.height;
+}
+
+- (NSInteger)screenWidth {
+    return (NSInteger)UIScreen.mainScreen.bounds.size.width;
 }
 
 @end

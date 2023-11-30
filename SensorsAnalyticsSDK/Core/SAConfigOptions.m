@@ -173,6 +173,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.maxRequestHourInterval = self.maxRequestHourInterval;
     options.remoteConfigURL = self.remoteConfigURL;
     options.disableRandomTimeRequestRemoteConfig = self.disableRandomTimeRequestRemoteConfig;
+    
     // 加密
     options.encryptors = self.encryptors;
     options.eventEncryptor = self.eventEncryptor;
@@ -181,6 +182,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.enableFlushEncrypt = self.enableFlushEncrypt;
     options.saveSecretKey = self.saveSecretKey;
     options.loadSecretKey = self.loadSecretKey;
+    
     // 全埋点
     options.autoTrackEventType = self.autoTrackEventType;
     options.enableAutoTrackChildViewScreen = self.enableAutoTrackChildViewScreen;
@@ -190,23 +192,28 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 
     // Crash 采集
     options.enableTrackAppCrash = self.enableTrackAppCrash;
+    
     // 渠道相关
     options.enableSaveDeepLinkInfo = self.enableSaveDeepLinkInfo;
     options.sourceChannels = self.sourceChannels;
     options.enableAutoAddChannelCallbackEvent = self.enableAutoAddChannelCallbackEvent;
+    
     // 推送点击
     options.enableTrackPush = self.enableTrackPush;
+    
     // 页面浏览时长
     options.enableTrackPageLeave = self.enableTrackPageLeave;
     options.enableTrackChildPageLeave = self.enableTrackChildPageLeave;
     options.ignoredPageLeaveClasses = self.ignoredPageLeaveClasses;
 
-    //private switch
+    // 私有配置
     options.enableRemoteConfig = self.enableRemoteConfig;
     options.enableChannelMatch = self.enableChannelMatch;
     options.enableDeepLink = self.enableDeepLink;
     options.enableAutoTrack = self.enableAutoTrack;
     options.customADChannelURL = self.customADChannelURL;
+
+    // 曝光
 #if __has_include("SAExposureConfig.h")
     options.exposureConfig = self.exposureConfig;
 #endif

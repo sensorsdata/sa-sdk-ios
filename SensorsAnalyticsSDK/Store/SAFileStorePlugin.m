@@ -37,9 +37,15 @@ static NSString * const kSAFileStorePluginType = @"cn.sensorsdata.File.";
     NSString *filename = [NSString stringWithFormat:@"sensorsanalytics-%@.plist", name];
 #endif
 
-    NSString *filepath = [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
+#if !TARGET_OS_TV
+    return [[NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) lastObject]
                           stringByAppendingPathComponent:filename];
-    return filepath;
+#else
+    return [[NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) lastObject]
+            stringByAppendingPathComponent:filename];
+#endif
+
+
 }
 
 #pragma mark - SAStorePlugin
@@ -82,7 +88,7 @@ static NSString * const kSAFileStorePluginType = @"cn.sensorsdata.File.";
     /* 为filePath文件设置保护等级 */
     NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
                                                            forKey:NSFileProtectionKey];
-#elif TARGET_OS_OSX
+#else
     // macOS10.13 不包含 NSFileProtectionComplete
     NSDictionary *protection = [NSDictionary dictionary];
 #endif

@@ -175,7 +175,8 @@
     });
     [[SensorsAnalyticsSDK sharedInstance] trackEventCallback:^BOOL (NSString *_Nonnull eventName, NSMutableDictionary<NSString *, id> *_Nonnull properties) {
         if ([eventName isEqualToString:@"timerEvent"]) {
-            XCTAssertEqualWithAccuracy([properties[@"event_duration"] floatValue], 2.5, 0.1);
+            // CI 自动执行单元测试，执行时间存在误差
+            XCTAssertEqualWithAccuracy([properties[@"event_duration"] floatValue], 2.5, 0.11);
         }
         [expectation fulfill];
         return NO;

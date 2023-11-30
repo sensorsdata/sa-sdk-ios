@@ -24,14 +24,14 @@
 
 #import "SAApplication.h"
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIKit.h>
 #endif
 
 @implementation SAApplication
 
 + (id)sharedApplication {
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
     Class applicationClass = NSClassFromString(@"UIApplication");
     if (!applicationClass) {
         return nil;

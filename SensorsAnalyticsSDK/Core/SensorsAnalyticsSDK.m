@@ -64,7 +64,11 @@
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
 
-#define VERSION @"4.5.23"
+#if TARGET_OS_IOS || TARGET_OS_TV
+#import <UIKit/UIApplication.h>
+#endif
+
+#define VERSION @"4.6.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -570,7 +574,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
         
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_TV
         UIApplication *application = [SAApplication sharedApplication];
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         void (^endBackgroundTask)(void) = ^() {
