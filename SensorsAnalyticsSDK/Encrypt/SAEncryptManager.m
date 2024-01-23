@@ -106,7 +106,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     }
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
     //register event encryptor
     [configOptions registerEventEncryptor:[[SAAESEventEncryptor alloc] init]];
     _configOptions = configOptions;
@@ -464,7 +464,7 @@ static NSString * const kSAEncryptSecretKey = @"SAEncryptSecretKey";
     [self enableFlushEncryptWithRemoteConfig:config];
 }
 
-- (void)enableFlushEncryptWithRemoteConfig:(NSDictionary *)config {
+- (void)enableFlushEncryptWithRemoteConfig:(NSDictionary *)config NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
     if (![config isKindOfClass:[NSDictionary class]]) {
         return;
     }

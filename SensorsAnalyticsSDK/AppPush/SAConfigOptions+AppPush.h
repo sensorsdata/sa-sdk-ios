@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAConfigOptions (AppPush)
 
 ///开启自动采集通知
-@property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableTrackPush API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("AppPush not supported for iOS extensions.");
 
 @end
 

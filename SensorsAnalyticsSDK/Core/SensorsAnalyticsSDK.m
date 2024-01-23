@@ -68,7 +68,7 @@
 #import <UIKit/UIApplication.h>
 #endif
 
-#define VERSION @"4.6.0"
+#define VERSION @"4.6.1"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 

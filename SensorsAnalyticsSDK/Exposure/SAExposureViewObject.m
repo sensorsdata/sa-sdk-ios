@@ -248,7 +248,7 @@ static void * const kSAExposureViewContentOffsetContext = (void*)&kSAExposureVie
     }
 }
 
-- (UIWindow *)topWindow {
+- (UIWindow *)topWindow NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.") {
     NSArray<UIWindow *> *windows;
     if (@available(iOS 13.0, *)) {
         __block UIWindowScene *scene = nil;

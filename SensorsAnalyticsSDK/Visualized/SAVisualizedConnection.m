@@ -204,7 +204,7 @@
 }
 
 /// 解析调试信息
-- (void)analysisDebugMessage:(NSDictionary *)message {
+- (void)analysisDebugMessage:(NSDictionary *)message NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     // 关闭自定义属性也不再处理调试信息
     if (message.count == 0 || !SAVisualizedManager.defaultManager.configOptions.enableVisualizedProperties) {
         return;

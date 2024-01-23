@@ -152,7 +152,7 @@
     return [self.model.localLibVersion isEqualToString:SensorsAnalyticsSDK.sdkInstance.libVersion];
 }
 
-- (BOOL)shouldAddVersionOnEnableEncrypt {
+- (BOOL)shouldAddVersionOnEnableEncrypt NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
 #if __has_include("SAConfigOptions+Encrypt.h")
     if (!self.configOptions.enableEncrypt) {
         return YES;
@@ -218,7 +218,7 @@
     return self.model.disableDebugMode;
 }
 
-- (NSURL *)remoteConfigURL {
+- (NSURL *)remoteConfigURL NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.") {
     return [NSURL URLWithString:self.configOptions.remoteConfigURL];
 }
 

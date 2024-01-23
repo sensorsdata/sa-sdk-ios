@@ -75,7 +75,7 @@ static NSString * const kSAEventPresetPropertyScreenOrientation = @"$screen_orie
     }
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("DeviceOrientation not supported for iOS extensions.") {
     _configOptions = configOptions;
     self.enable = configOptions.enableDeviceOrientation;
 }

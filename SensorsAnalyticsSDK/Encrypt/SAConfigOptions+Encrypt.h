@@ -26,10 +26,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAConfigOptions (Encrypt)
 
 /// 是否开启埋点数据入库加密
-@property (nonatomic, assign) BOOL enableEncrypt API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableEncrypt API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.");
 
 /// 是否开启埋点数据上报传输加密
-@property (nonatomic, assign) BOOL enableTransportEncrypt API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableTransportEncrypt API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.");
 
 /// 注册埋点加密插件
 - (void)registerEncryptor:(id<SAEncryptProtocol>)encryptor API_UNAVAILABLE(macos);

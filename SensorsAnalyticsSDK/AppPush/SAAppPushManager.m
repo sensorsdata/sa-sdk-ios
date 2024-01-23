@@ -53,13 +53,13 @@
     }
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("AppPush not supported for iOS extensions.") {
     _configOptions = configOptions;
     [UIApplication sharedApplication].sensorsdata_launchOptions = configOptions.launchOptions;
     self.enable = configOptions.enableTrackPush;
 }
 
-- (void)proxyNotifications {
+- (void)proxyNotifications NS_EXTENSION_UNAVAILABLE("AppPush not supported for iOS extensions.") {
     //处理未实现代理方法也能采集事件的逻辑
     [SAMethodHelper swizzleRespondsToSelector];
     

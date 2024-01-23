@@ -127,7 +127,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
     [[SAStoreManager sharedInstance] setInteger:SADeferredDeepLinkStatusDisable forKey:kSADeferredDeepLinkStatus];
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.") {
     if ([SAApplication isAppExtension]) {
         configOptions.enableDeepLink = NO;
     }
@@ -201,7 +201,7 @@ typedef NS_ENUM(NSInteger, SADeferredDeepLinkStatus) {
 }
 
 /// 开启本地保存 DeepLinkInfo 开关时，每次 DeepLink 唤起解析后都需要更新本地文件中数据
-- (void)archiveLatestChannels:(NSDictionary *)dictionary {
+- (void)archiveLatestChannels:(NSDictionary *)dictionary NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.") {
     if (!_configOptions.enableSaveDeepLinkInfo) {
         return;
     }

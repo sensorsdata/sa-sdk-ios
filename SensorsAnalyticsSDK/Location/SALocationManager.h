@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (Location)
 
-@property (nonatomic, assign) BOOL enableLocation;
+@property (nonatomic, assign) BOOL enableLocation NS_EXTENSION_UNAVAILABLE("Location not supported for iOS extensions.");
 
 @end
 

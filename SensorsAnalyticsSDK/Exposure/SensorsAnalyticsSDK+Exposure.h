@@ -29,19 +29,19 @@ NS_ASSUME_NONNULL_BEGIN
 /// - Parameters:
 ///   - view: view to expose
 ///   - data: exposure data, such as event name, properties, etc.
-- (void)addExposureView:(UIView *)view withData:(SAExposureData *)data;
+- (void)addExposureView:(UIView *)view withData:(SAExposureData *)data NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
 
 /// remove exposure for certain view
 /// - Parameters:
 ///   - view: view that need to remove exposure
 ///   - identifier: exposure identifier to identify certain view, if no identifier specified when addExposureView
-- (void)removeExposureView:(UIView *)view withExposureIdentifier:(nullable NSString *)identifier;
+- (void)removeExposureView:(UIView *)view withExposureIdentifier:(nullable NSString *)identifier NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
 
 /// update properties for certain view that need to expose
 /// - Parameters:
 ///   - view: view to expose
 ///   - properties: properties to update
-- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties;
+- (void)updateExposure:(UIView *)view withProperties:(NSDictionary *)properties NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
 
 @end
 

@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface SAConfigOptions (DeviceOrientation)
 
-@property (nonatomic, assign) BOOL enableDeviceOrientation;
+@property (nonatomic, assign) BOOL enableDeviceOrientation NS_EXTENSION_UNAVAILABLE("DeviceOrientation not supported for iOS extensions.");
 
 @end
 

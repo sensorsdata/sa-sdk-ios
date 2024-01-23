@@ -29,7 +29,7 @@
 @implementation SensorsAnalyticsSDK (Visualized)
 
 #pragma mark - VisualizedAutoTrack
-- (BOOL)isVisualizedAutoTrackEnabled {
+- (BOOL)isVisualizedAutoTrackEnabled NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     return self.configOptions.enableVisualizedAutoTrack || self.configOptions.enableVisualizedProperties;
 }
 
@@ -42,7 +42,7 @@
 }
 
 #pragma mark - HeatMap
-- (BOOL)isHeatMapEnabled {
+- (BOOL)isHeatMapEnabled NS_EXTENSION_UNAVAILABLE("HeatMap not supported for iOS extensions.") {
     return self.configOptions.enableHeatMap;
 }
 

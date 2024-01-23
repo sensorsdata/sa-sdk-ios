@@ -219,7 +219,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 }
 
 #pragma mark - 附加渠道信息
-- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(nullable NSDictionary *)propertyDict {
+- (void)trackChannelWithEventObject:(SABaseEventObject *)obj properties:(nullable NSDictionary *)propertyDict NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.") {
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         return [SensorsAnalyticsSDK.sharedInstance trackEventObject:obj properties:propertyDict];
     }
@@ -255,7 +255,7 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
     [[SAStoreManager sharedInstance] setObject:copyEventNames forKey:kSAEventPropertyChannelDeviceInfo];
 }
 
-- (NSDictionary *)channelInfoWithEvent:(NSString *)event {
+- (NSDictionary *)channelInfoWithEvent:(NSString *)event NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.") {
     if (self.configOptions.enableAutoAddChannelCallbackEvent) {
         NSMutableDictionary *channelInfo = [NSMutableDictionary dictionaryWithDictionary:[self channelPropertiesWithEvent:event]];
         channelInfo[kSAEventPropertyChannelDeviceInfo] = @"1";

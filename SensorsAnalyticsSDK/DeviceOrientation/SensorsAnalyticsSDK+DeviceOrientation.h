@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param enable YES/NO
  */
-- (void)enableTrackScreenOrientation:(BOOL)enable API_UNAVAILABLE(macos);
+- (void)enableTrackScreenOrientation:(BOOL)enable API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DeviceOrientation not supported for iOS extensions.");
 
 @end
 

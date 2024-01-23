@@ -82,7 +82,7 @@ DeepLink 回调函数
 @interface SAConfigOptions (DeepLink)
 
 /// DeepLink 中解析出来的参数是否需要保存到本地
-@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableSaveDeepLinkInfo API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("DeepLink not supported for iOS extensions.");
 
 /// DeepLink 中用户自定义来源渠道属性 key 值，可传多个。
 @property (nonatomic, copy) NSArray<NSString *> *sourceChannels API_UNAVAILABLE(macos);

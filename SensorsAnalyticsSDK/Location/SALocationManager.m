@@ -72,7 +72,7 @@ static NSString * const kSAAppleCoordinateSystem = @"WGS84";
     [self setupListeners];
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("Location not supported for iOS extensions.") {
     _configOptions = configOptions;
     self.enable = configOptions.enableLocation;
 }

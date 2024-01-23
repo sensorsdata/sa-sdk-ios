@@ -523,6 +523,7 @@
 		F2CD8A7A28A2410A00A186B8 /* SAExposureConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = F2CD8A7828A2410A00A186B8 /* SAExposureConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2CD8A7B28A2410A00A186B8 /* SAExposureConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = F2CD8A7928A2410A00A186B8 /* SAExposureConfig.m */; };
 		F2CFD14726EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = F2CFD14526EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		F2D769D42B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */; };
 		F2E36483287682E6008D9151 /* SADeviceWhiteList.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E36481287682E6008D9151 /* SADeviceWhiteList.h */; };
 		F2E36484287682E6008D9151 /* SADeviceWhiteList.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E36482287682E6008D9151 /* SADeviceWhiteList.m */; };
 		F2E364872876EE94008D9151 /* SASlinkCreator.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E364852876EE94008D9151 /* SASlinkCreator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -1121,6 +1122,7 @@
 		F2CD8A7828A2410A00A186B8 /* SAExposureConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAExposureConfig.h; sourceTree = "<group>"; };
 		F2CD8A7928A2410A00A186B8 /* SAExposureConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAExposureConfig.m; sourceTree = "<group>"; };
 		F2CFD14526EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+RemoteConfig.h"; sourceTree = "<group>"; };
+		F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F2E36481287682E6008D9151 /* SADeviceWhiteList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADeviceWhiteList.h; sourceTree = "<group>"; };
 		F2E36482287682E6008D9151 /* SADeviceWhiteList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADeviceWhiteList.m; sourceTree = "<group>"; };
 		F2E364852876EE94008D9151 /* SASlinkCreator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASlinkCreator.h; sourceTree = "<group>"; };
@@ -1593,6 +1595,7 @@
 				881A40F4253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h */,
 				45A565BB263C17E400C9C41B /* SAAppLifecycle.h */,
 				45A565BA263C17E400C9C41B /* SAAppLifecycle.m */,
+				F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -2689,6 +2692,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F2D769D42B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

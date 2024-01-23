@@ -199,7 +199,7 @@
 
 #pragma mark - Public
 
-- (BOOL)isAutoTrackEnabled {
+- (BOOL)isAutoTrackEnabled NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.") {
     if (self.isDisableSDK) {
         SALogDebug(@"SDK is disabled");
         return NO;
@@ -219,7 +219,7 @@
     }
 }
 
-- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType {
+- (BOOL)isAutoTrackEventTypeIgnored:(SensorsAnalyticsAutoTrackEventType)eventType NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.") {
     if (self.isDisableSDK) {
         SALogDebug(@"SDK is disabled");
         return YES;
@@ -316,7 +316,7 @@
     }
 }
 
-- (void)enableAppPageLeave {
+- (void)enableAppPageLeave NS_EXTENSION_UNAVAILABLE("TrackPageLeave not supported for iOS extensions.") {
     if (!self.configOptions.enableTrackPageLeave) {
         return;
     }
@@ -324,7 +324,7 @@
     [UIViewController sa_swizzleMethod:@selector(viewDidDisappear:) withMethod:@selector(sensorsdata_pageLeave_viewDidDisappear:) error:NULL];
 }
 
-- (void)registerPlugins {
+- (void)registerPlugins NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.") {
     BOOL enableAppClick = self.configOptions.autoTrackEventType & SensorsAnalyticsEventTypeAppClick;
     if (!enableAppClick) {
         return;

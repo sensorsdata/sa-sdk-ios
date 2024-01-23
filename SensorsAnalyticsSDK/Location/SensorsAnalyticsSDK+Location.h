@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param enable YES/NO
  */
-- (void)enableTrackGPSLocation:(BOOL)enable API_UNAVAILABLE(macos);
+- (void)enableTrackGPSLocation:(BOOL)enable API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("Location not supported for iOS extensions.");
 
 @end
 

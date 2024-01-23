@@ -77,7 +77,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param aClass View 对应的 Class
  */
-- (void)ignoreViewType:(Class)aClass NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
+- (void)ignoreViewType:(Class)aClass;
 
 /**
  * @abstract
@@ -95,7 +95,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param controllers   controller ‘字符串’数组
  */
-- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
+- (void)ignoreAutoTrackViewControllers:(NSArray<NSString *> *)controllers;
 
 /**
  * @abstract
@@ -163,7 +163,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAConfigOptions (AutoTrack)
 
 ///开启自动采集页面浏览时长
-@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableTrackPageLeave API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("TrackPageLeave not supported for iOS extensions.");
 
 
 /// 是否开启子页面的页面浏览时长
@@ -190,7 +190,7 @@ NS_ASSUME_NONNULL_BEGIN
  *   https://sensorsdata.cn/manual/ios_sdk.html
  * 该功能默认关闭
  */
-@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType API_UNAVAILABLE(macos);
+@property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("AutoTrack not supported for iOS extensions.");
 
 @end
 

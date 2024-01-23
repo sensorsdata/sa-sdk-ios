@@ -33,7 +33,7 @@
 
 @implementation SAEncryptInterceptor
 
-- (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion {
+- (void)processWithInput:(SAFlowData *)input completion:(SAFlowDataCompletion)completion NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
     NSParameterAssert(input.configOptions);
     NSParameterAssert(input.record || input.records);
 
@@ -67,7 +67,7 @@
 /// 即使未开启加密，也需要进行筛选，可能因为后期修改加密开关，导致本地同时存在明文和密文数据
 ///
 /// @param records 数据
-- (NSArray<SAEventRecord *> *)encryptEventRecords:(NSArray<SAEventRecord *> *)records {
+- (NSArray<SAEventRecord *> *)encryptEventRecords:(NSArray<SAEventRecord *> *)records NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
     NSMutableArray *encryptRecords = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
         if (record.isEncrypted) {

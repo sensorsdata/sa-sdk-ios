@@ -107,7 +107,7 @@
 }
 
 #pragma mark -
-- (void)setEnable:(BOOL)enable {
+- (void)setEnable:(BOOL)enable NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     _enable = enable;
 
     if (!enable) {
@@ -139,7 +139,7 @@
     }
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     _configOptions = configOptions;
 
     // 由于自定义属性依赖于可视化全埋点，所以只要开启自定义属性，默认打开可视化全埋点相关功能
@@ -156,7 +156,7 @@
 }
 
 #pragma mark -
-- (NSString *)javaScriptSource {
+- (NSString *)javaScriptSource NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     if (!self.enable) {
         return nil;
     }

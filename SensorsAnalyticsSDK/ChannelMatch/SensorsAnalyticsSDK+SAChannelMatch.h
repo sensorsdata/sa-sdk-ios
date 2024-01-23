@@ -29,7 +29,7 @@ NS_ASSUME_NONNULL_BEGIN
 
  @param event event 的名称
  */
-- (void)trackChannelEvent:(NSString *)event NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackChannelEvent:(NSString *)event;
 
 /**
 调用 track 接口并附加渠道信息
@@ -37,7 +37,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param event event 的名称
  @param propertyDict event 的属性
  */
-- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackChannelEvent:(NSString *)event properties:(nullable NSDictionary *)propertyDict;
 
 /**
  * @abstract
@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @discussion
  * 注意：如果之前使用 -  trackInstallation: 触发的激活事件，需要继续保持原来的调用，无需改成 - trackAppInstall: ，否则会导致激活事件数据分离。
  */
-- (void)trackAppInstall NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackAppInstall;
 
 /**
  * @abstract
@@ -57,7 +57,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param properties 激活事件的属性
  */
-- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties;
 
 /**
  * @abstract
@@ -69,7 +69,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param properties 激活事件的属性
  * @param disableCallback  是否关闭这次渠道匹配的回调请求
  */
-- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackAppInstallWithProperties:(nullable NSDictionary *)properties disableCallback:(BOOL)disableCallback;
 
 /**
  * @abstract
@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
  *
  * @param event             event 的名称
  */
-- (void)trackInstallation:(NSString *)event NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackInstallation:(NSString *)event;
 
 /**
  * @abstract
@@ -98,7 +98,7 @@ NS_ASSUME_NONNULL_BEGIN
  * @param event             event 的名称
  * @param propertyDict     event 的属性
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict;
 
 /**
  * @abstract
@@ -116,14 +116,14 @@ NS_ASSUME_NONNULL_BEGIN
  * @param propertyDict     event 的属性
  * @param disableCallback     是否关闭这次渠道匹配的回调请求
  */
-- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
+- (void)trackInstallation:(NSString *)event withProperties:(nullable NSDictionary *)propertyDict disableCallback:(BOOL)disableCallback;
 
 @end
 
 @interface SAConfigOptions (ChannelMatch)
 
 /// 是否在手动埋点事件中自动添加渠道匹配信息
-@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableAutoAddChannelCallbackEvent API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("ChannelMatch not supported for iOS extensions.");
 
 @end
 

@@ -25,7 +25,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface SAConfigOptions (Exception)
 
 /// 是否自动收集 App Crash 日志，该功能默认是关闭的
-@property (nonatomic, assign) BOOL enableTrackAppCrash API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableTrackAppCrash API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("Exception not supported for iOS extensions.");
 
 @end
 

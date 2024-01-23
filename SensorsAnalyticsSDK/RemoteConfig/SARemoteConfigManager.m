@@ -48,6 +48,9 @@
 }
 
 - (void)setConfigOptions:(SAConfigOptions *)configOptions {
+/* RemoteConfig 可以远程开启全埋点，AppExtension 不支持全埋点，这里暂不支持 RemoteConfig
+ 后期在 web 增加说明
+ */
     if ([SAApplication  isAppExtension]) {
         configOptions.enableRemoteConfig = NO;
     }

@@ -46,7 +46,7 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 页面 viewController
  @return YES/NO
  */
-- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.");
+- (BOOL)isVisualizedAutoTrackViewController:(UIViewController *)viewController;
 
 #pragma mark HeatMap
 
@@ -71,22 +71,22 @@ NS_ASSUME_NONNULL_BEGIN
  @param viewController 当前页面 viewController
  @return 当前 viewController 是否支持点击图分析
  */
-- (BOOL)isHeatMapViewController:(UIViewController *)viewController NS_EXTENSION_UNAVAILABLE("HeatMap not supported for iOS extensions.");
+- (BOOL)isHeatMapViewController:(UIViewController *)viewController;
 
 @end
 
 @interface SAConfigOptions (Visualized)
 
 /// 开启点击图
-@property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableHeatMap API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("HeatMap not supported for iOS extensions.");
 
 /// 开启可视化全埋点
-@property (nonatomic, assign) BOOL enableVisualizedAutoTrack API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableVisualizedAutoTrack API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.");
 
 /// 开启可视化全埋点自定义属性
 ///
 /// 开启后，SDK 会默认开启可视化全埋点功能
-@property (nonatomic, assign) BOOL enableVisualizedProperties API_UNAVAILABLE(macos);
+@property (nonatomic, assign) BOOL enableVisualizedProperties API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.");
 
 @end
 

@@ -87,7 +87,7 @@
     return [_payload copy];
 }
 
-- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode {
+- (NSData *)JSONDataWithFeatureCode:(NSString *)featureCode NS_EXTENSION_UNAVAILABLE("VisualizedAutoTrack not supported for iOS extensions.") {
     NSMutableDictionary *jsonObject = [[NSMutableDictionary alloc] init];
     jsonObject[@"type"] = _type;
     jsonObject[@"os"] = @"iOS"; // 操作系统类型

@@ -66,7 +66,7 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     [self enableRemoteConfig:config];
 }
 
-- (void)tryToRequestRemoteConfig {
+- (void)tryToRequestRemoteConfig NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.") {
     // 触发远程配置请求的三个条件
     // 1. 判断是否禁用分散请求，如果禁用则直接请求，同时将本地存储的随机时间清除
     if (self.configOptions.disableRandomTimeRequestRemoteConfig || self.configOptions.maxRequestHourInterval < self.configOptions.minRequestHourInterval) {
@@ -129,7 +129,7 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     }
 }
 
-- (void)createRandomTime {
+- (void)createRandomTime NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.") {
     // 当前时间，以开机时间为准，单位：秒
     NSTimeInterval currentTime = NSProcessInfo.processInfo.systemUptime;
     
@@ -165,7 +165,7 @@ typedef NS_ENUM(NSInteger, SARemoteConfigHandleRandomTimeType) {
     }
 }
 
-- (void)requestRemoteConfigWithDelay:(NSTimeInterval)delay index:(NSUInteger)index isForceUpdate:(BOOL)isForceUpdate {
+- (void)requestRemoteConfigWithDelay:(NSTimeInterval)delay index:(NSUInteger)index isForceUpdate:(BOOL)isForceUpdate NS_EXTENSION_UNAVAILABLE("Encrypt not supported for iOS extensions.") {
     __weak typeof(self) weakSelf = self;
     void(^completion)(BOOL success, NSDictionary<NSString *, id> *config) = ^(BOOL success, NSDictionary<NSString *, id> *config) {
         __strong typeof(weakSelf) strongSelf = weakSelf;

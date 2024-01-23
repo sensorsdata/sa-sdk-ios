@@ -69,7 +69,7 @@ static NSString * const kSAAppCrashedReason = @"app_crashed_reason";
     }
 }
 
-- (void)setConfigOptions:(SAConfigOptions *)configOptions {
+- (void)setConfigOptions:(SAConfigOptions *)configOptions NS_EXTENSION_UNAVAILABLE("Exception not supported for iOS extensions.") {
     _configOptions = configOptions;
     self.enable = configOptions.enableTrackAppCrash;
 }
