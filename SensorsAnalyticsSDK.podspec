@@ -14,6 +14,10 @@ Pod::Spec.new do |s|
 
   s.libraries = 'icucore', 'z'
 
+  s.resource_bundle = {
+    'SensorsAnalyticsSDK' => [ 'SensorsAnalyticsSDK/Core/PrivacyInfo.xcprivacy' ]
+  }
+
   s.subspec '__Store' do |store|
     store.source_files = 'SensorsAnalyticsSDK/Store/*.{h,m}'
     store.public_header_files = 'SensorsAnalyticsSDK/Store/SABaseStoreManager.h', 'SensorsAnalyticsSDK/Store/SAStorePlugin.h', 'SensorsAnalyticsSDK/Store/SAAESStorePlugin.h'
@@ -43,10 +47,6 @@ Pod::Spec.new do |s|
     core.ios.dependency 'SensorsAnalyticsSDK/Visualized'
     core.osx.dependency 'SensorsAnalyticsSDK/Common'
     core.tvos.dependency 'SensorsAnalyticsSDK/Base'
-
-    core.resource_bundle = {
-      'SensorsAnalyticsSDK' => [ 'SensorsAnalyticsSDK/Core/PrivacyInfo.xcprivacy' ]
-    }
   end
 
   # 全埋点
