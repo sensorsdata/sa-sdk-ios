@@ -43,6 +43,10 @@ Pod::Spec.new do |s|
     core.ios.dependency 'SensorsAnalyticsSDK/Visualized'
     core.osx.dependency 'SensorsAnalyticsSDK/Common'
     core.tvos.dependency 'SensorsAnalyticsSDK/Base'
+
+    core.resource_bundle = {
+      'SensorsAnalyticsSDK' => [ 'SensorsAnalyticsSDK/Core/PrivacyInfo.xcprivacy' ]
+    }
   end
 
   # 全埋点
