@@ -25,10 +25,19 @@
 #import "SensorsAnalyticsSDK+DebugMode.h"
 #import "SADebugModeManager.h"
 
+@interface SensorsAnalyticsSDK()
+@property (nonatomic, strong) SAConfigOptions *configOptions;
+
+@end
+
 @implementation SensorsAnalyticsSDK (DebugMode)
 
 - (void)showDebugInfoView:(BOOL)show {
     [[SADebugModeManager defaultManager] setShowDebugAlertView:show];
+}
+
+- (SensorsAnalyticsDebugMode)debugMode {
+    return self.configOptions.debugMode;
 }
 
 @end

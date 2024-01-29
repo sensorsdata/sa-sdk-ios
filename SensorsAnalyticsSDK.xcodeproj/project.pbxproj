@@ -189,6 +189,7 @@
 		4DD1296A25F8E451008C0B1E /* SAViewNode.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1296125F8E451008C0B1E /* SAViewNode.h */; };
 		4DD1296B25F8E451008C0B1E /* SAViewNodeFactory.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */; };
 		4DD1296D25F8E451008C0B1E /* SAViewNode.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1296425F8E451008C0B1E /* SAViewNode.m */; };
+		4DDDF83F2B6243CD0029577E /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 4DDDF83E2B6243CD0029577E /* PrivacyInfo.xcprivacy */; };
 		4DDE42CF29262934007EDA27 /* UIApplication+SAAutoTrack.m in Sources */ = {isa = PBXBuildFile; fileRef = A8356D912656459A00FD64AA /* UIApplication+SAAutoTrack.m */; };
 		4DDE42D029262993007EDA27 /* SALoggerPrePostFixFormatter.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D2D53792591EB0600805141 /* SALoggerPrePostFixFormatter.m */; };
 		4DDE42D129262A13007EDA27 /* SADatabaseUnitTest.m in Sources */ = {isa = PBXBuildFile; fileRef = F214CE57249A07DF00A2633D /* SADatabaseUnitTest.m */; };
@@ -523,7 +524,6 @@
 		F2CD8A7A28A2410A00A186B8 /* SAExposureConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = F2CD8A7828A2410A00A186B8 /* SAExposureConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F2CD8A7B28A2410A00A186B8 /* SAExposureConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = F2CD8A7928A2410A00A186B8 /* SAExposureConfig.m */; };
 		F2CFD14726EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h in Headers */ = {isa = PBXBuildFile; fileRef = F2CFD14526EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F2D769D42B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */; };
 		F2E36483287682E6008D9151 /* SADeviceWhiteList.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E36481287682E6008D9151 /* SADeviceWhiteList.h */; };
 		F2E36484287682E6008D9151 /* SADeviceWhiteList.m in Sources */ = {isa = PBXBuildFile; fileRef = F2E36482287682E6008D9151 /* SADeviceWhiteList.m */; };
 		F2E364872876EE94008D9151 /* SASlinkCreator.h in Headers */ = {isa = PBXBuildFile; fileRef = F2E364852876EE94008D9151 /* SASlinkCreator.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -790,6 +790,7 @@
 		4DD1296125F8E451008C0B1E /* SAViewNode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAViewNode.h; sourceTree = "<group>"; };
 		4DD1296225F8E451008C0B1E /* SAViewNodeFactory.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAViewNodeFactory.h; sourceTree = "<group>"; };
 		4DD1296425F8E451008C0B1E /* SAViewNode.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAViewNode.m; sourceTree = "<group>"; };
+		4DDDF83E2B6243CD0029577E /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		4DF6FDF92832660800585FCC /* SAQueryRecordInterceptor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAQueryRecordInterceptor.h; sourceTree = "<group>"; };
 		4DF6FDFA2832660800585FCC /* SAQueryRecordInterceptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAQueryRecordInterceptor.m; sourceTree = "<group>"; };
 		8809805327FDA05600EB2B3D /* SAInterceptor.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAInterceptor.h; sourceTree = "<group>"; };
@@ -1122,7 +1123,6 @@
 		F2CD8A7828A2410A00A186B8 /* SAExposureConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAExposureConfig.h; sourceTree = "<group>"; };
 		F2CD8A7928A2410A00A186B8 /* SAExposureConfig.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAExposureConfig.m; sourceTree = "<group>"; };
 		F2CFD14526EB04A8007A9253 /* SAConfigOptions+RemoteConfig.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "SAConfigOptions+RemoteConfig.h"; sourceTree = "<group>"; };
-		F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		F2E36481287682E6008D9151 /* SADeviceWhiteList.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SADeviceWhiteList.h; sourceTree = "<group>"; };
 		F2E36482287682E6008D9151 /* SADeviceWhiteList.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SADeviceWhiteList.m; sourceTree = "<group>"; };
 		F2E364852876EE94008D9151 /* SASlinkCreator.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SASlinkCreator.h; sourceTree = "<group>"; };
@@ -1536,6 +1536,14 @@
 			path = Config;
 			sourceTree = "<group>";
 		};
+		4DDDF83D2B6243CD0029577E /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				4DDDF83E2B6243CD0029577E /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		880F37D824AC31A6005AC8A0 /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
@@ -1595,7 +1603,6 @@
 				881A40F4253D7B4F00854F69 /* SensorsAnalyticsSDK+Private.h */,
 				45A565BB263C17E400C9C41B /* SAAppLifecycle.h */,
 				45A565BA263C17E400C9C41B /* SAAppLifecycle.m */,
-				F2D769D32B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy */,
 			);
 			path = Core;
 			sourceTree = "<group>";
@@ -2127,6 +2134,7 @@
 		CB30BFD122840EBF0004061D /* SensorsAnalyticsSDK */ = {
 			isa = PBXGroup;
 			children = (
+				4DDDF83D2B6243CD0029577E /* Resources */,
 				F2B643F328322EE800544BD2 /* AppExtension */,
 				88EC2DEE2757688400EF9778 /* Store */,
 				A806642526905F6C00FFDEBA /* ChannelMatch */,
@@ -2692,7 +2700,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F2D769D42B4D4C6F00F127B2 /* PrivacyInfo.xcprivacy in Resources */,
+				4DDDF83F2B6243CD0029577E /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -68,7 +68,7 @@
 #import <UIKit/UIApplication.h>
 #endif
 
-#define VERSION @"4.6.1"
+#define VERSION @"4.6.2"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -903,10 +903,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         }
         self.timer = nil;
     });
-}
-
-- (SensorsAnalyticsDebugMode)debugMode {
-    return self.configOptions.debugMode;
 }
 
 #pragma mark - SensorsData  Analytics

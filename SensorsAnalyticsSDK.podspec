@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.6.1"
+  s.version      = "4.6.2"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -13,6 +13,10 @@ Pod::Spec.new do |s|
   s.frameworks = 'Foundation', 'SystemConfiguration'
 
   s.libraries = 'icucore', 'z'
+
+  s.resource_bundle = {
+    'SensorsAnalyticsSDK' => ['SensorsAnalyticsSDK/Resources/PrivacyInfo.xcprivacy']
+  }
 
   s.subspec '__Store' do |store|
     store.source_files = 'SensorsAnalyticsSDK/Store/*.{h,m}'
