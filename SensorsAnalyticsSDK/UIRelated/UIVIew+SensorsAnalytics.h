@@ -55,6 +55,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, copy) NSString* sensorsAnalyticsImageName;
 
+@property (nonatomic, copy, readonly) NSString* sensorsAnalyticsAssetName;
+
 @end
 
 NS_ASSUME_NONNULL_END

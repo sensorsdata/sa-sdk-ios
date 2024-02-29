@@ -92,4 +92,8 @@ static void *const kSASensorsAnalyticsImageNameKey = (void *)&kSASensorsAnalytic
     objc_setAssociatedObject(self, kSASensorsAnalyticsImageNameKey, sensorsAnalyticsImageName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSString *)sensorsAnalyticsAssetName {
+    return [[self imageAsset] valueForKey:@"assetName"];
+}
+
 @end
