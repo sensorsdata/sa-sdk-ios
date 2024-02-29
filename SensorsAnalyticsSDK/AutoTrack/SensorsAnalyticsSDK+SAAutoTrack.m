@@ -42,6 +42,10 @@
     objc_setAssociatedObject(self, @"sensorsAnalyticsImageName", sensorsAnalyticsImageName, OBJC_ASSOCIATION_COPY_NONATOMIC);
 }
 
+- (NSString *)sensorsAnalyticsAssetName {
+    return [[self imageAsset] valueForKey:@"assetName"];
+}
+
 @end
 
 #pragma mark -

@@ -263,6 +263,9 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
 
 - (NSString *)sensorsdata_propertyContent {
     NSString *imageName = self.image.sensorsAnalyticsImageName;
+    if (imageName.length == 0) {
+        imageName = self.image.sensorsAnalyticsAssetName;
+    }
     if (imageName.length > 0) {
         return [NSString stringWithFormat:@"%@", imageName];
     }

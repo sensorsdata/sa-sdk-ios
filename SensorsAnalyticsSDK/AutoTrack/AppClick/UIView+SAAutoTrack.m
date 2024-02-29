@@ -139,6 +139,9 @@ static void *const kSALastAppClickIntervalPropertyName = (void *)&kSALastAppClic
 
 - (NSString *)sensorsdata_elementContent {
     NSString *imageName = self.image.sensorsAnalyticsImageName;
+    if (imageName.length == 0) {
+        imageName = self.image.sensorsAnalyticsAssetName;
+    }
     if (imageName.length > 0) {
         return [NSString stringWithFormat:@"%@", imageName];
     }
