@@ -740,7 +740,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)trackTimerPause:(NSString *)event {
-    if (![self checkEventName:event]) {
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    if (![self checkEventName:eventName]) {
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
@@ -750,7 +751,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)trackTimerResume:(NSString *)event {
-    if (![self checkEventName:event]) {
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    if (![self checkEventName:eventName]) {
         return;
     }
     UInt64 currentSysUpTime = [self.class getSystemUpTime];
@@ -760,7 +762,8 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)removeTimer:(NSString *)event {
-    if (![self checkEventName:event]) {
+    NSString *eventName = [self.trackTimer eventNameFromEventId:event];
+    if (![self checkEventName:eventName]) {
         return;
     }
     dispatch_async(self.serialQueue, ^{
