@@ -23,43 +23,34 @@
 #endif
 
 #import "UIView+SAElementType.h"
+#import "SAViewElementInfoFactory.h"
 
-static NSString * const kSAMenuElementType = @"UIMenu";
 
 @implementation UIView (SAElementType)
 
 - (NSString *)sensorsdata_elementType {
-    NSString *viewType = NSStringFromClass(self.class);
-    if ([viewType isEqualToString:@"_UIInterfaceActionCustomViewRepresentationView"] ||
-        [viewType isEqualToString:@"_UIAlertControllerCollectionViewCell"]) {
-        return [self alertElementType];
-    }
-
-    // _UIContextMenuActionView 为 iOS 13 UIMenu 最终响应事件的控件类型;
-    // _UIContextMenuActionsListCell 为 iOS 14 UIMenu 最终响应事件的控件类型;
-    if ([viewType isEqualToString:@"_UIContextMenuActionView"] ||
-        [viewType isEqualToString:@"_UIContextMenuActionsListCell"]) {
-        return [self menuElementType];
-    }
-    return viewType;
+    SAViewElementInfo *elementInfo = [SAViewElementInfoFactory elementInfoWithView:self];
+    return elementInfo.elementType;
 }
 
-- (NSString *)alertElementType {
-    UIWindow *window = self.window;
-    if ([NSStringFromClass(window.class) isEqualToString:@"_UIAlertControllerShimPresenterWindow"]) {
-        CGFloat actionHeight = self.bounds.size.height;
-        if (actionHeight > 50) {
-            return NSStringFromClass(UIActionSheet.class);
-        } else {
-            return NSStringFromClass(UIAlertView.class);
-        }
-    } else {
-        return NSStringFromClass(UIAlertController.class);
+@end
+
+
+@implementation UIControl (SAElementType)
+
+- (NSString *)sensorsdata_elementType {
+    // UIBarButtonItem
+    if (([NSStringFromClass(self.class) isEqualToString:@"UINavigationButton"] || [NSStringFromClass(self.class) isEqualToString:@"_UIButtonBarButton"])) {
+        return @"UIBarButtonItem";
     }
+
+    // UITabBarItem
+    if ([NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"]) {
+        return @"UITabBarItem";
+    }
+    return NSStringFromClass(self.class);
 }
 
-- (NSString *)menuElementType {
-    return kSAMenuElementType;
-}
+
 
 @end

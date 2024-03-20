@@ -23,7 +23,7 @@
 #endif
 
 #import "SAVisualPropertiesConfig.h"
-#import "UIView+SAElementPath.h"
+#import "UIView+SAViewPath.h"
 #import "SAVisualizedUtils.h"
 #import "UIView+SAAutoTrack.h"
 #import "SAValidator.h"

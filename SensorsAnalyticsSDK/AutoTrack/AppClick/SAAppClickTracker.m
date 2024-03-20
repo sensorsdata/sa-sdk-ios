@@ -95,7 +95,7 @@
     [properties addEntriesFromDictionary:dic];
 
     // 解析 Cell
-    UIView *cell = [SAAutoTrackUtils cellWithScrollView:scrollView selectedAtIndexPath:indexPath];
+    UIView *cell = [SAUIProperties cellWithScrollView:scrollView andIndexPath:indexPath];
     if (!cell) {
         return;
     }

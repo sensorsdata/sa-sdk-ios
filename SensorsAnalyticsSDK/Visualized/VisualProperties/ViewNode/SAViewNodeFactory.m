@@ -26,6 +26,7 @@
 #import "SAVisualizedUtils.h"
 #import "SAViewNode.h"
 #import "UIView+SARNView.h"
+#import "SAUIProperties.h"
 
 @implementation SAViewNodeFactory
 
@@ -45,7 +46,7 @@
         return [[SARNViewNode alloc] initWithView:view];
     } else if ([view isKindOfClass:WKWebView.class]) {
         return [[SAWKWebViewNode alloc] initWithView:view];
-    } else if ([SAVisualizedUtils isIgnoredItemPathWithView:view]) {
+    } else if ([SAUIProperties isIgnoredItemPathWithView:view]) {
         /* 忽略路径
          1. UITableViewWrapperView 为 iOS11 以下 UITableView 与 cell 之间的 view
          

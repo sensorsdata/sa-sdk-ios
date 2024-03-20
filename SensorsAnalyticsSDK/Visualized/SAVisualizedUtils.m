@@ -34,9 +34,7 @@
 #import "SAJavaScriptBridgeManager.h"
 #import "SAFlutterElementView.h"
 #import "SALog.h"
-#import "UIView+SAItemPath.h"
-#import "UIView+SASimilarPath.h"
-#import "UIAlertController+SASimilarPath.h"
+#import "UIView+SAViewPath.h"
 #import "SAUIProperties.h"
 
 /// 遍历查找页面最大层数，用于判断元素是否被覆盖
@@ -521,15 +519,6 @@ typedef NS_ENUM(NSInteger, SARCTViewPointerEvents) {
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController {
     BOOL isEnableVisualized =  [[SAVisualizedManager defaultManager] isVisualizeWithViewController:viewController];
     return !isEnableVisualized;
-}
-
-+ (BOOL)isIgnoredItemPathWithView:(UIView *)view {
-    NSString *className = NSStringFromClass(view.class);
-    /* 类名黑名单，忽略元素相对路径
-     为了兼容不同系统、不同状态下的路径匹配，忽略区分元素的路径
-     */
-    NSArray <NSString *>*ignoredItemClassNames = @[@"UITableViewWrapperView", @"UISegment", @"_UISearchBarFieldEditor", @"UIFieldEditor"];
-    return [ignoredItemClassNames containsObject:className];
 }
 
 /// 获取模糊路径

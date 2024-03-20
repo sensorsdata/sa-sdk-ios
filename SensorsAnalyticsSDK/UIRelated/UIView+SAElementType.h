@@ -27,4 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
+@interface UIControl (SAElementType) <SAUIViewElementProperties>
+
+@end
+
 NS_ASSUME_NONNULL_END

@@ -199,7 +199,7 @@ static void *const kSAViewNodePropertyName = (void *)&kSAViewNodePropertyName;
         }
     }
 
-    if ([self isKindOfClass:NSClassFromString(@"WXView")]) { // WEEX 元素，http://doc.weex.io/zh/docs/components/a.html
+    if ([self isKindOfClass:NSClassFromString(@"WXView")] || [self isKindOfClass:NSClassFromString(@"WXImageView")] || [self isKindOfClass: NSClassFromString(@"WXText")]) { // WEEX 元素，http://doc.weex.io/zh/docs/components/a.html
         NSString *content = [self.accessibilityValue stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
         if (content.length > 0) {
             return content;

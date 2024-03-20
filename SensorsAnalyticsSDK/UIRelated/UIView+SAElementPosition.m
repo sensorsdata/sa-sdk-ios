@@ -53,6 +53,7 @@
 @implementation UIControl (SAElementPosition)
 
 - (NSString *)sensorsdata_elementPosition {
+    // UITabBarItem
     if ([NSStringFromClass(self.class) isEqualToString:@"UITabBarButton"]) {
         NSInteger index = [SAUIProperties indexWithResponder:self];
         if (index < 0) {

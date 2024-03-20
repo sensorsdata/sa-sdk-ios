@@ -95,14 +95,6 @@ NS_ASSUME_NONNULL_BEGIN
 + (BOOL)isIgnoredViewPathForViewController:(UIViewController *)viewController;
 
 /**
- 是否忽略当前元素相对路径
-
- @param view 当前元素
- @return 是否忽略
- */
-+ (BOOL)isIgnoredItemPathWithView:(UIView *)view;
-
-/**
 获取 view 的模糊路径
 
 @param view 需要获取路径的 view

@@ -29,7 +29,7 @@ extern NSString * const kSALoginIdSpliceKey;
 @interface SAIdentifier : NSObject
 
 /// 用户的登录 Id
-@property (nonatomic, copy, readonly) NSString *loginId;
+@property (nonatomic, copy, readonly, nullable) NSString *loginId;
 
 /// 匿名 Id（设备 Id）：IDFA -> IDFV -> UUID
 @property (nonatomic, copy, readonly) NSString *anonymousId;

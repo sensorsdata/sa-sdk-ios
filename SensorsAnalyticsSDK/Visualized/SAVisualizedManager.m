@@ -315,7 +315,7 @@
     if (![view isKindOfClass:UIView.class]) {
         return nil;
     }
-    UIViewController<SAAutoTrackViewControllerProperty> *viewController = view.sensorsdata_viewController;
+    UIViewController<SAUIViewControllerInternalProperties> *viewController = view.sensorsdata_viewController;
     if (!viewController) {
         return nil;
     }

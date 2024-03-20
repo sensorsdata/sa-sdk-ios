@@ -207,3 +207,6 @@ extern NSString * const kSAHasTrackInstallation;
 extern NSString * const kSAHasTrackInstallationDisableCallback;
 extern NSString * const kSAEventPropertyHasInstalledApp;
 extern NSString * const kSAEventPropertyAwakeFromDeeplink;
+
+//ID3
+extern NSString * const kSAIdentitiesAnonymousId;

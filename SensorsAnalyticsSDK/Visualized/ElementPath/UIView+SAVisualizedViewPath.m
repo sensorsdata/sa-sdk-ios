@@ -31,10 +31,10 @@
 #import "SAConstants+Private.h"
 #import "SensorsAnalyticsSDK+Private.h"
 #import "SAViewElementInfoFactory.h"
-#import "UIView+SAItemPath.h"
-#import "UIView+SASimilarPath.h"
+#import "UIView+SAViewPath.h"
 #import "UIView+SAElementPosition.h"
 #import "UIView+SAInternalProperties.h"
+#import "SAViewElementInfo+AutoTrack.h"
 #import "UIView+SARNView.h"
 #import "SAUIProperties.h"
 

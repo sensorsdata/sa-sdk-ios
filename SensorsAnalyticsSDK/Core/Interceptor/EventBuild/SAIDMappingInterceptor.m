@@ -24,7 +24,7 @@
 
 #import "SAIDMappingInterceptor.h"
 #import "SAIdentifier.h"
-
+#import "SAConstants+Private.h"
 
 #pragma mark -
 
@@ -79,6 +79,7 @@
         object.loginId = self.identifier.loginId;
         object.identities = [self.identifier identitiesWithEventType:object.type];
     }
+    [self processIdentitiesWithObject:object];
 }
 
 // H5 打通事件，用户关联
@@ -127,6 +128,19 @@
         // 当 identities 中无法获取到登录 ID 时，只触发事件不进行 loginId 处理
         [self identifyTrackWithEventObject:object];
     }
+}
+
+//ID3 协议统一，内外层匿名 ID 和登录 ID 一致
+- (void)processIdentitiesWithObject:(SABaseEventObject *)object {
+    if (object.type == SAEventTypeUnbind) {
+        //login_id 删除
+        object.loginId = nil;
+        object.anonymousId = nil;
+    }
+    //统一匿名 ID，防止内部匿名 ID 没值
+    NSMutableDictionary *identities = [object.identities mutableCopy];
+    identities[kSAIdentitiesAnonymousId] = object.anonymousId;
+    object.identities = identities;
 }
 
 @end

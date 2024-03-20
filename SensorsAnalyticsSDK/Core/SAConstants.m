@@ -232,3 +232,6 @@ NSString * const kSAHasTrackInstallation = @"HasTrackInstallation";
 NSString * const kSAHasTrackInstallationDisableCallback = @"HasTrackInstallationWithDisableCallback";
 NSString * const kSAEventPropertyHasInstalledApp = @"$sat_has_installed_app";
 NSString * const kSAEventPropertyAwakeFromDeeplink = @"$sat_awake_from_deeplink";
+
+//ID3
+NSString * const kSAIdentitiesAnonymousId = @"$identity_anonymous_id";

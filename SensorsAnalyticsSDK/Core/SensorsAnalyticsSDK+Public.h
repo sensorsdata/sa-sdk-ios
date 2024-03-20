@@ -57,7 +57,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @abstract
  * 用户登录唯一标识符
  */
-@property (atomic, readonly, copy) NSString *loginId;
+@property (atomic, readonly, copy, nullable) NSString *loginId;
 
 #pragma mark- init instance
 /**
@@ -147,16 +147,6 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 - (void)login:(NSString *)loginId withProperties:(NSDictionary * _Nullable )properties;
 
 /**
- ID-Mapping 3.0 登录，设置当前用户的 loginIDKey 和 loginId
-
- ⚠️ 此接口为 ID-Mapping 3.0 特殊场景下特定接口，请咨询确认后再使用
-
- @param key 当前用户的登录 ID key
- @param loginId 当前用户的登录 ID
- */
-- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId;
-
-/**
  * @abstract
  * 注销，清空当前用户的 loginId
  *
@@ -221,7 +211,6 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 
 /// ID3 reset anonymous identity
 - (void)resetAnonymousIdentity:(nullable NSString *)identity;
-
 #pragma mark - trackTimer
 /**
  开始事件计时
@@ -725,6 +714,14 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @param timeUnit          计时单位，毫秒/秒/分钟/小时
  */
 - (void)trackTimer:(NSString *)event withTimeUnit:(SensorsAnalyticsTimeUnit)timeUnit __attribute__((deprecated("已过时，请参考 trackTimerStart")));
+
+/**
+ ⚠️ 此接口为 ID-Mapping 3.0 解决值域冲突的特殊场景下的接口，请咨询确认后再使用!!
+
+ @param key 当前用户的登录 ID key
+ @param loginId 当前用户的登录 ID
+ */
+- (void)loginWithKey:(NSString *)key loginId:(NSString *)loginId __attribute__((deprecated("已过期，旧版本如使用此接口请继续，新用户请不要使用此方法！")));
 
 @end
 

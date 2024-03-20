@@ -1,9 +1,9 @@
 //
-// UIAlertController+SASimilarPath.h
+// UIView+SAViewPath.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2022/8/30.
-// Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
+// Created by  储强盛 on 2024/3/5.
+// Copyright © 2015-2024 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
@@ -18,13 +18,32 @@
 // limitations under the License.
 //
 
-
 #import <UIKit/UIKit.h>
 #import "SAUIViewPathProperties.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIAlertController (SASimilarPath) <SAUIViewPathProperties>
+@interface UIView (SAViewPath) <SAUIViewPathProperties>
+
+@end
+
+@interface UISegmentedControl (SAViewPath) <SAUIViewPathProperties>
+
+@end
+
+@interface UITableViewHeaderFooterView (SAViewPath) <SAUIViewPathProperties>
+
+@end
+
+@interface UITableViewCell (SAViewPath) <SAUIViewPathProperties>
+
+@end
+
+@interface UICollectionViewCell (SAViewPath) <SAUIViewPathProperties>
+
+@end
+
+@interface UIAlertController (SAViewPath) <SAUIViewPathProperties>
 
 @end
 

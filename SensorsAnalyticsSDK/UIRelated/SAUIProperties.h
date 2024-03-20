@@ -27,6 +27,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSInteger)indexWithResponder:(UIResponder *)responder;
 
+/**
+ 是否忽略当前元素相对路径
+
+ @param view 当前元素
+ @return 是否忽略
+ */
 + (BOOL)isIgnoredItemPathWithView:(UIView *)view;
 
 + (NSString *)elementPathForView:(UIView *)view atViewController:(UIViewController *)viewController;

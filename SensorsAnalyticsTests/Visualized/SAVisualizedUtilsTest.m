@@ -25,6 +25,7 @@
 #import "SAAutoTrackUtils.h"
 #import "ElementViewController.h"
 #import "NSObject+SADelegateProxy.h"
+#import "SAUIProperties.h"
 
 @interface SAVisualizedUtilsTest : XCTestCase
 @property (nonatomic, strong) UIWindow *window;
@@ -144,7 +145,7 @@
 
 - (void)testAutoTrackPropertiesWithTableView {
     // row 太大可能未在屏幕显示，取不到 cell
-    UITableViewCell *cell = (UITableViewCell *)[SAAutoTrackUtils cellWithScrollView:self.viewController.tableView selectedAtIndexPath:[NSIndexPath indexPathForRow:3 inSection:0]];
+    UITableViewCell *cell = (UITableViewCell *)[SAUIProperties cellWithScrollView:self.viewController.tableView andIndexPath:[NSIndexPath indexPathForRow:3 inSection:0]];
     NSString *viewPath = [SAVisualizedUtils viewSimilarPathForView:cell atViewController:self.viewController];
     
     NSString *elementPath = @"UIView/UITableView[0]/UITableViewCell[0][-]";

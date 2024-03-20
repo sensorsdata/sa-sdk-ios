@@ -23,9 +23,7 @@
 #endif
 
 #import "SAUIProperties.h"
-#import "UIView+SAItemPath.h"
-#import "UIView+SASimilarPath.h"
-#import "UIAlertController+SASimilarPath.h"
+#import "UIView+SAViewPath.h"
 #import "SACommonUtility.h"
 #import "SAConstants+Private.h"
 #import "UIView+SAElementID.h"

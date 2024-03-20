@@ -26,39 +26,14 @@
 @interface UIView (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
-@interface UILabel (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UIImageView (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UISearchBar (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
 #pragma mark - UIControl
 
 @interface UIControl (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UIButton (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UISwitch (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-@interface UIStepper (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
 @interface UISegmentedControl (AutoTrack) <SAAutoTrackViewProperty>
 @end
 
 
-@interface UIPageControl (AutoTrack) <SAAutoTrackViewProperty>
-@end
-
-#pragma mark - Cell
-@interface UITableViewCell (AutoTrack) <SAAutoTrackCellProperty>
-@end
-
-@interface UICollectionViewCell (AutoTrack) <SAAutoTrackCellProperty>
+@interface UISlider (AutoTrack) <SAAutoTrackViewProperty>
 @end

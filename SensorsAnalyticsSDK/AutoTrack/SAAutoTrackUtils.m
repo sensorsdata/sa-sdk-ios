@@ -101,26 +101,6 @@ static NSTimeInterval SATrackAppClickMinTimeInterval = 0.1;
     return [NSMutableDictionary dictionaryWithDictionary:properties];
 }
 
-+ (UIView *)cellWithScrollView:(UIScrollView *)scrollView selectedAtIndexPath:(NSIndexPath *)indexPath {
-    UIView *cell = nil;
-    if ([scrollView isKindOfClass:UITableView.class]) {
-        UITableView *tableView = (UITableView *)scrollView;
-        cell = [tableView cellForRowAtIndexPath:indexPath];
-        if (!cell) {
-            [tableView layoutIfNeeded];
-            cell = [tableView cellForRowAtIndexPath:indexPath];
-        }
-    } else if ([scrollView isKindOfClass:UICollectionView.class]) {
-        UICollectionView *collectionView = (UICollectionView *)scrollView;
-        cell = [collectionView cellForItemAtIndexPath:indexPath];
-        if (!cell) {
-            [collectionView layoutIfNeeded];
-            cell = [collectionView cellForItemAtIndexPath:indexPath];
-        }
-    }
-    return cell;
-}
-
 + (NSDictionary *)propertiesWithAutoTrackDelegate:(UIScrollView *)scrollView didSelectedAtIndexPath:(NSIndexPath *)indexPath {
     NSDictionary *properties = nil;
     @try {

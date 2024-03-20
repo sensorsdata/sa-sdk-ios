@@ -1,8 +1,8 @@
 //
-// UIView+SASimilarPath.h
+// SAViewElementInfo.h
 // SensorsAnalyticsSDK
 //
-// Created by 陈玉国 on 2022/8/29.
+// Created by yuqiang on 2021/2/18.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
 // Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,26 +18,26 @@
 // limitations under the License.
 //
 
-
 #import <UIKit/UIKit.h>
-#import "SAUIViewPathProperties.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface UIView (SASimilarPath) <SAUIViewPathProperties>
+@interface SAViewElementInfo : NSObject
+
+@property (nonatomic, weak) UIView *view;
+
+- (instancetype)initWithView:(UIView *)view;
+
+- (NSString *)elementType;
+
+- (BOOL)isSupportElementPosition;
 
 @end
 
-@interface UISegmentedControl (SASimilarPath) <SAUIViewPathProperties>
-
+@interface SAAlertElementInfo : SAViewElementInfo
 @end
 
-@interface UITableViewCell (SASimilarPath) <SAUIViewPathProperties>
-
-@end
-
-@interface UICollectionViewCell (SASimilarPath) <SAUIViewPathProperties>
-
+@interface SAMenuElementInfo : SAViewElementInfo
 @end
 
 NS_ASSUME_NONNULL_END

@@ -147,7 +147,7 @@
     }
 }
 
-- (NSMutableDictionary *)propertiesWithViewController:(UIViewController<SAAutoTrackViewControllerProperty> *)viewController {
+- (NSMutableDictionary *)propertiesWithViewController:(UIViewController *)viewController {
     NSMutableDictionary *eventProperties = [[NSMutableDictionary alloc] init];
     NSDictionary *autoTrackProperties = [SAUIProperties propertiesWithViewController:viewController];
     [eventProperties addEntriesFromDictionary:autoTrackProperties];

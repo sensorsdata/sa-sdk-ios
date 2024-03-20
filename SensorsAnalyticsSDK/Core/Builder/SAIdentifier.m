@@ -37,7 +37,6 @@
 
 NSString * const kSAIdentities = @"com.sensorsdata.identities";
 NSString * const kSAIdentitiesLoginId = @"$identity_login_id";
-NSString * const kSAIdentitiesAnonymousId = @"$identity_anonymous_id";
 NSString * const kSAIdentitiesCookieId = @"$identity_cookie_id";
 
 #if TARGET_OS_OSX
@@ -91,6 +90,14 @@ NSString * const kSALoginIdSpliceKey = @"+";
             } else {
                 self.loginId = [NSString stringWithFormat:@"%@%@%@", self.loginIDKey, kSALoginIdSpliceKey, cacheLoginId];
             }
+            //old version upgrade
+            if (self.identities[kSAIdentitiesAnonymousId]) {
+                return;
+            }
+            NSMutableDictionary *identities = [self.identities mutableCopy];
+            identities[kSAIdentitiesAnonymousId] = self.anonymousId;
+            self.identities = identities;
+            [self archiveIdentities:identities];
         });
     }
     return self;
@@ -135,8 +142,14 @@ NSString * const kSALoginIdSpliceKey = @"+";
 - (void)updateAnonymousId:(NSString *)anonymousId {
     // 异步任务设置匿名 ID
     dispatch_async(self.queue, ^{
+        //modify anonymous id
         self.anonymousId = anonymousId;
         [self archiveAnonymousId:anonymousId];
+        //modify anonymous identity
+        NSMutableDictionary *identities = [self.identities mutableCopy];
+        identities[kSAIdentitiesAnonymousId] = anonymousId;
+        self.identities = identities;
+        [self archiveIdentities:identities];
     });
 }
 
@@ -702,21 +715,26 @@ NSString * const kSALoginIdSpliceKey = @"+";
         anonymousId = [NSUUID UUID].UUIDString;
     }
     dispatch_async(self.queue, ^{
-        //set anonymous id
-        self.anonymousId = anonymousId;
-        [self archiveAnonymousId:anonymousId];
-        //set anonymousId in identities
-        NSMutableDictionary *identities = [self.identities mutableCopy];
-        if (identities[kSAIdentitiesUniqueID]) {
-            identities[kSAIdentitiesUniqueID] = anonymousId;
-        }
-        if (identities[kSAIdentitiesUUID]) {
-            identities[kSAIdentitiesUUID] = anonymousId;
-        }
-        self.identities = identities;
-        [self archiveIdentities:identities];
-        [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
+        [self changeAnonymousIdentity:anonymousId];
     });
+}
+
+- (void)changeAnonymousIdentity:(NSString *)anonymousIdentity {
+    //set anonymous id
+    self.anonymousId = anonymousIdentity;
+    [self archiveAnonymousId:anonymousIdentity];
+    //set anonymousId in identities
+    NSMutableDictionary *identities = [self.identities mutableCopy];
+    if (identities[kSAIdentitiesUniqueID]) {
+        identities[kSAIdentitiesUniqueID] = anonymousIdentity;
+    }
+    if (identities[kSAIdentitiesUUID]) {
+        identities[kSAIdentitiesUUID] = anonymousIdentity;
+    }
+    identities[kSAIdentitiesAnonymousId] = anonymousIdentity;
+    self.identities = identities;
+    [self archiveIdentities:identities];
+    [[NSNotificationCenter defaultCenter] postNotificationName:SA_TRACK_RESETANONYMOUSID_NOTIFICATION object:nil];
 }
 
 @end

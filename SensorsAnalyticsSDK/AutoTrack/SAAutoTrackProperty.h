@@ -35,10 +35,3 @@
 @property (nonatomic, assign) NSTimeInterval sensorsdata_timeIntervalForLastAppClick;
 
 @end
-
-#pragma mark -
-@protocol SAAutoTrackCellProperty <SAAutoTrackViewProperty>
-
-- (NSString *)sensorsdata_elementPositionWithIndexPath:(NSIndexPath *)indexPath;
-
-@end

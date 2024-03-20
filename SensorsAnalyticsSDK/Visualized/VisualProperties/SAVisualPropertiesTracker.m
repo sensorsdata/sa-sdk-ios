@@ -27,7 +27,7 @@
 #import "SAVisualPropertiesConfigSources.h"
 #import "SAVisualizedUtils.h"
 #import "UIView+SAAutoTrack.h"
-#import "UIView+SAElementPath.h"
+#import "UIView+SAViewPath.h"
 #import "SAVisualizedDebugLogTracker.h"
 #import "SAVisualizedLogger.h"
 #import "SAJavaScriptBridgeManager.h"
