@@ -1,5 +1,5 @@
-![logo](https://opensource.sensorsdata.cn/wp-content/uploads/logo.png)
-<br><br>
+<img src="https://ow-file.sensorsdata.cn/www/home/header/sensors_header_icon.svg" width="200" >
+
 [![License](https://img.shields.io/github/license/sensorsdata/sa-sdk-ios.svg)](https://github.com/sensorsdata/sa-sdk-ios/blob/master/LICENSE)
 [![Average time to resolve an issue](http://isitmaintained.com/badge/resolution/sensorsdata/sa-sdk-ios.svg)](http://isitmaintained.com/project/sensorsdata/sa-sdk-ios "Average time to resolve an issue")
 [![Percentage of issues still open](http://isitmaintained.com/badge/open/sensorsdata/sa-sdk-ios.svg)](http://isitmaintained.com/project/sensorsdata/sa-sdk-ios "Percentage of issues still open")
@@ -50,9 +50,8 @@ iOS 9.0 及以上，Xcode 9.0 及以上。
 
 ## 新书推荐
 
-| 《ASM 全埋点开发实战》 | 《数据驱动：从方法到实践》 | 《Android 全埋点解决方案》 | 《iOS 全埋点解决方案》
-| ------ | ------ | ------ | ------ |
-| [![《ASM 全埋点开发实战》](https://opensource.sensorsdata.cn/wp-content/uploads/ASM-全埋点thumbnail_1.jpg)](https://item.jd.com/14058352.html) | [![《数据驱动：从方法到实践》](https://opensource.sensorsdata.cn/wp-content/uploads/data_driven_book_1.jpg)](https://item.jd.com/12322322.html) | [![《Android 全埋点解决方案》](https://opensource.sensorsdata.cn/wp-content/uploads/Android-全埋点thumbnail_1.png)](https://item.jd.com/12574672.html) | [![《iOS 全埋点解决方案》](https://opensource.sensorsdata.cn/wp-content/uploads/iOS-全埋点thumbnail_1.png)](https://item.jd.com/12867068.html)
+| [《数据驱动：从方法到实践》](https://item.jd.com/12322322.html) | [《Android 全埋点解决方案》](https://item.jd.com/12574672.html) | [《iOS 全埋点解决方案》](https://item.jd.com/12867068.html)
+| ------ | ------ | ------ |
 
 
 ## 感谢
