@@ -83,7 +83,7 @@
 
             [ekeys addObject:record.ekey];
         } else {
-            [encryptRecords[index] mergeSameEKeyRecord:record];
+            [encryptRecords[index] mergeSameEKeyPayloadWithRecord:record];
         }
     }
     flowData.gzipCode = SAFlushGzipCodeEncrypt;

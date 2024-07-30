@@ -25,6 +25,10 @@
 #import "NSObject+SADelegateProxy.h"
 #import <objc/runtime.h>
 
+#if TARGET_OS_IOS
+#import <UIKit/UIKit.h>
+#endif
+
 static void *const kSANSObjectDelegateOptionalSelectorsKey = (void *)&kSANSObjectDelegateOptionalSelectorsKey;
 static void *const kSANSObjectDelegateObjectKey = (void *)&kSANSObjectDelegateObjectKey;
 
@@ -53,6 +57,16 @@ static void *const kSANSProxyDelegateObjectKey = (void *)&kSANSProxyDelegateObje
     if ([self sensorsdata_respondsToSelector:aSelector]) {
         return YES;
     }
+
+#if TARGET_OS_IOS
+    if ([[UIDevice currentDevice].systemVersion floatValue] == 18.0) {
+        char cString = (char)sel_getName(aSelector);
+        if (cString == '\x01') {
+            return NO;
+        }
+    }
+#endif
+
     if ([self.sensorsdata_optionalSelectors containsObject:NSStringFromSelector(aSelector)]) {
         return YES;
     }
