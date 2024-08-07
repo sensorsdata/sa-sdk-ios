@@ -90,6 +90,7 @@
         NSData *result = [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
         NSRange range = NSMakeRange(16, result.length - 16);
         NSData *da = [result subdataWithRange:range];
+
         return [[NSString alloc] initWithData:da encoding:NSUTF8StringEncoding];
     }
     free(buffer);

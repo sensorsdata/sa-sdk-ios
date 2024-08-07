@@ -59,7 +59,7 @@ static void *const kSANSProxyDelegateObjectKey = (void *)&kSANSProxyDelegateObje
     }
 
 #if TARGET_OS_IOS
-    if ([[UIDevice currentDevice].systemVersion floatValue] == 18.0) {
+    if (@available(iOS 18.0, *)) {
         char cString = (char)sel_getName(aSelector);
         if (cString == '\x01') {
             return NO;
