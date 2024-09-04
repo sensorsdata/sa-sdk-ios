@@ -92,6 +92,7 @@ static const char * kSASerialQueueLabel = "com.sensorsdata.serialQueue.StoreMana
     return nil;
 }
 
+
 #pragma mark - public
 
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin {
@@ -105,6 +106,20 @@ static const char * kSASerialQueueLabel = "com.sensorsdata.serialQueue.StoreMana
             }
         }];
         [self.plugins insertObject:plugin atIndex:0];
+    });
+}
+
+- (void)unregisterStorePluginWithPluginClass:(Class)cla {
+    if (!cla) {
+        return;
+    }
+    dispatch_async(self.serialQueue, ^{
+        [self.plugins enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id<SAStorePlugin>  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+            if ([obj isKindOfClass:cla]) {
+                [self.plugins removeObject:obj];
+                *stop = YES;
+            }
+        }];
     });
 }
 

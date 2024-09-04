@@ -63,12 +63,13 @@
 #import "SAEventStore.h"
 #import "SALimitKeyManager.h"
 #import "NSDictionary+SACopyProperties.h"
+#import "SAMacHistoryFileStorePlugin.h"
 
 #if TARGET_OS_IOS || TARGET_OS_TV
 #import <UIKit/UIApplication.h>
 #endif
 
-#define VERSION @"4.7.2"
+#define VERSION @"4.8.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -262,6 +263,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)resgisterStorePlugins {
+#if TARGET_OS_OSX
+    SAMacHistoryFileStorePlugin *macFilePlugin = [[SAMacHistoryFileStorePlugin alloc] init];
+    [[SAStoreManager sharedInstance] registerStorePlugin:macFilePlugin];
+#endif
+    
     SAFileStorePlugin *filePlugin = [[SAFileStorePlugin alloc] init];
     [[SAStoreManager sharedInstance] registerStorePlugin:filePlugin];
     

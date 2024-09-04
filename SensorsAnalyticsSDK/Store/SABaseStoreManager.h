@@ -29,6 +29,8 @@ typedef void(^SAStoreManagerCompletion)(id _Nullable object);
 
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
 
+- (void)unregisterStorePluginWithPluginClass:(Class)cla;
+
 #pragma mark - get
 
 - (nullable id)objectForKey:(NSString *)key;

@@ -140,6 +140,8 @@
 		4DC4815828B775B60068D5F4 /* SAVisualizedElementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4815228B775B60068D5F4 /* SAVisualizedElementView.m */; };
 		4DC4815928B775B60068D5F4 /* SAFlutterPluginBridge.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DC4815328B775B60068D5F4 /* SAFlutterPluginBridge.h */; };
 		4DC4815A28B775B60068D5F4 /* SAFlutterElementView.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC4815428B775B60068D5F4 /* SAFlutterElementView.m */; };
+		4DC579CD2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DC579CB2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.h */; };
+		4DC579CE2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DC579CC2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.m */; };
 		4DD1282025F87225008C0B1E /* UIView+SAVisualizedViewPath.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1281D25F87225008C0B1E /* UIView+SAVisualizedViewPath.h */; };
 		4DD1282125F87225008C0B1E /* SAVisualizedViewPathProperty.h in Headers */ = {isa = PBXBuildFile; fileRef = 4DD1281E25F87225008C0B1E /* SAVisualizedViewPathProperty.h */; };
 		4DD1282225F87225008C0B1E /* UIView+SAVisualizedViewPath.m in Sources */ = {isa = PBXBuildFile; fileRef = 4DD1281F25F87225008C0B1E /* UIView+SAVisualizedViewPath.m */; };
@@ -732,6 +734,8 @@
 		4DC4815228B775B60068D5F4 /* SAVisualizedElementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAVisualizedElementView.m; sourceTree = "<group>"; };
 		4DC4815328B775B60068D5F4 /* SAFlutterPluginBridge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAFlutterPluginBridge.h; sourceTree = "<group>"; };
 		4DC4815428B775B60068D5F4 /* SAFlutterElementView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SAFlutterElementView.m; sourceTree = "<group>"; };
+		4DC579CB2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAMacHistoryFileStorePlugin.h; sourceTree = "<group>"; };
+		4DC579CC2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAMacHistoryFileStorePlugin.m; sourceTree = "<group>"; };
 		4DD1281D25F87225008C0B1E /* UIView+SAVisualizedViewPath.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+SAVisualizedViewPath.h"; sourceTree = "<group>"; };
 		4DD1281E25F87225008C0B1E /* SAVisualizedViewPathProperty.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SAVisualizedViewPathProperty.h; sourceTree = "<group>"; };
 		4DD1281F25F87225008C0B1E /* UIView+SAVisualizedViewPath.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+SAVisualizedViewPath.m"; sourceTree = "<group>"; };
@@ -1756,6 +1760,8 @@
 				883ED1A927699A3500A0706A /* SABaseStoreManager.m */,
 				88EC2DF5275768DE00EF9778 /* SAFileStorePlugin.h */,
 				88EC2DF6275768DE00EF9778 /* SAFileStorePlugin.m */,
+				4DC579CB2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.h */,
+				4DC579CC2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.m */,
 				88EC2DFD2757693600EF9778 /* SAUserDefaultsStorePlugin.h */,
 				88EC2DFE2757693600EF9778 /* SAUserDefaultsStorePlugin.m */,
 				88EC2DF9275768EE00EF9778 /* SAAESStorePlugin.h */,
@@ -2485,6 +2491,7 @@
 				F22E1B1B26A55C8A0033A748 /* SAAppPageLeaveTracker.h in Headers */,
 				4DD1285925F872A4008C0B1E /* SAEnumDescription.h in Headers */,
 				88F5537927FD6A5400D95E7C /* SANodeObject.h in Headers */,
+				4DC579CD2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.h in Headers */,
 				4DD1285D25F872A4008C0B1E /* SAVisualizedConnection.h in Headers */,
 				88E6BEDD278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.h in Headers */,
 				A8356DCF2656459A00FD64AA /* SAGestureViewProcessorFactory.h in Headers */,
@@ -2916,6 +2923,7 @@
 				A8CC22332685E50C00E96A03 /* SARemoteConfigEventObject.m in Sources */,
 				8809805827FDA85E00EB2B3D /* SARemoteConfigInterceptor.m in Sources */,
 				88BC3A01281543E000A98EDA /* SAPropertyPlugin.m in Sources */,
+				4DC579CE2C85D3CA00486E4D /* SAMacHistoryFileStorePlugin.m in Sources */,
 				4DD1285E25F872A4008C0B1E /* SAVisualizedObjectSerializerManager.m in Sources */,
 				F2E4ABA626ECAC5400BA7F01 /* SensorsAnalyticsSDK+DeepLink.m in Sources */,
 				4DD1286D25F872A4008C0B1E /* SAVisualizedManager.m in Sources */,
