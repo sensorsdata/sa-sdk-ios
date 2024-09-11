@@ -24,6 +24,7 @@
 
 #import "SADatabaseInterceptor.h"
 #import "SAFileStorePlugin.h"
+#import "SAFlowManager.h"
 
 @interface SADatabaseInterceptor()
 
@@ -36,8 +37,16 @@
 + (instancetype)interceptorWithParam:(NSDictionary *)param {
     SADatabaseInterceptor *interceptor = [super interceptorWithParam:param];
     NSString *fileName = param[kSADatabaseNameKey] ?: kSADatabaseDefaultFileName;
-    NSString *path = [SAFileStorePlugin filePath:fileName];
-    interceptor.eventStore = [SAEventStore eventStoreWithFilePath:path];
+    NSString *filePath = [SAFileStorePlugin filePath:fileName];
+
+#if TARGET_OS_OSX
+    NSString *databaseFilePath = SAFlowManager.sharedInstance.configOptions.databaseFilePath;
+    if (databaseFilePath && [databaseFilePath hasSuffix: @".plist"]) {
+        filePath = databaseFilePath;
+    }
+#endif
+    
+    interceptor.eventStore = [SAEventStore eventStoreWithFilePath:filePath];
 
     return interceptor;
 }

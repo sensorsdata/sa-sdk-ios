@@ -43,8 +43,6 @@ extern NSString * const kSADatabaseDefaultFileName;
  *
  *  @return 初始化的结果
  */
-- (instancetype)initWithFilePath:(NSString *)filePath;
-
 + (instancetype)eventStoreWithFilePath:(NSString *)filePath;
 
 /// fetch first records with a certain size

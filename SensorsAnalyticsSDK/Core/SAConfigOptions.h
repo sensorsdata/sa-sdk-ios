@@ -144,6 +144,12 @@ NS_ASSUME_NONNULL_BEGIN
 /// 注册限制采集的敏感属性
 - (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys;
 
+/// 自定义埋点数据存储路径
+///
+/// macOS 开发，针对多应用场景，可以使用相同数据库文件，确保每个应用触发 flush 后，上传所有埋点数据，使用 .plist 作为文件名后缀
+@property (nonatomic, strong) NSString *databaseFilePath API_UNAVAILABLE(ios, tvos);
+
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -75,6 +75,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
 @property (nonatomic) BOOL enableAutoTrackChildViewScreen;
 @property (nonatomic) SensorsAnalyticsAutoTrackEventType autoTrackEventType;
 
+
 //private switch
 @property (nonatomic, assign) BOOL enableLocation;
 @property (nonatomic, assign) BOOL enableDeviceOrientation;
@@ -163,6 +164,10 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
     options.disableDeviceId = self.disableDeviceId;
     options.propertyPlugins = self.propertyPlugins;
     options.instantEvents = self.instantEvents;
+
+#if TARGET_OS_OSX
+    options.databaseFilePath = self.databaseFilePath;
+#endif
 
 #if TARGET_OS_IOS
     // 支持 https 自签证书

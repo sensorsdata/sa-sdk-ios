@@ -27,8 +27,12 @@ typedef void(^SAStoreManagerCompletion)(id _Nullable object);
 
 @interface SABaseStoreManager : NSObject
 
+/// 注册存储插件
+/// - Parameter plugin: 需要注册的插件对象
 - (void)registerStorePlugin:(id<SAStorePlugin>)plugin;
 
+/// 注销存储插件
+/// - Parameter cla: 待注销的插件类型 Class
 - (void)unregisterStorePluginWithPluginClass:(Class)cla;
 
 #pragma mark - get

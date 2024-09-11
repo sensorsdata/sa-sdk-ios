@@ -155,6 +155,9 @@ NSString * const kSAFlushServerURL = @"serverURL";
 }
 
 - (NSArray<NSDictionary *> *)eventLogsWithInput:(SAFlowData *)input {
+    if (!input.configOptions.enableLog) {
+        return nil;
+    }
     NSArray <SAEventRecord *>*records = input.records;
     if (records.count == 0) {
         return nil;
@@ -166,6 +169,9 @@ NSString * const kSAFlushServerURL = @"serverURL";
 
     NSMutableArray <NSDictionary *>*eventSources = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
+        if (!record.event) {
+            continue;
+        }
         if(!record.isEncrypted) {
             [eventSources addObject:record.event];
             continue;
