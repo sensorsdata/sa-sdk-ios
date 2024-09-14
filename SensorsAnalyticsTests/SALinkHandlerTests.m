@@ -24,7 +24,7 @@
 
 #import <XCTest/XCTest.h>
 #import "SADeepLinkManager.h"
-#import "SensorsAnalyticsSDK+Deeplink.h"
+#import "SensorsAnalyticsSDK+DeepLink.h"
 #import "SAConfigOptions.h"
 
 @interface SALinkHandlerTests : XCTestCase
