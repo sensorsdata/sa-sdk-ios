@@ -81,7 +81,7 @@ NS_ASSUME_NONNULL_BEGIN
 /// 从请求远程配置的返回结果中获取加密相关内容
 /// @param config 请求远程配置的返回结果
 /// @return 加密相关内容
-- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config;
+//- (NSDictionary<NSString *, id> *)extractEncryptConfig:(NSDictionary<NSString *, id> *)config;
 
 /// 触发 $AppRemoteConfigChanged 事件
 /// @param remoteConfig 事件中的属性

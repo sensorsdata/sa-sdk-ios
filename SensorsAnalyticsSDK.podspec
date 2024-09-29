@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.8.1"
+  s.version      = "4.8.2"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
@@ -11,6 +11,9 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = '12.0'
   s.default_subspec = 'Core'
   s.frameworks = 'Foundation', 'SystemConfiguration'
+
+  # 限制 CocoaPods 版本
+  s.cocoapods_version = '>= 1.12.0'
 
   s.libraries = 'icucore', 'z'
 

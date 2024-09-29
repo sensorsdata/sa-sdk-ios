@@ -106,7 +106,7 @@ static const char * kSASerialQueueLabel = "com.sensorsdata.serialQueue.StoreMana
         [self.plugins enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(id<SAStorePlugin>  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
             if ([plugin.type isEqualToString:obj.type]) {
                 [self.plugins removeObjectAtIndex:idx];
-            } else {
+            } else if ([plugin respondsToSelector:@selector(upgradeWithOldPlugin:)]){
                 [plugin upgradeWithOldPlugin:obj];
             }
         }];
