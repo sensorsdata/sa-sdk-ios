@@ -34,7 +34,7 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, copy, nullable) NSString *loginId;
 
 /// 匿名 ID
-@property (nonatomic, copy) NSString *anonymousId;
+@property (nonatomic, copy, nullable) NSString *anonymousId;
 
 /// 登录事件中的 匿名 ID
 @property (nonatomic, copy) NSString *originalId;

@@ -57,10 +57,6 @@ static NSString * const kSALibVersion = @"1.0.1";
     XCTAssertTrue([self.plugin.properties[@"$manufacturer"] isEqualToString:@"Apple"]);
 }
 
-- (void)testCarrier {
-    XCTAssertNil(self.plugin.properties[@"$carrier"]);
-}
-
 - (void)testOS {
 #if TARGET_OS_IOS
     XCTAssertTrue([self.plugin.properties[@"$os"] isEqualToString:@"iOS"]);

@@ -30,8 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSArray *)analyticsNodes;
 
-+ (NSDictionary *)mcc;
-
 /// 默认加载中文资源
 + (NSDictionary *)defaultLanguageResources;
 

@@ -94,13 +94,11 @@ static NSString * const kSAEventPresetPropertyWifi = @"$wifi";
     }
 
     NSString *currentRadioAccessTechnology = nil;
-#ifdef __IPHONE_12_0
+    // 测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
     if (@available(iOS 12.1, *)) {
         currentRadioAccessTechnology = self.networkInfo.serviceCurrentRadioAccessTechnology.allValues.lastObject;
-    }
-#endif
-    // 测试发现存在少数 12.0 和 12.0.1 的机型 serviceCurrentRadioAccessTechnology 返回空
-    if (!currentRadioAccessTechnology) {
+    } else {
+        // 高版本系统，调用 currentRadioAccessTechnology 可能出现 crash
         currentRadioAccessTechnology = self.networkInfo.currentRadioAccessTechnology;
     }
 

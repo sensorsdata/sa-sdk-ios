@@ -30,7 +30,6 @@ NS_ASSUME_NONNULL_BEGIN
 - (NSString *)lib;
 - (NSInteger)screenHeight;
 - (NSInteger)screenWidth;
-- (NSString *)carrier;
 - (NSString *)appID;
 - (NSString *)appName;
 - (NSInteger)timezoneOffset;

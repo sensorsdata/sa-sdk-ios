@@ -41,11 +41,6 @@
     _plugin = nil;
 }
 
-- (void)testCarrier {
-//    单元测试不支持真机, 模拟器获取不到运营商信息
-//    XCTAssertNotNil(self.plugin.properties[@"$carrier"]);
-}
-
 - (void)testCurrentNetworkTypeOptions {
     // 单元测试获取不到网络信息
 //    XCTAssertTrue(self.plugin.currentNetworkTypeOptions == SensorsAnalyticsNetworkTypeNONE);

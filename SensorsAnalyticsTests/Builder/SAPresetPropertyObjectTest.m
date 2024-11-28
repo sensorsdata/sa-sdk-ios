@@ -65,10 +65,6 @@
     XCTAssertEqual(_property.properties[@"$screen_width"], @((NSInteger)0));
 }
 
-- (void)testCarrier {
-    XCTAssertNil(_property.properties[@"$carrier"]);
-}
-
 - (void)testAppID {
     NSString *appID = [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
     XCTAssertEqual(_property.properties[@"$app_id"], appID);

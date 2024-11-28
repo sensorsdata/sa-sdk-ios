@@ -22,6 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+// 多条埋点数据拼接组装
 @interface SAFlushJSONInterceptor : SAInterceptor
 
 - (NSString *)buildJSONStringWithFlowData:(SAFlowData *)flowData;

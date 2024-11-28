@@ -64,9 +64,4 @@
 + (NSString *)idfv {
     return [SALimitKeyManager sharedInstance].keys[SALimitKeyIDFV];
 }
-
-+ (NSString *)carrier {
-    return [SALimitKeyManager sharedInstance].keys[SALimitKeyCarrier];
-}
-
 @end

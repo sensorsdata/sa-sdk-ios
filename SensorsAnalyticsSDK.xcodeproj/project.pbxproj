@@ -114,8 +114,6 @@
 		4D762233284627C1006656DD /* SARepeatFlushInterceptor.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D762231284627C1006656DD /* SARepeatFlushInterceptor.m */; };
 		4D79695A2609D8FE001B0A6C /* SAEventIdentifier.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D7969582609D8FE001B0A6C /* SAEventIdentifier.h */; };
 		4D79695B2609D8FE001B0A6C /* SAEventIdentifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7969592609D8FE001B0A6C /* SAEventIdentifier.m */; };
-		4D7B252A2828AF430080BCF0 /* SACarrierNamePropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D7B25282828AF430080BCF0 /* SACarrierNamePropertyPlugin.h */; };
-		4D7B252B2828AF430080BCF0 /* SACarrierNamePropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D7B25292828AF430080BCF0 /* SACarrierNamePropertyPlugin.m */; };
 		4D958B1A2823D99E0086A71C /* SAFirstDayPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D958B182823D99E0086A71C /* SAFirstDayPropertyPlugin.h */; };
 		4D958B1B2823D99E0086A71C /* SAFirstDayPropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 4D958B192823D99E0086A71C /* SAFirstDayPropertyPlugin.m */; };
 		4D958B1E2823E0960086A71C /* SAModulePropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 4D958B1C2823E0960086A71C /* SAModulePropertyPlugin.h */; };
@@ -298,7 +296,7 @@
 		88E6BED6278D2930006B1E4C /* SADeviceIDPropertyPluginTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E6BED5278D2930006B1E4C /* SADeviceIDPropertyPluginTests.m */; };
 		88E6BEDD278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 88E6BEDB278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.h */; };
 		88E6BEDE278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 88E6BEDC278ECE5E006B1E4C /* SAAppVersionPropertyPlugin.m */; };
-		88EC2DF12757689800EF9778 /* SAStoreManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88EC2DEF2757689800EF9778 /* SAStoreManager.h */; settings = {ATTRIBUTES = (Public, ); }; };
+		88EC2DF12757689800EF9778 /* SAStoreManager.h in Headers */ = {isa = PBXBuildFile; fileRef = 88EC2DEF2757689800EF9778 /* SAStoreManager.h */; };
 		88EC2DF22757689800EF9778 /* SAStoreManager.m in Sources */ = {isa = PBXBuildFile; fileRef = 88EC2DF02757689800EF9778 /* SAStoreManager.m */; };
 		88EC2DF4275768C500EF9778 /* SAStorePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 88EC2DF3275768C500EF9778 /* SAStorePlugin.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		88EC2DF7275768DE00EF9778 /* SAFileStorePlugin.h in Headers */ = {isa = PBXBuildFile; fileRef = 88EC2DF5275768DE00EF9778 /* SAFileStorePlugin.h */; };
@@ -708,8 +706,6 @@
 		4D762231284627C1006656DD /* SARepeatFlushInterceptor.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SARepeatFlushInterceptor.m; sourceTree = "<group>"; };
 		4D7969582609D8FE001B0A6C /* SAEventIdentifier.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAEventIdentifier.h; sourceTree = "<group>"; };
 		4D7969592609D8FE001B0A6C /* SAEventIdentifier.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAEventIdentifier.m; sourceTree = "<group>"; };
-		4D7B25282828AF430080BCF0 /* SACarrierNamePropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SACarrierNamePropertyPlugin.h; sourceTree = "<group>"; };
-		4D7B25292828AF430080BCF0 /* SACarrierNamePropertyPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SACarrierNamePropertyPlugin.m; sourceTree = "<group>"; };
 		4D8CE4C622E872B400829B29 /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
 		4D958B182823D99E0086A71C /* SAFirstDayPropertyPlugin.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SAFirstDayPropertyPlugin.h; sourceTree = "<group>"; };
 		4D958B192823D99E0086A71C /* SAFirstDayPropertyPlugin.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = SAFirstDayPropertyPlugin.m; sourceTree = "<group>"; };
@@ -1474,8 +1470,6 @@
 				4DA89BC025C2BC1E003ABA43 /* SAReachability.m */,
 				457A7CC227DB2AC900DB0512 /* SANetworkInfoPropertyPlugin.h */,
 				457A7CC327DB2AC900DB0512 /* SANetworkInfoPropertyPlugin.m */,
-				4D7B25282828AF430080BCF0 /* SACarrierNamePropertyPlugin.h */,
-				4D7B25292828AF430080BCF0 /* SACarrierNamePropertyPlugin.m */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -2428,7 +2422,6 @@
 				4DD1285725F872A4008C0B1E /* SAVisualizedManager.h in Headers */,
 				A8356DD82656459A00FD64AA /* SAAppClickTracker.h in Headers */,
 				4D4DB2C725B7D19C00938842 /* SAClassHelper.h in Headers */,
-				4D7B252A2828AF430080BCF0 /* SACarrierNamePropertyPlugin.h in Headers */,
 				4DA89BC225C2BC1E003ABA43 /* SAReachability.h in Headers */,
 				F226E67C28BC6415000443A7 /* UIView+SAElementContent.h in Headers */,
 				886E1E212726AC420084D1B3 /* SADeviceIDPropertyPlugin.h in Headers */,
@@ -2851,7 +2844,6 @@
 				A8BCC4A82686C2D800B72040 /* SAConfigOptions+Encrypt.m in Sources */,
 				881A41FE253D7B5000854F69 /* SAConstants.m in Sources */,
 				F277F5CA25CF9A43009B5CE6 /* UIApplication+SAPushClick.m in Sources */,
-				4D7B252B2828AF430080BCF0 /* SACarrierNamePropertyPlugin.m in Sources */,
 				881A4195253D7B4F00854F69 /* SAObject+SAConfigOptions.m in Sources */,
 				4DDF8BB32B972A5F0007D70D /* SAViewElementInfo.m in Sources */,
 				881A41F9253D7B5000854F69 /* SAConfigOptions.m in Sources */,

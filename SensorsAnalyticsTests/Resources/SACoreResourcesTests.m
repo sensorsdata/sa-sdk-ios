@@ -64,13 +64,6 @@
     XCTAssertTrue([[SACoreResources analyticsNodes] isEqualToArray:array]);
 }
 
-- (void)testMCC {
-    NSString *jsonPath = [self.bundle pathForResource:@"sa_mcc_mnc_mini.json" ofType:nil];
-    NSData *jsonData = [NSData dataWithContentsOfFile:jsonPath];
-    NSDictionary *dicAllMcc = [SAJSONUtil JSONObjectWithData:jsonData];
-    XCTAssertTrue([[SACoreResources mcc] isEqualToDictionary:dicAllMcc]);
-}
-
 - (void)testDefaultLanguageResources {
     // 获取语言资源的 Bundle
     NSBundle* languageBundle = nil;

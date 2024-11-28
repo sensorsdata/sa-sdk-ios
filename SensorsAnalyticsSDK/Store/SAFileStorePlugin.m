@@ -114,7 +114,7 @@ static NSString * const kSAFileStorePluginType = @"cn.sensorsdata.File.";
     NSString *filePath = [SAFileStorePlugin filePath:key];
 #if TARGET_OS_IOS
     /* 为filePath文件设置保护等级 */
-    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionComplete
+    NSDictionary *protection = [NSDictionary dictionaryWithObject:NSFileProtectionNone
                                                            forKey:NSFileProtectionKey];
 #else
     // macOS10.13 不包含 NSFileProtectionComplete

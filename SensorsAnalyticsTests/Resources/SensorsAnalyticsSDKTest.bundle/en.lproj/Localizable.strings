@@ -86,10 +86,3 @@
 "SAAlertHint" = "Hint";
 "SAAlertOK" = "OK";
 "SAAlertNotRemind" = "Don't Remind";
-
-// Preset Property
-"SAPresetPropertyCarrierMobile" = "MOBILE";
-"SAPresetPropertyCarrierUnicom" = "UNICOM";
-"SAPresetPropertyCarrierTelecom" = "TELECOM";
-"SAPresetPropertyCarrierSatellite" = "SATELLITE";
-"SAPresetPropertyCarrierTietong" = "TIETONG";

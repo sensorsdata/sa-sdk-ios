@@ -27,11 +27,45 @@
 #import "SALog.h"
 #import "SensorsAnalyticsSDK+Private.h"
 
-static NSRegularExpression *regexForValidKey;
 static NSString *const kSAProperNameValidateRegularExpression = @"^((?!^distinct_id$|^original_id$|^time$|^properties$|^id$|^first_id$|^second_id$|^users$|^events$|^event$|^user_id$|^date$|^datetime$|^user_tag.*|^user_group.*)[a-zA-Z_$][a-zA-Z\\d_$]*)$";
 
+static dispatch_semaphore_t validateSemaphore;
+static NSRegularExpression *regexForValidKey;
+
+@interface SAValidator()
+@end
 
 @implementation SAValidator
+
++ (void)initialize {
+    if (self == [SAValidator class]) {
+        static dispatch_once_t onceToken;
+        dispatch_once(&onceToken, ^{
+
+            validateSemaphore = dispatch_semaphore_create(1); // 初始化信号量
+            regexForValidKey = [NSRegularExpression regularExpressionWithPattern:kSAProperNameValidateRegularExpression options:NSRegularExpressionCaseInsensitive error:nil];
+
+        });
+    }
+}
+
++ (NSRegularExpression *)safeRegexForValidKey {
+    // 等待信号量，最多 1 秒，确保只有一个线程访问
+    // 阻塞其他线程，直到有线程释放锁
+    dispatch_time_t timeout = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC));
+    long result = dispatch_semaphore_wait(validateSemaphore, timeout);
+
+    if (result != 0) {
+        return [NSRegularExpression regularExpressionWithPattern:kSAProperNameValidateRegularExpression options:NSRegularExpressionCaseInsensitive error:nil];
+    }
+    NSRegularExpression *regex = regexForValidKey;
+
+    // 释放信号量，允许其他线程访问
+    dispatch_semaphore_signal(validateSemaphore);
+    return regex;
+}
+
+
 
 + (BOOL)isValidString:(NSString *)string {
     return ([string isKindOfClass:[NSString class]] && ([string length] > 0));
@@ -80,19 +114,15 @@ static NSString *const kSAProperNameValidateRegularExpression = @"^((?!^distinct
 }
 
 + (void)reservedKeywordCheckForObject:(NSString *)object error:(NSError *__autoreleasing  _Nullable *)error {
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        regexForValidKey = [NSRegularExpression regularExpressionWithPattern:kSAProperNameValidateRegularExpression options:NSRegularExpressionCaseInsensitive error:nil];
-    });
-
-    if (!regexForValidKey) {
+    NSRegularExpression *regular = [SAValidator safeRegexForValidKey];
+    if (!regular) {
         *error = SAPropertyError(SAValidatorErrorRegexInit, @"Property Key validate regular expression init failed, please check the regular expression's syntax");
         return;
     }
 
     // 属性名通过正则表达式匹配，比使用谓词效率更高
     NSRange range = NSMakeRange(0, object.length);
-    if ([regexForValidKey numberOfMatchesInString:object options:0 range:range] < 1) {
+    if ([regular numberOfMatchesInString:object options:0 range:range] < 1) {
         *error = SAPropertyError(SAValidatorErrorInvalid, @"Property Key or Event name: [%@] is invalid.", object);
         return;
     }

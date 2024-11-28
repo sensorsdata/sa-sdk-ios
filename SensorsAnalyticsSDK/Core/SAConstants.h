@@ -128,4 +128,3 @@ typedef NS_OPTIONS(NSUInteger, SAEventType) {
 typedef NSString *SALimitKey NS_TYPED_EXTENSIBLE_ENUM;
 FOUNDATION_EXTERN SALimitKey const SALimitKeyIDFA;
 FOUNDATION_EXTERN SALimitKey const SALimitKeyIDFV;
-FOUNDATION_EXTERN SALimitKey const SALimitKeyCarrier;

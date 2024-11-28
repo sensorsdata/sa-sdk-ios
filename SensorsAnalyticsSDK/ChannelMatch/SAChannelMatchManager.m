@@ -311,7 +311,8 @@ NSString * const kSAEventPropertyChannelCallbackEvent = @"$is_channel_callback_e
 
 - (void)showRelinkAlertWithURL:(NSURL *)url {
     NSDictionary *queryItems = [SAURLUtils queryItemsWithURL:url];
-    NSString *deviceId = [queryItems[@"device_code"] stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+    NSString *deviceId = [queryItems[@"device_code"] stringByRemovingPercentEncoding];
+
     // 重连二维码对应的设备信息
     NSMutableSet *deviceIdSet = [NSMutableSet setWithArray:[deviceId componentsSeparatedByString:@"##"]];
     // 当前设备的设备信息

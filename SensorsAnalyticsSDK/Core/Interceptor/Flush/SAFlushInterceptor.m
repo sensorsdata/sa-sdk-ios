@@ -169,7 +169,8 @@ NSString * const kSAFlushServerURL = @"serverURL";
 
     NSMutableArray <NSDictionary *>*eventSources = [NSMutableArray arrayWithCapacity:records.count];
     for (SAEventRecord *record in records) {
-        if (!record.event) {
+        //avoid crash when add object to array
+        if (![record.event isKindOfClass:[NSDictionary class]]) {
             continue;
         }
         if(!record.isEncrypted) {

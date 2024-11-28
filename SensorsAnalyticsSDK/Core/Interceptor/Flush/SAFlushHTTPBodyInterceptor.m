@@ -34,15 +34,26 @@
     NSParameterAssert(input.configOptions);
     NSParameterAssert(input.records.count > 0);
 
-    input.HTTPBody = [self buildBodyWithInput:input];
+    NSData *httpBody = [self buildBodyWithInput:input];
+    if (!httpBody) {
+        input.state = SAFlowStateError;
+        input.message = @"Event message base64Encoded or Gzip compression failed, End the track flow";
+        return completion(input);
+    }
+
+    input.HTTPBody = httpBody;
     completion(input);
 }
 
 - (NSData *)buildBodyWithInput:(SAFlowData *)input {
     NSDictionary *bodyDic = [self buildBodyWithFlowData:input];
+    if (!bodyDic) {
+        return nil;
+    }
     NSNumber *gzip = bodyDic[kSAFlushBodyKeyGzip];
     NSString *data = bodyDic[kSAFlushBodyKeyData];
     int hashCode = [data sensorsdata_hashCode];
+
     data = [data stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
     NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, [gzip intValue], data];
     if (input.isInstantEvent) {
@@ -58,9 +69,15 @@
     NSString *jsonString = flowData.json;
     // 使用gzip进行压缩
     NSData *zippedData = [SAGzipUtility gzipData:[jsonString dataUsingEncoding:NSUTF8StringEncoding]];
+    if (!zippedData) {
+        return nil;
+    }
     // base64
-    jsonString = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
-    NSDictionary *bodyDic = @{kSAFlushBodyKeyGzip: @(kSAFlushGzipCodePlainText), kSAFlushBodyKeyData: jsonString};
+    NSString *base64String = [zippedData base64EncodedStringWithOptions:NSDataBase64EncodingEndLineWithCarriageReturn];
+    if (!base64String || ![base64String isKindOfClass:NSString.class]) {
+        return nil;
+    }
+    NSDictionary *bodyDic = @{kSAFlushBodyKeyGzip: @(kSAFlushGzipCodePlainText), kSAFlushBodyKeyData: base64String};
     return bodyDic;
 }
 

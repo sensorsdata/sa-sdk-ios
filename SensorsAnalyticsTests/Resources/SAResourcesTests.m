@@ -127,12 +127,6 @@
     XCTAssertNotNil(json);
 }
 
-- (void)testJSONFileMCC {
-    NSString *json = [self jsonToDictionaryCodeGeneratorWithFileName:@"sa_mcc_mnc_mini"];
-    NSLog(@"Code Generator Result: %@", json);
-    XCTAssertNotNil(json);
-}
-
 - (void)testJSONFileAnalyticsFlows {
     NSString *json = [self jsonToDictionaryCodeGeneratorWithFileName:@"sensors_analytics_flow"];
     NSLog(@"Code Generator Result: %@", json);

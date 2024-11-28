@@ -117,15 +117,7 @@ static const NSUInteger kSASessionMaxInterval = 5 * 60;
         _enableAutoTrackChildViewScreen = YES;
 #endif
 
-        _flushNetworkPolicy =
-#if TARGET_OS_IOS
-        SensorsAnalyticsNetworkType3G |
-        SensorsAnalyticsNetworkType4G |
-#ifdef __IPHONE_14_1
-        SensorsAnalyticsNetworkType5G |
-#endif
-#endif
-        SensorsAnalyticsNetworkTypeWIFI;
+        _flushNetworkPolicy = SensorsAnalyticsNetworkTypeALL;
 
         //default private switch
         _enableRemoteConfig = YES;

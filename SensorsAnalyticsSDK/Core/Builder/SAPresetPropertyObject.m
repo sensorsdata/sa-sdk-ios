@@ -93,10 +93,6 @@ NSString * const kSAEventPresetPropertyPluginLib = @"$lib";
     return 0;
 }
 
-- (NSString *)carrier {
-    return nil;
-}
-
 - (NSString *)appID {
     return [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"];
 }

@@ -25,7 +25,6 @@
 #import "SAVisualPropertiesConfigSources.h"
 #import "UIViewController+SAAutoTrack.h"
 #import "SAConstants+Private.h"
-#import "SAReadWriteLock.h"
 #import "SAReachability.h"
 #import "SAStoreManager.h"
 #import "SAURLUtils.h"

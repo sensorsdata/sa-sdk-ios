@@ -257,7 +257,7 @@
 
 - (void)startVisualizedTimer:(NSString *)message featureCode:(NSString *)featureCode postURL:(NSString *)postURL {
     _featureCode = featureCode;
-    _postUrl = (__bridge_transfer NSString *)CFURLCreateStringByReplacingPercentEscapesUsingEncoding(NULL, (__bridge CFStringRef)postURL, CFSTR(""),  CFStringConvertNSStringEncodingToEncoding(NSUTF8StringEncoding));
+    _postUrl = [postURL stringByRemovingPercentEncoding];
     _designerMessage = [self designerMessageForMessage:message];
 
     if (self.timer) {

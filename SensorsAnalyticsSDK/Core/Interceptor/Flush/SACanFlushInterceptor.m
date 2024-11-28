@@ -36,8 +36,8 @@
     }
     
     // 判断当前网络类型是否符合同步数据的网络策略
-    SANetworkInfoPropertyPlugin *carrierPlugin = [[SANetworkInfoPropertyPlugin alloc] init];
-    if (!([carrierPlugin currentNetworkTypeOptions] & input.configOptions.flushNetworkPolicy)) {
+    SANetworkInfoPropertyPlugin *networkPlugin = [[SANetworkInfoPropertyPlugin alloc] init];
+    if (!([networkPlugin currentNetworkTypeOptions] & input.configOptions.flushNetworkPolicy)) {
         input.state = SAFlowStateStop;
     }
     completion(input);

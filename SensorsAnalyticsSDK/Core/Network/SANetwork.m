@@ -34,9 +34,6 @@
 #import "SAHTTPSession.h"
 #import "SAReachability.h"
 
-#if TARGET_OS_IOS && !TARGET_OS_MACCATALYST
-#import <CoreTelephony/CTTelephonyNetworkInfo.h>
-#endif
 
 @interface SANetwork ()
 

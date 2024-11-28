@@ -90,13 +90,6 @@
 "SAAlertOK" = "确定";
 "SAAlertNotRemind" = "不再提示";
 
-// 预置属性
-"SAPresetPropertyCarrierMobile" = "中国移动";
-"SAPresetPropertyCarrierUnicom" = "中国联通";
-"SAPresetPropertyCarrierTelecom" = "中国电信";
-"SAPresetPropertyCarrierSatellite" = "中国卫通";
-"SAPresetPropertyCarrierTietong" = "中国铁通";
-
 //dynamic slink and device whitelist
 
 "SADeviceWhiteListTitle" = "添加设备白名单";

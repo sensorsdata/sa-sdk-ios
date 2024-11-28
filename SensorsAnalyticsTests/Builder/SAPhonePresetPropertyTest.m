@@ -73,10 +73,6 @@
     XCTAssertEqual(_property.properties[@"$screen_width"], @(width));
 }
 
-- (void)testCarrier {
-    XCTAssertNil(_property.properties[@"$carrier"]);
-}
-
 - (void)testPerformanceProperties {
     [self measureBlock:^{
         [_property properties];

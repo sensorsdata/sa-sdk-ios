@@ -51,7 +51,6 @@
 #import "SASessionProperty.h"
 #import "SAFlowManager.h"
 #import "SANetworkInfoPropertyPlugin.h"
-#import "SACarrierNamePropertyPlugin.h"
 #import "SAEventObjectFactory.h"
 #import "SASuperPropertyPlugin.h"
 #import "SADynamicSuperPropertyPlugin.h"
@@ -69,7 +68,7 @@
 #import <UIKit/UIApplication.h>
 #endif
 
-#define VERSION @"4.8.2"
+#define VERSION @"4.8.3"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -290,7 +289,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 
 - (void)registerPropertyPlugin {
     SANetworkInfoPropertyPlugin *networkInfoPlugin = [[SANetworkInfoPropertyPlugin alloc] init];
-    SACarrierNamePropertyPlugin *carrierPlugin = [[SACarrierNamePropertyPlugin alloc] init];
     
     dispatch_async(self.serialQueue, ^{
         // 注册 configOptions 中自定义属性插件
@@ -310,9 +308,6 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         SADeviceIDPropertyPlugin *deviceIDPlugin = [[SADeviceIDPropertyPlugin alloc] init];
         deviceIDPlugin.disableDeviceId = self.configOptions.disableDeviceId;
         [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:deviceIDPlugin];
-        
-        // 运营商信息
-        [[SAPropertyPluginManager sharedInstance] registerPropertyPlugin:carrierPlugin];
         
         // 注册静态公共属性插件
         SASuperPropertyPlugin *superPropertyPlugin = [[SASuperPropertyPlugin alloc] init];
@@ -399,7 +394,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 - (NSDictionary *)getPresetProperties {
     NSMutableDictionary *properties = [NSMutableDictionary dictionary];
     void(^block)(void) = ^{
-        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[SAPresetPropertyPlugin.class, SADeviceIDPropertyPlugin.class, SACarrierNamePropertyPlugin.class, SANetworkInfoPropertyPlugin.class, SAFirstDayPropertyPlugin.class, SAAppVersionPropertyPlugin.class]];
+        NSDictionary *dic = [[SAPropertyPluginManager sharedInstance] currentPropertiesForPluginClasses:@[SAPresetPropertyPlugin.class, SADeviceIDPropertyPlugin.class, SANetworkInfoPropertyPlugin.class, SAFirstDayPropertyPlugin.class, SAAppVersionPropertyPlugin.class]];
         [properties addEntriesFromDictionary:dic];
     };
     if (sensorsdata_is_same_queue(self.serialQueue)) {
@@ -1164,6 +1159,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     }
 
     SABaseEventObject *object = [SAEventObjectFactory eventObjectWithH5Event:eventDict];
+    [self buildDynamicSuperProperties];
     dispatch_async(self.serialQueue, ^{
 
         NSString *visualProperties = eventDict[kSAEventProperties][kSAAppVisualProperties];

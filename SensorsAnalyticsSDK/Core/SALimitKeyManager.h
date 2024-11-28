@@ -29,7 +29,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 + (NSString *)idfa;
 + (NSString *)idfv;
-+ (NSString *)carrier;
 
 @end
 

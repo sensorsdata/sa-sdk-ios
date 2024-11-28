@@ -22,6 +22,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
+/// HTTPBody 格式构建
 @interface SAFlushHTTPBodyInterceptor : SAInterceptor
 
 - (NSDictionary *)buildBodyWithFlowData:(SAFlowData *)flowData;
