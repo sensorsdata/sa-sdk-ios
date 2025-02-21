@@ -5,18 +5,6 @@
 // Created by 张敏超 on 2019/3/9.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 
 #if ! __has_feature(objc_arc)
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
@@ -63,9 +51,11 @@ static id SAPublicKeyForCertificate(NSData *certificate) {
 
     policy = SecPolicyCreateBasicX509();
     __Require_noErr_Quiet(SecTrustCreateWithCertificates(allowedCertificate, policy, &allowedTrust), _out);
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     __Require_noErr_Quiet(SecTrustEvaluate(allowedTrust, &result), _out);
-
     allowedPublicKey = (__bridge_transfer id)SecTrustCopyPublicKey(allowedTrust);
+#pragma clang diagnostic pop
 
 _out:
     if (allowedTrust) {
@@ -86,8 +76,10 @@ _out:
 static BOOL SAServerTrustIsValid(SecTrustRef serverTrust) {
     BOOL isValid = NO;
     SecTrustResultType result;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
     __Require_noErr_Quiet(SecTrustEvaluate(serverTrust, &result), _out);
-
+#pragma clang diagnostic pop
     isValid = (result == kSecTrustResultUnspecified || result == kSecTrustResultProceed);
 
 _out:
@@ -120,10 +112,11 @@ static NSArray * SAPublicKeyTrustChainForServerTrust(SecTrustRef serverTrust) {
         __Require_noErr_Quiet(SecTrustCreateWithCertificates(certificates, policy, &trust), _out);
 
         SecTrustResultType result;
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
         __Require_noErr_Quiet(SecTrustEvaluate(trust, &result), _out);
-
         [trustChain addObject:(__bridge_transfer id)SecTrustCopyPublicKey(trust)];
-
+#pragma clang diagnostic pop
     _out:
         if (trust) {
             CFRelease(trust);

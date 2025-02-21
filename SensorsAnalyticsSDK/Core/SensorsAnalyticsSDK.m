@@ -5,18 +5,6 @@
 // Created by 曹犟 on 15/7/1.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 
 #if ! __has_feature(objc_arc)
 #error This file must be compiled with ARC. Either turn on ARC for the project or use -fobjc-arc flag on this file.
@@ -68,7 +56,7 @@
 #import <UIKit/UIApplication.h>
 #endif
 
-#define VERSION @"4.8.3"
+#define VERSION @"4.9.0"
 
 void *SensorsAnalyticsQueueTag = &SensorsAnalyticsQueueTag;
 
@@ -147,7 +135,9 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     [instance removeObservers];
     [instance removeWebViewUserAgent];
     
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
     [SAReachability.sharedInstance stopMonitoring];
+#endif
     
     [SAModuleManager.sharedInstance disableAllModules];
     
@@ -166,8 +156,11 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         return;
     }
     instance.configOptions.disableSDK = NO;
+    
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
     // 部分模块和监听依赖网络状态，所以需要优先开启
     [SAReachability.sharedInstance startMonitoring];
+#endif
     
     // 优先添加远程控制监听，防止热启动时关闭 SDK 的情况下
     [instance addRemoteConfigObservers];
@@ -236,11 +229,13 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             [self registerPropertyPlugin];
             
             if (!_configOptions.disableSDK) {
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
                 [[SAReachability sharedInstance] startMonitoring];
+#endif
                 [self addRemoteConfigObservers];
             }
             
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
             [self setupSecurityPolicyWithConfigOptions:_configOptions];
             
             [SAReferrerManager sharedInstance].serialQueue = _serialQueue;
@@ -344,7 +339,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     });
 }
 
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
 - (void)setupSecurityPolicyWithConfigOptions:(SAConfigOptions *)options {
     SASecurityPolicy *securityPolicy = options.securityPolicy;
     if (!securityPolicy) {
@@ -579,7 +574,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     
     // 退出
     if (newState == SAAppLifecycleStateEnd) {
-        
+
 #if TARGET_OS_IOS || TARGET_OS_TV
         UIApplication *application = [SAApplication sharedApplication];
         __block UIBackgroundTaskIdentifier backgroundTaskIdentifier = UIBackgroundTaskInvalid;
@@ -588,20 +583,33 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
             backgroundTaskIdentifier = UIBackgroundTaskInvalid;
         };
         backgroundTaskIdentifier = [application beginBackgroundTaskWithExpirationHandler:endBackgroundTask];
-        
+
         dispatch_async(self.serialQueue, ^{
             [self flushAllEventRecordsWithCompletion:^{
                 // 结束后台任务
                 endBackgroundTask();
             }];
         });
+
+#elif TARGET_OS_WATCH
+        // Watch 执行后台任务，尽量确保数据上传
+        [[NSProcessInfo processInfo] performExpiringActivityWithReason:@"cn.sensorsdata.watchOS.Background.Flush" usingBlock:^(BOOL expired) {
+            if (expired) {
+                SALogDebug(@"系统即将挂起，无法继续上报 ~");
+            } else {
+                dispatch_async(self.serialQueue, ^{
+                    // 执行数据上报
+                    [self flushAllEventRecords];
+                });
+            }
+        }];
 #else
         dispatch_async(self.serialQueue, ^{
             // 上传所有的数据
             [self flushAllEventRecords];
         });
 #endif
-        
+
         return;
     }
     
@@ -621,8 +629,10 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
         return NO;
     }
     
+#if __has_include(<SystemConfiguration/SystemConfiguration.h>)
     // 退到后台时的网络状态变化不会监听，因此通过 handleSchemeUrl 唤醒 App 时主动获取网络状态
     [[SAReachability sharedInstance] startMonitoring];
+#endif
     
     return [SAModuleManager.sharedInstance handleURL:url];
 }
@@ -876,7 +886,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 #pragma mark - Local caches
 
 - (void)startFlushTimer {
-    SALogDebug(@"starting flush timer.");
+    SALogDebug(@"start flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.timer && [self.timer isValid]) {
             return;
@@ -903,6 +913,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
 }
 
 - (void)stopFlushTimer {
+    SALogDebug(@"stop flush timer.");
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.timer) {
             [self.timer invalidate];
@@ -1070,7 +1081,7 @@ NSString * const SensorsAnalyticsIdentityKeyEmail = @"$identity_email";
     if (self.configOptions.disableSDK) {
         return;
     }
-#if TARGET_OS_IOS
+#if TARGET_OS_IOS || TARGET_OS_WATCH
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteConfigManagerModelChanged:) name:SA_REMOTE_CONFIG_MODEL_CHANGED_NOTIFICATION object:nil];
 #endif
 }

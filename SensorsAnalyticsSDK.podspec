@@ -1,21 +1,24 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalyticsSDK"
-  s.version      = "4.8.3"
+  s.version      = "4.9.0"
   s.summary      = "The official iOS SDK of Sensors Analytics."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }
-  s.license = { :type => "Apache License, Version 2.0" }
-  s.author = { "Yuhan ZOU" => "zouyuhan@sensorsdata.cn" }
+  s.license = {
+    :type => 'Commercial',
+    :file => 'LICENSE'
+  }
+  s.author = { "caojiang" => "caojiang@sensorsdata.cn" }
   s.ios.deployment_target = '9.0'
   s.osx.deployment_target = '10.13'
   s.tvos.deployment_target = '12.0'
+  s.watchos.deployment_target = "7.0"
   s.default_subspec = 'Core'
-  s.frameworks = 'Foundation', 'SystemConfiguration'
+  s.frameworks = 'Foundation'
+  s.libraries = "icucore", "z"
 
   # 限制 CocoaPods 版本
   s.cocoapods_version = '>= 1.12.0'
-
-  s.libraries = 'icucore', 'z'
 
   s.subspec '__Store' do |store|
     store.source_files = 'SensorsAnalyticsSDK/Store/*.{h,m}'
@@ -27,7 +30,10 @@ Pod::Spec.new do |s|
     base.source_files = core_dir + "**/*.{h,m}"
     base.exclude_files = core_dir + 'SAAlertController.{h,m}', core_dir + 'HookDelegate/**/*.{h,m}'
     base.public_header_files = core_dir + "SensorsAnalyticsSDK.h", core_dir + "SensorsAnalyticsExtension.h", core_dir + "SensorsAnalyticsSDK+Public.h", core_dir + "SASecurityPolicy.h", core_dir + "SAConfigOptions.h", core_dir + "SAConstants.h", core_dir + "PropertyPlugin/SAPropertyPlugin.h"
-    base.ios.frameworks = 'CoreTelephony'
+    base.ios.frameworks = 'CoreTelephony', "SystemConfiguration"
+    base.osx.frameworks = "SystemConfiguration"
+    base.tvos.frameworks = "SystemConfiguration"
+    base.watchos.frameworks = "WatchKit"
     base.dependency 'SensorsAnalyticsSDK/__Store'
     base.resource_bundle = { 'SensorsAnalyticsSDK' => 'SensorsAnalyticsSDK/Resources/**/*'}
   end
@@ -47,6 +53,7 @@ Pod::Spec.new do |s|
     core.ios.dependency 'SensorsAnalyticsSDK/Visualized'
     core.osx.dependency 'SensorsAnalyticsSDK/Common'
     core.tvos.dependency 'SensorsAnalyticsSDK/Base'
+    core.watchos.dependency 'SensorsAnalyticsSDK/Base'
   end
 
   # 全埋点

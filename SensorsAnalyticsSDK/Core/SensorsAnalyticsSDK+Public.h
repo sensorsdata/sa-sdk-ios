@@ -5,18 +5,6 @@
 // Created by 张敏超🍎 on 2020/11/5.
 // Copyright © 2015-2022 Sensors Data Co., Ltd. All rights reserved.
 //
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-// http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
-//
 
 #import <Foundation/Foundation.h>
 #import "SAConstants.h"
@@ -123,7 +111,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
 * @param serverUrl 当前的 serverUrl
 * @param isRequestRemoteConfig 是否请求远程配置
 */
-- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos, tvos) NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.");
+- (void)setServerUrl:(NSString *)serverUrl isRequestRemoteConfig:(BOOL)isRequestRemoteConfig API_UNAVAILABLE(macos, tvos, watchos) NS_EXTENSION_UNAVAILABLE("RemoteConfig not supported for iOS extensions.");
 
 #pragma mark--cache and flush
 
@@ -457,7 +445,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  * @param url 打开的 URL
  * @return YES/NO
  */
-- (BOOL)canHandleURL:(NSURL *)url API_UNAVAILABLE(macos, tvos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
+- (BOOL)canHandleURL:(NSURL *)url API_UNAVAILABLE(macos, tvos, watchos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
 
 /**
  * @abstract
@@ -465,7 +453,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  *
  * @param url 打开本 app 的回调的 url
  */
-- (BOOL)handleSchemeUrl:(NSURL *)url API_UNAVAILABLE(macos, tvos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
+- (BOOL)handleSchemeUrl:(NSURL *)url API_UNAVAILABLE(macos, tvos, watchos) NS_EXTENSION_UNAVAILABLE("HandleURL not supported for iOS extensions.");
 
 #pragma mark - profile
 /**
@@ -684,7 +672,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  目前 DebugMode 为动态开启，详细请参考说明文档：https://www.sensorsdata.cn/manual/ios_sdk.html
  @param debugMode 调试模式
  */
-- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) API_UNAVAILABLE(macos, tvos) NS_EXTENSION_UNAVAILABLE("DebugMode not supported for iOS extensions.");
+- (void)setDebugMode:(SensorsAnalyticsDebugMode)debugMode __attribute__((deprecated("已过时，建议动态开启调试模式"))) NS_EXTENSION_UNAVAILABLE("DebugMode not supported for iOS extensions.");
 
 /**
  * @abstract
