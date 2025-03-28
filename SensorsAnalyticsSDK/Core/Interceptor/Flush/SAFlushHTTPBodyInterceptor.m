@@ -44,7 +44,11 @@
     if (!data) {
         return nil;
     }
-    data = [data stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet alphanumericCharacterSet]];
+
+    // data = [data stringByAddingPercentEncodingWithAllowedCharacters:[NSCharacterSet URLQueryAllowedCharacterSet]];
+    // FIXME: https://github.com/sensorsdata/sa-sdk-ios/issues/148、https://github.com/sensorsdata/sa-sdk-ios/issues/149
+    data = [self percentEncodingStringFromString:data];
+
     NSString *bodyString = [NSString stringWithFormat:@"crc=%d&gzip=%d&data_list=%@", hashCode, [gzip intValue], data];
     if (input.isInstantEvent) {
         bodyString = [bodyString stringByAppendingString:@"&instant_event=true"];
@@ -71,4 +75,33 @@
     return bodyDic;
 }
 
+// 参照 https://github.com/AFNetworking/AFNetworking/blob/master/AFNetworking/AFURLRequestSerialization.m
+- (NSString *) percentEncodingStringFromString:(NSString *)string {
+    static NSString * const kSACharactersGeneralDelimitersToEncode = @":#[]@"; // does not include "?" or "/" due to RFC 3986 - Section 3.4
+    static NSString * const kSACharactersSubDelimitersToEncode = @"!$&'()*+,;=";
+
+    NSMutableCharacterSet * allowedCharacterSet = [[NSCharacterSet URLQueryAllowedCharacterSet] mutableCopy];
+    [allowedCharacterSet removeCharactersInString:[kSACharactersGeneralDelimitersToEncode stringByAppendingString:kSACharactersSubDelimitersToEncode]];
+
+    static NSUInteger const batchSize = 50;
+
+    NSUInteger index = 0;
+    NSMutableString *escaped = @"".mutableCopy;
+
+    while (index < string.length) {
+        NSUInteger length = MIN(string.length - index, batchSize);
+        NSRange range = NSMakeRange(index, length);
+
+        // To avoid breaking up character sequences such as 👴🏻👮🏽
+        range = [string rangeOfComposedCharacterSequencesForRange:range];
+
+        NSString *substring = [string substringWithRange:range];
+        NSString *encoded = [substring stringByAddingPercentEncodingWithAllowedCharacters:allowedCharacterSet];
+        [escaped appendString:encoded];
+
+        index += range.length;
+    }
+
+    return escaped;
+}
 @end
