@@ -1,0 +1,25 @@
+# Uncomment the next line to define a global platform for your project
+ platform :ios, '9.0'
+
+target 'SensorsData' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for SensorsData
+#  , :subspecs => ['Exposure', 'Base', 'EnglishResources']
+
+  pod 'SensorsAnalyticsSDK', :path=>'../../SensorsAnalyticsSDK.podspec'
+  pod 'SensorsAnalytics_Location', :path=>'../../SensorsAnalytics_Location.podspec'
+  pod 'SensorsAnalytics_DeviceOrientation',:path=>'../../SensorsAnalytics_DeviceOrientation.podspec'
+
+end
+
+target 'SensorsDataSwift' do
+  # Comment the next line if you don't want to use dynamic frameworks
+  use_frameworks!
+
+  # Pods for SensorsDataSwift
+  
+  pod 'SensorsAnalyticsSDK', :path=>'../../SensorsAnalyticsSDK.podspec'
+
+end

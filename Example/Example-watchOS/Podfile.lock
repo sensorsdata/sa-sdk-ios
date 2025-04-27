@@ -1,0 +1,18 @@
+PODS:
+  - SensorsAnalyticsSDK (5.0.0):
+    - SensorsAnalyticsSDK/Core (= 5.0.0)
+  - SensorsAnalyticsSDK/Core (5.0.0)
+
+DEPENDENCIES:
+  - SensorsAnalyticsSDK (from `../../SensorsAnalyticsSDK.podspec`)
+
+EXTERNAL SOURCES:
+  SensorsAnalyticsSDK:
+    :path: "../../SensorsAnalyticsSDK.podspec"
+
+SPEC CHECKSUMS:
+  SensorsAnalyticsSDK: 67bc4018e2594e1b875133750c136002459d0c95
+
+PODFILE CHECKSUM: 57d6a37e538a5330f3dcdf26b455881f549becec
+
+COCOAPODS: 1.16.2

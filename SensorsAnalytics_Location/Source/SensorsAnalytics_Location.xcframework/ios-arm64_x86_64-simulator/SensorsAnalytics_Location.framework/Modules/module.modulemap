@@ -1,0 +1,6 @@
+framework module SensorsAnalytics_Location {
+  umbrella header "SensorsAnalytics_Location-umbrella.h"
+
+  export *
+  module * { export * }
+}
