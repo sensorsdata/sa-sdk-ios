@@ -16,6 +16,11 @@ Pod::Spec.new do |s|
   # 限制 CocoaPods 版本
   s.cocoapods_version = '>= 1.12.0'
 
+  s.ios.deployment_target = '9.0'
+  s.osx.deployment_target = '10.13'
+  s.tvos.deployment_target = '12.0'
+  s.watchos.deployment_target = "7.0"
+
   base_dir = 'SensorsAnalyticsSDK/'
 
   s.subspec 'Core' do |core|
@@ -23,11 +28,6 @@ Pod::Spec.new do |s|
     core.watchos.frameworks = 'WatchKit'
     core.osx.frameworks = 'SystemConfiguration', 'WebKit'
     core.tvos.frameworks = 'SystemConfiguration'
-
-    core.ios.deployment_target = '9.0'
-    core.osx.deployment_target = '10.13'
-    core.tvos.deployment_target = '12.0'
-    core.watchos.deployment_target = "7.0"
 
     core.ios.vendored_frameworks = base_dir + 'Source/Core/SensorsAnalyticsSDK.xcframework'
     core.tvos.vendored_frameworks = base_dir + 'Source/Base/SensorsAnalyticsSDK.xcframework'
@@ -46,13 +46,7 @@ Pod::Spec.new do |s|
     base.osx.frameworks = 'SystemConfiguration', 'WebKit'
     base.tvos.frameworks = 'SystemConfiguration', 'UIKit'
 
-    base.ios.deployment_target = '9.0'
-    base.osx.deployment_target = '10.13'
-    base.tvos.deployment_target = '12.0'
-    base.watchos.deployment_target = "7.0"
-
     base.vendored_frameworks = base_dir + 'Source/Base/SensorsAnalyticsSDK.xcframework'
-    
     base.resource_bundle = { 'SensorsAnalyticsSDK' => 'SensorsAnalyticsSDK/Resources/Base/**/*'}
   end
 
