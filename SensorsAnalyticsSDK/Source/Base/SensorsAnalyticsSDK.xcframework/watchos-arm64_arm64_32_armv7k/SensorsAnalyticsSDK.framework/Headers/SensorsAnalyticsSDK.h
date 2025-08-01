@@ -63,15 +63,6 @@
 #import "SAConfigOptions+Exception.h"
 #endif
 
-
-#if __has_include("SensorsAnalyticsSDK+WKWebView.h")
-#import "SensorsAnalyticsSDK+WKWebView.h"
-#endif
-
-#if __has_include("SensorsAnalyticsSDK+WebView.h")
-#import "SensorsAnalyticsSDK+WebView.h"
-#endif
-
 #if __has_include("SensorsAnalyticsSDK+SAAppExtension.h")
 #import "SensorsAnalyticsSDK+SAAppExtension.h"
 #endif
@@ -87,3 +78,4 @@
 
 #import "SAAESStorePlugin.h"
 #import "SAModuleProtocol.h"
+#import "SABaseStoreManager.h"

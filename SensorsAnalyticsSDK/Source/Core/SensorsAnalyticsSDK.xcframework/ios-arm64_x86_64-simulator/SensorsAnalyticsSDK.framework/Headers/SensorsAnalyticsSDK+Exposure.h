@@ -19,11 +19,18 @@ NS_ASSUME_NONNULL_BEGIN
 ///   - data: exposure data, such as event name, properties, etc.
 - (void)addExposureView:(UIView *)view withData:(SAExposureData *)data NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
 
+/// use this method to add exposure to UITableViewCell or UICollectionViewCell
+/// - Parameters:
+///   - view: view to expose
+///   - scrollView UITableView or UICollectionView
+///   - data: exposure data, such as event name, properties, etc.
+- (void)addExposureView:(UIView *)view inScrollView:(UIScrollView *)scrollView withData:(SAExposureData *)data NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
+
 /// remove exposure for certain view
 /// - Parameters:
 ///   - view: view that need to remove exposure
 ///   - identifier: exposure identifier to identify certain view, if no identifier specified when addExposureView
-- (void)removeExposureView:(UIView *)view withExposureIdentifier:(nullable NSString *)identifier NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
+- (void)removeExposureView:(nullable UIView *)view withExposureIdentifier:(nullable NSString *)identifier NS_EXTENSION_UNAVAILABLE("Exposure not supported for iOS extensions.");
 
 /// update properties for certain view that need to expose
 /// - Parameters:

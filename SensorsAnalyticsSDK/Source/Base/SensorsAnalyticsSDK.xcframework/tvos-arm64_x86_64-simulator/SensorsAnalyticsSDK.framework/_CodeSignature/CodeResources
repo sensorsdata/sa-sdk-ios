@@ -36,10 +36,6 @@
 		<data>
 		TS/s/dWhuVKBu6OFK+01qRqDMzE=
 		</data>
-		<key>Headers/SensorsAnalyticsExtension.h</key>
-		<data>
-		FYt0ZSnFMVDPx38UdbW9a/Hnb/U=
-		</data>
 		<key>Headers/SensorsAnalyticsSDK+JavaScriptBridge.h</key>
 		<data>
 		0fduhwGwGmKJQK4ABQQZEwiv1Mo=
@@ -54,7 +50,7 @@
 		</data>
 		<key>Headers/SensorsAnalyticsSDK.h</key>
 		<data>
-		+7RY+L0A9gn2A0YG802DLmpsw4I=
+		8A+XOoRuhI4ZJKt4hI/kd0yh/Aw=
 		</data>
 		<key>Info.plist</key>
 		<data>
@@ -123,13 +119,6 @@
 			GbybiJUuLHJCeIbQsuPXomW7OMk9UYF+IUs+d37L+0g=
 			</data>
 		</dict>
-		<key>Headers/SensorsAnalyticsExtension.h</key>
-		<dict>
-			<key>hash2</key>
-			<data>
-			kFxvcTMGCj+pE64bdn/Io98sRGRQR3/CUXqzit52OF8=
-			</data>
-		</dict>
 		<key>Headers/SensorsAnalyticsSDK+JavaScriptBridge.h</key>
 		<dict>
 			<key>hash2</key>
@@ -155,7 +144,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			fBZpZ5GYsBOfG3RbQlkS0m/l9BoOSthb1hjVYjBxlyk=
+			aJZVoYnOjBl0K0mO6TP3gRjnv5tIpF0OCr2Aegr6e/Q=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
