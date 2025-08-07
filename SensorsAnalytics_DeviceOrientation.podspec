@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "SensorsAnalytics_DeviceOrientation"
-  s.version      = "5.0.2"
+  s.version      = "5.0.3"
   s.summary      = "The official iOS SDK of Sensors Analytics DeviceOrientation."
   s.homepage     = "http://www.sensorsdata.cn"
   s.source       = { :git => 'https://github.com/sensorsdata/sa-sdk-ios.git', :tag => "v#{s.version}" }

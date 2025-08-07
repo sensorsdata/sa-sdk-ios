@@ -317,7 +317,7 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  *
  * @param callback 传入事件名称和事件属性，可以修改或删除事件属性。请返回一个 BOOL 值，true 表示事件将入库， false 表示事件将被抛弃
  */
-- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback;
+- (void)trackEventCallback:(BOOL (^)(NSString *eventName, NSMutableDictionary<NSString *, id> *properties))callback __attribute__((deprecated("已过时，请使用 SAConfigOptions 类的 trackEventCallback")));
 
 - (void)registerLimitKeys:(NSDictionary<SALimitKey, NSString *> *)keys;
 

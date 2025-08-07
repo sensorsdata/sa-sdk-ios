@@ -38,7 +38,7 @@
 		</data>
 		<key>Headers/SAConfigOptions.h</key>
 		<data>
-		R1UNuKPOFAxn+5PCrtuMOE7xSzE=
+		kWH6eDoBBl7wV5kbYmEQrHZYGCE=
 		</data>
 		<key>Headers/SAConstants.h</key>
 		<data>
@@ -102,7 +102,7 @@
 		</data>
 		<key>Headers/SensorsAnalyticsSDK+Public.h</key>
 		<data>
-		hTWh50U2pEBgnu4IDKqb4J/NWxM=
+		IfOrWScoOxugftfDT797ByEZOdo=
 		</data>
 		<key>Headers/SensorsAnalyticsSDK+SAAppExtension.h</key>
 		<data>
@@ -235,11 +235,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			R1UNuKPOFAxn+5PCrtuMOE7xSzE=
+			kWH6eDoBBl7wV5kbYmEQrHZYGCE=
 			</data>
 			<key>hash2</key>
 			<data>
-			L1q3lCKKvHxrcTHrF/u46tfkQBLlV4pMK6/e3UDiJR8=
+			2bNpwydjw98ZCEeqvsAeK2AcXVNaAYTlL+CfZf/3Mio=
 			</data>
 		</dict>
 		<key>Headers/SAConstants.h</key>
@@ -411,11 +411,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			hTWh50U2pEBgnu4IDKqb4J/NWxM=
+			IfOrWScoOxugftfDT797ByEZOdo=
 			</data>
 			<key>hash2</key>
 			<data>
-			WVW9rUYAwOyIwiyVSZCZjhXnkqpOg9p2F/YHHJref94=
+			mxRFENzHVDRUHqtLwKJmz/ttoStrcotWQ8M1JqrWapo=
 			</data>
 		</dict>
 		<key>Headers/SensorsAnalyticsSDK+SAAppExtension.h</key>

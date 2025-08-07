@@ -11,6 +11,8 @@
 #import "SAConstants.h"
 #import "SAPropertyPlugin.h"
 
+typedef BOOL(^SAEventCallback)(NSString * _Nonnull event, NSMutableDictionary<NSString *, id> * _Nonnull properties);
+
 @class SASecretKey;
 @class SASecurityPolicy;
 
@@ -139,6 +141,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @property (nonatomic, assign) SAResourcesLanguage resourcesLanguage;
 
+
+/// event callback, used to modify event properties before inserting to DB, and also return NO to drop the event.
+/// Please use this callback with caution, if used improperly, it may result in loss of event data
+@property (nonatomic, copy, nullable) SAEventCallback trackEventCallback;
 
 @end
 
