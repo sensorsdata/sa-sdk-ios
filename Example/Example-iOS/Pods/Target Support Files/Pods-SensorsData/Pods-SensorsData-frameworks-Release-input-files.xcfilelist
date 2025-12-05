@@ -1,0 +1,4 @@
+${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks.sh
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalyticsSDK/Core/SensorsAnalyticsSDK.framework/SensorsAnalyticsSDK
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalytics_DeviceOrientation/Core/SensorsAnalytics_DeviceOrientation.framework/SensorsAnalytics_DeviceOrientation
+${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalytics_Location/Core/SensorsAnalytics_Location.framework/SensorsAnalytics_Location

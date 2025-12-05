@@ -1,0 +1,6 @@
+framework module Pods_SensorsDataSwift {
+  umbrella header "Pods-SensorsDataSwift-umbrella.h"
+
+  export *
+  module * { export * }
+}

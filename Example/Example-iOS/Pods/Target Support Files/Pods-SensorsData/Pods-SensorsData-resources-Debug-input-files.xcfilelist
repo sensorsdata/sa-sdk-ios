@@ -1,0 +1,4 @@
+${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-resources.sh
+${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalyticsSDK/SensorsAnalyticsSDK.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalytics_DeviceOrientation/SensorsAnalytics_DeviceOrientation.bundle
+${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalytics_Location/SensorsAnalytics_Location.bundle

@@ -1,0 +1,12 @@
+CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = NO
+FRAMEWORK_SEARCH_PATHS = $(inherited) "${PODS_ROOT}/../../../SensorsAnalyticsSDK/Source/Core" "${PODS_ROOT}/../../../SensorsAnalytics_DeviceOrientation/Source" "${PODS_ROOT}/../../../SensorsAnalytics_Location/Source" "${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalyticsSDK/Core" "${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalytics_DeviceOrientation/Core" "${PODS_XCFRAMEWORKS_BUILD_DIR}/SensorsAnalytics_Location/Core"
+GCC_PREPROCESSOR_DEFINITIONS = $(inherited) COCOAPODS=1
+LD_RUNPATH_SEARCH_PATHS = $(inherited) '@executable_path/Frameworks' '@loader_path/Frameworks'
+OTHER_LDFLAGS = $(inherited) -l"icucore" -l"z" -framework "CoreLocation" -framework "CoreMotion" -framework "CoreTelephony" -framework "Foundation" -framework "SensorsAnalyticsSDK" -framework "SensorsAnalytics_DeviceOrientation" -framework "SensorsAnalytics_Location" -framework "SystemConfiguration" -framework "UIKit" -framework "WebKit"
+OTHER_MODULE_VERIFIER_FLAGS = $(inherited) "-F${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalyticsSDK" "-F${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalytics_DeviceOrientation" "-F${PODS_CONFIGURATION_BUILD_DIR}/SensorsAnalytics_Location"
+PODS_BUILD_DIR = ${BUILD_DIR}
+PODS_CONFIGURATION_BUILD_DIR = ${PODS_BUILD_DIR}/$(CONFIGURATION)$(EFFECTIVE_PLATFORM_NAME)
+PODS_PODFILE_DIR_PATH = ${SRCROOT}/.
+PODS_ROOT = ${SRCROOT}/Pods
+PODS_XCFRAMEWORKS_BUILD_DIR = $(PODS_CONFIGURATION_BUILD_DIR)/XCFrameworkIntermediates
+USE_RECURSIVE_SCRIPT_INPUTS_IN_SCRIPT_PHASES = YES
