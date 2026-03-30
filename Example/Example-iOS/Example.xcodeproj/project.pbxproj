@@ -10,8 +10,8 @@
 		4DC0584E232F7C16008D5C7E /* AdSupport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4DC0584D232F7C16008D5C7E /* AdSupport.framework */; };
 		4DCD115D22927F790091D129 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; };
 		4DCD115E22927F790091D129 /* SensorsAnalyticsSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C2622284229F0004061D /* SensorsAnalyticsSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		62CD370BBE3C0EB184F6EFEE /* Pods_SensorsDataSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EF6E88FB4D645ED2B8AB155B /* Pods_SensorsDataSwift.framework */; };
 		88EA2E85250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */; };
+		97D0853F0CA14C0E65AD735A /* Pods_SensorsDataSwift.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D8D01314082CECB34A9486FD /* Pods_SensorsDataSwift.framework */; };
 		CB30C204228414420004061D /* TestViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D8228414420004061D /* TestViewController.m */; };
 		CB30C205228414420004061D /* JSCallOCViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CB30C1D9228414420004061D /* JSCallOCViewController.m */; };
 		CB30C206228414420004061D /* test2.html in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1DC228414420004061D /* test2.html */; };
@@ -47,7 +47,7 @@
 		CB30C26B2284230F0004061D /* libz.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C25E2284227C0004061D /* libz.tbd */; };
 		CB6EBB4E22857075003CFBA8 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D2228414420004061D /* Main.storyboard */; };
 		CB6EBB4F2285707D003CFBA8 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = CB30C1D0228414420004061D /* LaunchScreen.storyboard */; };
-		E8B45BDDBAE419048AF78710 /* Pods_SensorsData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 039C06EE147EAD0985F6E181 /* Pods_SensorsData.framework */; };
+		CD69DA30D4ED512FD0B9D49D /* Pods_SensorsData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0CE9866D13D839510B863D0 /* Pods_SensorsData.framework */; };
 		FCA9E9AF2502399600837A31 /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CB30C24C228422090004061D /* CoreGraphics.framework */; };
 /* End PBXBuildFile section */
 
@@ -86,12 +86,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		039C06EE147EAD0985F6E181 /* Pods_SensorsData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SensorsData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		1751D4FFC2B64919B99A8292 /* Pods-SensorsData.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsData.release.xcconfig"; path = "Target Support Files/Pods-SensorsData/Pods-SensorsData.release.xcconfig"; sourceTree = "<group>"; };
 		4DC0584D232F7C16008D5C7E /* AdSupport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AdSupport.framework; path = System/Library/Frameworks/AdSupport.framework; sourceTree = SDKROOT; };
 		88EA2E84250F613C00B0FFB8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		9BBBDE20B7FCCAA1EE7410A5 /* Pods-SensorsData.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsData.release.xcconfig"; path = "Target Support Files/Pods-SensorsData/Pods-SensorsData.release.xcconfig"; sourceTree = "<group>"; };
-		B2955FA8618DA0CD3F4E91EC /* Pods-SensorsDataSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsDataSwift.debug.xcconfig"; path = "Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift.debug.xcconfig"; sourceTree = "<group>"; };
-		BF027BA00B9F7CDD8AE636CA /* Pods-SensorsData.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsData.debug.xcconfig"; path = "Target Support Files/Pods-SensorsData/Pods-SensorsData.debug.xcconfig"; sourceTree = "<group>"; };
+		8E172465930ACEB84D8C9FB5 /* Pods-SensorsData.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsData.debug.xcconfig"; path = "Target Support Files/Pods-SensorsData/Pods-SensorsData.debug.xcconfig"; sourceTree = "<group>"; };
+		98C31C460DABE6A96CA1D6B7 /* Pods-SensorsDataSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsDataSwift.release.xcconfig"; path = "Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift.release.xcconfig"; sourceTree = "<group>"; };
+		9CA124F7EC44A49C5212FC8F /* Pods-SensorsDataSwift.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsDataSwift.debug.xcconfig"; path = "Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift.debug.xcconfig"; sourceTree = "<group>"; };
 		CB30C15C228413B20004061D /* SensorsData.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsData.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C18C2284140E0004061D /* SensorsDataSwift.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SensorsDataSwift.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CB30C1CE228414420004061D /* ViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -148,8 +148,8 @@
 		CB6EBB5622857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB6EBB5722857145003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SensorsAnalyticsSDK.framework; path = "../../../../Library/Developer/Xcode/DerivedData/SensorsAnalyticsSDK-fmwsimfdiqmlilcpdnjdwbygrppo/Build/Products/Debug-iphoneos/SensorsAnalyticsSDK.framework"; sourceTree = "<group>"; };
 		CB6EBB5822857161003CFBA8 /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
-		CBC3B90A2A2A61C1BE016D54 /* Pods-SensorsDataSwift.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SensorsDataSwift.release.xcconfig"; path = "Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift.release.xcconfig"; sourceTree = "<group>"; };
-		EF6E88FB4D645ED2B8AB155B /* Pods_SensorsDataSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SensorsDataSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D0CE9866D13D839510B863D0 /* Pods_SensorsData.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SensorsData.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8D01314082CECB34A9486FD /* Pods_SensorsDataSwift.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_SensorsDataSwift.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F21F106928337E23003B3C6E /* SensorsAnalyticsSDK.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = SensorsAnalyticsSDK.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -174,7 +174,7 @@
 				CB30C24B228421F60004061D /* QuartzCore.framework in Frameworks */,
 				CB30C249228421E80004061D /* Foundation.framework in Frameworks */,
 				CB30C2222284165A0004061D /* WebKit.framework in Frameworks */,
-				E8B45BDDBAE419048AF78710 /* Pods_SensorsData.framework in Frameworks */,
+				CD69DA30D4ED512FD0B9D49D /* Pods_SensorsData.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -186,7 +186,7 @@
 				CB30C26B2284230F0004061D /* libz.tbd in Frameworks */,
 				CB30C26A228423080004061D /* WebKit.framework in Frameworks */,
 				CB30C269228422B40004061D /* SafariServices.framework in Frameworks */,
-				62CD370BBE3C0EB184F6EFEE /* Pods_SensorsDataSwift.framework in Frameworks */,
+				97D0853F0CA14C0E65AD735A /* Pods_SensorsDataSwift.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -196,10 +196,10 @@
 		103C217EF9B5090DCB074A6D /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				BF027BA00B9F7CDD8AE636CA /* Pods-SensorsData.debug.xcconfig */,
-				9BBBDE20B7FCCAA1EE7410A5 /* Pods-SensorsData.release.xcconfig */,
-				B2955FA8618DA0CD3F4E91EC /* Pods-SensorsDataSwift.debug.xcconfig */,
-				CBC3B90A2A2A61C1BE016D54 /* Pods-SensorsDataSwift.release.xcconfig */,
+				8E172465930ACEB84D8C9FB5 /* Pods-SensorsData.debug.xcconfig */,
+				1751D4FFC2B64919B99A8292 /* Pods-SensorsData.release.xcconfig */,
+				9CA124F7EC44A49C5212FC8F /* Pods-SensorsDataSwift.debug.xcconfig */,
+				98C31C460DABE6A96CA1D6B7 /* Pods-SensorsDataSwift.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -306,8 +306,8 @@
 				CB30C248228421E80004061D /* Foundation.framework */,
 				CB30C223228416640004061D /* SensorsAnalyticsSDK.framework */,
 				CB30C2212284165A0004061D /* WebKit.framework */,
-				039C06EE147EAD0985F6E181 /* Pods_SensorsData.framework */,
-				EF6E88FB4D645ED2B8AB155B /* Pods_SensorsDataSwift.framework */,
+				D0CE9866D13D839510B863D0 /* Pods_SensorsData.framework */,
+				D8D01314082CECB34A9486FD /* Pods_SensorsDataSwift.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -319,14 +319,14 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CB30C16F228413B30004061D /* Build configuration list for PBXNativeTarget "SensorsData" */;
 			buildPhases = (
-				8D0DBD828D53F224D95B4EC7 /* [CP] Check Pods Manifest.lock */,
+				64D8619F50125A86317861F3 /* [CP] Check Pods Manifest.lock */,
 				CB30C158228413B20004061D /* Sources */,
 				CB30C159228413B20004061D /* Frameworks */,
 				CB30C15A228413B20004061D /* Resources */,
 				CB30C21F228415E40004061D /* Embed Frameworks */,
 				CB30C2372284173B0004061D /* Embed App Extensions */,
-				621D71FB38DC112C47774F3B /* [CP] Embed Pods Frameworks */,
-				D2329705F14BB0510D40BB8B /* [CP] Copy Pods Resources */,
+				9C35426B4D956C0CFED1802E /* [CP] Embed Pods Frameworks */,
+				81199DE4FCE09B023DB61CD1 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -341,13 +341,13 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = CB30C19B2284140F0004061D /* Build configuration list for PBXNativeTarget "SensorsDataSwift" */;
 			buildPhases = (
-				98D5CAEF0FFD25A744B4132C /* [CP] Check Pods Manifest.lock */,
+				6B8E90DF1CD5A6F8ADF35B2A /* [CP] Check Pods Manifest.lock */,
 				CB30C1882284140E0004061D /* Sources */,
 				CB30C1892284140E0004061D /* Frameworks */,
 				CB30C18A2284140E0004061D /* Resources */,
 				CB30C267228422A70004061D /* Embed Frameworks */,
-				8AA354E28C152B3DBF7EDD40 /* [CP] Embed Pods Frameworks */,
-				51C4315AA6A9733E4ADD8DE1 /* [CP] Copy Pods Resources */,
+				DD99097D4DE92B2EE80885C8 /* [CP] Embed Pods Frameworks */,
+				0AD76C8C8127239E30C6E200 /* [CP] Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -427,7 +427,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		51C4315AA6A9733E4ADD8DE1 /* [CP] Copy Pods Resources */ = {
+		0AD76C8C8127239E30C6E200 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -444,41 +444,7 @@
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
-		621D71FB38DC112C47774F3B /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8AA354E28C152B3DBF7EDD40 /* [CP] Embed Pods Frameworks */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks-${CONFIGURATION}-input-files.xcfilelist",
-			);
-			name = "[CP] Embed Pods Frameworks";
-			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks.sh\"\n";
-			showEnvVarsInLog = 0;
-		};
-		8D0DBD828D53F224D95B4EC7 /* [CP] Check Pods Manifest.lock */ = {
+		64D8619F50125A86317861F3 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -500,7 +466,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		98D5CAEF0FFD25A744B4132C /* [CP] Check Pods Manifest.lock */ = {
+		6B8E90DF1CD5A6F8ADF35B2A /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -522,7 +488,7 @@
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
 		};
-		D2329705F14BB0510D40BB8B /* [CP] Copy Pods Resources */ = {
+		81199DE4FCE09B023DB61CD1 /* [CP] Copy Pods Resources */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -537,6 +503,40 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		9C35426B4D956C0CFED1802E /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsData/Pods-SensorsData-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		DD99097D4DE92B2EE80885C8 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-SensorsDataSwift/Pods-SensorsDataSwift-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -719,7 +719,7 @@
 		};
 		CB30C170228413B30004061D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = BF027BA00B9F7CDD8AE636CA /* Pods-SensorsData.debug.xcconfig */;
+			baseConfigurationReference = 8E172465930ACEB84D8C9FB5 /* Pods-SensorsData.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -742,7 +742,7 @@
 		};
 		CB30C171228413B30004061D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 9BBBDE20B7FCCAA1EE7410A5 /* Pods-SensorsData.release.xcconfig */;
+			baseConfigurationReference = 1751D4FFC2B64919B99A8292 /* Pods-SensorsData.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;
@@ -765,7 +765,7 @@
 		};
 		CB30C19C2284140F0004061D /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = B2955FA8618DA0CD3F4E91EC /* Pods-SensorsDataSwift.debug.xcconfig */;
+			baseConfigurationReference = 9CA124F7EC44A49C5212FC8F /* Pods-SensorsDataSwift.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";
@@ -788,7 +788,7 @@
 		};
 		CB30C19D2284140F0004061D /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = CBC3B90A2A2A61C1BE016D54 /* Pods-SensorsDataSwift.release.xcconfig */;
+			baseConfigurationReference = 98C31C460DABE6A96CA1D6B7 /* Pods-SensorsDataSwift.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = "LaunchImage-2";

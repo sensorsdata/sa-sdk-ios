@@ -1,3 +1,0 @@
-${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SensorsAnalyticsSDK.framework
-${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SensorsAnalytics_DeviceOrientation.framework
-${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SensorsAnalytics_Location.framework

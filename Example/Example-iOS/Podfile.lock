@@ -1,17 +1,17 @@
 PODS:
-  - SensorsAnalytics_DeviceOrientation (5.0.0):
-    - SensorsAnalytics_DeviceOrientation/Core (= 5.0.0)
+  - SensorsAnalytics_DeviceOrientation (5.0.9):
+    - SensorsAnalytics_DeviceOrientation/Core (= 5.0.9)
     - SensorsAnalyticsSDK (>= 5.0.0)
-  - SensorsAnalytics_DeviceOrientation/Core (5.0.0):
+  - SensorsAnalytics_DeviceOrientation/Core (5.0.9):
     - SensorsAnalyticsSDK (>= 5.0.0)
-  - SensorsAnalytics_Location (5.0.0):
-    - SensorsAnalytics_Location/Core (= 5.0.0)
+  - SensorsAnalytics_Location (5.0.9):
+    - SensorsAnalytics_Location/Core (= 5.0.9)
     - SensorsAnalyticsSDK (>= 5.0.0)
-  - SensorsAnalytics_Location/Core (5.0.0):
+  - SensorsAnalytics_Location/Core (5.0.9):
     - SensorsAnalyticsSDK (>= 5.0.0)
-  - SensorsAnalyticsSDK (5.0.0):
-    - SensorsAnalyticsSDK/Core (= 5.0.0)
-  - SensorsAnalyticsSDK/Core (5.0.0)
+  - SensorsAnalyticsSDK (5.0.9):
+    - SensorsAnalyticsSDK/Core (= 5.0.9)
+  - SensorsAnalyticsSDK/Core (5.0.9)
 
 DEPENDENCIES:
   - SensorsAnalytics_DeviceOrientation (from `../../SensorsAnalytics_DeviceOrientation.podspec`)
@@ -27,10 +27,10 @@ EXTERNAL SOURCES:
     :path: "../../SensorsAnalyticsSDK.podspec"
 
 SPEC CHECKSUMS:
-  SensorsAnalytics_DeviceOrientation: 7405364334bb0951d060c2838b935a97bc8a8392
-  SensorsAnalytics_Location: c87aeffe070822cc829a1d6ee852b999046c0783
-  SensorsAnalyticsSDK: 67bc4018e2594e1b875133750c136002459d0c95
+  SensorsAnalytics_DeviceOrientation: 507284e730caa1e8feef60eb7e53c967b2780737
+  SensorsAnalytics_Location: b8b4ab2d9f3342ac0c0ed60c8bbbb797966f1702
+  SensorsAnalyticsSDK: 1d507720d598ca47636bd478c2009b3cb6b6857e
 
-PODFILE CHECKSUM: 66b70a9f97e5ac6f96c4685504f364daac209931
+PODFILE CHECKSUM: 95780beccdd941c7473788d8d0187de3d6e634b6
 
 COCOAPODS: 1.16.2
