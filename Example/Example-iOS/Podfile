@@ -4,14 +4,15 @@
 # 默认保持 :release，继续使用 github/ 下发布 podspec 和 xcframework。
 # 仅在调试 Example-iOS 本地 SDK 源码时，临时切到 :source，然后重新执行 pod install。
 # 调试完成后请切回 :release，再执行 pod install。
+
 sa_sdk_dependency_mode = :release
-#  sa_sdk_dependency_mode = :sourcgite
+#  sa_sdk_dependency_mode = :source
 
 def sa_pod_path(mode, xcframework_path, source_path)
   mode == :source ? source_path : xcframework_path
 end
 
-sdk_podspec = sa_pod_path(sa_sdk_dependency_mode, '../../SensorsAnalyticsSDK.podspec', '../../../SensorsAnalyticsSDK_Source.podspec')
+sdk_podspec = sa_pod_path(sa_sdk_dependency_mode, '../../SensorsAnalyticsSDK.podspec', '../../../SensorsAnalyticsSDK.podspec')
 location_podspec = sa_pod_path(sa_sdk_dependency_mode, '../../SensorsAnalytics_Location.podspec', '../../../SensorsAnalytics_Location/SensorsAnalytics_Location.podspec')
 device_orientation_podspec = sa_pod_path(sa_sdk_dependency_mode, '../../SensorsAnalytics_DeviceOrientation.podspec', '../../../SensorsAnalytics_DeviceOrientation/SensorsAnalytics_DeviceOrientation.podspec')
 
