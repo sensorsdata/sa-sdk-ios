@@ -606,6 +606,9 @@ extern NSString * const SensorsAnalyticsIdentityKeyEmail;
  */
 - (void)clearKeychainData API_UNAVAILABLE(macos) NS_EXTENSION_UNAVAILABLE("KeychainData not supported for iOS extensions.");
 
+/// 设置单次发送事件的最大条数
+- (void)setBatchSize:(NSInteger)batchSize;
+
 @end
 
 #pragma mark - Deprecated
